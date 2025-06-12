@@ -1,0 +1,53 @@
+import { pgTable, text, serial, integer } from "drizzle-orm/pg-core";
+import { createInsertSchema } from "drizzle-zod";
+import { z } from "zod";
+
+export const members = pgTable("members", {
+  id: serial("id").primaryKey(),
+  fullName: text("full_name").notNull(),
+  phone: text("phone").notNull(),
+  email: text("email").notNull(),
+  birthCity: text("birth_city").notNull(),
+  birthState: text("birth_state").notNull(),
+  birthCountry: text("birth_country").notNull(),
+  currentCity: text("current_city").notNull(),
+  currentState: text("current_state").notNull(),
+  currentCountry: text("current_country").notNull(),
+  fatherName: text("father_name").notNull(),
+  motherName: text("mother_name").notNull(),
+});
+
+export const relationships = pgTable("relationships", {
+  id: serial("id").primaryKey(),
+  memberId: integer("member_id").notNull().references(() => members.id),
+  relatedMemberId: integer("related_member_id").notNull().references(() => members.id),
+  relationshipType: text("relationship_type").notNull(),
+});
+
+export const insertMemberSchema = createInsertSchema(members).omit({
+  id: true,
+});
+
+export const insertRelationshipSchema = createInsertSchema(relationships).omit({
+  id: true,
+});
+
+export type InsertMember = z.infer<typeof insertMemberSchema>;
+export type Member = typeof members.$inferSelect;
+export type InsertRelationship = z.infer<typeof insertRelationshipSchema>;
+export type Relationship = typeof relationships.$inferSelect;
+
+// Keep existing users table for compatibility
+export const users = pgTable("users", {
+  id: serial("id").primaryKey(),
+  username: text("username").notNull().unique(),
+  password: text("password").notNull(),
+});
+
+export const insertUserSchema = createInsertSchema(users).pick({
+  username: true,
+  password: true,
+});
+
+export type InsertUser = z.infer<typeof insertUserSchema>;
+export type User = typeof users.$inferSelect;

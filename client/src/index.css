@@ -1,0 +1,119 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: hsl(48, 100%, 97%);
+  --foreground: hsl(25, 47%, 15%);
+  --muted: hsl(48, 100%, 95%);
+  --muted-foreground: hsl(25, 20%, 45%);
+  --popover: hsl(0, 0%, 100%);
+  --popover-foreground: hsl(25, 47%, 15%);
+  --card: hsl(0, 0%, 100%);
+  --card-foreground: hsl(25, 47%, 15%);
+  --border: hsl(48, 100%, 90%);
+  --input: hsl(48, 100%, 90%);
+  --primary: hsl(33, 100%, 60%);
+  --primary-foreground: hsl(0, 0%, 100%);
+  --secondary: hsl(48, 100%, 95%);
+  --secondary-foreground: hsl(25, 47%, 15%);
+  --accent: hsl(33, 100%, 85%);
+  --accent-foreground: hsl(25, 47%, 15%);
+  --destructive: hsl(0, 84%, 60%);
+  --destructive-foreground: hsl(0, 0%, 98%);
+  --ring: hsl(33, 100%, 60%);
+  --radius: 0.5rem;
+  --saffron-50: hsl(48, 100%, 97%);
+  --saffron-100: hsl(48, 100%, 88%);
+  --saffron-200: hsl(47, 100%, 82%);
+  --saffron-300: hsl(45, 100%, 72%);
+  --saffron-400: hsl(43, 100%, 68%);
+  --saffron-500: hsl(33, 100%, 60%);
+  --saffron-600: hsl(37, 100%, 50%);
+  --saffron-700: hsl(33, 100%, 44%);
+  --saffron-800: hsl(28, 100%, 38%);
+  --saffron-900: hsl(24, 100%, 28%);
+  --temple-gold: hsl(51, 100%, 50%);
+  --temple-red: hsl(0, 100%, 27%);
+  --temple-crimson: hsl(348, 83%, 47%);
+  --temple-cream: hsl(50, 100%, 93%);
+  --temple-brown: hsl(25, 47%, 15%);
+}
+
+.dark {
+  --background: hsl(25, 47%, 8%);
+  --foreground: hsl(48, 100%, 97%);
+  --muted: hsl(25, 47%, 12%);
+  --muted-foreground: hsl(25, 20%, 65%);
+  --popover: hsl(25, 47%, 8%);
+  --popover-foreground: hsl(48, 100%, 97%);
+  --card: hsl(25, 47%, 8%);
+  --card-foreground: hsl(48, 100%, 97%);
+  --border: hsl(25, 47%, 15%);
+  --input: hsl(25, 47%, 15%);
+  --primary: hsl(33, 100%, 60%);
+  --primary-foreground: hsl(0, 0%, 100%);
+  --secondary: hsl(25, 47%, 15%);
+  --secondary-foreground: hsl(48, 100%, 97%);
+  --accent: hsl(25, 47%, 15%);
+  --accent-foreground: hsl(48, 100%, 97%);
+  --destructive: hsl(0, 62%, 30%);
+  --destructive-foreground: hsl(0, 0%, 98%);
+  --ring: hsl(33, 100%, 60%);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+    font-family: 'Inter', sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Playfair Display', serif;
+  }
+}
+
+@layer utilities {
+  .text-saffron-50 { color: hsl(var(--saffron-50)); }
+  .text-saffron-100 { color: hsl(var(--saffron-100)); }
+  .text-saffron-200 { color: hsl(var(--saffron-200)); }
+  .text-saffron-300 { color: hsl(var(--saffron-300)); }
+  .text-saffron-400 { color: hsl(var(--saffron-400)); }
+  .text-saffron-500 { color: hsl(var(--saffron-500)); }
+  .text-saffron-600 { color: hsl(var(--saffron-600)); }
+  .text-saffron-700 { color: hsl(var(--saffron-700)); }
+  .text-saffron-800 { color: hsl(var(--saffron-800)); }
+  .text-saffron-900 { color: hsl(var(--saffron-900)); }
+  
+  .bg-saffron-50 { background-color: hsl(var(--saffron-50)); }
+  .bg-saffron-100 { background-color: hsl(var(--saffron-100)); }
+  .bg-saffron-200 { background-color: hsl(var(--saffron-200)); }
+  .bg-saffron-300 { background-color: hsl(var(--saffron-300)); }
+  .bg-saffron-400 { background-color: hsl(var(--saffron-400)); }
+  .bg-saffron-500 { background-color: hsl(var(--saffron-500)); }
+  .bg-saffron-600 { background-color: hsl(var(--saffron-600)); }
+  .bg-saffron-700 { background-color: hsl(var(--saffron-700)); }
+  .bg-saffron-800 { background-color: hsl(var(--saffron-800)); }
+  .bg-saffron-900 { background-color: hsl(var(--saffron-900)); }
+
+  .text-temple-gold { color: hsl(var(--temple-gold)); }
+  .text-temple-red { color: hsl(var(--temple-red)); }
+  .text-temple-crimson { color: hsl(var(--temple-crimson)); }
+  .text-temple-cream { color: hsl(var(--temple-cream)); }
+  .text-temple-brown { color: hsl(var(--temple-brown)); }
+  
+  .bg-temple-gold { background-color: hsl(var(--temple-gold)); }
+  .bg-temple-red { background-color: hsl(var(--temple-red)); }
+  .bg-temple-crimson { background-color: hsl(var(--temple-crimson)); }
+  .bg-temple-cream { background-color: hsl(var(--temple-cream)); }
+  .bg-temple-brown { background-color: hsl(var(--temple-brown)); }
+
+  .border-temple-gold { border-color: hsl(var(--temple-gold)); }
+  .border-saffron-500 { border-color: hsl(var(--saffron-500)); }
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;600;700&display=swap');
