@@ -24,12 +24,12 @@ export default function Members() {
   const [currentPage, setCurrentPage] = useState(1);
   const membersPerPage = 9;
 
-  const { data: allMembers = [], isLoading } = useQuery<Member[]>({
+  const { data: allMembers = [], isLoading } = useQuery({
     queryKey: ["/api/members"],
   });
 
   // Filter members based on search criteria
-  const filteredMembers = allMembers.filter((member: Member) => {
+  const filteredMembers = (allMembers as Member[]).filter((member: Member) => {
     const matchesSearch = !searchTerm || 
       member.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       member.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -47,7 +47,7 @@ export default function Members() {
   const paginatedMembers = filteredMembers.slice(startIndex, startIndex + membersPerPage);
 
   // Get unique cities for filter
-  const uniqueCities = Array.from(new Set(allMembers.map((member: Member) => member.currentCity)));
+  const uniqueCities = Array.from(new Set((allMembers as Member[]).map((member: Member) => member.currentCity)));
 
   const handleSearch = () => {
     setCurrentPage(1); // Reset to first page when searching

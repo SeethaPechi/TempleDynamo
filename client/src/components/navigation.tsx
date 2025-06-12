@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { Home, UserPlus, Users, Menu, X } from "lucide-react";
+import { Home, UserPlus, Users, Menu, X, MessageSquare } from "lucide-react";
 import { useState } from "react";
 
 export function Navigation() {
@@ -12,6 +12,7 @@ export function Navigation() {
     { path: "/", label: "Home", icon: Home },
     { path: "/registry", label: "Registry", icon: UserPlus },
     { path: "/members", label: "Members", icon: Users },
+    { path: "/whatsapp", label: "WhatsApp", icon: MessageSquare },
   ];
 
   return (

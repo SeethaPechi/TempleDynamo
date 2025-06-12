@@ -7,6 +7,7 @@ import { Navigation } from "@/components/navigation";
 import Home from "@/pages/home";
 import Registry from "@/pages/registry";
 import Members from "@/pages/members";
+import WhatsApp from "@/pages/whatsapp";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -15,6 +16,7 @@ function Router() {
       <Route path="/" component={Home} />
       <Route path="/registry" component={Registry} />
       <Route path="/members" component={Members} />
+      <Route path="/whatsapp" component={WhatsApp} />
       <Route component={NotFound} />
     </Switch>
   );
