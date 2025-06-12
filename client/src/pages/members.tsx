@@ -117,7 +117,7 @@ export default function Members() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all-cities">All Cities</SelectItem>
-                  {uniqueCities.map((city) => (
+                  {uniqueCities.map((city: string) => (
                     <SelectItem key={city} value={city.toLowerCase()}>
                       {city}
                     </SelectItem>
@@ -151,7 +151,7 @@ export default function Members() {
             </div>
           </div>
           <div className="mt-4 text-sm text-gray-600">
-            Showing {filteredMembers.length} of {allMembers.length} members
+            Showing {filteredMembers.length} of {(allMembers as Member[]).length} members
           </div>
         </Card>
 

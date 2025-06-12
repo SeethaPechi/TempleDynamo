@@ -26,11 +26,11 @@ export default function WhatsApp() {
   const [generatedUrls, setGeneratedUrls] = useState<Array<{ phoneNumber: string; url: string }>>([]);
   const { toast } = useToast();
 
-  const { data: members = [] } = useQuery<Member[]>({
+  const { data: members = [] } = useQuery({
     queryKey: ["/api/members"],
   });
 
-  const { data: templates = [] } = useQuery<WhatsAppTemplate[]>({
+  const { data: templates = [] } = useQuery({
     queryKey: ["/api/whatsapp/templates"],
   });
 
@@ -74,7 +74,7 @@ export default function WhatsApp() {
 
   const handleTemplateChange = (templateId: string) => {
     setSelectedTemplate(templateId);
-    const template = templates.find(t => t.id === templateId);
+    const template = (templates as WhatsAppTemplate[]).find(t => t.id === templateId);
     if (template) {
       // Extract variables from template
       const variableMatches = template.template.match(/\{([^}]+)\}/g);
@@ -105,7 +105,7 @@ export default function WhatsApp() {
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
-      setSelectedMembers(members.map(m => m.id));
+      setSelectedMembers((members as Member[]).map((m: Member) => m.id));
     } else {
       setSelectedMembers([]);
     }
@@ -121,8 +121,8 @@ export default function WhatsApp() {
       return;
     }
 
-    const selectedMemberData = members.filter(m => selectedMembers.includes(m.id));
-    const phoneNumbers = selectedMemberData.map(m => m.phone);
+    const selectedMemberData = (members as Member[]).filter((m: Member) => selectedMembers.includes(m.id));
+    const phoneNumbers = selectedMemberData.map((m: Member) => m.phone);
     generateUrlsMutation.mutate({ phoneNumbers, message });
   };
 
@@ -164,7 +164,7 @@ export default function WhatsApp() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="custom">Custom Message</SelectItem>
-                      {templates.map((template) => (
+                      {(templates as WhatsAppTemplate[]).map((template: WhatsAppTemplate) => (
                         <SelectItem key={template.id} value={template.id}>
                           {template.name}
                         </SelectItem>
@@ -233,7 +233,7 @@ export default function WhatsApp() {
                     Select Recipients
                   </span>
                   <span className="text-sm font-normal text-gray-600">
-                    {selectedMembers.length} of {members.length} selected
+                    {selectedMembers.length} of {(members as Member[]).length} selected
                   </span>
                 </CardTitle>
               </CardHeader>
@@ -242,7 +242,7 @@ export default function WhatsApp() {
                   <div className="flex items-center space-x-2">
                     <Checkbox
                       id="select-all"
-                      checked={selectedMembers.length === members.length}
+                      checked={selectedMembers.length === (members as Member[]).length}
                       onCheckedChange={handleSelectAll}
                     />
                     <Label htmlFor="select-all" className="font-medium">
@@ -251,7 +251,7 @@ export default function WhatsApp() {
                   </div>
 
                   <div className="max-h-64 overflow-y-auto space-y-2 border rounded-md p-2">
-                    {members.map((member) => (
+                    {(members as Member[]).map((member: Member) => (
                       <div key={member.id} className="flex items-center space-x-2 p-2 hover:bg-gray-50 rounded">
                         <Checkbox
                           id={`member-${member.id}`}
@@ -312,7 +312,7 @@ export default function WhatsApp() {
             <CardContent>
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {generatedUrls.map((item, index) => {
-                  const member = members.find(m => m.phone === item.phoneNumber);
+                  const member = (members as Member[]).find((m: Member) => m.phone === item.phoneNumber);
                   return (
                     <Card key={index} className="border border-green-200">
                       <CardContent className="p-4">
