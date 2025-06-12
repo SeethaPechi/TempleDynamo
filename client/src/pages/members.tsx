@@ -24,7 +24,7 @@ export default function Members() {
   const [currentPage, setCurrentPage] = useState(1);
   const membersPerPage = 9;
 
-  const { data: allMembers = [], isLoading } = useQuery({
+  const { data: allMembers = [], isLoading } = useQuery<Member[]>({
     queryKey: ["/api/members"],
   });
 
@@ -35,8 +35,8 @@ export default function Members() {
       member.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
       member.phone.includes(searchTerm);
     
-    const matchesCity = !selectedCity || member.currentCity.toLowerCase().includes(selectedCity.toLowerCase());
-    const matchesState = !selectedState || member.currentState === selectedState;
+    const matchesCity = !selectedCity || selectedCity === "all-cities" || member.currentCity.toLowerCase().includes(selectedCity.toLowerCase());
+    const matchesState = !selectedState || selectedState === "all-states" || member.currentState === selectedState;
     
     return matchesSearch && matchesCity && matchesState;
   });
@@ -116,7 +116,7 @@ export default function Members() {
                   <SelectValue placeholder="All Cities" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Cities</SelectItem>
+                  <SelectItem value="all-cities">All Cities</SelectItem>
                   {uniqueCities.map((city) => (
                     <SelectItem key={city} value={city.toLowerCase()}>
                       {city}
@@ -131,7 +131,7 @@ export default function Members() {
                   <SelectValue placeholder="All States" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All States</SelectItem>
+                  <SelectItem value="all-states">All States</SelectItem>
                   {states.map((state) => (
                     <SelectItem key={state.value} value={state.value}>
                       {state.label}
