@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertMemberSchema, insertRelationshipSchema } from "@shared/schema";
+import { insertMemberSchema, insertRelationshipSchema, insertTempleSchema } from "@shared/schema";
 import { whatsappService } from "./whatsapp";
 import { z } from "zod";
 

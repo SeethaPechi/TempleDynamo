@@ -1,4 +1,4 @@
-import { users, members, relationships, type User, type InsertUser, type Member, type InsertMember, type Relationship, type InsertRelationship } from "@shared/schema";
+import { users, members, relationships, temples, type User, type InsertUser, type Member, type InsertMember, type Relationship, type InsertRelationship, type Temple, type InsertTemple } from "@shared/schema";
 
 export interface IStorage {
   // User methods (existing)
@@ -23,17 +23,21 @@ export class MemStorage implements IStorage {
   private users: Map<number, User>;
   private members: Map<number, Member>;
   private relationships: Map<number, Relationship>;
+  private temples: Map<number, Temple>;
   private currentUserId: number;
   private currentMemberId: number;
   private currentRelationshipId: number;
+  private currentTempleId: number;
 
   constructor() {
     this.users = new Map();
     this.members = new Map();
     this.relationships = new Map();
+    this.temples = new Map();
     this.currentUserId = 1;
     this.currentMemberId = 1;
     this.currentRelationshipId = 1;
+    this.currentTempleId = 1;
   }
 
   // User methods
@@ -115,6 +119,42 @@ export class MemStorage implements IStorage {
 
   async deleteRelationship(id: number): Promise<void> {
     this.relationships.delete(id);
+  }
+
+  // Temple methods
+  async getTemple(id: number): Promise<Temple | undefined> {
+    return this.temples.get(id);
+  }
+
+  async createTemple(insertTemple: InsertTemple): Promise<Temple> {
+    const id = this.currentTempleId++;
+    const temple: Temple = { 
+      ...insertTemple, 
+      id,
+      createdAt: new Date()
+    };
+    this.temples.set(id, temple);
+    return temple;
+  }
+
+  async getAllTemples(): Promise<Temple[]> {
+    return Array.from(this.temples.values());
+  }
+
+  async searchTemples(searchTerm: string, state?: string, country?: string): Promise<Temple[]> {
+    const temples = Array.from(this.temples.values());
+    return temples.filter(temple => {
+      const matchesSearch = !searchTerm || 
+        temple.templeName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        temple.village.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        temple.nearestCity.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (temple.deity && temple.deity.toLowerCase().includes(searchTerm.toLowerCase()));
+      
+      const matchesState = !state || temple.state.toLowerCase() === state.toLowerCase();
+      const matchesCountry = !country || temple.country.toLowerCase() === country.toLowerCase();
+      
+      return matchesSearch && matchesState && matchesCountry;
+    });
   }
 }
 

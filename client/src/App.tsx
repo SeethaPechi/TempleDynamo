@@ -8,6 +8,8 @@ import Home from "@/pages/home";
 import Registry from "@/pages/registry";
 import Members from "@/pages/members";
 import WhatsApp from "@/pages/whatsapp";
+import Temples from "@/pages/temples";
+import TempleRegistry from "@/pages/temple-registry";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -17,6 +19,8 @@ function Router() {
       <Route path="/registry" component={Registry} />
       <Route path="/members" component={Members} />
       <Route path="/whatsapp" component={WhatsApp} />
+      <Route path="/temples" component={Temples} />
+      <Route path="/temple-registry" component={TempleRegistry} />
       <Route component={NotFound} />
     </Switch>
   );

@@ -3,6 +3,7 @@
     "home": "Home",
     "members": "Members",
     "registry": "Registry",
+    "temples": "Temples",
     "whatsapp": "WhatsApp"
   },
   "home": {
@@ -195,5 +196,57 @@
     "customMessage": "Custom Message",
     "templateVariables": "Template Variables",
     "processTemplate": "Process Template"
+  },
+  "temples": {
+    "title": "Hindu Temples",
+    "subtitle": "Discover and register Hindu temples in our community",
+    "addTemple": "Add Temple",
+    "searchAndFilter": "Search & Filter Temples",
+    "searchPlaceholder": "Search by temple name, deity, village...",
+    "allStates": "All States",
+    "allCountries": "All Countries",
+    "noTemplesFound": "No Temples Found",
+    "adjustSearchCriteria": "Try adjusting your search criteria or register a new temple",
+    "registerFirstTemple": "Register First Temple",
+    "established": "Established",
+    "linkedTemples": "Linked Temples",
+    "templesLower": "temples"
+  },
+  "templeRegistry": {
+    "title": "Temple Registration",
+    "subtitle": "Register your temple in our sacred community network",
+    "templeInformation": "Temple Information",
+    "locationInformation": "Location Information",
+    "contactInformation": "Contact Information",
+    "linkedTemples": "Linked Temples",
+    "linkedTemplesDesc": "Select temples that are connected or affiliated with this temple",
+    "form": {
+      "templeName": "Temple Name",
+      "templeNamePlaceholder": "e.g., Sri Lakshmi Narasimha Temple",
+      "deity": "Main Deity",
+      "deityPlaceholder": "e.g., Lord Narasimha, Goddess Lakshmi",
+      "village": "Village/Area",
+      "villagePlaceholder": "e.g., Tirupati, Mylapore",
+      "nearestCity": "Nearest City",
+      "nearestCityPlaceholder": "e.g., Chennai, Bangalore",
+      "state": "State/Province",
+      "selectState": "Select state",
+      "country": "Country",
+      "selectCountry": "Select country",
+      "establishedYear": "Established Year",
+      "contactPhone": "Contact Phone",
+      "contactEmail": "Contact Email",
+      "description": "Temple Description",
+      "descriptionPlaceholder": "Brief description of the temple, its history, and significance..."
+    },
+    "buttons": {
+      "register": "Register Temple"
+    },
+    "registering": "Registering...",
+    "success": "Temple registered successfully!",
+    "error": "Failed to register temple. Please try again.",
+    "successTitle": "Temple Registration Successful!",
+    "successMessage": "Your temple has been successfully registered in our community network.",
+    "viewTemples": "View All Temples"
   }
 }

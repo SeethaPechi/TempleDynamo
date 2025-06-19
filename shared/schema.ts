@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, timestamp } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -51,3 +51,28 @@ export const insertUserSchema = createInsertSchema(users).pick({
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
+
+// Temple schema
+export const temples = pgTable("temples", {
+  id: serial("id").primaryKey(),
+  templeName: text("temple_name").notNull(),
+  deity: text("deity"),
+  village: text("village").notNull(),
+  nearestCity: text("nearest_city").notNull(),
+  state: text("state").notNull(),
+  country: text("country").notNull(),
+  linkedTemples: text("linked_temples").array().default([]),
+  establishedYear: integer("established_year"),
+  contactPhone: text("contact_phone"),
+  contactEmail: text("contact_email"),
+  description: text("description"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertTempleSchema = createInsertSchema(temples).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertTemple = z.infer<typeof insertTempleSchema>;
+export type Temple = typeof temples.$inferSelect;
