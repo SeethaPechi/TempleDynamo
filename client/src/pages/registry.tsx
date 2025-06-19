@@ -163,8 +163,8 @@ export default function Registry() {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <Card className="shadow-xl border border-temple-gold/20 overflow-hidden">
           <div className="bg-gradient-to-r from-saffron-500 to-temple-gold p-8 text-center">
-            <h2 className="text-3xl font-bold text-white mb-2">Community Registry</h2>
-            <p className="text-saffron-100">Join our temple family and connect with devotees</p>
+            <h2 className="text-3xl font-bold text-white mb-2">{t('common.communityRegistry')}</h2>
+            <p className="text-saffron-100">{t('common.joinTempleFamily')}</p>
           </div>
 
           <CardContent className="p-8">
@@ -174,7 +174,7 @@ export default function Registry() {
                 <div className="border-l-4 border-temple-gold pl-6">
                   <h3 className="text-xl font-semibold text-temple-brown mb-6 flex items-center">
                     <User className="text-temple-gold mr-3" size={24} />
-                    Personal Information
+                    {t('common.personalInformation')}
                   </h3>
                   <div className="grid md:grid-cols-2 gap-6">
                     <FormField

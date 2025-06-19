@@ -148,12 +148,12 @@ export default function Members() {
                 className="w-full bg-saffron-500 hover:bg-saffron-600 text-white font-medium"
               >
                 <Search className="mr-2" size={16} />
-                Search
+                {t('common.search')}
               </Button>
             </div>
           </div>
           <div className="mt-4 text-sm text-gray-600">
-            Showing {filteredMembers.length} of {(allMembers as Member[]).length} members
+            {t('common.showing')} {filteredMembers.length} {t('common.of')} {(allMembers as Member[]).length} {t('nav.members')}
           </div>
         </Card>
 
@@ -161,8 +161,8 @@ export default function Members() {
         {filteredMembers.length === 0 ? (
           <Card className="p-12 text-center">
             <Users className="mx-auto mb-4 text-gray-400" size={48} />
-            <h3 className="text-xl font-semibold text-gray-600 mb-2">No Members Found</h3>
-            <p className="text-gray-500">Try adjusting your search criteria</p>
+            <h3 className="text-xl font-semibold text-gray-600 mb-2">{t('common.noMembersFound')}</h3>
+            <p className="text-gray-500">{t('common.adjustSearchCriteria')}</p>
           </Card>
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -196,7 +196,7 @@ export default function Members() {
                   </div>
                   <div className="mt-4 pt-4 border-t border-gray-100">
                     <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-500">Parents:</span>
+                      <span className="text-sm text-gray-500">{t('common.parents')}:</span>
                       <span className="text-sm font-medium text-temple-brown truncate ml-2">
                         {member.fatherName} & {member.motherName}
                       </span>

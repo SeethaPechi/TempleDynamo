@@ -154,18 +154,18 @@ export default function WhatsApp() {
               <CardHeader>
                 <CardTitle className="flex items-center">
                   <FileText className="text-saffron-600 mr-2" size={20} />
-                  Message Templates
+                  {t('common.messageTemplates')}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <Label htmlFor="template">Select Template</Label>
+                  <Label htmlFor="template">{t('common.selectTemplate')}</Label>
                   <Select value={selectedTemplate} onValueChange={handleTemplateChange}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Choose a template" />
+                      <SelectValue placeholder={t('common.chooseTemplate')} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="custom">Custom Message</SelectItem>
+                      <SelectItem value="custom">{t('common.customMessage')}</SelectItem>
                       {(templates as WhatsAppTemplate[]).map((template: WhatsAppTemplate) => (
                         <SelectItem key={template.id} value={template.id}>
                           {template.name}
@@ -177,7 +177,7 @@ export default function WhatsApp() {
 
                 {selectedTemplate && selectedTemplate !== "custom" && Object.keys(templateVariables).length > 0 && (
                   <div className="space-y-3">
-                    <Label>Template Variables</Label>
+                    <Label>{t('common.templateVariables')}</Label>
                     {Object.keys(templateVariables).map((varName) => (
                       <div key={varName}>
                         <Label htmlFor={varName} className="text-sm capitalize">
