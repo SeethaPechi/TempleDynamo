@@ -1,20 +1,47 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
-import { Bell, Users, Heart, Calendar, HandHeart } from "lucide-react";
+import { Bell, Users, Heart, Calendar, HandHeart, Building, MapPin } from "lucide-react";
 import { useTranslation } from 'react-i18next';
+import { useState, useEffect } from 'react';
+import type { Temple } from "@shared/schema";
 
 export default function Home() {
   const { t } = useTranslation();
+  const [selectedTemple, setSelectedTemple] = useState<Temple | null>(null);
+  
   const { data: members = [] } = useQuery({
     queryKey: ["/api/members"],
+  });
+
+  const { data: temples = [] } = useQuery({
+    queryKey: ["/api/temples"],
   });
 
   const totalMembers = (members as any[]).length;
   const totalFamilies = Math.ceil(totalMembers / 3.6); // Approximate families
   const annualEvents = 48;
   const volunteers = Math.ceil(totalMembers * 0.125);
+
+  // Update page title when temple is selected
+  useEffect(() => {
+    if (selectedTemple) {
+      document.title = `${selectedTemple.templeName} - Temple Dynamo`;
+    } else {
+      document.title = 'Temple Dynamo - Hindu Temple Community Management';
+    }
+  }, [selectedTemple]);
+
+  const handleTempleSelect = (templeId: string) => {
+    if (templeId === "reset") {
+      setSelectedTemple(null);
+      return;
+    }
+    const temple = (temples as Temple[]).find(t => t.id.toString() === templeId);
+    setSelectedTemple(temple || null);
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-temple-cream to-saffron-50">
@@ -31,11 +58,58 @@ export default function Home() {
         <div className="relative h-full flex items-center justify-center text-center px-4">
           <div className="max-w-4xl mx-auto">
             <h1 className="text-5xl md:text-6xl font-bold text-white mb-4">
-              🕉️ {t('home.title')}
+              🕉️ {selectedTemple ? selectedTemple.templeName : t('home.title')}
             </h1>
             <p className="text-xl md:text-2xl text-temple-cream mb-8">
-              {t('home.subtitle')}
+              {selectedTemple ? t('home.templeSubtitle') : t('home.subtitle')}
             </p>
+
+            {/* Temple Search Section */}
+            <div className="mb-8 max-w-md mx-auto">
+              <div className="flex items-center justify-center space-x-3 mb-4">
+                <Building className="text-temple-gold" size={20} />
+                <span className="text-lg font-medium text-white">{t('home.selectTemple')}</span>
+              </div>
+              <Select onValueChange={handleTempleSelect}>
+                <SelectTrigger className="w-full bg-white/90 border-temple-gold focus:ring-temple-gold">
+                  <SelectValue placeholder={t('home.chooseTemple')} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="reset">{t('home.allTemples')}</SelectItem>
+                  {(temples as Temple[]).map((temple: Temple) => (
+                    <SelectItem key={temple.id} value={temple.id.toString()}>
+                      {temple.templeName} - {temple.village}, {temple.state}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {selectedTemple && (
+              <div className="mb-8 max-w-2xl mx-auto">
+                <Card className="bg-white/90 border-temple-gold/30">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-center space-x-3 mb-4">
+                      <Building className="text-temple-gold" size={24} />
+                      <h3 className="text-xl font-semibold text-temple-brown">{selectedTemple.templeName}</h3>
+                    </div>
+                    {selectedTemple.deity && (
+                      <p className="text-temple-brown mb-2">
+                        <strong>{t('home.deity')}:</strong> {selectedTemple.deity}
+                      </p>
+                    )}
+                    <div className="flex items-center justify-center space-x-2 text-gray-600 mb-3">
+                      <MapPin size={16} />
+                      <span>{selectedTemple.village}, {selectedTemple.nearestCity}, {selectedTemple.state}</span>
+                    </div>
+                    {selectedTemple.description && (
+                      <p className="text-gray-600 text-sm">{selectedTemple.description}</p>
+                    )}
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+
             <Link href="/registry">
               <Button className="bg-temple-gold hover:bg-yellow-500 text-temple-brown font-semibold px-8 py-3 rounded-full transition-all transform hover:scale-105 shadow-lg">
                 {t('home.getStarted')}
