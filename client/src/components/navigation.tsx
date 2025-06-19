@@ -1,18 +1,21 @@
 import { Link, useLocation } from "wouter";
 import { Home, UserPlus, Users, Menu, X, MessageSquare } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from 'react-i18next';
+import { LanguageSwitcher } from './language-switcher';
 
 export function Navigation() {
   const [location] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { t } = useTranslation();
 
   const isActive = (path: string) => location === path;
 
   const navItems = [
-    { path: "/", label: "Home", icon: Home },
-    { path: "/registry", label: "Registry", icon: UserPlus },
-    { path: "/members", label: "Members", icon: Users },
-    { path: "/whatsapp", label: "WhatsApp", icon: MessageSquare },
+    { path: "/", label: t('nav.home'), icon: Home },
+    { path: "/registry", label: t('nav.registry'), icon: UserPlus },
+    { path: "/members", label: t('nav.members'), icon: Users },
+    { path: "/whatsapp", label: t('nav.whatsapp'), icon: MessageSquare },
   ];
 
   return (
@@ -30,7 +33,7 @@ export function Navigation() {
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex space-x-8">
+          <div className="hidden md:flex space-x-8 items-center">
             {navItems.map(({ path, label, icon: Icon }) => (
               <Link key={path} href={path}>
                 <button
@@ -45,6 +48,7 @@ export function Navigation() {
                 </button>
               </Link>
             ))}
+            <LanguageSwitcher />
           </div>
 
           {/* Mobile Menu Button */}

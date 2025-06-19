@@ -3,13 +3,15 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { Bell, Users, Heart, Calendar, HandHeart } from "lucide-react";
+import { useTranslation } from 'react-i18next';
 
 export default function Home() {
+  const { t } = useTranslation();
   const { data: members = [] } = useQuery({
     queryKey: ["/api/members"],
   });
 
-  const totalMembers = members.length;
+  const totalMembers = (members as any[]).length;
   const totalFamilies = Math.ceil(totalMembers / 3.6); // Approximate families
   const annualEvents = 48;
   const volunteers = Math.ceil(totalMembers * 0.125);
@@ -29,14 +31,14 @@ export default function Home() {
         <div className="relative h-full flex items-center justify-center text-center px-4">
           <div className="max-w-4xl mx-auto">
             <h1 className="text-5xl md:text-6xl font-bold text-white mb-4">
-              🕉️ Sri Lakshmi Temple
+              🕉️ {t('home.title')}
             </h1>
             <p className="text-xl md:text-2xl text-temple-cream mb-8">
-              Building Sacred Connections in Our Community
+              {t('home.subtitle')}
             </p>
             <Link href="/registry">
               <Button className="bg-temple-gold hover:bg-yellow-500 text-temple-brown font-semibold px-8 py-3 rounded-full transition-all transform hover:scale-105 shadow-lg">
-                Join Our Community
+                {t('home.getStarted')}
               </Button>
             </Link>
           </div>

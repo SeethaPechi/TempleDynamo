@@ -1,0 +1,159 @@
+{
+  "nav": {
+    "home": "Home",
+    "members": "Members",
+    "registry": "Registry",
+    "whatsapp": "WhatsApp"
+  },
+  "home": {
+    "title": "Sri Lakshmi Temple",
+    "subtitle": "Building Sacred Connections in Our Community",
+    "description": "Manage temple members, registrations, and communications all in one place.",
+    "getStarted": "Join Our Community",
+    "features": {
+      "memberRegistry": "Member Registry",
+      "memberRegistryDesc": "Maintain comprehensive member database with family relationships",
+      "whatsappComm": "WhatsApp Communications",
+      "whatsappCommDesc": "Send bulk messages using templates for events and announcements",
+      "searchFilter": "Search & Filter",
+      "searchFilterDesc": "Find members by name, location, phone, or email quickly"
+    }
+  },
+  "members": {
+    "title": "Temple Members",
+    "searchPlaceholder": "Search by name, email, phone...",
+    "filterByCity": "Filter by City",
+    "allCities": "All Cities",
+    "noMembers": "No members found",
+    "totalMembers": "Total Members: {{count}}",
+    "memberDetails": {
+      "email": "Email",
+      "phone": "Phone",
+      "address": "Address",
+      "city": "City",
+      "state": "State",
+      "zipCode": "Zip Code"
+    }
+  },
+  "registry": {
+    "title": "Member Registration",
+    "subtitle": "Register new temple members",
+    "personalInfo": "Personal Information",
+    "contactInfo": "Contact Information", 
+    "addressInfo": "Address Information",
+    "familyRelations": "Family Relations",
+    "form": {
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "email": "Email Address",
+      "phone": "Phone Number",
+      "dateOfBirth": "Date of Birth",
+      "gender": "Gender",
+      "male": "Male",
+      "female": "Female",
+      "other": "Other",
+      "address": "Street Address",
+      "city": "City",
+      "state": "State",
+      "zipCode": "Zip Code",
+      "searchRelatives": "Search for family members...",
+      "addRelation": "Add Relation",
+      "relationship": "Relationship",
+      "relationships": {
+        "father": "Father",
+        "mother": "Mother",
+        "son": "Son",
+        "daughter": "Daughter",
+        "brother": "Brother",
+        "sister": "Sister",
+        "husband": "Husband",
+        "wife": "Wife",
+        "grandfather": "Grandfather",
+        "grandmother": "Grandmother",
+        "uncle": "Uncle",
+        "aunt": "Aunt",
+        "cousin": "Cousin"
+      }
+    },
+    "validation": {
+      "firstNameRequired": "First name is required",
+      "lastNameRequired": "Last name is required",
+      "emailRequired": "Email is required",
+      "emailInvalid": "Invalid email format",
+      "phoneRequired": "Phone number is required",
+      "phoneInvalid": "Invalid phone number format",
+      "dobRequired": "Date of birth is required",
+      "genderRequired": "Gender is required",
+      "addressRequired": "Address is required",
+      "cityRequired": "City is required",
+      "stateRequired": "State is required",
+      "zipRequired": "Zip code is required"
+    },
+    "buttons": {
+      "register": "Register Member",
+      "cancel": "Cancel",
+      "registering": "Registering..."
+    },
+    "success": "Member registered successfully!",
+    "error": "Failed to register member. Please try again."
+  },
+  "whatsapp": {
+    "title": "WhatsApp Communications",
+    "subtitle": "Send messages to temple members",
+    "selectTemplate": "Select Message Template",
+    "selectMembers": "Select Members",
+    "selectAll": "Select All",
+    "deselectAll": "Deselect All",
+    "selectedCount": "{{count}} members selected",
+    "generateLinks": "Generate WhatsApp Links",
+    "templates": {
+      "festival": "Festival Announcement",
+      "event": "Temple Event",
+      "donation": "Donation Drive",
+      "schedule": "Schedule Update",
+      "general": "General Announcement"
+    },
+    "variables": {
+      "eventName": "Event Name",
+      "eventDate": "Event Date",
+      "eventTime": "Event Time",
+      "location": "Location",
+      "amount": "Amount",
+      "deadline": "Deadline",
+      "message": "Message"
+    },
+    "preview": "Message Preview",
+    "results": {
+      "title": "WhatsApp Links Generated",
+      "subtitle": "Click on any link to send message via WhatsApp",
+      "member": "Member",
+      "action": "Action"
+    },
+    "buttons": {
+      "sendMessage": "Send Message",
+      "back": "Back"
+    }
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "view": "View",
+    "search": "Search",
+    "filter": "Filter",
+    "clear": "Clear",
+    "next": "Next",
+    "previous": "Previous",
+    "page": "Page",
+    "of": "of",
+    "showing": "Showing",
+    "results": "results",
+    "noResults": "No results found",
+    "selectDate": "Select date",
+    "close": "Close"
+  }
+}

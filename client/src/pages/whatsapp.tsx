@@ -10,6 +10,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { MessageSquare, Send, Users, FileText, ExternalLink, CheckCircle } from "lucide-react";
+import { useTranslation } from 'react-i18next';
 import type { Member } from "@shared/schema";
 
 interface WhatsAppTemplate {
@@ -19,6 +20,7 @@ interface WhatsAppTemplate {
 }
 
 export default function WhatsApp() {
+  const { t } = useTranslation();
   const [selectedTemplate, setSelectedTemplate] = useState("");
   const [message, setMessage] = useState("");
   const [selectedMembers, setSelectedMembers] = useState<number[]>([]);
@@ -140,9 +142,9 @@ export default function WhatsApp() {
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-temple-brown mb-2 flex items-center">
             <MessageSquare className="text-temple-gold mr-3" size={32} />
-            WhatsApp Messaging
+            {t('whatsapp.title')}
           </h1>
-          <p className="text-gray-600">Send announcements and updates to temple community members</p>
+          <p className="text-gray-600">{t('whatsapp.subtitle')}</p>
         </div>
 
         <div className="grid lg:grid-cols-2 gap-8">

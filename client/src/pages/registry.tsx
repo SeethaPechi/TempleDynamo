@@ -14,6 +14,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { User, MapPin, Home, Users, Link as LinkIcon, Search, X } from "lucide-react";
+import { useTranslation } from 'react-i18next';
 import type { Member } from "@shared/schema";
 
 const registrationSchema = z.object({
@@ -63,6 +64,7 @@ const relationships = [
 ];
 
 export default function Registry() {
+  const { t } = useTranslation();
   const [, setLocation] = useLocation();
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");

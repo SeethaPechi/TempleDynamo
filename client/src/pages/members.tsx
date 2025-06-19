@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Search, Mail, Phone, MapPin, Users, Eye, TreePine, ChevronLeft, ChevronRight } from "lucide-react";
+import { useTranslation } from 'react-i18next';
 import type { Member } from "@shared/schema";
 
 const states = [
@@ -18,6 +19,7 @@ const states = [
 ];
 
 export default function Members() {
+  const { t } = useTranslation();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCity, setSelectedCity] = useState("");
   const [selectedState, setSelectedState] = useState("");
@@ -100,11 +102,11 @@ export default function Members() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Search and Filter */}
         <Card className="shadow-lg border border-temple-gold/20 p-6 mb-8">
-          <h2 className="text-2xl font-bold text-temple-brown mb-6">Community Members</h2>
+          <h2 className="text-2xl font-bold text-temple-brown mb-6">{t('members.title')}</h2>
           <div className="grid md:grid-cols-4 gap-4">
             <div>
               <Input
-                placeholder="Search members..."
+                placeholder={t('members.searchPlaceholder')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full"
@@ -113,10 +115,10 @@ export default function Members() {
             <div>
               <Select value={selectedCity} onValueChange={setSelectedCity}>
                 <SelectTrigger>
-                  <SelectValue placeholder="All Cities" />
+                  <SelectValue placeholder={t('members.allCities')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all-cities">All Cities</SelectItem>
+                  <SelectItem value="all-cities">{t('members.allCities')}</SelectItem>
                   {uniqueCities.map((city: string) => (
                     <SelectItem key={city} value={city.toLowerCase()}>
                       {city}
