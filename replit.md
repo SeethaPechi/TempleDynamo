@@ -90,11 +90,18 @@ This is a full-stack temple community management system built with React, Expres
 
 ## Recent Changes
 
+✓ **Temple Registry System Added** (June 19, 2025)
+  - Created complete temple management system with registration and listing
+  - Added temple database schema with location, contact, and linking capabilities
+  - Built temple registration form with multi-choice temple connections
+  - Implemented search and filter functionality for temple discovery
+  - Added temple navigation menu with full Tamil translation support
+
 ✓ **Tamil Language Support Added** (June 19, 2025)
   - Integrated React i18next for internationalization
   - Added comprehensive Tamil translations for all UI elements
   - Created language switcher component with temple-themed styling
-  - Updated all pages (Home, Members, Registry, WhatsApp) with translation support
+  - Updated all pages (Home, Members, Registry, WhatsApp, Temples) with translation support
   - Language preference persists in localStorage
 
 ✓ **Security Update** (June 19, 2025)
