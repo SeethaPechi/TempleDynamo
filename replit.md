@@ -88,11 +88,25 @@ This is a full-stack temple community management system built with React, Expres
 - **NODE_ENV**: Environment mode (development/production)
 - **REPL_ID**: Replit-specific identifier for development features
 
+## Recent Changes
+
+✓ **Tamil Language Support Added** (June 19, 2025)
+  - Integrated React i18next for internationalization
+  - Added comprehensive Tamil translations for all UI elements
+  - Created language switcher component with temple-themed styling
+  - Updated all pages (Home, Members, Registry, WhatsApp) with translation support
+  - Language preference persists in localStorage
+
+✓ **Security Update** (June 19, 2025)
+  - Upgraded Vite from 5.4.14 to 5.4.15 to fix CVE-2025-30208
+  - Resolved path traversal vulnerability in development server
+
 ## Changelog
 
 ```
 Changelog:
-- June 14, 2025. Initial setup
+- June 19, 2025: Added Tamil language support and security updates
+- June 14, 2025: Initial setup
 ```
 
 ## User Preferences
