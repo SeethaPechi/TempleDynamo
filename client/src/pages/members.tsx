@@ -24,7 +24,7 @@ export default function Members() {
   const [selectedCity, setSelectedCity] = useState("");
   const [selectedState, setSelectedState] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const membersPerPage = 9;
+  const membersPerPage = 20;
 
   const { data: allMembers = [], isLoading } = useQuery({
     queryKey: ["/api/members"],
