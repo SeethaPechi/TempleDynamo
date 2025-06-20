@@ -165,62 +165,16 @@ export default function Members() {
             <p className="text-gray-500">{t('common.adjustSearchCriteria')}</p>
           </Card>
         ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-4 lg:grid-cols-5 gap-6">
             {paginatedMembers.map((member: Member, index: number) => (
               <Card key={member.id} className="overflow-hidden hover:shadow-xl transition-shadow border border-temple-gold/20">
-                <div className={`bg-gradient-to-r ${getGradientColor(index)} p-4`}>
-                  <div className="flex items-center space-x-3">
-                    <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
-                      <Users className="text-white" size={20} />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-white">{member.fullName}</h3>
-                      <p className="text-white/80 text-sm">{member.currentCity}, {member.currentState}</p>
-                    </div>
+                <div className="bg-gradient-to-r from-saffron-500 to-temple-gold p-6 text-center">
+                  <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Users className="text-temple-brown" size={24} />
                   </div>
+                  <h3 className="text-lg font-bold text-white mb-2">{member.fullName}</h3>
+                  <p className="text-saffron-100 text-sm">Member #{startIndex + index + 1}</p>
                 </div>
-                <CardContent className="p-6">
-                  <div className="space-y-3">
-                    <div className="flex items-center space-x-3">
-                      <Mail className="text-gray-400" size={16} />
-                      <span className="text-gray-600 text-sm truncate">{member.email}</span>
-                    </div>
-                    <div className="flex items-center space-x-3">
-                      <Phone className="text-gray-400" size={16} />
-                      <span className="text-gray-600 text-sm">{member.phone}</span>
-                    </div>
-                    <div className="flex items-center space-x-3">
-                      <MapPin className="text-gray-400" size={16} />
-                      <span className="text-gray-600 text-sm">{member.birthCity}, {member.birthState}, {member.birthCountry}</span>
-                    </div>
-                  </div>
-                  <div className="mt-4 pt-4 border-t border-gray-100">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-500">{t('common.parents')}:</span>
-                      <span className="text-sm font-medium text-temple-brown truncate ml-2">
-                        {member.fatherName} & {member.motherName}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="mt-4 flex space-x-2">
-                    <Button
-                      variant="outline"
-                      className="flex-1 text-saffron-700 border-saffron-200 hover:bg-saffron-50"
-                      size="sm"
-                    >
-                      <Eye className="mr-1" size={14} />
-                      Profile
-                    </Button>
-                    <Button
-                      variant="outline"
-                      className="flex-1 text-temple-brown border-temple-gold/30 hover:bg-temple-gold/10"
-                      size="sm"
-                    >
-                      <TreePine className="mr-1" size={14} />
-                      Family
-                    </Button>
-                  </div>
-                </CardContent>
               </Card>
             ))}
           </div>
