@@ -90,6 +90,18 @@ This is a full-stack temple community management system built with React, Expres
 
 ## Recent Changes
 
+✓ **Complete Country List Added** (June 20, 2025)
+  - Expanded country dropdown options from 5 to 195+ countries in both registry forms
+  - Added comprehensive list of all UN-recognized countries with ISO codes
+  - Updated member registration and temple registration forms
+  - Improved global accessibility for international users
+
+✓ **Temple Search on Home Page** (June 20, 2025)
+  - Added temple search dropdown to hero section with dynamic title changes
+  - Implemented real-time temple information display when temple is selected
+  - Created temple information card showing deity, location, and description
+  - Page title updates dynamically to show selected temple name
+
 ✓ **Temple Registry System Added** (June 19, 2025)
   - Created complete temple management system with registration and listing
   - Added temple database schema with location, contact, and linking capabilities
