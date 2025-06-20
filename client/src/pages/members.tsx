@@ -30,6 +30,12 @@ export default function Members() {
     queryKey: ["/api/members"],
   });
 
+  // Debug logging
+  console.log('All members data:', allMembers);
+  console.log('Is loading:', isLoading);
+  console.log('Filtered members:', filteredMembers);
+  console.log('Paginated members:', paginatedMembers);
+
   // Filter members based on search criteria
   const filteredMembers = Array.isArray(allMembers) ? allMembers.filter((member: Member) => {
     const matchesSearch = !searchTerm || 
@@ -179,17 +185,22 @@ export default function Members() {
         ) : (
           <>
             <div className="grid md:grid-cols-4 lg:grid-cols-5 gap-6">
-              {paginatedMembers.map((member: Member, index: number) => (
-                <Card key={member.id} className="overflow-hidden hover:shadow-xl transition-shadow border border-temple-gold/20">
-                  <div className="bg-gradient-to-r from-saffron-500 to-temple-gold p-6 text-center">
-                    <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4">
-                      <Users className="text-temple-brown" size={24} />
+              {paginatedMembers.map((member: Member, index: number) => {
+                console.log('Rendering member:', member); // Debug log
+                return (
+                  <Card key={member.id} className="overflow-hidden hover:shadow-xl transition-shadow border border-temple-gold/20">
+                    <div className="bg-gradient-to-r from-saffron-500 to-temple-gold p-6 text-center">
+                      <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4">
+                        <Users className="text-temple-brown" size={24} />
+                      </div>
+                      <h3 className="text-lg font-bold text-white mb-2">
+                        {member?.fullName || member?.name || `Member ${member?.id}` || 'Unknown Member'}
+                      </h3>
+                      <p className="text-saffron-100 text-sm">Member #{startIndex + index + 1}</p>
                     </div>
-                    <h3 className="text-lg font-bold text-white mb-2">{member.fullName}</h3>
-                    <p className="text-saffron-100 text-sm">Member #{startIndex + index + 1}</p>
-                  </div>
-                </Card>
-              ))}
+                  </Card>
+                );
+              })}
             </div>
 
             {/* Pagination */}
