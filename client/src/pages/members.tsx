@@ -31,17 +31,19 @@ export default function Members() {
   });
 
   // Filter members based on search criteria
-  const filteredMembers = (allMembers as Member[]).filter((member: Member) => {
+  const filteredMembers = Array.isArray(allMembers) ? allMembers.filter((member: Member) => {
     const matchesSearch = !searchTerm || 
-      member.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      member.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      member.phone.includes(searchTerm);
+      member.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      member.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      member.phone?.includes(searchTerm);
     
-    const matchesCity = !selectedCity || selectedCity === "all-cities" || member.currentCity.toLowerCase().includes(selectedCity.toLowerCase());
-    const matchesState = !selectedState || selectedState === "all-states" || member.currentState === selectedState;
+    const matchesCity = !selectedCity || selectedCity === "all-cities" || 
+      member.currentCity?.toLowerCase().includes(selectedCity.toLowerCase());
+    const matchesState = !selectedState || selectedState === "all-states" || 
+      member.currentState === selectedState;
     
     return matchesSearch && matchesCity && matchesState;
-  });
+  }) : [];
 
   // Pagination
   const totalPages = Math.ceil(filteredMembers.length / membersPerPage);
@@ -49,7 +51,8 @@ export default function Members() {
   const paginatedMembers = filteredMembers.slice(startIndex, startIndex + membersPerPage);
 
   // Get unique cities for filter
-  const uniqueCities = Array.from(new Set((allMembers as Member[]).map((member: Member) => member.currentCity)));
+  const uniqueCities = Array.isArray(allMembers) ? 
+    Array.from(new Set(allMembers.map((member: Member) => member.currentCity).filter(Boolean))) : [];
 
   const handleSearch = () => {
     setCurrentPage(1); // Reset to first page when searching
@@ -108,12 +111,18 @@ export default function Members() {
               <Input
                 placeholder={t('members.searchPlaceholder')}
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  setCurrentPage(1);
+                }}
                 className="w-full"
               />
             </div>
             <div>
-              <Select value={selectedCity} onValueChange={setSelectedCity}>
+              <Select value={selectedCity} onValueChange={(value) => {
+                setSelectedCity(value);
+                setCurrentPage(1);
+              }}>
                 <SelectTrigger>
                   <SelectValue placeholder={t('members.allCities')} />
                 </SelectTrigger>
@@ -128,7 +137,10 @@ export default function Members() {
               </Select>
             </div>
             <div>
-              <Select value={selectedState} onValueChange={setSelectedState}>
+              <Select value={selectedState} onValueChange={(value) => {
+                setSelectedState(value);
+                setCurrentPage(1);
+              }}>
                 <SelectTrigger>
                   <SelectValue placeholder="All States" />
                 </SelectTrigger>
@@ -153,7 +165,7 @@ export default function Members() {
             </div>
           </div>
           <div className="mt-4 text-sm text-gray-600">
-            {t('common.showing')} {filteredMembers.length} {t('common.of')} {(allMembers as Member[]).length} {t('nav.members')}
+            {t('common.showing')} {filteredMembers.length} {t('common.of')} {Array.isArray(allMembers) ? allMembers.length : 0} {t('nav.members')}
           </div>
         </Card>
 
@@ -165,19 +177,76 @@ export default function Members() {
             <p className="text-gray-500">{t('common.adjustSearchCriteria')}</p>
           </Card>
         ) : (
-          <div className="grid md:grid-cols-4 lg:grid-cols-5 gap-6">
-            {paginatedMembers.map((member: Member, index: number) => (
-              <Card key={member.id} className="overflow-hidden hover:shadow-xl transition-shadow border border-temple-gold/20">
-                <div className="bg-gradient-to-r from-saffron-500 to-temple-gold p-6 text-center">
-                  <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Users className="text-temple-brown" size={24} />
+          <>
+            <div className="grid md:grid-cols-4 lg:grid-cols-5 gap-6">
+              {paginatedMembers.map((member: Member, index: number) => (
+                <Card key={member.id} className="overflow-hidden hover:shadow-xl transition-shadow border border-temple-gold/20">
+                  <div className="bg-gradient-to-r from-saffron-500 to-temple-gold p-6 text-center">
+                    <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4">
+                      <Users className="text-temple-brown" size={24} />
+                    </div>
+                    <h3 className="text-lg font-bold text-white mb-2">{member.fullName}</h3>
+                    <p className="text-saffron-100 text-sm">Member #{startIndex + index + 1}</p>
                   </div>
-                  <h3 className="text-lg font-bold text-white mb-2">{member.fullName}</h3>
-                  <p className="text-saffron-100 text-sm">Member #{startIndex + index + 1}</p>
+                </Card>
+              ))}
+            </div>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="flex justify-center mt-12">
+                <div className="flex space-x-2">
+                  <Button
+                    variant="outline"
+                    onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                    disabled={currentPage === 1}
+                    className="px-4 py-2"
+                  >
+                    <ChevronLeft size={16} />
+                  </Button>
+                  
+                  {[...Array(totalPages)].map((_, i) => {
+                    const page = i + 1;
+                    const isCurrentPage = page === currentPage;
+                    const isVisible = 
+                      page === 1 || 
+                      page === totalPages || 
+                      (page >= currentPage - 1 && page <= currentPage + 1);
+
+                    if (!isVisible) {
+                      return page === 2 || page === totalPages - 1 ? (
+                        <span key={page} className="px-2 py-1 text-gray-400">...</span>
+                      ) : null;
+                    }
+
+                    return (
+                      <Button
+                        key={page}
+                        variant={isCurrentPage ? "default" : "outline"}
+                        onClick={() => setCurrentPage(page)}
+                        className={`px-4 py-2 ${
+                          isCurrentPage 
+                            ? "bg-saffron-500 hover:bg-saffron-600 text-white" 
+                            : "text-temple-brown border-temple-gold/30 hover:bg-temple-gold/10"
+                        }`}
+                      >
+                        {page}
+                      </Button>
+                    );
+                  })}
+                  
+                  <Button
+                    variant="outline"
+                    onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                    disabled={currentPage === totalPages}
+                    className="px-4 py-2"
+                  >
+                    <ChevronRight size={16} />
+                  </Button>
                 </div>
-              </Card>
-            ))}
-          </div>
+              </div>
+            )}
+          </>
         )}
 
         {/* Pagination */}
