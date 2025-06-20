@@ -30,12 +30,6 @@ export default function Members() {
     queryKey: ["/api/members"],
   });
 
-  // Debug logging
-  console.log('All members data:', allMembers);
-  console.log('Is loading:', isLoading);
-  console.log('Filtered members:', filteredMembers);
-  console.log('Paginated members:', paginatedMembers);
-
   // Filter members based on search criteria
   const filteredMembers = Array.isArray(allMembers) ? allMembers.filter((member: Member) => {
     const matchesSearch = !searchTerm || 
@@ -55,6 +49,12 @@ export default function Members() {
   const totalPages = Math.ceil(filteredMembers.length / membersPerPage);
   const startIndex = (currentPage - 1) * membersPerPage;
   const paginatedMembers = filteredMembers.slice(startIndex, startIndex + membersPerPage);
+
+  // Debug logging (after variable declarations)
+  console.log('All members data:', allMembers);
+  console.log('Is loading:', isLoading);
+  console.log('Filtered members:', filteredMembers);
+  console.log('Paginated members:', paginatedMembers);
 
   // Get unique cities for filter
   const uniqueCities = Array.isArray(allMembers) ? 
