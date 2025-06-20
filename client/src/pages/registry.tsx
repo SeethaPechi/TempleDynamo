@@ -631,48 +631,15 @@ export default function Registry() {
                   <div className="grid md:grid-cols-3 gap-6">
                     <FormField
                       control={form.control}
-                      name="currentCity"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>City *</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Current city" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="currentState"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>State/Province *</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select State" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {states.map((state) => (
-                                <SelectItem key={state.value} value={state.value}>
-                                  {state.label}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
                       name="currentCountry"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Country *</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <Select onValueChange={(value) => {
+                            field.onChange(value);
+                            setSelectedCurrentCountry(value);
+                            form.setValue("currentState", "");
+                          }} defaultValue={field.value}>
                             <FormControl>
                               <SelectTrigger>
                                 <SelectValue placeholder="Select Country" />
@@ -686,6 +653,46 @@ export default function Registry() {
                               ))}
                             </SelectContent>
                           </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="currentState"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>State/Province *</FormLabel>
+                          <Select onValueChange={field.onChange} defaultValue={field.value} disabled={!selectedCurrentCountry || !statesByCountry[selectedCurrentCountry]}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder={selectedCurrentCountry ? "Select State" : "Select Country first"} />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {selectedCurrentCountry && statesByCountry[selectedCurrentCountry] ? 
+                                statesByCountry[selectedCurrentCountry].map((state) => (
+                                  <SelectItem key={state.value} value={state.value}>
+                                    {state.label}
+                                  </SelectItem>
+                                )) : 
+                                <SelectItem value="none" disabled>No states available</SelectItem>
+                              }
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="currentCity"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>City *</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Current city" {...field} />
+                          </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
