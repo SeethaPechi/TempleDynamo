@@ -250,6 +250,7 @@ export default function TempleRegistry() {
   const [, setLocation] = useLocation();
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [selectedLinkedTemples, setSelectedLinkedTemples] = useState<string[]>([]);
+  const [selectedCountry, setSelectedCountry] = useState("");
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -413,6 +414,63 @@ export default function TempleRegistry() {
                   <div className="grid md:grid-cols-2 gap-6">
                     <FormField
                       control={form.control}
+                      name="country"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>{t('templeRegistry.form.country')}</FormLabel>
+                          <Select onValueChange={(value) => {
+                            field.onChange(value);
+                            setSelectedCountry(value);
+                            form.setValue("state", "");
+                          }} defaultValue={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder={t('templeRegistry.form.selectCountry')} />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {countries.map((country) => (
+                                <SelectItem key={country.value} value={country.value}>
+                                  {country.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="state"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>{t('templeRegistry.form.state')}</FormLabel>
+                          <Select onValueChange={field.onChange} defaultValue={field.value} disabled={!selectedCountry || !statesByCountry[selectedCountry]}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder={selectedCountry ? t('templeRegistry.form.selectState') : "Select Country first"} />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {selectedCountry && statesByCountry[selectedCountry] ? 
+                                statesByCountry[selectedCountry].map((state) => (
+                                  <SelectItem key={state.value} value={state.value}>
+                                    {state.label}
+                                  </SelectItem>
+                                )) : 
+                                <SelectItem value="none" disabled>No states available</SelectItem>
+                              }
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
                       name="village"
                       render={({ field }) => (
                         <FormItem>
@@ -434,56 +492,6 @@ export default function TempleRegistry() {
                           <FormControl>
                             <Input placeholder={t('templeRegistry.form.nearestCityPlaceholder')} {...field} />
                           </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="state"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>{t('templeRegistry.form.state')}</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder={t('templeRegistry.form.selectState')} />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {states.map((state) => (
-                                <SelectItem key={state.value} value={state.value}>
-                                  {state.label}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="country"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>{t('templeRegistry.form.country')}</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder={t('templeRegistry.form.selectCountry')} />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {countries.map((country) => (
-                                <SelectItem key={country.value} value={country.value}>
-                                  {country.label}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
                           <FormMessage />
                         </FormItem>
                       )}
