@@ -5,9 +5,10 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Search, Mail, Phone, MapPin, Users, Eye, TreePine, ChevronLeft, ChevronRight } from "lucide-react";
+import { Search, ChevronLeft, ChevronRight, Users } from "lucide-react";
 import { useTranslation } from 'react-i18next';
 import type { Member } from "@shared/schema";
+import { MemberCard } from "@/components/member-card";
 
 const states = [
   { value: "AL", label: "Alabama" },
@@ -185,22 +186,14 @@ export default function Members() {
         ) : (
           <>
             <div className="grid md:grid-cols-4 lg:grid-cols-5 gap-6">
-              {paginatedMembers.map((member: Member, index: number) => {
-                console.log('Rendering member:', member); // Debug log
-                return (
-                  <Card key={member.id} className="overflow-hidden hover:shadow-xl transition-shadow border border-temple-gold/20">
-                    <div className="bg-gradient-to-r from-saffron-500 to-temple-gold p-6 text-center">
-                      <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4">
-                        <Users className="text-temple-brown" size={24} />
-                      </div>
-                      <h3 className="text-lg font-bold text-white mb-2">
-                        {member?.fullName || member?.name || `Member ${member?.id}` || 'Unknown Member'}
-                      </h3>
-                      <p className="text-saffron-100 text-sm">Member #{startIndex + index + 1}</p>
-                    </div>
-                  </Card>
-                );
-              })}
+              {paginatedMembers.map((member: Member, index: number) => (
+                <MemberCard 
+                  key={member.id} 
+                  member={member} 
+                  index={index} 
+                  startIndex={startIndex} 
+                />
+              ))}
             </div>
 
             {/* Pagination */}
