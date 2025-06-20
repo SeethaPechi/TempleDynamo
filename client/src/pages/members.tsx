@@ -56,6 +56,13 @@ export default function Members() {
   console.log('Is loading:', isLoading);
   console.log('Filtered members:', filteredMembers);
   console.log('Paginated members:', paginatedMembers);
+  
+  if (paginatedMembers.length > 0) {
+    console.log('First member structure:', paginatedMembers[0]);
+    console.log('First member keys:', Object.keys(paginatedMembers[0]));
+    console.log('First member fullName value:', paginatedMembers[0].fullName);
+    console.log('First member fullName type:', typeof paginatedMembers[0].fullName);
+  }
 
   // Get unique cities for filter
   const uniqueCities = Array.isArray(allMembers) ? 
