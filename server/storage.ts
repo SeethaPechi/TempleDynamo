@@ -10,6 +10,8 @@ export interface IStorage {
   getMember(id: number): Promise<Member | undefined>;
   getMemberByEmail(email: string): Promise<Member | undefined>;
   createMember(member: InsertMember): Promise<Member>;
+  updateMember(id: number, member: InsertMember): Promise<Member>;
+  deleteMember(id: number): Promise<void>;
   getAllMembers(): Promise<Member[]>;
   searchMembers(searchTerm: string, city?: string, state?: string): Promise<Member[]>;
   
@@ -17,6 +19,12 @@ export interface IStorage {
   createRelationship(relationship: InsertRelationship): Promise<Relationship>;
   getMemberRelationships(memberId: number): Promise<Array<Relationship & { relatedMember: Member }>>;
   deleteRelationship(id: number): Promise<void>;
+  
+  // Temple methods
+  getTemple(id: number): Promise<Temple | undefined>;
+  createTemple(temple: InsertTemple): Promise<Temple>;
+  getAllTemples(): Promise<Temple[]>;
+  searchTemples(searchTerm: string, state?: string, country?: string): Promise<Temple[]>;
 }
 
 export class MemStorage implements IStorage {

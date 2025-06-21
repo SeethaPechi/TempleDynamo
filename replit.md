@@ -90,13 +90,16 @@ This is a full-stack temple community management system built with React, Expres
 
 ## Recent Changes
 
-✓ **Family Tree System Completed** (June 21, 2025)
+✓ **Complete Member Management System** (June 21, 2025)
   - Built comprehensive family tree management system with relationship tracking
   - Created dedicated Family Tree page with member search and selection
   - Implemented relationship creation with 12 different relationship types
   - Added clickable member names displaying full member details and family relationships
   - Created individual member detail pages showing complete family connections
   - Enhanced registry search to display member names prominently (bold, large text)
+  - Added full CRUD operations: Create, Read, Update, Delete members
+  - Implemented member editing with complete form validation and country/state dependencies
+  - Added member deletion with relationship cleanup and confirmation dialogs
   - Fixed navigation routing issues and import errors
   - Sample family relationship created: Sona Venkat as child of Venkat Thirupathy
 

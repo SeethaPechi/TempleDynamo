@@ -15,7 +15,7 @@ export const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 export const db = drizzle({ client: pool, schema });
 
 import { users, type User, type InsertUser, members, type Member, type InsertMember, relationships, type Relationship, type InsertRelationship, temples, type Temple, type InsertTemple } from "@shared/schema";
-import { eq } from "drizzle-orm";
+import { eq, or } from "drizzle-orm";
 import type { IStorage } from "./storage";
 
 export class DatabaseStorage implements IStorage {
@@ -53,6 +53,28 @@ export class DatabaseStorage implements IStorage {
       .values(insertMember)
       .returning();
     return member;
+  }
+
+  async updateMember(id: number, insertMember: InsertMember): Promise<Member> {
+    const [member] = await db
+      .update(members)
+      .set(insertMember)
+      .where(eq(members.id, id))
+      .returning();
+    return member;
+  }
+
+  async deleteMember(id: number): Promise<void> {
+    // First delete all relationships involving this member
+    await db.delete(relationships).where(
+      or(
+        eq(relationships.memberId, id),
+        eq(relationships.relatedMemberId, id)
+      )
+    );
+    
+    // Then delete the member
+    await db.delete(members).where(eq(members.id, id));
   }
 
   async getAllMembers(): Promise<Member[]> {

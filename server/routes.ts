@@ -62,6 +62,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Update member
+  app.put("/api/members/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid member ID" });
+      }
+
+      const existingMember = await storage.getMember(id);
+      if (!existingMember) {
+        return res.status(404).json({ message: "Member not found" });
+      }
+
+      const memberData = insertMemberSchema.parse(req.body);
+      const updatedMember = await storage.updateMember(id, memberData);
+      res.json(updatedMember);
+    } catch (error) {
+      console.error("Error updating member:", error);
+      res.status(500).json({ message: "Failed to update member" });
+    }
+  });
+
+  // Delete member
+  app.delete("/api/members/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid member ID" });
+      }
+
+      const existingMember = await storage.getMember(id);
+      if (!existingMember) {
+        return res.status(404).json({ message: "Member not found" });
+      }
+
+      await storage.deleteMember(id);
+      res.json({ message: "Member deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting member:", error);
+      res.status(500).json({ message: "Failed to delete member" });
+    }
+  });
+
   // Relationship routes
   app.post("/api/relationships", async (req, res) => {
     try {
