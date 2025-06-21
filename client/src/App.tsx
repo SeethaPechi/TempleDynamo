@@ -7,10 +7,12 @@ import { Navigation } from "@/components/navigation";
 import Home from "@/pages/home";
 import Registry from "@/pages/registry";
 import Members from "@/pages/members";
-import WhatsApp from "@/pages/whatsapp";
-import Temples from "@/pages/temples";
-import TempleRegistry from "@/pages/temple-registry";
-import NotFound from "@/pages/not-found";
+import WhatsApp from "./pages/whatsapp";
+import Temples from "./pages/temples";
+import TempleRegistry from "./pages/temple-registry";
+import FamilyTree from "./pages/family-tree";
+import MemberDetails from "./pages/member-details";
+import NotFound from "./pages/not-found";
 
 function Router() {
   return (
@@ -21,7 +23,8 @@ function Router() {
       <Route path="/whatsapp" component={WhatsApp} />
       <Route path="/temples" component={Temples} />
       <Route path="/temple-registry" component={TempleRegistry} />
-
+      <Route path="/family-tree" component={FamilyTree} />
+      <Route path="/member/:id" component={MemberDetails} />
       <Route component={NotFound} />
     </Switch>
   );

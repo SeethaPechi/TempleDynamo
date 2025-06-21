@@ -768,7 +768,7 @@ export default function Registry() {
                                   }}
                                   className="w-full text-left px-4 py-2 hover:bg-saffron-50 border-b border-gray-100 last:border-b-0 transition-colors"
                                 >
-                                  <div className="font-semibold text-temple-brown">{member.fullName}</div>
+                                  <div className="font-bold text-temple-brown text-lg">{member.fullName}</div>
                                   <div className="text-sm text-gray-600">{member.email}</div>
                                   <div className="text-xs text-gray-500">{member.currentCity}, {member.currentState}</div>
                                 </button>

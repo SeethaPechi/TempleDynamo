@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Users, Search, Plus, Family, Heart, UserPlus } from "lucide-react";
+import { Users, Search, Plus, Heart, UserPlus, TreePine } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import type { Member, Relationship } from "@shared/schema";
 
@@ -95,7 +95,7 @@ export default function FamilyTree() {
         {/* Header */}
         <div className="text-center mb-12">
           <div className="flex items-center justify-center mb-6">
-            <Family className="text-temple-brown mr-4" size={48} />
+            <TreePine className="text-temple-brown mr-4" size={48} />
             <h1 className="text-4xl font-bold text-temple-brown">Family Tree</h1>
           </div>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">

@@ -208,17 +208,24 @@ export default function Members() {
           <>
             <div className="space-y-4">
               {paginatedMembers.map((member: Member, index: number) => (
-                <div key={member.id} className="bg-white p-4 rounded-lg shadow border flex items-center space-x-4">
+                <div 
+                  key={member.id} 
+                  className="bg-white p-4 rounded-lg shadow border flex items-center space-x-4 cursor-pointer hover:shadow-lg transition-shadow"
+                  onClick={() => window.location.href = `/member/${member.id}`}
+                >
                   <div className="w-12 h-12 bg-saffron-500 rounded-full flex items-center justify-center">
                     <Users className="text-white" size={20} />
                   </div>
                   <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-gray-900">
+                    <h3 className="text-lg font-semibold text-temple-brown hover:text-saffron-600">
                       {member.fullName}
                     </h3>
                     <p className="text-sm text-gray-500">Member #{startIndex + index + 1}</p>
                     <p className="text-sm text-gray-500">{member.email}</p>
                     <p className="text-sm text-gray-500">{member.currentCity}, {member.currentState}</p>
+                  </div>
+                  <div className="text-gray-400">
+                    <span className="text-xs">Click to view details</span>
                   </div>
                 </div>
               ))}
