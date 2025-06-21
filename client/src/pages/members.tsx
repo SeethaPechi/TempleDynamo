@@ -8,7 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Search, ChevronLeft, ChevronRight, Users } from "lucide-react";
 import { useTranslation } from 'react-i18next';
 import type { Member } from "@shared/schema";
-import { MemberCard } from "@/components/member-card";
+import { SimpleMemberCard } from "@/components/simple-member-card";
 
 const states = [
   { value: "AL", label: "Alabama" },
@@ -51,18 +51,7 @@ export default function Members() {
   const startIndex = (currentPage - 1) * membersPerPage;
   const paginatedMembers = filteredMembers.slice(startIndex, startIndex + membersPerPage);
 
-  // Debug logging (after variable declarations)
-  console.log('All members data:', allMembers);
-  console.log('Is loading:', isLoading);
-  console.log('Filtered members:', filteredMembers);
-  console.log('Paginated members:', paginatedMembers);
-  
-  if (paginatedMembers.length > 0) {
-    console.log('First member structure:', paginatedMembers[0]);
-    console.log('First member keys:', Object.keys(paginatedMembers[0]));
-    console.log('First member fullName value:', paginatedMembers[0].fullName);
-    console.log('First member fullName type:', typeof paginatedMembers[0].fullName);
-  }
+  // Debug logging removed for cleaner console
 
   // Get unique cities for filter
   const uniqueCities = Array.isArray(allMembers) ? 
@@ -194,11 +183,10 @@ export default function Members() {
           <>
             <div className="grid md:grid-cols-4 lg:grid-cols-5 gap-6">
               {paginatedMembers.map((member: Member, index: number) => (
-                <MemberCard 
+                <SimpleMemberCard 
                   key={member.id} 
-                  member={member} 
-                  index={index} 
-                  startIndex={startIndex} 
+                  fullName={member.fullName}
+                  memberNumber={startIndex + index + 1}
                 />
               ))}
             </div>
