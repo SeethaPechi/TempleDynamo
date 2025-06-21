@@ -125,6 +125,27 @@ export class MemStorage implements IStorage {
     return result;
   }
 
+  async updateMember(id: number, insertMember: InsertMember): Promise<Member> {
+    const member = this.members.get(id);
+    if (!member) {
+      throw new Error("Member not found");
+    }
+    const updatedMember: Member = { ...member, ...insertMember };
+    this.members.set(id, updatedMember);
+    return updatedMember;
+  }
+
+  async deleteMember(id: number): Promise<void> {
+    // Delete all relationships involving this member
+    for (const [relationshipId, relationship] of this.relationships.entries()) {
+      if (relationship.memberId === id || relationship.relatedMemberId === id) {
+        this.relationships.delete(relationshipId);
+      }
+    }
+    // Delete the member
+    this.members.delete(id);
+  }
+
   async deleteRelationship(id: number): Promise<void> {
     this.relationships.delete(id);
   }

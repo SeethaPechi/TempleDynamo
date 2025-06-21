@@ -59,7 +59,17 @@ export default function MemberDetails() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedBirthCountry, setSelectedBirthCountry] = useState("");
   const [selectedCurrentCountry, setSelectedCurrentCountry] = useState("");
+  const [isRelativesModalOpen, setIsRelativesModalOpen] = useState(false);
+  const [editingRelationship, setEditingRelationship] = useState<any>(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedRelationshipType, setSelectedRelationshipType] = useState("");
+  const [selectedRelatedMember, setSelectedRelatedMember] = useState<Member | null>(null);
   const queryClient = useQueryClient();
+
+  const relationshipTypes = [
+    "Father", "Mother", "Spouse", "Child", "Brother", "Sister", 
+    "Uncle", "Aunt", "Cousin", "Grandfather", "Grandmother", "Other"
+  ];
 
   const { data: member, isLoading: memberLoading } = useQuery({
     queryKey: [`/api/members/${memberId}`],
@@ -70,6 +80,18 @@ export default function MemberDetails() {
     queryKey: [`/api/relationships/${memberId}`],
     enabled: !!memberId,
   });
+
+  const { data: allMembers = [] } = useQuery({
+    queryKey: ["/api/members"],
+  });
+
+  // Filter members for search
+  const searchResults = (allMembers as Member[]).filter((member: Member) =>
+    member.id !== memberId && // Don't include the current member
+    (member.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+     member.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+     member.phone.includes(searchTerm))
+  ).slice(0, 10);
 
   const form = useForm<MemberFormData>({
     resolver: zodResolver(insertMemberSchema),
@@ -140,6 +162,42 @@ export default function MemberDetails() {
     updateMutation.mutate(data);
   };
 
+  const addRelationshipMutation = useMutation({
+    mutationFn: async (relationshipData: any) => {
+      return apiRequest("/api/relationships", {
+        method: "POST",
+        body: JSON.stringify(relationshipData),
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [`/api/relationships/${memberId}`] });
+      setSelectedRelatedMember(null);
+      setSelectedRelationshipType("");
+      setSearchTerm("");
+    },
+  });
+
+  const deleteRelationshipMutation = useMutation({
+    mutationFn: async (relationshipId: number) => {
+      return apiRequest(`/api/relationships/${relationshipId}`, {
+        method: "DELETE",
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [`/api/relationships/${memberId}`] });
+    },
+  });
+
+  const handleAddRelationship = () => {
+    if (selectedRelatedMember && selectedRelationshipType) {
+      addRelationshipMutation.mutate({
+        memberId: memberId,
+        relatedMemberId: selectedRelatedMember.id,
+        relationshipType: selectedRelationshipType,
+      });
+    }
+  };
+
   if (memberLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-saffron-50 to-temple-gold-50 flex items-center justify-center">
@@ -194,11 +252,130 @@ export default function MemberDetails() {
                   <div className="flex items-center justify-between">
                     <h1 className="text-3xl font-bold text-temple-brown mb-2">{(member as Member).fullName}</h1>
                     <div className="flex space-x-2">
+                      <Dialog open={isRelativesModalOpen} onOpenChange={setIsRelativesModalOpen}>
+                        <DialogTrigger asChild>
+                          <Button variant="outline" size="sm">
+                            <Heart className="mr-2" size={16} />
+                            Manage Relatives
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                          <DialogHeader>
+                            <DialogTitle>Manage Family Relationships</DialogTitle>
+                          </DialogHeader>
+                          
+                          <div className="space-y-6">
+                            {/* Add New Relationship Section */}
+                            <div className="border rounded-lg p-4 bg-gray-50">
+                              <h3 className="text-lg font-medium mb-4">Add New Relationship</h3>
+                              
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                <div>
+                                  <label className="text-sm font-medium">Search Member</label>
+                                  <Input
+                                    placeholder="Search by name, email, or phone..."
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                  />
+                                  {searchTerm && searchResults.length > 0 && (
+                                    <div className="mt-2 border rounded-md bg-white max-h-40 overflow-y-auto">
+                                      {searchResults.map((member: Member) => (
+                                        <div
+                                          key={member.id}
+                                          className="p-3 hover:bg-gray-100 cursor-pointer border-b last:border-b-0"
+                                          onClick={() => {
+                                            setSelectedRelatedMember(member);
+                                            setSearchTerm(member.fullName);
+                                          }}
+                                        >
+                                          <div className="font-semibold text-temple-brown">{member.fullName}</div>
+                                          <div className="text-sm text-gray-600">{member.email} • {member.phone}</div>
+                                          <div className="text-xs text-gray-500">{member.currentCity}, {member.currentState}</div>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  )}
+                                </div>
+                                
+                                <div>
+                                  <label className="text-sm font-medium">Relationship Type</label>
+                                  <Select value={selectedRelationshipType} onValueChange={setSelectedRelationshipType}>
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Select relationship..." />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      {relationshipTypes.map((type) => (
+                                        <SelectItem key={type} value={type}>{type}</SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                              </div>
+                              
+                              <Button 
+                                onClick={handleAddRelationship}
+                                disabled={!selectedRelatedMember || !selectedRelationshipType || addRelationshipMutation.isPending}
+                                className="bg-saffron-500 hover:bg-saffron-600"
+                              >
+                                {addRelationshipMutation.isPending ? "Adding..." : "Add Relationship"}
+                              </Button>
+                            </div>
+
+                            {/* Existing Relationships */}
+                            <div>
+                              <h3 className="text-lg font-medium mb-4">Current Family Relationships ({(relationships as any[]).length})</h3>
+                              
+                              {(relationships as any[]).length > 0 ? (
+                                <div className="space-y-3">
+                                  {(relationships as any[]).map((relationship: any) => (
+                                    <div key={relationship.id} className="flex items-center justify-between p-4 border rounded-lg bg-white">
+                                      <div className="flex items-center space-x-4">
+                                        <div className="w-12 h-12 bg-saffron-500 rounded-full flex items-center justify-center">
+                                          <Users className="text-white" size={20} />
+                                        </div>
+                                        <div>
+                                          <h4 className="font-semibold text-temple-brown">{relationship.relatedMember.fullName}</h4>
+                                          <p className="text-sm text-gray-600">{relationship.relationshipType}</p>
+                                          <p className="text-xs text-gray-500">{relationship.relatedMember.currentCity}, {relationship.relatedMember.currentState}</p>
+                                        </div>
+                                      </div>
+                                      <div className="flex space-x-2">
+                                        <Button
+                                          variant="outline"
+                                          size="sm"
+                                          onClick={() => window.location.href = `/member/${relationship.relatedMember.id}`}
+                                        >
+                                          View Details
+                                        </Button>
+                                        <Button
+                                          variant="destructive"
+                                          size="sm"
+                                          onClick={() => deleteRelationshipMutation.mutate(relationship.id)}
+                                          disabled={deleteRelationshipMutation.isPending}
+                                        >
+                                          Remove
+                                        </Button>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              ) : (
+                                <div className="text-center py-8 bg-gray-50 rounded-lg">
+                                  <Heart className="mx-auto mb-4 text-gray-400" size={48} />
+                                  <p className="text-gray-500">No family relationships added yet.</p>
+                                  <p className="text-sm text-gray-400 mt-2">Use the form above to add family connections.</p>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </DialogContent>
+                      </Dialog>
+
                       <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
                         <DialogTrigger asChild>
                           <Button variant="outline" size="sm">
                             <Edit className="mr-2" size={16} />
-                            Edit
+                            Edit Profile
                           </Button>
                         </DialogTrigger>
                         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
