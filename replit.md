@@ -112,6 +112,14 @@ This is a full-stack temple community management system built with React, Expres
   - Built comprehensive relationship tracking with 12 relationship types
   - Added direct navigation to related member profiles
 
+✓ **Enhanced Member Registry with Marital Status** (June 21, 2025)
+  - Added marital status field with options: Single, Married, Divorced, Widowed
+  - Added spouse name field next to father and mother names
+  - Updated registry form with 3-column layout for parents and spouse
+  - Enhanced member display to show marital status and spouse information
+  - Updated database schema to support new fields
+  - Form automatically clears spouse name when marital status is not "Married"
+
 ✓ **Critical Member Display Fix** (June 21, 2025)
   - Fixed persistent "Member #1" display issue by removing React component dependencies
   - Implemented direct HTML rendering with inline styles for name display

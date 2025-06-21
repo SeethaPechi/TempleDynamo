@@ -15,9 +15,10 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { User, MapPin, Home, Users, Link as LinkIcon, Search, X } from "lucide-react";
 import { useTranslation } from 'react-i18next';
+import { insertMemberSchema } from "@shared/schema";
 import type { Member } from "@shared/schema";
 
-const registrationSchema = z.object({
+const registrationSchema = insertMemberSchema.extend({
   fullName: z.string().min(2, "Full name must be at least 2 characters"),
   phone: z.string().min(10, "Phone number must be at least 10 digits"),
   email: z.string().email("Please enter a valid email address"),
@@ -29,6 +30,12 @@ const registrationSchema = z.object({
   currentCountry: z.string().min(1, "Current country is required"),
   fatherName: z.string().min(2, "Father's name must be at least 2 characters"),
   motherName: z.string().min(2, "Mother's name must be at least 2 characters"),
+  spouseName: z.string().optional(),
+  maritalStatus: z.enum(["Single", "Married", "Divorced", "Widowed"]),
+  linkedRelatives: z.array(z.object({
+    memberId: z.number(),
+    relationshipType: z.string(),
+  })).optional(),
 });
 
 type RegistrationData = z.infer<typeof registrationSchema>;
@@ -394,6 +401,7 @@ export default function Registry() {
   const [selectedRelative, setSelectedRelative] = useState<Member | null>(null);
   const [selectedRelationship, setSelectedRelationship] = useState("");
   const [linkedRelatives, setLinkedRelatives] = useState<Array<{ member: Member; relationship: string }>>([]);
+  const [selectedMaritalStatus, setSelectedMaritalStatus] = useState("");
   const [selectedBirthCountry, setSelectedBirthCountry] = useState("");
   const [selectedCurrentCountry, setSelectedCurrentCountry] = useState("");
   const { toast } = useToast();
@@ -413,6 +421,8 @@ export default function Registry() {
       currentCountry: "",
       fatherName: "",
       motherName: "",
+      spouseName: "",
+      maritalStatus: "Single" as const,
     },
   });
 
@@ -700,13 +710,14 @@ export default function Registry() {
                   </div>
                 </div>
 
-                {/* Parent Information */}
+                {/* Family Information */}
                 <div className="border-l-4 border-temple-gold pl-6">
                   <h3 className="text-xl font-semibold text-temple-brown mb-6 flex items-center">
                     <Users className="text-temple-gold mr-3" size={24} />
-                    Parent Information
+                    Family Information
                   </h3>
-                  <div className="grid md:grid-cols-2 gap-6">
+                  
+                  <div className="grid md:grid-cols-3 gap-6 mb-6">
                     <FormField
                       control={form.control}
                       name="fatherName"
@@ -733,7 +744,50 @@ export default function Registry() {
                         </FormItem>
                       )}
                     />
+                    <FormField
+                      control={form.control}
+                      name="spouseName"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Spouse Name</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Spouse's full name" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                   </div>
+
+                  <FormField
+                    control={form.control}
+                    name="maritalStatus"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Marital Status *</FormLabel>
+                        <Select onValueChange={(value) => {
+                          field.onChange(value);
+                          setSelectedMaritalStatus(value);
+                          if (value !== "Married") {
+                            form.setValue("spouseName", "");
+                          }
+                        }} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select marital status" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="Single">Single</SelectItem>
+                            <SelectItem value="Married">Married</SelectItem>
+                            <SelectItem value="Divorced">Divorced</SelectItem>
+                            <SelectItem value="Widowed">Widowed</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
 
                 {/* Family Relationships */}

@@ -51,6 +51,8 @@ type MemberFormData = {
   currentCountry: string;
   fatherName: string;
   motherName: string;
+  spouseName: string;
+  maritalStatus: string;
 };
 
 export default function MemberDetails() {
@@ -107,6 +109,8 @@ export default function MemberDetails() {
       currentCountry: "",
       fatherName: "",
       motherName: "",
+      spouseName: "",
+      maritalStatus: "Single",
     },
   });
 
@@ -126,6 +130,8 @@ export default function MemberDetails() {
         currentCountry: memberData.currentCountry,
         fatherName: memberData.fatherName,
         motherName: memberData.motherName,
+        spouseName: memberData.spouseName || "",
+        maritalStatus: memberData.maritalStatus,
       });
       setSelectedBirthCountry(memberData.birthCountry);
       setSelectedCurrentCountry(memberData.currentCountry);
@@ -427,7 +433,7 @@ export default function MemberDetails() {
                                 )}
                               />
 
-                              <div className="grid md:grid-cols-2 gap-4">
+                              <div className="grid md:grid-cols-3 gap-4">
                                 <FormField
                                   control={form.control}
                                   name="fatherName"
@@ -454,7 +460,44 @@ export default function MemberDetails() {
                                     </FormItem>
                                   )}
                                 />
+                                <FormField
+                                  control={form.control}
+                                  name="spouseName"
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel>Spouse Name</FormLabel>
+                                      <FormControl>
+                                        <Input {...field} />
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
                               </div>
+
+                              <FormField
+                                control={form.control}
+                                name="maritalStatus"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Marital Status *</FormLabel>
+                                    <Select onValueChange={field.onChange} value={field.value}>
+                                      <FormControl>
+                                        <SelectTrigger>
+                                          <SelectValue placeholder="Select marital status" />
+                                        </SelectTrigger>
+                                      </FormControl>
+                                      <SelectContent>
+                                        <SelectItem value="Single">Single</SelectItem>
+                                        <SelectItem value="Married">Married</SelectItem>
+                                        <SelectItem value="Divorced">Divorced</SelectItem>
+                                        <SelectItem value="Widowed">Widowed</SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
 
                               <div className="space-y-4">
                                 <h3 className="text-lg font-medium">Birth Information</h3>
@@ -658,6 +701,16 @@ export default function MemberDetails() {
                       <MapPin className="mr-2" size={16} />
                       {(member as Member).currentCity}, {(member as Member).currentState}, {(member as Member).currentCountry}
                     </div>
+                    <div className="flex items-center text-gray-600">
+                      <Users className="mr-2" size={16} />
+                      Marital Status: {(member as Member).maritalStatus}
+                    </div>
+                    {(member as Member).spouseName && (
+                      <div className="flex items-center text-gray-600">
+                        <Heart className="mr-2" size={16} />
+                        Spouse: {(member as Member).spouseName}
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -678,9 +731,13 @@ export default function MemberDetails() {
                   <p className="text-gray-600">{(member as Member).currentState}, {(member as Member).currentCountry}</p>
                 </div>
                 <div>
-                  <h3 className="font-medium text-gray-700 mb-2">Parents</h3>
+                  <h3 className="font-medium text-gray-700 mb-2">Family Information</h3>
                   <p className="text-gray-600">Father: {(member as Member).fatherName}</p>
                   <p className="text-gray-600">Mother: {(member as Member).motherName}</p>
+                  {(member as Member).spouseName && (
+                    <p className="text-gray-600">Spouse: {(member as Member).spouseName}</p>
+                  )}
+                  <p className="text-gray-600">Marital Status: {(member as Member).maritalStatus}</p>
                 </div>
               </div>
             </Card>
