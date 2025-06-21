@@ -389,7 +389,7 @@ export default function MemberDetails() {
                             <DialogTitle className="text-xl font-bold text-temple-brown">Edit Member Details</DialogTitle>
                           </DialogHeader>
                           <Form {...form}>
-                            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                               <div className="grid md:grid-cols-2 gap-4">
                                 <FormField
                                   control={form.control}
@@ -647,11 +647,21 @@ export default function MemberDetails() {
                                 </div>
                               </div>
 
-                              <div className="flex justify-end space-x-2 pt-6 border-t mt-6">
-                                <Button type="button" variant="outline" onClick={() => setIsEditModalOpen(false)}>
+                              <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200 mt-6">
+                                <Button 
+                                  type="button" 
+                                  variant="outline" 
+                                  onClick={() => setIsEditModalOpen(false)}
+                                  className="px-6 py-2"
+                                >
                                   Cancel
                                 </Button>
-                                <Button type="submit" disabled={updateMutation.isPending} className="bg-saffron-500 hover:bg-saffron-600 text-white">
+                                <Button 
+                                  type="submit" 
+                                  disabled={updateMutation.isPending} 
+                                  className="bg-saffron-500 hover:bg-saffron-600 text-white px-6 py-2 font-medium flex items-center"
+                                >
+                                  <Save className="mr-2" size={16} />
                                   {updateMutation.isPending ? "Saving..." : "Save Changes"}
                                 </Button>
                               </div>
