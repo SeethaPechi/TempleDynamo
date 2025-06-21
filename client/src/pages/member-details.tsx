@@ -131,7 +131,7 @@ export default function MemberDetails() {
         fatherName: memberData.fatherName,
         motherName: memberData.motherName,
         spouseName: memberData.spouseName || "",
-        maritalStatus: memberData.maritalStatus,
+        maritalStatus: memberData.maritalStatus || "Single",
       });
       setSelectedBirthCountry(memberData.birthCountry);
       setSelectedCurrentCountry(memberData.currentCountry);
@@ -385,8 +385,8 @@ export default function MemberDetails() {
                           </Button>
                         </DialogTrigger>
                         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-                          <DialogHeader>
-                            <DialogTitle>Edit Member Details</DialogTitle>
+                          <DialogHeader className="pb-4">
+                            <DialogTitle className="text-xl font-bold text-temple-brown">Edit Member Details</DialogTitle>
                           </DialogHeader>
                           <Form {...form}>
                             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -647,12 +647,12 @@ export default function MemberDetails() {
                                 </div>
                               </div>
 
-                              <div className="flex justify-end space-x-2 pt-4">
+                              <div className="flex justify-end space-x-2 pt-6 border-t mt-6">
                                 <Button type="button" variant="outline" onClick={() => setIsEditModalOpen(false)}>
                                   Cancel
                                 </Button>
-                                <Button type="submit" disabled={updateMutation.isPending} className="bg-saffron-500 hover:bg-saffron-600">
-                                  {updateMutation.isPending ? "Updating..." : "Update Member"}
+                                <Button type="submit" disabled={updateMutation.isPending} className="bg-saffron-500 hover:bg-saffron-600 text-white">
+                                  {updateMutation.isPending ? "Saving..." : "Save Changes"}
                                 </Button>
                               </div>
                             </form>
