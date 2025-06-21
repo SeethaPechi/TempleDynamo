@@ -33,14 +33,18 @@ export default function Members() {
 
   // Filter members based on search criteria
   const filteredMembers = Array.isArray(allMembers) ? allMembers.filter((member: Member) => {
-    const matchesSearch = !searchTerm || 
+    // Search term filter - search in name, email, phone
+    const matchesSearch = !searchTerm || searchTerm.trim() === "" || 
       member.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       member.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       member.phone?.includes(searchTerm);
     
-    const matchesCity = !selectedCity || selectedCity === "all-cities" || 
+    // City filter
+    const matchesCity = !selectedCity || selectedCity === "" || selectedCity === "all-cities" || 
       member.currentCity?.toLowerCase().includes(selectedCity.toLowerCase());
-    const matchesState = !selectedState || selectedState === "all-states" || 
+    
+    // State filter
+    const matchesState = !selectedState || selectedState === "" || selectedState === "all-states" || 
       member.currentState === selectedState;
     
     return matchesSearch && matchesCity && matchesState;
@@ -58,7 +62,15 @@ export default function Members() {
     Array.from(new Set(allMembers.map((member: Member) => member.currentCity).filter(Boolean))) : [];
 
   const handleSearch = () => {
-    setCurrentPage(1); // Reset to first page when searching
+    setCurrentPage(1);
+  };
+
+  // Clear all filters
+  const clearFilters = () => {
+    setSearchTerm("");
+    setSelectedCity("");
+    setSelectedState("");
+    setCurrentPage(1);
   };
 
   const getGradientColor = (index: number) => {
@@ -109,10 +121,10 @@ export default function Members() {
         {/* Search and Filter */}
         <Card className="shadow-lg border border-temple-gold/20 p-6 mb-8">
           <h2 className="text-2xl font-bold text-temple-brown mb-6">{t('members.title')}</h2>
-          <div className="grid md:grid-cols-4 gap-4">
+          <div className="grid md:grid-cols-5 gap-4">
             <div>
               <Input
-                placeholder={t('members.searchPlaceholder')}
+                placeholder="Search by name, email, phone..."
                 value={searchTerm}
                 onChange={(e) => {
                   setSearchTerm(e.target.value);
@@ -159,11 +171,11 @@ export default function Members() {
             </div>
             <div>
               <Button
-                onClick={handleSearch}
-                className="w-full bg-saffron-500 hover:bg-saffron-600 text-white font-medium"
+                onClick={clearFilters}
+                variant="outline"
+                className="w-full border-saffron-200 text-saffron-700 hover:bg-saffron-50"
               >
-                <Search className="mr-2" size={16} />
-                {t('common.search')}
+                Clear Filters
               </Button>
             </div>
           </div>
