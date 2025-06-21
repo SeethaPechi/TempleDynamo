@@ -13,14 +13,9 @@ export function SimpleMemberCard({ fullName, memberNumber }: SimpleMemberCardPro
         <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4">
           <Users className="text-temple-brown" size={24} />
         </div>
-        <div style={{ 
-          color: 'white', 
-          fontSize: '18px', 
-          fontWeight: 'bold',
-          marginBottom: '8px'
-        }}>
-          {fullName}
-        </div>
+        <h3 className="text-lg font-bold text-white mb-2">
+          {fullName || 'Unknown Member'}
+        </h3>
         <p className="text-saffron-100 text-sm">Member #{memberNumber}</p>
       </div>
     </Card>

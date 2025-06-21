@@ -121,7 +121,7 @@ export default function Members() {
         {/* Search and Filter */}
         <Card className="shadow-lg border border-temple-gold/20 p-6 mb-8">
           <h2 className="text-2xl font-bold text-temple-brown mb-6">{t('members.title')}</h2>
-          <div className="grid md:grid-cols-5 gap-4">
+          <div className="grid md:grid-cols-6 gap-4">
             <div>
               <Input
                 placeholder="Search by name, email, phone..."
@@ -178,6 +178,15 @@ export default function Members() {
                 Clear Filters
               </Button>
             </div>
+            <div>
+              <Button
+                onClick={handleSearch}
+                className="w-full bg-saffron-500 hover:bg-saffron-600 text-white font-medium"
+              >
+                <Search className="mr-2" size={16} />
+                Search
+              </Button>
+            </div>
           </div>
           <div className="mt-4 text-sm text-gray-600">
             {t('common.showing')} {filteredMembers.length} {t('common.of')} {Array.isArray(allMembers) ? allMembers.length : 0} {t('nav.members')}
@@ -194,13 +203,22 @@ export default function Members() {
         ) : (
           <>
             <div className="grid md:grid-cols-4 lg:grid-cols-5 gap-6">
-              {paginatedMembers.map((member: Member, index: number) => (
-                <SimpleMemberCard 
-                  key={member.id} 
-                  fullName={member.fullName}
-                  memberNumber={startIndex + index + 1}
-                />
-              ))}
+              {paginatedMembers.map((member: Member, index: number) => {
+                console.log('Rendering member in grid:', member.fullName);
+                return (
+                  <div key={member.id} className="overflow-hidden hover:shadow-xl transition-shadow border border-temple-gold/20 rounded-lg bg-white">
+                    <div className="bg-gradient-to-r from-saffron-500 to-temple-gold p-6 text-center">
+                      <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4">
+                        <Users className="text-temple-brown" size={24} />
+                      </div>
+                      <h3 className="text-lg font-bold text-white mb-2">
+                        {member.fullName}
+                      </h3>
+                      <p className="text-saffron-100 text-sm">Member #{startIndex + index + 1}</p>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
 
             {/* Pagination */}
