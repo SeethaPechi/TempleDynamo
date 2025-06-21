@@ -20,6 +20,7 @@ const states = [
 ];
 
 export default function Members() {
+  console.log("Members component rendered at:", new Date().toISOString());
   const { t } = useTranslation();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCity, setSelectedCity] = useState("");
@@ -30,6 +31,9 @@ export default function Members() {
   const { data: allMembers = [], isLoading } = useQuery({
     queryKey: ["/api/members"],
   });
+
+  console.log("Query data:", allMembers);
+  console.log("Is loading:", isLoading);
 
   // Filter members based on search criteria
   const filteredMembers = Array.isArray(allMembers) ? allMembers.filter((member: Member) => {
@@ -202,17 +206,19 @@ export default function Members() {
           </Card>
         ) : (
           <>
-            <div className="grid md:grid-cols-4 lg:grid-cols-5 gap-6">
+            <div className="space-y-4">
               {paginatedMembers.map((member: Member, index: number) => (
-                <div key={member.id} className="bg-white rounded-lg shadow-lg border border-temple-gold/20 overflow-hidden hover:shadow-xl transition-shadow">
-                  <div className="bg-gradient-to-r from-saffron-500 to-temple-gold p-6 text-center">
-                    <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4">
-                      <Users className="text-temple-brown" size={24} />
-                    </div>
-                    <div className="text-lg font-bold text-white mb-2" style={{ fontSize: '18px', fontWeight: 'bold' }}>
-                      {member.fullName || 'Unknown Member'}
-                    </div>
-                    <div className="text-saffron-100 text-sm">Member #{startIndex + index + 1}</div>
+                <div key={member.id} className="bg-white p-4 rounded-lg shadow border flex items-center space-x-4">
+                  <div className="w-12 h-12 bg-saffron-500 rounded-full flex items-center justify-center">
+                    <Users className="text-white" size={20} />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-lg font-semibold text-gray-900">
+                      {member.fullName}
+                    </h3>
+                    <p className="text-sm text-gray-500">Member #{startIndex + index + 1}</p>
+                    <p className="text-sm text-gray-500">{member.email}</p>
+                    <p className="text-sm text-gray-500">{member.currentCity}, {member.currentState}</p>
                   </div>
                 </div>
               ))}
