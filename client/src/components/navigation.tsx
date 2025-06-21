@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { Home, UserPlus, Users, Menu, X, MessageSquare, Building } from "lucide-react";
+import { Home, UserPlus, Users, Menu, X, MessageSquare, Building, TreePine } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from 'react-i18next';
 import { LanguageSwitcher } from './language-switcher';
@@ -15,6 +15,8 @@ export function Navigation() {
     { path: "/", label: t('nav.home'), icon: Home },
     { path: "/registry", label: t('nav.registry'), icon: UserPlus },
     { path: "/members", label: t('nav.members'), icon: Users },
+
+    { path: "/family-tree", label: "Family Tree", icon: TreePine },
     { path: "/temples", label: t('nav.temples'), icon: Building },
     { path: "/whatsapp", label: t('nav.whatsapp'), icon: MessageSquare },
   ];

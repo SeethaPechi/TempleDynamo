@@ -21,6 +21,7 @@ function Router() {
       <Route path="/whatsapp" component={WhatsApp} />
       <Route path="/temples" component={Temples} />
       <Route path="/temple-registry" component={TempleRegistry} />
+
       <Route component={NotFound} />
     </Switch>
   );
