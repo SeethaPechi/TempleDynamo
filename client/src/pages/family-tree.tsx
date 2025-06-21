@@ -288,7 +288,7 @@ export default function FamilyTree() {
                     </div>
                   ) : (
                     <div className="text-center py-8">
-                      <Family className="mx-auto mb-4 text-gray-400" size={48} />
+                      <TreePine className="mx-auto mb-4 text-gray-400" size={48} />
                       <p className="text-gray-500">No family relationships added yet.</p>
                       <p className="text-sm text-gray-400 mt-2">Click "Add Relationship" to connect family members.</p>
                     </div>

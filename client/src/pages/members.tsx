@@ -211,7 +211,10 @@ export default function Members() {
                 <div 
                   key={member.id} 
                   className="bg-white p-4 rounded-lg shadow border flex items-center space-x-4 cursor-pointer hover:shadow-lg transition-shadow"
-                  onClick={() => window.location.href = `/member/${member.id}`}
+                  onClick={() => {
+                    console.log('Navigating to member:', member.id);
+                    window.location.href = `/member/${member.id}`;
+                  }}
                 >
                   <div className="w-12 h-12 bg-saffron-500 rounded-full flex items-center justify-center">
                     <Users className="text-white" size={20} />

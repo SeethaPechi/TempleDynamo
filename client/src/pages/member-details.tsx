@@ -11,12 +11,12 @@ export default function MemberDetails() {
   const memberId = params?.id ? parseInt(params.id) : null;
 
   const { data: member, isLoading: memberLoading } = useQuery({
-    queryKey: ["/api/members", memberId],
+    queryKey: [`/api/members/${memberId}`],
     enabled: !!memberId,
   });
 
   const { data: relationships = [] } = useQuery({
-    queryKey: ["/api/relationships", memberId],
+    queryKey: [`/api/relationships/${memberId}`],
     enabled: !!memberId,
   });
 
