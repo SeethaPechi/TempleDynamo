@@ -105,6 +105,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Member search route
+  app.get("/api/members/search", async (req, res) => {
+    try {
+      const { term, city, state } = req.query;
+      if (!term && !city && !state) {
+        return res.json([]);
+      }
+      const members = await storage.searchMembers(
+        term as string || "", 
+        city as string || "", 
+        state as string || ""
+      );
+      res.json(members);
+    } catch (error) {
+      console.error("Search error:", error);
+      res.status(500).json({ message: "Failed to search members" });
+    }
+  });
+
   // Search members for relationship linking
   app.get("/api/members/search/:term", async (req, res) => {
     try {
