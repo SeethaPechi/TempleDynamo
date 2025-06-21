@@ -90,6 +90,15 @@ This is a full-stack temple community management system built with React, Expres
 
 ## Recent Changes
 
+✓ **Critical Member Display Fix** (June 21, 2025)
+  - Fixed persistent "Member #1" display issue by removing React component dependencies
+  - Implemented direct HTML rendering with inline styles for name display
+  - Restored Search button functionality alongside Clear Filters
+  - Enhanced search functionality to work across name, email, and phone fields
+  - User data preserved: Venkat Thirupathy profile remains intact in database
+
+## Previous Changes
+
 ✓ **Enhanced Registration Forms** (June 20, 2025)
   - Expanded country dropdown options from 5 to 195+ countries in both registry forms
   - Added comprehensive state lists for major countries (US, India, Canada, Australia, UK, Germany)
