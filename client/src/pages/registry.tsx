@@ -795,8 +795,17 @@ export default function Registry() {
                 <div className="border-l-4 border-temple-crimson pl-6">
                   <h3 className="text-xl font-semibold text-temple-brown mb-6 flex items-center">
                     <LinkIcon className="text-temple-crimson mr-3" size={24} />
-                    Link Family Member
+                    Family Relationships
                   </h3>
+                  
+                  {/* Auto-populate notice */}
+                  {selectedMember && (
+                    <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
+                      <p className="text-sm text-blue-800">
+                        <strong>{selectedMember.fullName}</strong> selected. Family relationships will be auto-populated when this member is added.
+                      </p>
+                    </div>
+                  )}
                   <Card className="bg-saffron-50 border border-saffron-200">
                     <CardContent className="p-6">
                       <div className="grid md:grid-cols-2 gap-6">
@@ -819,7 +828,10 @@ export default function Registry() {
                                   type="button"
                                   onClick={() => {
                                     setSelectedRelative(member);
+                                    setSelectedMember(member); // Set for auto-population
                                     setSearchTerm(member.fullName);
+                                    // Auto-populate family relationships
+                                    autoPopulateRelationships(member);
                                   }}
                                   className="w-full text-left px-4 py-2 hover:bg-saffron-50 border-b border-gray-100 last:border-b-0 transition-colors"
                                 >

@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Users, ArrowLeft, MapPin, Phone, Mail, Heart, Edit, Trash2, Save, Plus, Search, X } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 import type { Member, Relationship, InsertMember } from "@shared/schema";
 import { insertMemberSchema } from "@shared/schema";
 
@@ -43,14 +44,18 @@ export default function MemberDetails() {
   const [, params] = useRoute("/member/:id");
   const memberId = params?.id ? parseInt(params.id) : null;
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isAddRelativeOpen, setIsAddRelativeOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedRelative, setSelectedRelative] = useState<Member | null>(null);
+  const [selectedRelationship, setSelectedRelationship] = useState("");
   const [selectedBirthCountry, setSelectedBirthCountry] = useState("");
   const [selectedCurrentCountry, setSelectedCurrentCountry] = useState("");
   const [isRelativesModalOpen, setIsRelativesModalOpen] = useState(false);
   const [editingRelationship, setEditingRelationship] = useState<any>(null);
-  const [searchTerm, setSearchTerm] = useState("");
   const [selectedRelationshipType, setSelectedRelationshipType] = useState("");
   const [selectedRelatedMember, setSelectedRelatedMember] = useState<Member | null>(null);
   const queryClient = useQueryClient();
+  const { toast } = useToast();
 
   const relationshipTypes = [
     "Father", "Mother", "Spouse", "Child", "Brother", "Sister", 
@@ -143,15 +148,17 @@ export default function MemberDetails() {
 
   const deleteMutation = useMutation({
     mutationFn: async () => {
-      return apiRequest(`/api/members/${memberId}`, {
-        method: "DELETE",
-      });
+      return apiRequest("DELETE", `/api/members/${memberId}`, undefined);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/members"] });
       window.location.href = "/members";
     },
   });
+
+
+
+
 
   const onSubmit = (data: InsertMember) => {
     updateMutation.mutate(data);
@@ -175,17 +182,26 @@ export default function MemberDetails() {
   }, [member, form, updateMutation]);
 
   const addRelationshipMutation = useMutation({
-    mutationFn: async (relationshipData: any) => {
-      return apiRequest("/api/relationships", {
-        method: "POST",
-        body: JSON.stringify(relationshipData),
-      });
+    mutationFn: async (data: { memberId: number; relatedMemberId: number; relationshipType: string }) => {
+      return apiRequest("POST", "/api/relationships", data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [`/api/relationships/${memberId}`] });
-      setSelectedRelatedMember(null);
-      setSelectedRelationshipType("");
+      setIsAddRelativeOpen(false);
+      setSelectedRelative(null);
+      setSelectedRelationship("");
       setSearchTerm("");
+      toast({
+        title: "Relationship Added",
+        description: "Family relationship has been added successfully.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to add relationship. Please try again.",
+        variant: "destructive",
+      });
     },
   });
 
@@ -298,7 +314,7 @@ export default function MemberDetails() {
                               </div>
                               {searchTerm && (
                                 <div className="mt-2 max-h-40 overflow-y-auto border rounded-md bg-white shadow-lg">
-                                  {searchResults.map((member: Member) => (
+                                  {memberSearchResults.map((member: Member) => (
                                     <button
                                       key={member.id}
                                       onClick={() => {
@@ -897,6 +913,106 @@ export default function MemberDetails() {
               </div>
             </Card>
           )}
+
+        {/* Add Relative Dialog */}
+        <Dialog open={isAddRelativeOpen} onOpenChange={setIsAddRelativeOpen}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle>Link Family Member</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-medium">Search for Family Member</label>
+                <div className="relative mt-1">
+                  <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                  <Input
+                    placeholder="Search by name, email, or phone..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+                {searchTerm.length > 2 && memberSearchResults.length > 0 && (
+                  <div className="mt-2 max-h-40 overflow-y-auto border rounded-md">
+                    {(memberSearchResults as Member[]).filter(m => m.id !== parseInt(memberId as string)).map((member: Member) => (
+                      <div
+                        key={member.id}
+                        className="p-3 hover:bg-gray-50 cursor-pointer border-b"
+                        onClick={() => {
+                          setSelectedRelative(member);
+                          setSearchTerm("");
+                        }}
+                      >
+                        <p className="font-medium">{member.fullName}</p>
+                        <p className="text-sm text-gray-600">{member.email}</p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {selectedRelative && (
+                <div className="p-3 bg-gray-50 rounded-md">
+                  <p className="font-medium">Selected: {selectedRelative.fullName}</p>
+                  <p className="text-sm text-gray-600">{selectedRelative.email}</p>
+                </div>
+              )}
+
+              <div>
+                <label className="text-sm font-medium">Relationship Type</label>
+                <Select value={selectedRelationship} onValueChange={setSelectedRelationship}>
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder="Select relationship" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Father">Father</SelectItem>
+                    <SelectItem value="Mother">Mother</SelectItem>
+                    <SelectItem value="Son">Son</SelectItem>
+                    <SelectItem value="Daughter">Daughter</SelectItem>
+                    <SelectItem value="Brother">Brother</SelectItem>
+                    <SelectItem value="Sister">Sister</SelectItem>
+                    <SelectItem value="Husband">Husband</SelectItem>
+                    <SelectItem value="Wife">Wife</SelectItem>
+                    <SelectItem value="Grandfather">Grandfather</SelectItem>
+                    <SelectItem value="Grandmother">Grandmother</SelectItem>
+                    <SelectItem value="Uncle">Uncle</SelectItem>
+                    <SelectItem value="Aunt">Aunt</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="flex gap-2 pt-4">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setIsAddRelativeOpen(false);
+                    setSelectedRelative(null);
+                    setSelectedRelationship("");
+                    setSearchTerm("");
+                  }}
+                  className="flex-1"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={() => {
+                    if (selectedRelative && selectedRelationship && memberId) {
+                      addRelationshipMutation.mutate({
+                        memberId: parseInt(memberId as string),
+                        relatedMemberId: selectedRelative.id,
+                        relationshipType: selectedRelationship,
+                      });
+                    }
+                  }}
+                  disabled={!selectedRelative || !selectedRelationship || addRelationshipMutation.isPending}
+                  className="flex-1 bg-saffron-500 hover:bg-saffron-600"
+                >
+                  {addRelationshipMutation.isPending ? "Adding..." : "Add Relationship"}
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
         </div>
       </div>
     </div>
