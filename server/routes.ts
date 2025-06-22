@@ -62,8 +62,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Update member
+  // Update member (PUT for full updates)
   app.put("/api/members/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid member ID" });
+      }
+
+      const existingMember = await storage.getMember(id);
+      if (!existingMember) {
+        return res.status(404).json({ message: "Member not found" });
+      }
+
+      const memberData = insertMemberSchema.parse(req.body);
+      const updatedMember = await storage.updateMember(id, memberData);
+      res.json(updatedMember);
+    } catch (error) {
+      console.error("Error updating member:", error);
+      res.status(500).json({ message: "Failed to update member" });
+    }
+  });
+
+  // Update member (PATCH for partial updates)
+  app.patch("/api/members/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       if (isNaN(id)) {

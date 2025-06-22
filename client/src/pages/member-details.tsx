@@ -124,14 +124,20 @@ export default function MemberDetails() {
 
   const updateMutation = useMutation({
     mutationFn: async (data: InsertMember) => {
-      return apiRequest(`/api/members/${memberId}`, {
-        method: "PUT",
-        body: JSON.stringify(data),
-      });
+      const response = await apiRequest("PATCH", `/api/members/${memberId}`, data);
+      return response;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [`/api/members/${memberId}`] });
       queryClient.invalidateQueries({ queryKey: ["/api/members"] });
+      console.log("Auto-save successful");
+      // Clear the success indicator after 2 seconds
+      setTimeout(() => {
+        // This will trigger a re-render to hide the success message
+      }, 2000);
+    },
+    onError: (error) => {
+      console.error("Auto-save failed:", error);
     },
   });
 
@@ -153,14 +159,17 @@ export default function MemberDetails() {
 
   // Auto-save function for individual fields
   const autoSave = React.useCallback((fieldName: keyof InsertMember, value: any) => {
-    if (!member) return;
+    if (!member || updateMutation.isPending) return;
     
     const currentData = form.getValues();
     const updatedData = { ...currentData, [fieldName]: value };
     
     // Only save if the value has actually changed
     const memberData = member as Member;
-    if (memberData[fieldName as keyof Member] !== value) {
+    const currentValue = memberData[fieldName as keyof Member];
+    
+    if (currentValue !== value && value !== undefined && value !== null && value.toString().trim() !== "") {
+      console.log(`Auto-saving ${fieldName}:`, value);
       updateMutation.mutate(updatedData);
     }
   }, [member, form, updateMutation]);
@@ -401,7 +410,11 @@ export default function MemberDetails() {
                             {updateMutation.isPending && (
                               <span className="text-sm font-normal text-saffron-600 ml-2">• Auto-saving...</span>
                             )}
+                            {updateMutation.isSuccess && !updateMutation.isPending && (
+                              <span className="text-sm font-normal text-green-600 ml-2">• Saved</span>
+                            )}
                           </DialogTitle>
+                          <p className="text-xs text-gray-500 mt-1">Changes are saved automatically when you move to the next field</p>
                         </DialogHeader>
                       </div>
                       
@@ -760,6 +773,16 @@ export default function MemberDetails() {
                         {updateMutation.isPending && (
                           <div className="text-center mt-2">
                             <p className="text-sm text-saffron-600">Auto-saving changes...</p>
+                          </div>
+                        )}
+                        {updateMutation.isSuccess && !updateMutation.isPending && (
+                          <div className="text-center mt-2">
+                            <p className="text-sm text-green-600">Changes saved successfully</p>
+                          </div>
+                        )}
+                        {updateMutation.isError && (
+                          <div className="text-center mt-2">
+                            <p className="text-sm text-red-600">Failed to save changes. Please try again.</p>
                           </div>
                         )}
                       </div>
