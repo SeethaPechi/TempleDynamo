@@ -52,8 +52,6 @@ export default function MemberDetails() {
   const [selectedCurrentCountry, setSelectedCurrentCountry] = useState("");
   const [isRelativesModalOpen, setIsRelativesModalOpen] = useState(false);
   const [editingRelationship, setEditingRelationship] = useState<any>(null);
-  const [selectedRelationshipType, setSelectedRelationshipType] = useState("");
-  const [selectedRelatedMember, setSelectedRelatedMember] = useState<Member | null>(null);
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
@@ -347,8 +345,8 @@ export default function MemberDetails() {
                                     <button
                                       key={member.id}
                                       onClick={() => {
-                                        setSelectedRelatedMember(member);
-                                        setSearchTerm(member.fullName);
+                                        setSelectedRelative(member);
+                                        setSearchTerm("");
                                       }}
                                       className="w-full text-left px-3 py-3 hover:bg-gray-100 border-b last:border-b-0 transition-colors"
                                     >
@@ -363,7 +361,20 @@ export default function MemberDetails() {
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                               <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">Relationship Type</label>
-                                <Select value={selectedRelationshipType} onValueChange={setSelectedRelationshipType}>
+                                <Select 
+                                  value={selectedRelationship} 
+                                  onValueChange={(value) => {
+                                    setSelectedRelationship(value);
+                                    // Auto-save when both member and relationship are selected
+                                    if (selectedRelative && value) {
+                                      addRelationshipMutation.mutate({
+                                        memberId: parseInt(memberId as string),
+                                        relatedMemberId: selectedRelative.id,
+                                        relationshipType: value
+                                      });
+                                    }
+                                  }}
+                                >
                                   <SelectTrigger className="h-10 sm:h-11">
                                     <SelectValue placeholder="Select relationship" />
                                   </SelectTrigger>
@@ -377,17 +388,34 @@ export default function MemberDetails() {
                                 </Select>
                               </div>
                               
-                              <div className="flex items-end">
-                                <Button
-                                  onClick={handleAddRelationship}
-                                  disabled={!selectedRelatedMember || !selectedRelationshipType || addRelationshipMutation.isPending}
-                                  className="w-full bg-saffron-500 hover:bg-saffron-600 h-10 sm:h-11"
-                                >
-                                  <Plus className="mr-1 sm:mr-2" size={16} />
-                                  <span className="hidden sm:inline">{addRelationshipMutation.isPending ? "Adding..." : "Add Relationship"}</span>
-                                  <span className="sm:hidden">{addRelationshipMutation.isPending ? "Adding..." : "Add"}</span>
-                                </Button>
-                              </div>
+                              {selectedRelative && (
+                                <div className="p-3 bg-saffron-50 rounded border border-saffron-200">
+                                  <p className="font-medium text-base break-words text-temple-brown">Selected: {selectedRelative.fullName}</p>
+                                  <p className="text-sm text-gray-600 break-all">{selectedRelative.email}</p>
+                                  <p className="text-xs text-gray-500">{selectedRelative.currentCity}, {selectedRelative.currentState}</p>
+                                </div>
+                              )}
+                              
+                              {selectedRelative && selectedRelationship && (
+                                <div className="text-sm text-green-700 bg-green-50 p-3 rounded border border-green-200">
+                                  <div className="flex items-center">
+                                    <Heart className="mr-2 text-green-600" size={16} />
+                                    <span className="font-medium">
+                                      Ready to link {selectedRelative.fullName} as {selectedRelationship}
+                                    </span>
+                                  </div>
+                                  <p className="text-xs mt-1 text-green-600">Relationship will be saved automatically</p>
+                                </div>
+                              )}
+                              
+                              {addRelationshipMutation.isPending && (
+                                <div className="text-sm text-blue-700 bg-blue-50 p-3 rounded border border-blue-200">
+                                  <div className="flex items-center">
+                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-2"></div>
+                                    Adding family relationship...
+                                  </div>
+                                </div>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -949,18 +977,31 @@ export default function MemberDetails() {
                           <span className="hidden sm:inline">View Profile</span>
                           <span className="sm:hidden">View</span>
                         </Button>
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          onClick={() => {
-                            if (confirm(`Remove ${relationship.relatedMember.fullName} from family relationships?`)) {
-                              deleteRelationshipMutation.mutate(relationship.id);
-                            }
-                          }}
-                          className="w-full sm:w-auto"
-                        >
-                          <X size={16} />
-                        </Button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button variant="outline" size="sm" className="text-red-600 hover:text-red-700 hover:bg-red-50 w-full sm:w-auto">
+                              <Trash2 size={14} className="mr-1" />
+                              Remove
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Remove Relationship</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Are you sure you want to remove the relationship between {(member as Member).fullName} and {relationship.relatedMember.fullName}?
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => deleteRelationshipMutation.mutate(relationship.id)}
+                                className="bg-red-600 hover:bg-red-700"
+                              >
+                                Remove
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                       </div>
                     </div>
                   </div>
