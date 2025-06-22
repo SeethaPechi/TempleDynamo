@@ -384,13 +384,14 @@ export default function MemberDetails() {
                             Edit Profile
                           </Button>
                         </DialogTrigger>
-                        <DialogContent className="max-w-3xl max-h-[95vh] overflow-y-auto">
-                          <DialogHeader className="pb-4 border-b">
+                        <DialogContent className="max-w-3xl h-[90vh] flex flex-col">
+                          <DialogHeader className="pb-4 border-b flex-shrink-0">
                             <DialogTitle className="text-xl font-bold text-temple-brown">Edit Member Details</DialogTitle>
                           </DialogHeader>
-                          <div className="py-4">
+                          <div className="flex-1 overflow-y-auto py-4">
                             <Form {...form}>
-                              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                              <form onSubmit={form.handleSubmit(onSubmit)} className="h-full flex flex-col">
+                                <div className="flex-1 space-y-6">
                               <div className="grid md:grid-cols-2 gap-4">
                                 <FormField
                                   control={form.control}
@@ -648,23 +649,26 @@ export default function MemberDetails() {
                                 </div>
                               </div>
 
-                                <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200 mt-6 bg-gray-50 -mx-6 px-6 pb-6">
-                                  <Button 
-                                    type="button" 
-                                    variant="outline" 
-                                    onClick={() => setIsEditModalOpen(false)}
-                                    className="px-8 py-2 h-10"
-                                  >
-                                    Cancel
-                                  </Button>
-                                  <Button 
-                                    type="submit" 
-                                    disabled={updateMutation.isPending} 
-                                    className="bg-saffron-500 hover:bg-saffron-600 text-white px-8 py-2 h-10 font-medium flex items-center"
-                                  >
-                                    <Save className="mr-2" size={16} />
-                                    {updateMutation.isPending ? "Saving..." : "Save Changes"}
-                                  </Button>
+                                </div>
+                                <div className="flex-shrink-0 mt-6 pt-4 border-t border-gray-200 bg-gray-50 -mx-4 px-4 pb-4">
+                                  <div className="flex justify-end space-x-3">
+                                    <Button 
+                                      type="button" 
+                                      variant="outline" 
+                                      onClick={() => setIsEditModalOpen(false)}
+                                      className="px-8 py-2 h-10"
+                                    >
+                                      Cancel
+                                    </Button>
+                                    <Button 
+                                      type="submit" 
+                                      disabled={updateMutation.isPending} 
+                                      className="bg-saffron-500 hover:bg-saffron-600 text-white px-8 py-2 h-10 font-medium flex items-center"
+                                    >
+                                      <Save className="mr-2" size={16} />
+                                      {updateMutation.isPending ? "Saving..." : "Save Changes"}
+                                    </Button>
+                                  </div>
                                 </div>
                               </form>
                             </Form>
