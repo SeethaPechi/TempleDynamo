@@ -90,14 +90,15 @@ This is a full-stack temple community management system built with React, Expres
 
 ## Recent Changes
 
-✓ **Auto-Save Functionality for Edit Member Page** (June 22, 2025)
-  - Implemented automatic field-level saving when user moves out of form fields
-  - Added auto-save on blur events for all text input fields (name, email, phone, etc.)
-  - Added auto-save on value change for all dropdown fields (marital status, countries, states)
-  - Removed manual "Save Changes" button in favor of seamless auto-save experience
-  - Added visual indicators showing when auto-save is in progress
-  - Enhanced user experience with instant data persistence
-  - Prevents data loss from accidental modal closure or navigation
+✓ **Universal Auto-Save Functionality** (June 22, 2025)
+  - Implemented auto-save functionality across all forms (Member Registry, Temple Registry, Member Details)
+  - Added draft persistence using localStorage for form data protection
+  - Auto-save triggers on field blur events for all text inputs
+  - Auto-save triggers on value change for all dropdown selections
+  - Forms automatically restore draft data when users return to incomplete forms
+  - Draft data is cleared when forms are successfully submitted
+  - Enhanced user experience with seamless data persistence across all screens
+  - Prevents data loss from accidental navigation or browser closure
 
 ✓ **Mobile-Responsive Member Details Page Redesign** (June 22, 2025)
   - Completely redesigned "Edit Member Details" modal for mobile responsiveness

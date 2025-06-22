@@ -360,7 +360,14 @@ export default function TempleRegistry() {
                         <FormItem>
                           <FormLabel>{t('templeRegistry.form.templeName')}</FormLabel>
                           <FormControl>
-                            <Input placeholder={t('templeRegistry.form.templeNamePlaceholder')} {...field} />
+                            <Input 
+                              placeholder={t('templeRegistry.form.templeNamePlaceholder')} 
+                              {...field} 
+                              onBlur={(e) => {
+                                field.onBlur();
+                                autoSaveDraft('templeName', e.target.value);
+                              }}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -374,7 +381,14 @@ export default function TempleRegistry() {
                         <FormItem>
                           <FormLabel>{t('templeRegistry.form.deity')}</FormLabel>
                           <FormControl>
-                            <Input placeholder={t('templeRegistry.form.deityPlaceholder')} {...field} />
+                            <Input 
+                              placeholder={t('templeRegistry.form.deityPlaceholder')} 
+                              {...field} 
+                              onBlur={(e) => {
+                                field.onBlur();
+                                autoSaveDraft('deity', e.target.value);
+                              }}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -482,6 +496,7 @@ export default function TempleRegistry() {
                             field.onChange(value);
                             setSelectedCountry(value);
                             form.setValue("state", "");
+                            autoSaveDraft('country', value);
                           }} defaultValue={field.value}>
                             <FormControl>
                               <SelectTrigger>
