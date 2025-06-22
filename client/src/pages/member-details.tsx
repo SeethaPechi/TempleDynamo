@@ -501,6 +501,7 @@ export default function MemberDetails() {
                                   </FormItem>
                                 )}
                               />
+                              </div>
 
                               <div className="space-y-4">
                                 <h3 className="text-lg font-medium">Birth Information</h3>
@@ -648,6 +649,7 @@ export default function MemberDetails() {
                                     )}
                                   />
                                 </div>
+                              </div>
                               </div>
                               
                               {/* Action Buttons */}
