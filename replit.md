@@ -90,6 +90,17 @@ This is a full-stack temple community management system built with React, Expres
 
 ## Recent Changes
 
+✓ **Mobile-Responsive Member Details Page Redesign** (June 22, 2025)
+  - Completely redesigned "Edit Member Details" modal for mobile responsiveness
+  - Implemented responsive grid layouts (1 column mobile → 2-3 columns desktop)
+  - Added sticky headers and action buttons for better mobile UX
+  - Optimized button sizes and text for different screen sizes
+  - Enhanced touch targets with proper spacing and sizing (h-10 sm:h-11)
+  - Improved text wrapping and overflow handling for long names/emails
+  - Made all form fields and dropdowns mobile-friendly
+  - Updated "Manage Relatives" modal with responsive design
+  - Enhanced member profile card layout for mobile devices
+
 ✓ **Complete Member Management System** (June 21, 2025)
   - Built comprehensive family tree management system with relationship tracking
   - Created dedicated Family Tree page with member search and selection

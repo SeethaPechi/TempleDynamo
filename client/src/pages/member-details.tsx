@@ -219,45 +219,50 @@ export default function MemberDetails() {
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
           {/* Header */}
-          <div className="flex items-center justify-between mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 sm:mb-8 gap-4">
             <div className="flex items-center">
               <Button
                 variant="ghost"
                 onClick={() => window.location.href = "/members"}
-                className="mr-4 text-temple-brown hover:text-saffron-600"
+                className="mr-3 sm:mr-4 text-temple-brown hover:text-saffron-600 p-2 sm:px-3"
               >
-                <ArrowLeft className="mr-2" size={16} />
-                Back to Members
+                <ArrowLeft className="mr-1 sm:mr-2" size={16} />
+                <span className="hidden sm:inline">Back to Members</span>
+                <span className="sm:hidden">Back</span>
               </Button>
-              <h1 className="text-3xl font-bold text-temple-brown">Member Details</h1>
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-temple-brown">Member Details</h1>
             </div>
           </div>
 
           {/* Member Profile Card */}
           <Card className="mb-8 overflow-hidden">
-            <div className="bg-gradient-to-r from-saffron-500 to-gold-500 p-6 text-white">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h2 className="text-2xl font-bold mb-2">{(member as Member).fullName}</h2>
+            <div className="bg-gradient-to-r from-saffron-500 to-gold-500 p-4 sm:p-6 text-white">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="min-w-0 flex-1">
+                  <h2 className="text-xl sm:text-2xl font-bold mb-2 break-words">{(member as Member).fullName}</h2>
                   <p className="text-saffron-100">Member #{(member as Member).id}</p>
                 </div>
-                <div className="flex space-x-3">
+                <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
                   <Dialog open={isRelativesModalOpen} onOpenChange={setIsRelativesModalOpen}>
                     <DialogTrigger asChild>
-                      <Button variant="secondary" size="sm">
-                        <Users className="mr-2" size={16} />
-                        Manage Relatives
+                      <Button variant="secondary" size="sm" className="w-full sm:w-auto">
+                        <Users className="mr-1 sm:mr-2" size={16} />
+                        <span className="hidden sm:inline">Manage Relatives</span>
+                        <span className="sm:hidden">Relatives</span>
                       </Button>
                     </DialogTrigger>
-                    <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-                      <DialogHeader>
-                        <DialogTitle className="text-xl font-bold text-temple-brown">Manage Family Relationships</DialogTitle>
-                      </DialogHeader>
-                      <div className="space-y-6">
+                    <DialogContent className="w-[95vw] max-w-4xl h-[95vh] sm:max-h-[90vh] overflow-y-auto p-0">
+                      <div className="sticky top-0 bg-white border-b p-4 sm:p-6 z-10">
+                        <DialogHeader>
+                          <DialogTitle className="text-lg sm:text-xl font-bold text-temple-brown">Manage Family Relationships</DialogTitle>
+                        </DialogHeader>
+                      </div>
+                      
+                      <div className="p-4 sm:p-6 space-y-6">
                         {/* Add New Relationship */}
                         <div className="bg-gray-50 p-4 rounded-lg">
-                          <h3 className="font-semibold text-temple-brown mb-4">Add New Relationship</h3>
-                          <div className="grid md:grid-cols-3 gap-4">
+                          <h3 className="text-base sm:text-lg font-semibold text-temple-brown mb-4">Add New Relationship</h3>
+                          <div className="space-y-4">
                             <div>
                               <label className="block text-sm font-medium text-gray-700 mb-2">Search Member</label>
                               <div className="relative">
@@ -265,11 +270,12 @@ export default function MemberDetails() {
                                   placeholder="Search by name, email, or phone..."
                                   value={searchTerm}
                                   onChange={(e) => setSearchTerm(e.target.value)}
+                                  className="h-10 sm:h-11 pr-10"
                                 />
-                                <Search className="absolute right-3 top-3 text-gray-400" size={16} />
+                                <Search className="absolute right-3 top-2.5 sm:top-3 text-gray-400" size={16} />
                               </div>
                               {searchTerm && (
-                                <div className="mt-2 max-h-40 overflow-y-auto border rounded-md bg-white">
+                                <div className="mt-2 max-h-40 overflow-y-auto border rounded-md bg-white shadow-lg">
                                   {searchResults.map((member: Member) => (
                                     <button
                                       key={member.id}
@@ -277,79 +283,88 @@ export default function MemberDetails() {
                                         setSelectedRelatedMember(member);
                                         setSearchTerm(member.fullName);
                                       }}
-                                      className="w-full text-left px-3 py-2 hover:bg-gray-100 border-b last:border-b-0"
+                                      className="w-full text-left px-3 py-3 hover:bg-gray-100 border-b last:border-b-0 transition-colors"
                                     >
-                                      <div className="font-medium">{member.fullName}</div>
-                                      <div className="text-sm text-gray-500">{member.email}</div>
+                                      <div className="font-medium text-sm sm:text-base break-words">{member.fullName}</div>
+                                      <div className="text-xs sm:text-sm text-gray-500 break-all">{member.email}</div>
                                     </button>
                                   ))}
                                 </div>
                               )}
                             </div>
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-2">Relationship Type</label>
-                              <Select value={selectedRelationshipType} onValueChange={setSelectedRelationshipType}>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select relationship" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {relationshipTypes.map((type) => (
-                                    <SelectItem key={type} value={type}>
-                                      {type}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            </div>
-                            <div className="flex items-end">
-                              <Button
-                                onClick={handleAddRelationship}
-                                disabled={!selectedRelatedMember || !selectedRelationshipType || addRelationshipMutation.isPending}
-                                className="w-full bg-saffron-500 hover:bg-saffron-600"
-                              >
-                                <Plus className="mr-2" size={16} />
-                                {addRelationshipMutation.isPending ? "Adding..." : "Add Relationship"}
-                              </Button>
+                            
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Relationship Type</label>
+                                <Select value={selectedRelationshipType} onValueChange={setSelectedRelationshipType}>
+                                  <SelectTrigger className="h-10 sm:h-11">
+                                    <SelectValue placeholder="Select relationship" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {relationshipTypes.map((type) => (
+                                      <SelectItem key={type} value={type}>
+                                        {type}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                              
+                              <div className="flex items-end">
+                                <Button
+                                  onClick={handleAddRelationship}
+                                  disabled={!selectedRelatedMember || !selectedRelationshipType || addRelationshipMutation.isPending}
+                                  className="w-full bg-saffron-500 hover:bg-saffron-600 h-10 sm:h-11"
+                                >
+                                  <Plus className="mr-1 sm:mr-2" size={16} />
+                                  <span className="hidden sm:inline">{addRelationshipMutation.isPending ? "Adding..." : "Add Relationship"}</span>
+                                  <span className="sm:hidden">{addRelationshipMutation.isPending ? "Adding..." : "Add"}</span>
+                                </Button>
+                              </div>
                             </div>
                           </div>
                         </div>
 
                         {/* Existing Relationships */}
                         <div>
-                          <h3 className="font-semibold text-temple-brown mb-4">Current Family Relationships</h3>
+                          <h3 className="text-base sm:text-lg font-semibold text-temple-brown mb-4">Current Family Relationships</h3>
                           {relationships && relationships.length > 0 ? (
                             <div className="space-y-3">
                               {relationships.map((relationship: any) => (
-                                <div key={relationship.id} className="flex items-center justify-between p-3 bg-white border rounded-lg">
-                                  <div>
-                                    <p className="font-medium">{relationship.relatedMember.fullName}</p>
-                                    <p className="text-sm text-gray-600">{relationship.relationshipType}</p>
+                                <div key={relationship.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 bg-white border rounded-lg gap-3">
+                                  <div className="min-w-0 flex-1">
+                                    <p className="font-medium text-sm sm:text-base break-words">{relationship.relatedMember.fullName}</p>
+                                    <p className="text-xs sm:text-sm text-gray-600">{relationship.relationshipType}</p>
+                                    <p className="text-xs text-gray-500 break-all">{relationship.relatedMember.email}</p>
                                   </div>
-                                  <div className="flex space-x-2">
+                                  <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 sm:flex-shrink-0">
                                     <Button
                                       variant="outline"
                                       size="sm"
                                       onClick={() => window.location.href = `/member/${relationship.relatedMember.id}`}
+                                      className="w-full sm:w-auto h-9"
                                     >
-                                      View Details
+                                      <span className="hidden sm:inline">View Details</span>
+                                      <span className="sm:hidden">View</span>
                                     </Button>
                                     <Button
                                       variant="destructive"
                                       size="sm"
                                       onClick={() => deleteRelationshipMutation.mutate(relationship.id)}
                                       disabled={deleteRelationshipMutation.isPending}
+                                      className="w-full sm:w-auto h-9"
                                     >
-                                      Remove
+                                      {deleteRelationshipMutation.isPending ? "Removing..." : "Remove"}
                                     </Button>
                                   </div>
                                 </div>
                               ))}
                             </div>
                           ) : (
-                            <div className="text-center py-8 bg-gray-50 rounded-lg">
-                              <Heart className="mx-auto mb-4 text-gray-400" size={48} />
-                              <p className="text-gray-500">No family relationships added yet.</p>
-                              <p className="text-sm text-gray-400 mt-2">Use the form above to add family connections.</p>
+                            <div className="text-center py-6 sm:py-8 bg-gray-50 rounded-lg">
+                              <Heart className="mx-auto mb-4 text-gray-400" size={40} />
+                              <p className="text-gray-500 text-sm sm:text-base">No family relationships added yet.</p>
+                              <p className="text-xs sm:text-sm text-gray-400 mt-2">Use the form above to add family connections.</p>
                             </div>
                           )}
                         </div>
@@ -359,306 +374,317 @@ export default function MemberDetails() {
 
                   <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
                     <DialogTrigger asChild>
-                      <Button variant="secondary" size="sm">
-                        <Edit className="mr-2" size={16} />
-                        Edit Profile
+                      <Button variant="secondary" size="sm" className="w-full sm:w-auto">
+                        <Edit className="mr-1 sm:mr-2" size={16} />
+                        <span className="hidden sm:inline">Edit Profile</span>
+                        <span className="sm:hidden">Edit</span>
                       </Button>
                     </DialogTrigger>
-                    <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-                      <DialogHeader>
-                        <DialogTitle className="text-xl font-bold text-temple-brown">Edit Member Details</DialogTitle>
-                      </DialogHeader>
-                      <Form {...form}>
-                        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                          {/* Personal Information */}
-                          <div className="space-y-4">
-                            <h3 className="text-lg font-semibold text-temple-brown border-b pb-2">Personal Information</h3>
-                            <div className="grid md:grid-cols-2 gap-4">
-                              <FormField
-                                control={form.control}
-                                name="fullName"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel>Full Name *</FormLabel>
-                                    <FormControl>
-                                      <Input {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                              <FormField
-                                control={form.control}
-                                name="email"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel>Email *</FormLabel>
-                                    <FormControl>
-                                      <Input type="email" {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                            </div>
-                            
-                            <FormField
-                              control={form.control}
-                              name="phone"
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>Phone Number *</FormLabel>
-                                  <FormControl>
-                                    <Input {...field} />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-
-                            <div className="grid md:grid-cols-3 gap-4">
-                              <FormField
-                                control={form.control}
-                                name="fatherName"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel>Father's Name *</FormLabel>
-                                    <FormControl>
-                                      <Input {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                              <FormField
-                                control={form.control}
-                                name="motherName"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel>Mother's Name *</FormLabel>
-                                    <FormControl>
-                                      <Input {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                              <FormField
-                                control={form.control}
-                                name="spouseName"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel>Spouse Name</FormLabel>
-                                    <FormControl>
-                                      <Input {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                            </div>
-
-                            <FormField
-                              control={form.control}
-                              name="maritalStatus"
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>Marital Status *</FormLabel>
-                                  <Select onValueChange={field.onChange} value={field.value}>
-                                    <FormControl>
-                                      <SelectTrigger>
-                                        <SelectValue placeholder="Select marital status" />
-                                      </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                      <SelectItem value="Single">Single</SelectItem>
-                                      <SelectItem value="Married">Married</SelectItem>
-                                      <SelectItem value="Divorced">Divorced</SelectItem>
-                                      <SelectItem value="Widowed">Widowed</SelectItem>
-                                    </SelectContent>
-                                  </Select>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                          </div>
-
-                          <div className="space-y-4">
-                            <h3 className="text-lg font-medium">Birth Information</h3>
-                            <div className="grid md:grid-cols-3 gap-4">
-                              <FormField
-                                control={form.control}
-                                name="birthCountry"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel>Birth Country *</FormLabel>
-                                    <Select onValueChange={(value) => {
-                                      field.onChange(value);
-                                      setSelectedBirthCountry(value);
-                                      form.setValue("birthState", "");
-                                    }} defaultValue={field.value}>
+                    <DialogContent className="w-[95vw] max-w-4xl h-[95vh] sm:max-h-[90vh] overflow-y-auto p-0">
+                      <div className="sticky top-0 bg-white border-b p-4 sm:p-6 z-10">
+                        <DialogHeader>
+                          <DialogTitle className="text-lg sm:text-xl font-bold text-temple-brown">Edit Member Details</DialogTitle>
+                        </DialogHeader>
+                      </div>
+                      
+                      <div className="p-4 sm:p-6">
+                        <Form {...form}>
+                          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                            {/* Personal Information */}
+                            <div className="space-y-4">
+                              <h3 className="text-base sm:text-lg font-semibold text-temple-brown border-b pb-2">Personal Information</h3>
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <FormField
+                                  control={form.control}
+                                  name="fullName"
+                                  render={({ field }) => (
+                                    <FormItem className="space-y-2">
+                                      <FormLabel className="text-sm font-medium">Full Name *</FormLabel>
                                       <FormControl>
-                                        <SelectTrigger>
-                                          <SelectValue placeholder="Select Country" />
+                                        <Input {...field} className="h-10 sm:h-11" />
+                                      </FormControl>
+                                      <FormMessage className="text-xs" />
+                                    </FormItem>
+                                  )}
+                                />
+                                <FormField
+                                  control={form.control}
+                                  name="email"
+                                  render={({ field }) => (
+                                    <FormItem className="space-y-2">
+                                      <FormLabel className="text-sm font-medium">Email *</FormLabel>
+                                      <FormControl>
+                                        <Input type="email" {...field} className="h-10 sm:h-11" />
+                                      </FormControl>
+                                      <FormMessage className="text-xs" />
+                                    </FormItem>
+                                  )}
+                                />
+                              </div>
+                              
+                              <FormField
+                                control={form.control}
+                                name="phone"
+                                render={({ field }) => (
+                                  <FormItem className="space-y-2">
+                                    <FormLabel className="text-sm font-medium">Phone Number *</FormLabel>
+                                    <FormControl>
+                                      <Input {...field} className="h-10 sm:h-11" />
+                                    </FormControl>
+                                    <FormMessage className="text-xs" />
+                                  </FormItem>
+                                )}
+                              />
+
+                              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                <FormField
+                                  control={form.control}
+                                  name="fatherName"
+                                  render={({ field }) => (
+                                    <FormItem className="space-y-2">
+                                      <FormLabel className="text-sm font-medium">Father's Name *</FormLabel>
+                                      <FormControl>
+                                        <Input {...field} className="h-10 sm:h-11" />
+                                      </FormControl>
+                                      <FormMessage className="text-xs" />
+                                    </FormItem>
+                                  )}
+                                />
+                                <FormField
+                                  control={form.control}
+                                  name="motherName"
+                                  render={({ field }) => (
+                                    <FormItem className="space-y-2">
+                                      <FormLabel className="text-sm font-medium">Mother's Name *</FormLabel>
+                                      <FormControl>
+                                        <Input {...field} className="h-10 sm:h-11" />
+                                      </FormControl>
+                                      <FormMessage className="text-xs" />
+                                    </FormItem>
+                                  )}
+                                />
+                                <FormField
+                                  control={form.control}
+                                  name="spouseName"
+                                  render={({ field }) => (
+                                    <FormItem className="space-y-2 sm:col-span-2 lg:col-span-1">
+                                      <FormLabel className="text-sm font-medium">Spouse Name</FormLabel>
+                                      <FormControl>
+                                        <Input {...field} className="h-10 sm:h-11" />
+                                      </FormControl>
+                                      <FormMessage className="text-xs" />
+                                    </FormItem>
+                                  )}
+                                />
+                              </div>
+
+                              <FormField
+                                control={form.control}
+                                name="maritalStatus"
+                                render={({ field }) => (
+                                  <FormItem className="space-y-2">
+                                    <FormLabel className="text-sm font-medium">Marital Status *</FormLabel>
+                                    <Select onValueChange={field.onChange} value={field.value}>
+                                      <FormControl>
+                                        <SelectTrigger className="h-10 sm:h-11">
+                                          <SelectValue placeholder="Select marital status" />
                                         </SelectTrigger>
                                       </FormControl>
                                       <SelectContent>
-                                        {countries.map((country) => (
-                                          <SelectItem key={country.value} value={country.value}>
-                                            {country.label}
-                                          </SelectItem>
-                                        ))}
+                                        <SelectItem value="Single">Single</SelectItem>
+                                        <SelectItem value="Married">Married</SelectItem>
+                                        <SelectItem value="Divorced">Divorced</SelectItem>
+                                        <SelectItem value="Widowed">Widowed</SelectItem>
                                       </SelectContent>
                                     </Select>
-                                    <FormMessage />
+                                    <FormMessage className="text-xs" />
                                   </FormItem>
                                 )}
                               />
-                              <FormField
-                                control={form.control}
-                                name="birthState"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel>Birth State *</FormLabel>
-                                    <Select onValueChange={field.onChange} defaultValue={field.value} disabled={!selectedBirthCountry || !statesByCountry[selectedBirthCountry]}>
-                                      <FormControl>
-                                        <SelectTrigger>
-                                          <SelectValue placeholder={selectedBirthCountry ? "Select State" : "Select Country first"} />
-                                        </SelectTrigger>
-                                      </FormControl>
-                                      <SelectContent>
-                                        {selectedBirthCountry && statesByCountry[selectedBirthCountry] ? 
-                                          statesByCountry[selectedBirthCountry].map((state) => (
-                                            <SelectItem key={state.value} value={state.value}>
-                                              {state.label}
+                            </div>
+
+                            {/* Birth Information */}
+                            <div className="space-y-4">
+                              <h3 className="text-base sm:text-lg font-medium text-temple-brown border-b pb-2">Birth Information</h3>
+                              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                <FormField
+                                  control={form.control}
+                                  name="birthCountry"
+                                  render={({ field }) => (
+                                    <FormItem className="space-y-2">
+                                      <FormLabel className="text-sm font-medium">Birth Country *</FormLabel>
+                                      <Select onValueChange={(value) => {
+                                        field.onChange(value);
+                                        setSelectedBirthCountry(value);
+                                        form.setValue("birthState", "");
+                                      }} defaultValue={field.value}>
+                                        <FormControl>
+                                          <SelectTrigger className="h-10 sm:h-11">
+                                            <SelectValue placeholder="Select Country" />
+                                          </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                          {countries.map((country) => (
+                                            <SelectItem key={country.value} value={country.value}>
+                                              {country.label}
                                             </SelectItem>
-                                          )) : 
-                                          <SelectItem value="none" disabled>No states available</SelectItem>
-                                        }
-                                      </SelectContent>
-                                    </Select>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                              <FormField
-                                control={form.control}
-                                name="birthCity"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel>Birth City *</FormLabel>
-                                    <FormControl>
-                                      <Input {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
+                                          ))}
+                                        </SelectContent>
+                                      </Select>
+                                      <FormMessage className="text-xs" />
+                                    </FormItem>
+                                  )}
+                                />
+                                <FormField
+                                  control={form.control}
+                                  name="birthState"
+                                  render={({ field }) => (
+                                    <FormItem className="space-y-2">
+                                      <FormLabel className="text-sm font-medium">Birth State *</FormLabel>
+                                      <Select onValueChange={field.onChange} defaultValue={field.value} disabled={!selectedBirthCountry || !statesByCountry[selectedBirthCountry]}>
+                                        <FormControl>
+                                          <SelectTrigger className="h-10 sm:h-11">
+                                            <SelectValue placeholder={selectedBirthCountry ? "Select State" : "Select Country first"} />
+                                          </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                          {selectedBirthCountry && statesByCountry[selectedBirthCountry] ? 
+                                            statesByCountry[selectedBirthCountry].map((state) => (
+                                              <SelectItem key={state.value} value={state.value}>
+                                                {state.label}
+                                              </SelectItem>
+                                            )) : 
+                                            <SelectItem value="none" disabled>No states available</SelectItem>
+                                          }
+                                        </SelectContent>
+                                      </Select>
+                                      <FormMessage className="text-xs" />
+                                    </FormItem>
+                                  )}
+                                />
+                                <FormField
+                                  control={form.control}
+                                  name="birthCity"
+                                  render={({ field }) => (
+                                    <FormItem className="space-y-2 sm:col-span-2 lg:col-span-1">
+                                      <FormLabel className="text-sm font-medium">Birth City *</FormLabel>
+                                      <FormControl>
+                                        <Input {...field} className="h-10 sm:h-11" />
+                                      </FormControl>
+                                      <FormMessage className="text-xs" />
+                                    </FormItem>
+                                  )}
+                                />
+                              </div>
                             </div>
-                          </div>
 
-                          <div className="space-y-4">
-                            <h3 className="text-lg font-medium">Current Location</h3>
-                            <div className="grid md:grid-cols-3 gap-4">
-                              <FormField
-                                control={form.control}
-                                name="currentCountry"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel>Current Country *</FormLabel>
-                                    <Select onValueChange={(value) => {
-                                      field.onChange(value);
-                                      setSelectedCurrentCountry(value);
-                                      form.setValue("currentState", "");
-                                    }} defaultValue={field.value}>
-                                      <FormControl>
-                                        <SelectTrigger>
-                                          <SelectValue placeholder="Select Country" />
-                                        </SelectTrigger>
-                                      </FormControl>
-                                      <SelectContent>
-                                        {countries.map((country) => (
-                                          <SelectItem key={country.value} value={country.value}>
-                                            {country.label}
-                                          </SelectItem>
-                                        ))}
-                                      </SelectContent>
-                                    </Select>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                              <FormField
-                                control={form.control}
-                                name="currentState"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel>Current State *</FormLabel>
-                                    <Select onValueChange={field.onChange} defaultValue={field.value} disabled={!selectedCurrentCountry || !statesByCountry[selectedCurrentCountry]}>
-                                      <FormControl>
-                                        <SelectTrigger>
-                                          <SelectValue placeholder={selectedCurrentCountry ? "Select State" : "Select Country first"} />
-                                        </SelectTrigger>
-                                      </FormControl>
-                                      <SelectContent>
-                                        {selectedCurrentCountry && statesByCountry[selectedCurrentCountry] ? 
-                                          statesByCountry[selectedCurrentCountry].map((state) => (
-                                            <SelectItem key={state.value} value={state.value}>
-                                              {state.label}
+                            {/* Current Location */}
+                            <div className="space-y-4">
+                              <h3 className="text-base sm:text-lg font-medium text-temple-brown border-b pb-2">Current Location</h3>
+                              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                <FormField
+                                  control={form.control}
+                                  name="currentCountry"
+                                  render={({ field }) => (
+                                    <FormItem className="space-y-2">
+                                      <FormLabel className="text-sm font-medium">Current Country *</FormLabel>
+                                      <Select onValueChange={(value) => {
+                                        field.onChange(value);
+                                        setSelectedCurrentCountry(value);
+                                        form.setValue("currentState", "");
+                                      }} defaultValue={field.value}>
+                                        <FormControl>
+                                          <SelectTrigger className="h-10 sm:h-11">
+                                            <SelectValue placeholder="Select Country" />
+                                          </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                          {countries.map((country) => (
+                                            <SelectItem key={country.value} value={country.value}>
+                                              {country.label}
                                             </SelectItem>
-                                          )) : 
-                                          <SelectItem value="none" disabled>No states available</SelectItem>
-                                        }
-                                      </SelectContent>
-                                    </Select>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                              <FormField
-                                control={form.control}
-                                name="currentCity"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel>Current City *</FormLabel>
-                                    <FormControl>
-                                      <Input {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
+                                          ))}
+                                        </SelectContent>
+                                      </Select>
+                                      <FormMessage className="text-xs" />
+                                    </FormItem>
+                                  )}
+                                />
+                                <FormField
+                                  control={form.control}
+                                  name="currentState"
+                                  render={({ field }) => (
+                                    <FormItem className="space-y-2">
+                                      <FormLabel className="text-sm font-medium">Current State *</FormLabel>
+                                      <Select onValueChange={field.onChange} defaultValue={field.value} disabled={!selectedCurrentCountry || !statesByCountry[selectedCurrentCountry]}>
+                                        <FormControl>
+                                          <SelectTrigger className="h-10 sm:h-11">
+                                            <SelectValue placeholder={selectedCurrentCountry ? "Select State" : "Select Country first"} />
+                                          </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                          {selectedCurrentCountry && statesByCountry[selectedCurrentCountry] ? 
+                                            statesByCountry[selectedCurrentCountry].map((state) => (
+                                              <SelectItem key={state.value} value={state.value}>
+                                                {state.label}
+                                              </SelectItem>
+                                            )) : 
+                                            <SelectItem value="none" disabled>No states available</SelectItem>
+                                          }
+                                        </SelectContent>
+                                      </Select>
+                                      <FormMessage className="text-xs" />
+                                    </FormItem>
+                                  )}
+                                />
+                                <FormField
+                                  control={form.control}
+                                  name="currentCity"
+                                  render={({ field }) => (
+                                    <FormItem className="space-y-2 sm:col-span-2 lg:col-span-1">
+                                      <FormLabel className="text-sm font-medium">Current City *</FormLabel>
+                                      <FormControl>
+                                        <Input {...field} className="h-10 sm:h-11" />
+                                      </FormControl>
+                                      <FormMessage className="text-xs" />
+                                    </FormItem>
+                                  )}
+                                />
+                              </div>
                             </div>
-                          </div>
-                          
-                          {/* Action Buttons */}
-                          <div className="flex justify-end space-x-4 pt-6 border-t border-gray-200 bg-white pb-4">
-                            <Button 
-                              type="button" 
-                              variant="outline" 
-                              onClick={() => setIsEditModalOpen(false)}
-                              className="px-6 py-2"
-                            >
-                              Cancel
-                            </Button>
-                            <Button 
-                              type="submit" 
-                              disabled={updateMutation.isPending} 
-                              className="bg-saffron-500 hover:bg-saffron-600 text-white px-6 py-2"
-                            >
-                              <Save className="mr-2" size={16} />
-                              {updateMutation.isPending ? "Saving..." : "Save Changes"}
-                            </Button>
-                          </div>
-                        </form>
-                      </Form>
+                          </form>
+                        </Form>
+                      </div>
+
+                      {/* Sticky Action Buttons */}
+                      <div className="sticky bottom-0 bg-white border-t p-4 sm:p-6">
+                        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 sm:justify-end">
+                          <Button 
+                            type="button" 
+                            variant="outline" 
+                            onClick={() => setIsEditModalOpen(false)}
+                            className="w-full sm:w-auto px-4 sm:px-6 py-2 h-10 sm:h-11 order-2 sm:order-1"
+                          >
+                            Cancel
+                          </Button>
+                          <Button 
+                            type="submit" 
+                            disabled={updateMutation.isPending} 
+                            onClick={form.handleSubmit(onSubmit)}
+                            className="w-full sm:w-auto bg-saffron-500 hover:bg-saffron-600 text-white px-4 sm:px-6 py-2 h-10 sm:h-11 order-1 sm:order-2"
+                          >
+                            <Save className="mr-1 sm:mr-2" size={16} />
+                            {updateMutation.isPending ? "Saving..." : "Save Changes"}
+                          </Button>
+                        </div>
+                      </div>
                     </DialogContent>
                   </Dialog>
 
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
-                      <Button variant="destructive" size="sm">
-                        <Trash2 className="mr-2" size={16} />
+                      <Button variant="destructive" size="sm" className="w-full sm:w-auto">
+                        <Trash2 className="mr-1 sm:mr-2" size={16} />
                         Delete
                       </Button>
                     </AlertDialogTrigger>
@@ -683,27 +709,27 @@ export default function MemberDetails() {
                   </AlertDialog>
                 </div>
               </div>
-              <div className="space-y-2">
-                <div className="flex items-center text-gray-600">
-                  <Mail className="mr-2" size={16} />
-                  {(member as Member).email}
+              <div className="space-y-2 text-white/90">
+                <div className="flex items-start">
+                  <Mail className="mr-2 mt-0.5 flex-shrink-0" size={16} />
+                  <span className="break-all">{(member as Member).email}</span>
                 </div>
-                <div className="flex items-center text-gray-600">
-                  <Phone className="mr-2" size={16} />
-                  {(member as Member).phone}
+                <div className="flex items-center">
+                  <Phone className="mr-2 flex-shrink-0" size={16} />
+                  <span>{(member as Member).phone}</span>
                 </div>
-                <div className="flex items-center text-gray-600">
-                  <MapPin className="mr-2" size={16} />
-                  {(member as Member).currentCity}, {(member as Member).currentState}, {(member as Member).currentCountry}
+                <div className="flex items-start">
+                  <MapPin className="mr-2 mt-0.5 flex-shrink-0" size={16} />
+                  <span className="break-words">{(member as Member).currentCity}, {(member as Member).currentState}, {(member as Member).currentCountry}</span>
                 </div>
-                <div className="flex items-center text-gray-600">
-                  <Users className="mr-2" size={16} />
-                  Marital Status: {(member as Member).maritalStatus}
+                <div className="flex items-center">
+                  <Users className="mr-2 flex-shrink-0" size={16} />
+                  <span>Marital Status: {(member as Member).maritalStatus}</span>
                 </div>
                 {(member as Member).spouseName && (
-                  <div className="flex items-center text-gray-600">
-                    <Heart className="mr-2" size={16} />
-                    Spouse: {(member as Member).spouseName}
+                  <div className="flex items-center">
+                    <Heart className="mr-2 flex-shrink-0" size={16} />
+                    <span className="break-words">Spouse: {(member as Member).spouseName}</span>
                   </div>
                 )}
               </div>
@@ -711,25 +737,25 @@ export default function MemberDetails() {
           </Card>
 
           {/* Personal Information */}
-          <Card className="p-6">
-            <h2 className="text-xl font-semibold text-temple-brown mb-4">Personal Information</h2>
-            <div className="grid md:grid-cols-2 gap-6">
+          <Card className="p-4 sm:p-6">
+            <h2 className="text-lg sm:text-xl font-semibold text-temple-brown mb-4">Personal Information</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               <div>
-                <h3 className="font-medium text-gray-700 mb-2">Birth Information</h3>
-                <p className="text-gray-600">{(member as Member).birthCity}</p>
-                <p className="text-gray-600">{(member as Member).birthState}, {(member as Member).birthCountry}</p>
+                <h3 className="font-medium text-gray-700 mb-2 text-sm sm:text-base">Birth Information</h3>
+                <p className="text-gray-600 text-sm sm:text-base break-words">{(member as Member).birthCity}</p>
+                <p className="text-gray-600 text-sm sm:text-base break-words">{(member as Member).birthState}, {(member as Member).birthCountry}</p>
               </div>
               <div>
-                <h3 className="font-medium text-gray-700 mb-2">Current Location</h3>
-                <p className="text-gray-600">{(member as Member).currentCity}</p>
-                <p className="text-gray-600">{(member as Member).currentState}, {(member as Member).currentCountry}</p>
+                <h3 className="font-medium text-gray-700 mb-2 text-sm sm:text-base">Current Location</h3>
+                <p className="text-gray-600 text-sm sm:text-base break-words">{(member as Member).currentCity}</p>
+                <p className="text-gray-600 text-sm sm:text-base break-words">{(member as Member).currentState}, {(member as Member).currentCountry}</p>
               </div>
-              <div>
-                <h3 className="font-medium text-gray-700 mb-2">Family Information</h3>
-                <p className="text-gray-600">Father: {(member as Member).fatherName}</p>
-                <p className="text-gray-600">Mother: {(member as Member).motherName}</p>
+              <div className="md:col-span-2 lg:col-span-1">
+                <h3 className="font-medium text-gray-700 mb-2 text-sm sm:text-base">Family Information</h3>
+                <p className="text-gray-600 text-sm sm:text-base break-words">Father: {(member as Member).fatherName}</p>
+                <p className="text-gray-600 text-sm sm:text-base break-words">Mother: {(member as Member).motherName}</p>
                 {(member as Member).spouseName && (
-                  <p className="text-gray-600">Spouse: {(member as Member).spouseName}</p>
+                  <p className="text-gray-600 text-sm sm:text-base break-words">Spouse: {(member as Member).spouseName}</p>
                 )}
               </div>
             </div>
@@ -737,23 +763,25 @@ export default function MemberDetails() {
 
           {/* Family Relationships */}
           {relationships && relationships.length > 0 && (
-            <Card className="p-6 mt-6">
-              <h2 className="text-xl font-semibold text-temple-brown mb-4">Family Relationships</h2>
-              <div className="grid md:grid-cols-2 gap-4">
+            <Card className="p-4 sm:p-6 mt-6">
+              <h2 className="text-lg sm:text-xl font-semibold text-temple-brown mb-4">Family Relationships</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {relationships.map((relationship: any) => (
-                  <div key={relationship.id} className="p-4 bg-gray-50 rounded-lg">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h3 className="font-medium text-temple-brown">{relationship.relatedMember.fullName}</h3>
-                        <p className="text-sm text-gray-600">{relationship.relationshipType}</p>
-                        <p className="text-xs text-gray-500 mt-1">{relationship.relatedMember.email}</p>
+                  <div key={relationship.id} className="p-3 sm:p-4 bg-gray-50 rounded-lg">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                      <div className="min-w-0 flex-1">
+                        <h3 className="font-medium text-temple-brown text-sm sm:text-base break-words">{relationship.relatedMember.fullName}</h3>
+                        <p className="text-xs sm:text-sm text-gray-600">{relationship.relationshipType}</p>
+                        <p className="text-xs text-gray-500 mt-1 break-all">{relationship.relatedMember.email}</p>
                       </div>
                       <Button
                         variant="outline"
                         size="sm"
                         onClick={() => window.location.href = `/member/${relationship.relatedMember.id}`}
+                        className="w-full sm:w-auto sm:flex-shrink-0"
                       >
-                        View Profile
+                        <span className="hidden sm:inline">View Profile</span>
+                        <span className="sm:hidden">View</span>
                       </Button>
                     </div>
                   </div>
