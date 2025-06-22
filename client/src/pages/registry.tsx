@@ -401,6 +401,7 @@ export default function Registry() {
   const [selectedRelative, setSelectedRelative] = useState<Member | null>(null);
   const [selectedRelationship, setSelectedRelationship] = useState("");
   const [linkedRelatives, setLinkedRelatives] = useState<Array<{ member: Member; relationship: string }>>([]);
+  const [selectedMember, setSelectedMember] = useState<Member | null>(null);
   const [selectedMaritalStatus, setSelectedMaritalStatus] = useState("");
   const [selectedBirthCountry, setSelectedBirthCountry] = useState("");
   const [selectedCurrentCountry, setSelectedCurrentCountry] = useState("");

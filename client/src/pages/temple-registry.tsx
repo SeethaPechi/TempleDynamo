@@ -14,9 +14,10 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { Building, MapPin, Home, Calendar, Phone, Mail, Link as LinkIcon } from "lucide-react";
+import { Building, MapPin, Home, Calendar, Phone, Mail, Link as LinkIcon, Camera, Image } from "lucide-react";
 import { useTranslation } from 'react-i18next';
 import type { Temple } from "@shared/schema";
+import { CameraCapture } from "@/components/camera-capture";
 
 const templeRegistrationSchema = z.object({
   templeName: z.string().min(2, "Temple name must be at least 2 characters"),
@@ -30,6 +31,7 @@ const templeRegistrationSchema = z.object({
   contactPhone: z.string().optional(),
   contactEmail: z.string().email("Please enter a valid email address").optional().or(z.literal("")),
   description: z.string().optional(),
+  templeImage: z.string().optional(),
 });
 
 type TempleRegistrationData = z.infer<typeof templeRegistrationSchema>;
@@ -251,6 +253,8 @@ export default function TempleRegistry() {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [selectedLinkedTemples, setSelectedLinkedTemples] = useState<string[]>([]);
   const [selectedCountry, setSelectedCountry] = useState("");
+  const [isCameraOpen, setIsCameraOpen] = useState(false);
+  const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -268,6 +272,7 @@ export default function TempleRegistry() {
       contactPhone: "",
       contactEmail: "",
       description: "",
+      templeImage: "",
     },
   });
 
@@ -311,7 +316,17 @@ export default function TempleRegistry() {
   };
 
   const onSubmit = (data: TempleRegistrationData) => {
-    registrationMutation.mutate(data);
+    const transformedData = {
+      ...data,
+      linkedTemples: selectedLinkedTemples,
+      templeImage: capturedImage || "",
+    };
+    registrationMutation.mutate(transformedData);
+  };
+
+  const handleImageCapture = (imageData: string) => {
+    setCapturedImage(imageData);
+    form.setValue("templeImage", imageData);
   };
 
   const handleCloseModal = () => {
@@ -402,6 +417,51 @@ export default function TempleRegistry() {
                         </FormItem>
                       )}
                     />
+
+                    {/* Temple Image Upload */}
+                    <div className="md:col-span-2">
+                      <FormLabel className="text-base font-medium">Temple Image</FormLabel>
+                      <div className="mt-2 space-y-4">
+                        {capturedImage ? (
+                          <div className="relative">
+                            <img
+                              src={capturedImage}
+                              alt="Temple"
+                              className="w-full h-48 object-cover rounded-lg border"
+                            />
+                            <Button
+                              type="button"
+                              variant="destructive"
+                              size="sm"
+                              className="absolute top-2 right-2"
+                              onClick={() => {
+                                setCapturedImage(null);
+                                form.setValue("templeImage", "");
+                              }}
+                            >
+                              Remove
+                            </Button>
+                          </div>
+                        ) : (
+                          <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+                            <Camera className="mx-auto h-12 w-12 text-gray-400" />
+                            <div className="mt-4">
+                              <Button
+                                type="button"
+                                onClick={() => setIsCameraOpen(true)}
+                                className="bg-saffron-500 hover:bg-saffron-600"
+                              >
+                                <Camera className="mr-2 h-4 w-4" />
+                                Take Photo
+                              </Button>
+                            </div>
+                            <p className="mt-2 text-sm text-gray-500">
+                              Capture a photo of the temple using your camera
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 </div>
 
@@ -606,6 +666,13 @@ export default function TempleRegistry() {
             </div>
           </DialogContent>
         </Dialog>
+
+        {/* Camera Capture Modal */}
+        <CameraCapture
+          isOpen={isCameraOpen}
+          onClose={() => setIsCameraOpen(false)}
+          onImageCapture={handleImageCapture}
+        />
       </div>
     </div>
   );
