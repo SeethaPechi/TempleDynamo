@@ -384,14 +384,13 @@ export default function MemberDetails() {
                             Edit Profile
                           </Button>
                         </DialogTrigger>
-                        <DialogContent className="max-w-3xl h-[90vh] flex flex-col">
-                          <DialogHeader className="pb-4 border-b flex-shrink-0">
+                        <DialogContent className="max-w-4xl max-h-[85vh] overflow-hidden">
+                          <DialogHeader>
                             <DialogTitle className="text-xl font-bold text-temple-brown">Edit Member Details</DialogTitle>
                           </DialogHeader>
-                          <div className="flex-1 overflow-y-auto py-4">
-                            <Form {...form}>
-                              <form onSubmit={form.handleSubmit(onSubmit)} className="h-full flex flex-col">
-                                <div className="flex-1 space-y-6">
+                          <Form {...form}>
+                            <form onSubmit={form.handleSubmit(onSubmit)}>
+                              <div className="max-h-[60vh] overflow-y-auto pr-2 space-y-4">
                               <div className="grid md:grid-cols-2 gap-4">
                                 <FormField
                                   control={form.control}
@@ -649,30 +648,31 @@ export default function MemberDetails() {
                                 </div>
                               </div>
 
+                              </div>
+                              
+                              <div className="mt-8 pt-4 border-t border-gray-200 flex justify-between items-center">
+                                <div className="text-sm text-gray-500">
+                                  All fields marked with * are required
                                 </div>
-                                <div className="flex-shrink-0 mt-6 pt-4 border-t border-gray-200 bg-gray-50 -mx-4 px-4 pb-4">
-                                  <div className="flex justify-end space-x-3">
-                                    <Button 
-                                      type="button" 
-                                      variant="outline" 
-                                      onClick={() => setIsEditModalOpen(false)}
-                                      className="px-8 py-2 h-10"
-                                    >
-                                      Cancel
-                                    </Button>
-                                    <Button 
-                                      type="submit" 
-                                      disabled={updateMutation.isPending} 
-                                      className="bg-saffron-500 hover:bg-saffron-600 text-white px-8 py-2 h-10 font-medium flex items-center"
-                                    >
-                                      <Save className="mr-2" size={16} />
-                                      {updateMutation.isPending ? "Saving..." : "Save Changes"}
-                                    </Button>
-                                  </div>
+                                <div className="flex space-x-3">
+                                  <Button 
+                                    type="button" 
+                                    variant="outline" 
+                                    onClick={() => setIsEditModalOpen(false)}
+                                  >
+                                    Cancel
+                                  </Button>
+                                  <Button 
+                                    type="submit" 
+                                    disabled={updateMutation.isPending} 
+                                    className="bg-saffron-500 hover:bg-saffron-600 text-white min-w-[120px]"
+                                  >
+                                    {updateMutation.isPending ? "Saving..." : "Save Changes"}
+                                  </Button>
                                 </div>
-                              </form>
-                            </Form>
-                          </div>
+                              </div>
+                            </form>
+                          </Form>
                         </DialogContent>
                       </Dialog>
 
