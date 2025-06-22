@@ -384,15 +384,17 @@ export default function MemberDetails() {
                             Edit Profile
                           </Button>
                         </DialogTrigger>
-                        <DialogContent className="max-w-4xl max-h-[85vh] overflow-hidden">
+                        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
                           <DialogHeader>
                             <DialogTitle className="text-xl font-bold text-temple-brown">Edit Member Details</DialogTitle>
                           </DialogHeader>
                           <Form {...form}>
-                            <form onSubmit={form.handleSubmit(onSubmit)}>
-                              <div className="max-h-[60vh] overflow-y-auto pr-2 space-y-4">
-                              <div className="grid md:grid-cols-2 gap-4">
-                                <FormField
+                            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                              {/* Personal Information */}
+                              <div className="space-y-4">
+                                <h3 className="text-lg font-semibold text-temple-brown border-b pb-2">Personal Information</h3>
+                                <div className="grid md:grid-cols-2 gap-4">
+                                  <FormField
                                   control={form.control}
                                   name="fullName"
                                   render={({ field }) => (
@@ -647,29 +649,25 @@ export default function MemberDetails() {
                                   />
                                 </div>
                               </div>
-
-                              </div>
                               
-                              <div className="mt-8 pt-4 border-t border-gray-200 flex justify-between items-center">
-                                <div className="text-sm text-gray-500">
-                                  All fields marked with * are required
-                                </div>
-                                <div className="flex space-x-3">
-                                  <Button 
-                                    type="button" 
-                                    variant="outline" 
-                                    onClick={() => setIsEditModalOpen(false)}
-                                  >
-                                    Cancel
-                                  </Button>
-                                  <Button 
-                                    type="submit" 
-                                    disabled={updateMutation.isPending} 
-                                    className="bg-saffron-500 hover:bg-saffron-600 text-white min-w-[120px]"
-                                  >
-                                    {updateMutation.isPending ? "Saving..." : "Save Changes"}
-                                  </Button>
-                                </div>
+                              {/* Action Buttons */}
+                              <div className="flex justify-end space-x-4 pt-6 border-t border-gray-200 bg-white pb-4">
+                                <Button 
+                                  type="button" 
+                                  variant="outline" 
+                                  onClick={() => setIsEditModalOpen(false)}
+                                  className="px-6 py-2"
+                                >
+                                  Cancel
+                                </Button>
+                                <Button 
+                                  type="submit" 
+                                  disabled={updateMutation.isPending} 
+                                  className="bg-saffron-500 hover:bg-saffron-600 text-white px-6 py-2"
+                                >
+                                  <Save className="mr-2" size={16} />
+                                  {updateMutation.isPending ? "Saving..." : "Save Changes"}
+                                </Button>
                               </div>
                             </form>
                           </Form>
