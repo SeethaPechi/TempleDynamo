@@ -52,8 +52,18 @@ export default function MemberDetails() {
   const [selectedCurrentCountry, setSelectedCurrentCountry] = useState("");
   const [isRelativesModalOpen, setIsRelativesModalOpen] = useState(false);
   const [editingRelationship, setEditingRelationship] = useState<any>(null);
-  const [selectedRelationshipType, setSelectedRelationshipType] = useState("");
-  const [selectedRelatedMember, setSelectedRelatedMember] = useState<Member | null>(null);
+
+  // Auto-save draft functionality for form data
+  const autoSaveDraft = (fieldName: string, value: any) => {
+    const draftData = JSON.parse(localStorage.getItem(`memberEditDraft_${memberId}`) || '{}');
+    draftData[fieldName] = value;
+    localStorage.setItem(`memberEditDraft_${memberId}`, JSON.stringify(draftData));
+  };
+
+  // Clear draft data on successful save
+  const clearDraftData = () => {
+    localStorage.removeItem(`memberEditDraft_${memberId}`);
+  };
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
@@ -135,11 +145,8 @@ export default function MemberDetails() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [`/api/members/${memberId}`] });
       queryClient.invalidateQueries({ queryKey: ["/api/members"] });
+      clearDraftData(); // Clear draft on successful save
       console.log("Auto-save successful");
-      // Clear the success indicator after 2 seconds
-      setTimeout(() => {
-        // This will trigger a re-render to hide the success message
-      }, 2000);
     },
     onError: (error) => {
       console.error("Auto-save failed:", error);
@@ -187,7 +194,6 @@ export default function MemberDetails() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [`/api/relationships/${memberId}`] });
-      setIsAddRelativeOpen(false);
       setSelectedRelative(null);
       setSelectedRelationship("");
       setSearchTerm("");
