@@ -293,6 +293,16 @@ export default function MemberDetails() {
                   <Button
                     variant="outline"
                     size="sm"
+                    className="bg-temple-gold hover:bg-temple-gold/90 text-white border-temple-gold"
+                    onClick={() => setIsAddRelativeOpen(true)}
+                  >
+                    <Plus className="mr-1 sm:mr-2" size={16} />
+                    <span className="hidden sm:inline">Link Family Member</span>
+                    <span className="sm:hidden">Link</span>
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
                     className="bg-saffron-500 hover:bg-saffron-600 text-white border-saffron-500 w-full sm:w-auto"
                     onClick={() => setIsAddRelativeOpen(true)}
                   >
@@ -333,7 +343,7 @@ export default function MemberDetails() {
                               </div>
                               {searchTerm && (
                                 <div className="mt-2 max-h-40 overflow-y-auto border rounded-md bg-white shadow-lg">
-                                  {memberSearchResults.map((member: Member) => (
+                                  {searchResults.map((member: Member) => (
                                     <button
                                       key={member.id}
                                       onClick={() => {
@@ -983,9 +993,9 @@ export default function MemberDetails() {
                     className="pl-10"
                   />
                 </div>
-                {searchTerm.length > 2 && memberSearchResults.length > 0 && (
+                {searchTerm.length > 2 && searchResults.length > 0 && (
                   <div className="mt-2 max-h-40 overflow-y-auto border rounded-md">
-                    {(memberSearchResults as Member[]).filter(m => m.id !== parseInt(memberId as string)).map((member: Member) => (
+                    {searchResults.filter(m => m.id !== parseInt(memberId as string)).map((member: Member) => (
                       <div
                         key={member.id}
                         className="p-3 hover:bg-gray-50 cursor-pointer border-b"
@@ -1008,6 +1018,38 @@ export default function MemberDetails() {
                   <p className="text-sm text-gray-600">{selectedRelative.email}</p>
                 </div>
               )}
+
+              <div className="space-y-4">
+                <Select 
+                  value={selectedRelationship} 
+                  onValueChange={(value) => {
+                    setSelectedRelationship(value);
+                    // Auto-save when relationship is selected and member is already chosen
+                    if (selectedRelative && value) {
+                      addRelationshipMutation.mutate({
+                        memberId: parseInt(memberId as string),
+                        relatedMemberId: selectedRelative.id,
+                        relationshipType: value
+                      });
+                    }
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select relationship" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {relationshipTypes.map((type) => (
+                      <SelectItem key={type} value={type}>{type}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                
+                {selectedRelative && selectedRelationship && (
+                  <div className="text-sm text-green-600 bg-green-50 p-2 rounded">
+                    Will link {selectedRelative.fullName} as {selectedRelationship}
+                  </div>
+                )}
+              </div>
 
               <div>
                 <label className="text-sm font-medium">Relationship Type</label>
