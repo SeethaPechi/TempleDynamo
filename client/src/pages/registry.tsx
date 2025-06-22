@@ -408,24 +408,6 @@ export default function Registry() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Auto-save draft functionality
-  const autoSaveDraft = (fieldName: string, value: any) => {
-    const draftData = JSON.parse(localStorage.getItem('memberRegistryDraft') || '{}');
-    draftData[fieldName] = value;
-    localStorage.setItem('memberRegistryDraft', JSON.stringify(draftData));
-  };
-
-  // Load draft data on component mount
-  const loadDraftData = () => {
-    const draftData = JSON.parse(localStorage.getItem('memberRegistryDraft') || '{}');
-    return draftData;
-  };
-
-  // Clear draft data
-  const clearDraftData = () => {
-    localStorage.removeItem('memberRegistryDraft');
-  };
-
   const form = useForm<RegistrationData>({
     resolver: zodResolver(registrationSchema),
     defaultValues: {
@@ -442,7 +424,6 @@ export default function Registry() {
       motherName: "",
       spouseName: "",
       maritalStatus: "Single" as const,
-      ...loadDraftData(), // Load saved draft data
     },
   });
 
@@ -474,7 +455,6 @@ export default function Registry() {
       setSearchTerm("");
       setSelectedRelative(null);
       setSelectedRelationship("");
-      clearDraftData(); // Clear draft on successful submission
     },
     onError: (error: any) => {
       toast({
@@ -554,14 +534,7 @@ export default function Registry() {
                         <FormItem>
                           <FormLabel>Full Name *</FormLabel>
                           <FormControl>
-                            <Input 
-                              placeholder="Enter your full name" 
-                              {...field} 
-                              onBlur={(e) => {
-                                field.onBlur();
-                                autoSaveDraft('fullName', e.target.value);
-                              }}
-                            />
+                            <Input placeholder="Enter your full name" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -574,14 +547,7 @@ export default function Registry() {
                         <FormItem>
                           <FormLabel>Phone Number *</FormLabel>
                           <FormControl>
-                            <Input 
-                              placeholder="+1 (555) 123-4567" 
-                              {...field} 
-                              onBlur={(e) => {
-                                field.onBlur();
-                                autoSaveDraft('phone', e.target.value);
-                              }}
-                            />
+                            <Input placeholder="+1 (555) 123-4567" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -594,15 +560,7 @@ export default function Registry() {
                         <FormItem className="md:col-span-2">
                           <FormLabel>Email Address *</FormLabel>
                           <FormControl>
-                            <Input 
-                              type="email" 
-                              placeholder="your.email@example.com" 
-                              {...field} 
-                              onBlur={(e) => {
-                                field.onBlur();
-                                autoSaveDraft('email', e.target.value);
-                              }}
-                            />
+                            <Input type="email" placeholder="your.email@example.com" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -628,7 +586,6 @@ export default function Registry() {
                             field.onChange(value);
                             setSelectedBirthCountry(value);
                             form.setValue("birthState", "");
-                            autoSaveDraft('birthCountry', value);
                           }} defaultValue={field.value}>
                             <FormControl>
                               <SelectTrigger>

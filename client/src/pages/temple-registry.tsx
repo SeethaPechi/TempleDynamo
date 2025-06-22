@@ -258,24 +258,6 @@ export default function TempleRegistry() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Auto-save draft functionality
-  const autoSaveDraft = (fieldName: string, value: any) => {
-    const draftData = JSON.parse(localStorage.getItem('templeRegistryDraft') || '{}');
-    draftData[fieldName] = value;
-    localStorage.setItem('templeRegistryDraft', JSON.stringify(draftData));
-  };
-
-  // Load draft data on component mount
-  const loadDraftData = () => {
-    const draftData = JSON.parse(localStorage.getItem('templeRegistryDraft') || '{}');
-    return draftData;
-  };
-
-  // Clear draft data
-  const clearDraftData = () => {
-    localStorage.removeItem('templeRegistryDraft');
-  };
-
   const form = useForm<TempleRegistrationData>({
     resolver: zodResolver(templeRegistrationSchema),
     defaultValues: {
@@ -291,7 +273,6 @@ export default function TempleRegistry() {
       contactEmail: "",
       description: "",
       templeImage: "",
-      ...loadDraftData(), // Load saved draft data
     },
   });
 
@@ -312,7 +293,6 @@ export default function TempleRegistry() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/temples"] });
       setShowSuccessModal(true);
-      clearDraftData(); // Clear draft on successful submission
       toast({
         title: t('common.success'),
         description: t('templeRegistry.success'),
@@ -427,10 +407,6 @@ export default function TempleRegistry() {
                               placeholder="1995"
                               {...field}
                               onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
-                              onBlur={(e) => {
-                                field.onBlur();
-                                autoSaveDraft('establishedYear', e.target.value ? parseInt(e.target.value) : undefined);
-                              }}
                             />
                           </FormControl>
                           <FormMessage />
@@ -449,10 +425,6 @@ export default function TempleRegistry() {
                               placeholder={t('templeRegistry.form.descriptionPlaceholder')}
                               className="min-h-[100px]"
                               {...field} 
-                              onBlur={(e) => {
-                                field.onBlur();
-                                autoSaveDraft('description', e.target.value);
-                              }}
                             />
                           </FormControl>
                           <FormMessage />
