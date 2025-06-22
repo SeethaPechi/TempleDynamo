@@ -32,7 +32,6 @@ export const insertMemberSchema = createInsertSchema(members).omit({
   createdAt: true,
 }).extend({
   maritalStatus: z.enum(["Single", "Married", "Divorced", "Widowed"]),
-  spouseName: z.string().optional().nullable(),
 });
 
 export const insertRelationshipSchema = createInsertSchema(relationships).omit({

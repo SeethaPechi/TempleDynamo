@@ -124,37 +124,14 @@ export default function MemberDetails() {
 
   const updateMutation = useMutation({
     mutationFn: async (data: InsertMember) => {
-      const response = await apiRequest(`/api/members/${memberId}`, {
+      return apiRequest(`/api/members/${memberId}`, {
         method: "PUT",
         body: JSON.stringify(data),
       });
-      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [`/api/members/${memberId}`] });
       queryClient.invalidateQueries({ queryKey: ["/api/members"] });
-    },
-    onError: (error) => {
-      console.error('Auto-save failed:', error);
-      // Reset form to current member data on error
-      if (member) {
-        const memberData = member as Member;
-        form.reset({
-          fullName: memberData.fullName,
-          phone: memberData.phone,
-          email: memberData.email,
-          birthCity: memberData.birthCity,
-          birthState: memberData.birthState,
-          birthCountry: memberData.birthCountry,
-          currentCity: memberData.currentCity,
-          currentState: memberData.currentState,
-          currentCountry: memberData.currentCountry,
-          fatherName: memberData.fatherName,
-          motherName: memberData.motherName,
-          spouseName: memberData.spouseName || "",
-          maritalStatus: memberData.maritalStatus,
-        });
-      }
     },
   });
 
@@ -178,21 +155,13 @@ export default function MemberDetails() {
   const autoSave = React.useCallback((fieldName: keyof InsertMember, value: any) => {
     if (!member) return;
     
-    try {
-      const currentData = form.getValues();
-      const updatedData = { ...currentData, [fieldName]: value };
-      
-      // Only save if the value has actually changed and is valid
-      const memberData = member as Member;
-      const currentValue = memberData[fieldName as keyof Member];
-      
-      // Skip auto-save for empty values or if value hasn't changed
-      if (currentValue !== value && value !== "" && value !== null && value !== undefined) {
-        // Use the mutation's built-in error handling instead of catch
-        updateMutation.mutate(updatedData);
-      }
-    } catch (error) {
-      console.error('Auto-save error for field:', fieldName, error);
+    const currentData = form.getValues();
+    const updatedData = { ...currentData, [fieldName]: value };
+    
+    // Only save if the value has actually changed
+    const memberData = member as Member;
+    if (memberData[fieldName as keyof Member] !== value) {
+      updateMutation.mutate(updatedData);
     }
   }, [member, form, updateMutation]);
 

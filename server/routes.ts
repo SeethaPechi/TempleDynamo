@@ -80,12 +80,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(updatedMember);
     } catch (error) {
       console.error("Error updating member:", error);
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ 
-          message: "Validation failed", 
-          errors: error.errors 
-        });
-      }
       res.status(500).json({ message: "Failed to update member" });
     }
   });
