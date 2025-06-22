@@ -467,22 +467,36 @@ export default function Registry() {
 
   const handleAddRelationship = () => {
     if (selectedRelative && selectedRelationship) {
-      const existingIndex = linkedRelatives.findIndex(rel => rel.member.id === selectedRelative.id);
-      if (existingIndex >= 0) {
-        const updated = [...linkedRelatives];
-        updated[existingIndex] = { member: selectedRelative, relationship: selectedRelationship };
-        setLinkedRelatives(updated);
-      } else {
+      // Check if this relationship already exists
+      const exists = linkedRelatives.some(rel => rel.member.id === selectedRelative.id);
+      if (!exists) {
         setLinkedRelatives([...linkedRelatives, { member: selectedRelative, relationship: selectedRelationship }]);
+        setSelectedRelative(null);
+        setSelectedRelationship("");
+        setSearchTerm("");
+        toast({
+          title: "Relative Added",
+          description: `${selectedRelative.fullName} added as ${selectedRelationship}`,
+        });
+      } else {
+        toast({
+          title: "Already Added",
+          description: "This family member is already in your relationships list.",
+          variant: "destructive",
+        });
       }
-      setSelectedRelative(null);
-      setSelectedRelationship("");
-      setSearchTerm("");
     }
   };
 
   const handleRemoveRelationship = (memberId: number) => {
+    const removedMember = linkedRelatives.find(rel => rel.member.id === memberId);
     setLinkedRelatives(linkedRelatives.filter(rel => rel.member.id !== memberId));
+    if (removedMember) {
+      toast({
+        title: "Relative Removed",
+        description: `${removedMember.member.fullName} removed from relationships`,
+      });
+    }
   };
 
   const onSubmit = (data: RegistrationData) => {

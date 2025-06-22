@@ -207,12 +207,21 @@ export default function MemberDetails() {
 
   const deleteRelationshipMutation = useMutation({
     mutationFn: async (relationshipId: number) => {
-      return apiRequest(`/api/relationships/${relationshipId}`, {
-        method: "DELETE",
-      });
+      return apiRequest("DELETE", `/api/relationships/${relationshipId}`, undefined);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [`/api/relationships/${memberId}`] });
+      toast({
+        title: "Relationship Removed",
+        description: "Family relationship has been removed successfully.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to remove relationship. Please try again.",
+        variant: "destructive",
+      });
     },
   });
 
@@ -281,6 +290,16 @@ export default function MemberDetails() {
                   <p className="text-saffron-100">Member #{(member as Member).id}</p>
                 </div>
                 <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="bg-saffron-500 hover:bg-saffron-600 text-white border-saffron-500 w-full sm:w-auto"
+                    onClick={() => setIsAddRelativeOpen(true)}
+                  >
+                    <Plus className="mr-1 sm:mr-2" size={16} />
+                    <span className="hidden sm:inline">Link Family Member</span>
+                    <span className="sm:hidden">Link</span>
+                  </Button>
                   <Dialog open={isRelativesModalOpen} onOpenChange={setIsRelativesModalOpen}>
                     <DialogTrigger asChild>
                       <Button variant="secondary" size="sm" className="w-full sm:w-auto">
@@ -886,9 +905,21 @@ export default function MemberDetails() {
           </Card>
 
           {/* Family Relationships */}
-          {relationships && relationships.length > 0 && (
-            <Card className="p-4 sm:p-6 mt-6">
-              <h2 className="text-lg sm:text-xl font-semibold text-temple-brown mb-4">Family Relationships</h2>
+          <Card className="p-4 sm:p-6 mt-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-3">
+              <h2 className="text-lg sm:text-xl font-semibold text-temple-brown">Family Relationships</h2>
+              <Button
+                variant="outline"
+                size="sm"
+                className="bg-temple-gold hover:bg-temple-gold/90 text-white border-temple-gold w-full sm:w-auto"
+                onClick={() => setIsAddRelativeOpen(true)}
+              >
+                <Plus className="mr-1 sm:mr-2" size={16} />
+                <span className="hidden sm:inline">Add Relative</span>
+                <span className="sm:hidden">Add</span>
+              </Button>
+            </div>
+            {relationships && relationships.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {relationships.map((relationship: any) => (
                   <div key={relationship.id} className="p-3 sm:p-4 bg-gray-50 rounded-lg">
@@ -898,21 +929,41 @@ export default function MemberDetails() {
                         <p className="text-xs sm:text-sm text-gray-600">{relationship.relationshipType}</p>
                         <p className="text-xs text-gray-500 mt-1 break-all">{relationship.relatedMember.email}</p>
                       </div>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => window.location.href = `/member/${relationship.relatedMember.id}`}
-                        className="w-full sm:w-auto sm:flex-shrink-0"
-                      >
-                        <span className="hidden sm:inline">View Profile</span>
-                        <span className="sm:hidden">View</span>
-                      </Button>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => window.location.href = `/member/${relationship.relatedMember.id}`}
+                          className="w-full sm:w-auto sm:flex-shrink-0"
+                        >
+                          <span className="hidden sm:inline">View Profile</span>
+                          <span className="sm:hidden">View</span>
+                        </Button>
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => {
+                            if (confirm(`Remove ${relationship.relatedMember.fullName} from family relationships?`)) {
+                              deleteRelationshipMutation.mutate(relationship.id);
+                            }
+                          }}
+                          className="w-full sm:w-auto"
+                        >
+                          <X size={16} />
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 ))}
               </div>
-            </Card>
-          )}
+            ) : (
+              <div className="text-center py-8 text-gray-500">
+                <Users className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+                <p className="text-sm">No family relationships added yet</p>
+                <p className="text-xs mt-1">Click "Add Relative" to link family members</p>
+              </div>
+            )}
+          </Card>
 
         {/* Add Relative Dialog */}
         <Dialog open={isAddRelativeOpen} onOpenChange={setIsAddRelativeOpen}>
