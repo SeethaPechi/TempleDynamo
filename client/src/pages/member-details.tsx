@@ -132,7 +132,6 @@ export default function MemberDetails() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [`/api/members/${memberId}`] });
       queryClient.invalidateQueries({ queryKey: ["/api/members"] });
-      setIsEditModalOpen(false);
     },
   });
 
@@ -151,6 +150,20 @@ export default function MemberDetails() {
   const onSubmit = (data: InsertMember) => {
     updateMutation.mutate(data);
   };
+
+  // Auto-save function for individual fields
+  const autoSave = React.useCallback((fieldName: keyof InsertMember, value: any) => {
+    if (!member) return;
+    
+    const currentData = form.getValues();
+    const updatedData = { ...currentData, [fieldName]: value };
+    
+    // Only save if the value has actually changed
+    const memberData = member as Member;
+    if (memberData[fieldName as keyof Member] !== value) {
+      updateMutation.mutate(updatedData);
+    }
+  }, [member, form, updateMutation]);
 
   const addRelationshipMutation = useMutation({
     mutationFn: async (relationshipData: any) => {
@@ -383,7 +396,12 @@ export default function MemberDetails() {
                     <DialogContent className="w-[95vw] max-w-4xl h-[95vh] sm:max-h-[90vh] overflow-y-auto p-0">
                       <div className="sticky top-0 bg-white border-b p-4 sm:p-6 z-10">
                         <DialogHeader>
-                          <DialogTitle className="text-lg sm:text-xl font-bold text-temple-brown">Edit Member Details</DialogTitle>
+                          <DialogTitle className="text-lg sm:text-xl font-bold text-temple-brown">
+                            Edit Member Details
+                            {updateMutation.isPending && (
+                              <span className="text-sm font-normal text-saffron-600 ml-2">• Auto-saving...</span>
+                            )}
+                          </DialogTitle>
                         </DialogHeader>
                       </div>
                       
@@ -401,7 +419,14 @@ export default function MemberDetails() {
                                     <FormItem className="space-y-2">
                                       <FormLabel className="text-sm font-medium">Full Name *</FormLabel>
                                       <FormControl>
-                                        <Input {...field} className="h-10 sm:h-11" />
+                                        <Input 
+                                          {...field} 
+                                          className="h-10 sm:h-11" 
+                                          onBlur={(e) => {
+                                            field.onBlur();
+                                            autoSave('fullName', e.target.value);
+                                          }}
+                                        />
                                       </FormControl>
                                       <FormMessage className="text-xs" />
                                     </FormItem>
@@ -414,7 +439,15 @@ export default function MemberDetails() {
                                     <FormItem className="space-y-2">
                                       <FormLabel className="text-sm font-medium">Email *</FormLabel>
                                       <FormControl>
-                                        <Input type="email" {...field} className="h-10 sm:h-11" />
+                                        <Input 
+                                          type="email" 
+                                          {...field} 
+                                          className="h-10 sm:h-11" 
+                                          onBlur={(e) => {
+                                            field.onBlur();
+                                            autoSave('email', e.target.value);
+                                          }}
+                                        />
                                       </FormControl>
                                       <FormMessage className="text-xs" />
                                     </FormItem>
@@ -429,7 +462,14 @@ export default function MemberDetails() {
                                   <FormItem className="space-y-2">
                                     <FormLabel className="text-sm font-medium">Phone Number *</FormLabel>
                                     <FormControl>
-                                      <Input {...field} className="h-10 sm:h-11" />
+                                      <Input 
+                                        {...field} 
+                                        className="h-10 sm:h-11" 
+                                        onBlur={(e) => {
+                                          field.onBlur();
+                                          autoSave('phone', e.target.value);
+                                        }}
+                                      />
                                     </FormControl>
                                     <FormMessage className="text-xs" />
                                   </FormItem>
@@ -444,7 +484,14 @@ export default function MemberDetails() {
                                     <FormItem className="space-y-2">
                                       <FormLabel className="text-sm font-medium">Father's Name *</FormLabel>
                                       <FormControl>
-                                        <Input {...field} className="h-10 sm:h-11" />
+                                        <Input 
+                                          {...field} 
+                                          className="h-10 sm:h-11" 
+                                          onBlur={(e) => {
+                                            field.onBlur();
+                                            autoSave('fatherName', e.target.value);
+                                          }}
+                                        />
                                       </FormControl>
                                       <FormMessage className="text-xs" />
                                     </FormItem>
@@ -457,7 +504,14 @@ export default function MemberDetails() {
                                     <FormItem className="space-y-2">
                                       <FormLabel className="text-sm font-medium">Mother's Name *</FormLabel>
                                       <FormControl>
-                                        <Input {...field} className="h-10 sm:h-11" />
+                                        <Input 
+                                          {...field} 
+                                          className="h-10 sm:h-11" 
+                                          onBlur={(e) => {
+                                            field.onBlur();
+                                            autoSave('motherName', e.target.value);
+                                          }}
+                                        />
                                       </FormControl>
                                       <FormMessage className="text-xs" />
                                     </FormItem>
@@ -470,7 +524,14 @@ export default function MemberDetails() {
                                     <FormItem className="space-y-2 sm:col-span-2 lg:col-span-1">
                                       <FormLabel className="text-sm font-medium">Spouse Name</FormLabel>
                                       <FormControl>
-                                        <Input {...field} className="h-10 sm:h-11" />
+                                        <Input 
+                                          {...field} 
+                                          className="h-10 sm:h-11" 
+                                          onBlur={(e) => {
+                                            field.onBlur();
+                                            autoSave('spouseName', e.target.value);
+                                          }}
+                                        />
                                       </FormControl>
                                       <FormMessage className="text-xs" />
                                     </FormItem>
@@ -484,7 +545,13 @@ export default function MemberDetails() {
                                 render={({ field }) => (
                                   <FormItem className="space-y-2">
                                     <FormLabel className="text-sm font-medium">Marital Status *</FormLabel>
-                                    <Select onValueChange={field.onChange} value={field.value}>
+                                    <Select 
+                                      onValueChange={(value) => {
+                                        field.onChange(value);
+                                        autoSave('maritalStatus', value);
+                                      }} 
+                                      value={field.value}
+                                    >
                                       <FormControl>
                                         <SelectTrigger className="h-10 sm:h-11">
                                           <SelectValue placeholder="Select marital status" />
@@ -517,6 +584,7 @@ export default function MemberDetails() {
                                         field.onChange(value);
                                         setSelectedBirthCountry(value);
                                         form.setValue("birthState", "");
+                                        autoSave('birthCountry', value);
                                       }} defaultValue={field.value}>
                                         <FormControl>
                                           <SelectTrigger className="h-10 sm:h-11">
@@ -541,7 +609,10 @@ export default function MemberDetails() {
                                   render={({ field }) => (
                                     <FormItem className="space-y-2">
                                       <FormLabel className="text-sm font-medium">Birth State *</FormLabel>
-                                      <Select onValueChange={field.onChange} defaultValue={field.value} disabled={!selectedBirthCountry || !statesByCountry[selectedBirthCountry]}>
+                                      <Select onValueChange={(value) => {
+                                        field.onChange(value);
+                                        autoSave('birthState', value);
+                                      }} defaultValue={field.value} disabled={!selectedBirthCountry || !statesByCountry[selectedBirthCountry]}>
                                         <FormControl>
                                           <SelectTrigger className="h-10 sm:h-11">
                                             <SelectValue placeholder={selectedBirthCountry ? "Select State" : "Select Country first"} />
@@ -569,7 +640,14 @@ export default function MemberDetails() {
                                     <FormItem className="space-y-2 sm:col-span-2 lg:col-span-1">
                                       <FormLabel className="text-sm font-medium">Birth City *</FormLabel>
                                       <FormControl>
-                                        <Input {...field} className="h-10 sm:h-11" />
+                                        <Input 
+                                          {...field} 
+                                          className="h-10 sm:h-11" 
+                                          onBlur={(e) => {
+                                            field.onBlur();
+                                            autoSave('birthCity', e.target.value);
+                                          }}
+                                        />
                                       </FormControl>
                                       <FormMessage className="text-xs" />
                                     </FormItem>
@@ -592,6 +670,7 @@ export default function MemberDetails() {
                                         field.onChange(value);
                                         setSelectedCurrentCountry(value);
                                         form.setValue("currentState", "");
+                                        autoSave('currentCountry', value);
                                       }} defaultValue={field.value}>
                                         <FormControl>
                                           <SelectTrigger className="h-10 sm:h-11">
@@ -616,7 +695,10 @@ export default function MemberDetails() {
                                   render={({ field }) => (
                                     <FormItem className="space-y-2">
                                       <FormLabel className="text-sm font-medium">Current State *</FormLabel>
-                                      <Select onValueChange={field.onChange} defaultValue={field.value} disabled={!selectedCurrentCountry || !statesByCountry[selectedCurrentCountry]}>
+                                      <Select onValueChange={(value) => {
+                                        field.onChange(value);
+                                        autoSave('currentState', value);
+                                      }} defaultValue={field.value} disabled={!selectedCurrentCountry || !statesByCountry[selectedCurrentCountry]}>
                                         <FormControl>
                                           <SelectTrigger className="h-10 sm:h-11">
                                             <SelectValue placeholder={selectedCurrentCountry ? "Select State" : "Select Country first"} />
@@ -644,7 +726,14 @@ export default function MemberDetails() {
                                     <FormItem className="space-y-2 sm:col-span-2 lg:col-span-1">
                                       <FormLabel className="text-sm font-medium">Current City *</FormLabel>
                                       <FormControl>
-                                        <Input {...field} className="h-10 sm:h-11" />
+                                        <Input 
+                                          {...field} 
+                                          className="h-10 sm:h-11" 
+                                          onBlur={(e) => {
+                                            field.onBlur();
+                                            autoSave('currentCity', e.target.value);
+                                          }}
+                                        />
                                       </FormControl>
                                       <FormMessage className="text-xs" />
                                     </FormItem>
@@ -656,27 +745,23 @@ export default function MemberDetails() {
                         </Form>
                       </div>
 
-                      {/* Sticky Action Buttons */}
+                      {/* Sticky Close Button */}
                       <div className="sticky bottom-0 bg-white border-t p-4 sm:p-6">
-                        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 sm:justify-end">
+                        <div className="flex justify-center">
                           <Button 
                             type="button" 
                             variant="outline" 
                             onClick={() => setIsEditModalOpen(false)}
-                            className="w-full sm:w-auto px-4 sm:px-6 py-2 h-10 sm:h-11 order-2 sm:order-1"
+                            className="w-full sm:w-auto px-4 sm:px-6 py-2 h-10 sm:h-11"
                           >
-                            Cancel
-                          </Button>
-                          <Button 
-                            type="submit" 
-                            disabled={updateMutation.isPending} 
-                            onClick={form.handleSubmit(onSubmit)}
-                            className="w-full sm:w-auto bg-saffron-500 hover:bg-saffron-600 text-white px-4 sm:px-6 py-2 h-10 sm:h-11 order-1 sm:order-2"
-                          >
-                            <Save className="mr-1 sm:mr-2" size={16} />
-                            {updateMutation.isPending ? "Saving..." : "Save Changes"}
+                            Close
                           </Button>
                         </div>
+                        {updateMutation.isPending && (
+                          <div className="text-center mt-2">
+                            <p className="text-sm text-saffron-600">Auto-saving changes...</p>
+                          </div>
+                        )}
                       </div>
                     </DialogContent>
                   </Dialog>
