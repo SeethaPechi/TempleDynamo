@@ -150,12 +150,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/members/:id/relationships", async (req, res) => {
+  app.get("/api/relationships/:memberId", async (req, res) => {
     try {
-      const id = parseInt(req.params.id);
-      const relationships = await storage.getMemberRelationships(id);
+      const memberId = parseInt(req.params.memberId);
+      if (isNaN(memberId)) {
+        return res.status(400).json({ message: "Invalid member ID" });
+      }
+      
+      const relationships = await storage.getMemberRelationships(memberId);
+      console.log(`Fetching relationships for member ${memberId}:`, relationships);
       res.json(relationships);
     } catch (error) {
+      console.error("Error fetching member relationships:", error);
+      res.status(500).json({ message: "Failed to fetch relationships" });
+    }
+  });
+
+  app.get("/api/relationships", async (req, res) => {
+    try {
+      const relationships = await storage.getAllRelationships();
+      console.log('Fetching all relationships:', relationships);
+      res.json(relationships);
+    } catch (error) {
+      console.error("Error fetching all relationships:", error);
       res.status(500).json({ message: "Failed to fetch relationships" });
     }
   });

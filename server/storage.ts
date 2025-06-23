@@ -18,6 +18,7 @@ export interface IStorage {
   // Relationship methods
   createRelationship(relationship: InsertRelationship): Promise<Relationship>;
   getMemberRelationships(memberId: number): Promise<Array<Relationship & { relatedMember: Member }>>;
+  getAllRelationships(): Promise<Array<Relationship & { relatedMember: Member }>>;
   deleteRelationship(id: number): Promise<void>;
   
   // Temple methods
@@ -144,6 +145,22 @@ export class MemStorage implements IStorage {
     }
     // Delete the member
     this.members.delete(id);
+  }
+
+  async getAllRelationships(): Promise<Array<Relationship & { relatedMember: Member }>> {
+    const results: Array<Relationship & { relatedMember: Member }> = [];
+    
+    for (const [id, relationship] of this.relationships) {
+      const relatedMember = this.members.get(relationship.relatedMemberId);
+      if (relatedMember) {
+        results.push({
+          ...relationship,
+          relatedMember
+        });
+      }
+    }
+    
+    return results;
   }
 
   async deleteRelationship(id: number): Promise<void> {

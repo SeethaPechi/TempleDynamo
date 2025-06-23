@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { FamilyTreeVisualization } from "@/components/family-tree-visualization";
 import { FamilyNetworkAnalysis } from "@/components/family-network-analysis";
 import { ComprehensiveFamilyDisplay } from "@/components/comprehensive-family-display";
+import { FamilyRelationshipsTable } from "@/components/family-relationships-table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { Member, Relationship } from "@shared/schema";
 
@@ -38,6 +39,12 @@ export default function FamilyTree() {
   const { data: memberRelationships = [] } = useQuery({
     queryKey: ["/api/relationships", selectedMember?.id],
     enabled: !!selectedMember?.id,
+    onSuccess: (data) => {
+      console.log('Member relationships loaded:', data);
+    },
+    onError: (error) => {
+      console.error('Error loading member relationships:', error);
+    }
   });
 
   const { data: allRelationships = [] } = useQuery({
@@ -133,15 +140,19 @@ export default function FamilyTree() {
           </p>
         </div>
 
-        <Tabs defaultValue="explorer" className="w-full">
+        <Tabs defaultValue="table" className="w-full">
           <div className="flex justify-center mb-8">
-            <TabsList className="grid grid-cols-4 w-full max-w-2xl">
+            <TabsList className="grid grid-cols-5 w-full max-w-4xl">
               <TabsTrigger value="explorer" className="flex items-center gap-2">
                 <Search size={16} />
                 Explorer
               </TabsTrigger>
-              <TabsTrigger value="comprehensive" className="flex items-center gap-2">
+              <TabsTrigger value="table" className="flex items-center gap-2">
                 <Users size={16} />
+                Relationships
+              </TabsTrigger>
+              <TabsTrigger value="comprehensive" className="flex items-center gap-2">
+                <Heart size={16} />
                 All Relations
               </TabsTrigger>
               <TabsTrigger value="network" className="flex items-center gap-2">
@@ -261,6 +272,25 @@ export default function FamilyTree() {
                 )}
               </div>
             </div>
+          </TabsContent>
+
+          <TabsContent value="table" className="space-y-6">
+            {selectedMember ? (
+              <FamilyRelationshipsTable
+                member={selectedMember}
+                relationships={memberRelationships}
+                onMemberClick={(memberId) => {
+                  const member = (allMembers as Member[]).find(m => m.id === memberId);
+                  if (member) setSelectedMember(member);
+                }}
+              />
+            ) : (
+              <Card className="p-12 text-center">
+                <Users className="mx-auto mb-4 text-gray-400" size={64} />
+                <h3 className="text-xl font-semibold text-gray-600 mb-2">Select a Member</h3>
+                <p className="text-gray-500">Choose a member to view their family relationships in table format</p>
+              </Card>
+            )}
           </TabsContent>
 
           <TabsContent value="comprehensive" className="space-y-6">
