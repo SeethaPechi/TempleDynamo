@@ -73,8 +73,14 @@ export default function FamilyTree() {
     queryKey: ["/api/members"],
   });
 
-  const { data: memberRelationships = [] } = useQuery({
+  const { data: memberRelationships = [], isLoading: relationshipsLoading } = useQuery({
     queryKey: ["/api/relationships", selectedMember?.id],
+    queryFn: async () => {
+      if (!selectedMember?.id) return [];
+      const response = await fetch(`/api/relationships/${selectedMember.id}`);
+      if (!response.ok) throw new Error('Failed to fetch relationships');
+      return response.json();
+    },
     enabled: !!selectedMember?.id,
   });
 
@@ -83,6 +89,11 @@ export default function FamilyTree() {
 
   const { data: allRelationships = [] } = useQuery({
     queryKey: ["/api/relationships"],
+    queryFn: async () => {
+      const response = await fetch('/api/relationships');
+      if (!response.ok) return [];
+      return response.json();
+    },
   });
 
   // Search for members
@@ -380,7 +391,12 @@ export default function FamilyTree() {
                   </div>
                 </Card>
 
-                {memberRelationships && memberRelationships.length > 0 ? (
+                {relationshipsLoading ? (
+                  <Card className="p-8 text-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-saffron-500 mx-auto mb-4"></div>
+                    <p className="text-gray-500">Loading family relationships...</p>
+                  </Card>
+                ) : memberRelationships && memberRelationships.length > 0 ? (
                   <Card className="p-6">
                     <div className="mb-4">
                       <h3 className="text-lg font-semibold text-temple-brown">
