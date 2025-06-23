@@ -4,9 +4,30 @@ import { useTranslation } from "react-i18next";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Users, Search, Plus, Heart, UserPlus, TreePine, Network, BarChart3 } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Users,
+  Search,
+  Plus,
+  Heart,
+  UserPlus,
+  TreePine,
+  Network,
+  BarChart3,
+} from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { FamilyTreeVisualization } from "@/components/family-tree-visualization";
@@ -17,8 +38,24 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { Member, Relationship } from "@shared/schema";
 
 const relationshipTypes = [
-  "Spouse", "Parent", "Child", "Sibling", "Grandparent", "Grandchild", 
-  "Uncle", "Aunt", "Cousin", "Nephew", "Niece", "In-law"
+  "Spouse",
+  "Father",
+  "Mother",
+  "Son",
+  "Daughter",
+  "Sibling",
+  "Paternal Grandfather",
+  "Paternal Grandmother",
+  "Maternal Grand Father",
+  "Maternal Grand Mother",
+  "Grand Daugher",
+  "Grand Son",
+  "Uncle",
+  "Aunt",
+  "Cousin",
+  "Nephew",
+  "Niece",
+  "In-law",
 ];
 
 export default function FamilyTree() {
@@ -41,8 +78,8 @@ export default function FamilyTree() {
     enabled: !!selectedMember?.id,
   });
 
-  console.log('Selected member:', selectedMember?.fullName);
-  console.log('Member relationships:', memberRelationships);
+  console.log("Selected member:", selectedMember?.fullName);
+  console.log("Member relationships:", memberRelationships);
 
   const { data: allRelationships = [] } = useQuery({
     queryKey: ["/api/relationships"],
@@ -54,36 +91,46 @@ export default function FamilyTree() {
       setSearchResults([]);
       return;
     }
-    
+
     try {
-      const response = await fetch(`/api/members/search?term=${encodeURIComponent(term)}`);
+      const response = await fetch(
+        `/api/members/search?term=${encodeURIComponent(term)}`,
+      );
       if (response.ok) {
         const results = await response.json();
         setSearchResults(results);
       } else {
         // Fallback to client-side search if API fails
-        const filtered = (allMembers as Member[]).filter((member: Member) => 
-          member.fullName.toLowerCase().includes(term.toLowerCase()) ||
-          member.email.toLowerCase().includes(term.toLowerCase())
+        const filtered = (allMembers as Member[]).filter(
+          (member: Member) =>
+            member.fullName.toLowerCase().includes(term.toLowerCase()) ||
+            member.email.toLowerCase().includes(term.toLowerCase()),
         );
         setSearchResults(filtered);
       }
     } catch (error) {
       // Fallback to client-side search
-      const filtered = (allMembers as Member[]).filter((member: Member) => 
-        member.fullName.toLowerCase().includes(term.toLowerCase()) ||
-        member.email.toLowerCase().includes(term.toLowerCase())
+      const filtered = (allMembers as Member[]).filter(
+        (member: Member) =>
+          member.fullName.toLowerCase().includes(term.toLowerCase()) ||
+          member.email.toLowerCase().includes(term.toLowerCase()),
       );
       setSearchResults(filtered);
     }
   };
 
   const addRelationshipMutation = useMutation({
-    mutationFn: async (data: { memberId: number; relatedMemberId: number; relationshipType: string }) => {
+    mutationFn: async (data: {
+      memberId: number;
+      relatedMemberId: number;
+      relationshipType: string;
+    }) => {
       return apiRequest("POST", "/api/relationships", data);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/relationships", selectedMember?.id] });
+      queryClient.invalidateQueries({
+        queryKey: ["/api/relationships", selectedMember?.id],
+      });
       queryClient.invalidateQueries({ queryKey: ["/api/relationships"] });
       setIsAddRelationshipOpen(false);
       setRelationshipType("");
@@ -130,10 +177,13 @@ export default function FamilyTree() {
         <div className="text-center mb-12">
           <div className="flex items-center justify-center mb-6">
             <TreePine className="text-temple-brown mr-4" size={48} />
-            <h1 className="text-4xl font-bold text-temple-brown">Family Tree</h1>
+            <h1 className="text-4xl font-bold text-temple-brown">
+              Family Tree
+            </h1>
           </div>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Explore family connections and relationships within our temple community
+            Explore family connections and relationships within our temple
+            community
           </p>
         </div>
 
@@ -148,7 +198,10 @@ export default function FamilyTree() {
                 <Users size={16} />
                 Relationships
               </TabsTrigger>
-              <TabsTrigger value="comprehensive" className="flex items-center gap-2">
+              <TabsTrigger
+                value="comprehensive"
+                className="flex items-center gap-2"
+              >
                 <Heart size={16} />
                 All Relations
               </TabsTrigger>
@@ -156,7 +209,10 @@ export default function FamilyTree() {
                 <Network size={16} />
                 Network
               </TabsTrigger>
-              <TabsTrigger value="analytics" className="flex items-center gap-2">
+              <TabsTrigger
+                value="analytics"
+                className="flex items-center gap-2"
+              >
                 <BarChart3 size={16} />
                 Analytics
               </TabsTrigger>
@@ -184,7 +240,7 @@ export default function FamilyTree() {
                         className="pl-10"
                       />
                     </div>
-                    
+
                     {searchResults.length > 0 && (
                       <div className="space-y-2 max-h-64 overflow-y-auto">
                         {searchResults.map((member: Member) => (
@@ -193,40 +249,54 @@ export default function FamilyTree() {
                             onClick={() => setSelectedMember(member)}
                             className={`p-3 rounded-lg cursor-pointer transition-colors ${
                               selectedMember?.id === member.id
-                                ? 'bg-saffron-100 border-saffron-300'
-                                : 'bg-gray-50 hover:bg-gray-100'
+                                ? "bg-saffron-100 border-saffron-300"
+                                : "bg-gray-50 hover:bg-gray-100"
                             }`}
                           >
-                            <h4 className="font-medium text-temple-brown">{member.fullName}</h4>
-                            <p className="text-sm text-gray-600">{member.email}</p>
-                            <p className="text-xs text-gray-500">{member.currentCity}, {member.currentState}</p>
+                            <h4 className="font-medium text-temple-brown">
+                              {member.fullName}
+                            </h4>
+                            <p className="text-sm text-gray-600">
+                              {member.email}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              {member.currentCity}, {member.currentState}
+                            </p>
                           </div>
                         ))}
                       </div>
                     )}
-                    
+
                     {searchTerm && searchResults.length === 0 && (
                       <p className="text-sm text-gray-500 text-center py-4">
                         No members found matching "{searchTerm}"
                       </p>
                     )}
-                    
+
                     {!searchTerm && (
                       <div className="space-y-2 max-h-64 overflow-y-auto">
-                        <p className="text-sm text-gray-500 mb-3">All Members:</p>
+                        <p className="text-sm text-gray-500 mb-3">
+                          All Members:
+                        </p>
                         {(allMembers as Member[]).map((member: Member) => (
                           <div
                             key={member.id}
                             onClick={() => setSelectedMember(member)}
                             className={`p-3 rounded-lg cursor-pointer transition-colors ${
                               selectedMember?.id === member.id
-                                ? 'bg-saffron-100 border-saffron-300'
-                                : 'bg-gray-50 hover:bg-gray-100'
+                                ? "bg-saffron-100 border-saffron-300"
+                                : "bg-gray-50 hover:bg-gray-100"
                             }`}
                           >
-                            <h4 className="font-medium text-temple-brown">{member.fullName}</h4>
-                            <p className="text-sm text-gray-600">{member.email}</p>
-                            <p className="text-xs text-gray-500">{member.currentCity}, {member.currentState}</p>
+                            <h4 className="font-medium text-temple-brown">
+                              {member.fullName}
+                            </h4>
+                            <p className="text-sm text-gray-600">
+                              {member.email}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              {member.currentCity}, {member.currentState}
+                            </p>
                           </div>
                         ))}
                       </div>
@@ -239,18 +309,23 @@ export default function FamilyTree() {
               <div className="lg:col-span-2 space-y-6">
                 {selectedMember ? (
                   <>
-                    <FamilyTreeVisualization 
+                    <FamilyTreeVisualization
                       member={selectedMember}
                       relationships={memberRelationships}
                       onMemberClick={(memberId) => {
-                        const member = (allMembers as Member[]).find(m => m.id === memberId);
+                        const member = (allMembers as Member[]).find(
+                          (m) => m.id === memberId,
+                        );
                         if (member) setSelectedMember(member);
                       }}
                     />
-                    
+
                     {/* Add Relationship Button */}
                     <div className="flex justify-center">
-                      <Dialog open={isAddRelationshipOpen} onOpenChange={setIsAddRelationshipOpen}>
+                      <Dialog
+                        open={isAddRelationshipOpen}
+                        onOpenChange={setIsAddRelationshipOpen}
+                      >
                         <DialogTrigger asChild>
                           <Button className="bg-saffron-500 hover:bg-saffron-600">
                             <Plus className="mr-2" size={16} />
@@ -263,8 +338,13 @@ export default function FamilyTree() {
                 ) : (
                   <Card className="p-12 text-center">
                     <Users className="mx-auto mb-4 text-gray-400" size={64} />
-                    <h3 className="text-xl font-semibold text-gray-600 mb-2">Select a Member</h3>
-                    <p className="text-gray-500">Choose a member from the search panel to view their family tree</p>
+                    <h3 className="text-xl font-semibold text-gray-600 mb-2">
+                      Select a Member
+                    </h3>
+                    <p className="text-gray-500">
+                      Choose a member from the search panel to view their family
+                      tree
+                    </p>
                   </Card>
                 )}
               </div>
@@ -281,13 +361,21 @@ export default function FamilyTree() {
                         <Users className="text-saffron-500" size={24} />
                       </div>
                       <div>
-                        <h2 className="text-xl font-bold">{selectedMember.fullName}</h2>
-                        <p className="text-saffron-100 text-sm">Family Relationships</p>
+                        <h2 className="text-xl font-bold">
+                          {selectedMember.fullName}
+                        </h2>
+                        <p className="text-saffron-100 text-sm">
+                          Family Relationships
+                        </p>
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="text-2xl font-bold">{memberRelationships.length}</div>
-                      <div className="text-saffron-100 text-sm">Connections</div>
+                      <div className="text-2xl font-bold">
+                        {memberRelationships.length}
+                      </div>
+                      <div className="text-saffron-100 text-sm">
+                        Connections
+                      </div>
                     </div>
                   </div>
                 </Card>
@@ -307,20 +395,36 @@ export default function FamilyTree() {
                       <table className="w-full border-collapse">
                         <thead>
                           <tr className="bg-saffron-50 border-b">
-                            <th className="text-left p-4 font-semibold text-temple-brown">Member Name</th>
-                            <th className="text-left p-4 font-semibold text-temple-brown">Relationship</th>
-                            <th className="text-left p-4 font-semibold text-temple-brown">Contact</th>
-                            <th className="text-left p-4 font-semibold text-temple-brown">Location</th>
-                            <th className="text-center p-4 font-semibold text-temple-brown">Actions</th>
+                            <th className="text-left p-4 font-semibold text-temple-brown">
+                              Member Name
+                            </th>
+                            <th className="text-left p-4 font-semibold text-temple-brown">
+                              Relationship
+                            </th>
+                            <th className="text-left p-4 font-semibold text-temple-brown">
+                              Contact
+                            </th>
+                            <th className="text-left p-4 font-semibold text-temple-brown">
+                              Location
+                            </th>
+                            <th className="text-center p-4 font-semibold text-temple-brown">
+                              Actions
+                            </th>
                           </tr>
                         </thead>
                         <tbody>
                           {memberRelationships.map((relationship: any) => (
-                            <tr key={relationship.id} className="border-b hover:bg-gray-50">
+                            <tr
+                              key={relationship.id}
+                              className="border-b hover:bg-gray-50"
+                            >
                               <td className="p-4">
                                 <div className="flex items-center space-x-3">
                                   <div className="w-10 h-10 bg-saffron-100 rounded-full flex items-center justify-center">
-                                    <Users className="text-saffron-600" size={16} />
+                                    <Users
+                                      className="text-saffron-600"
+                                      size={16}
+                                    />
                                   </div>
                                   <div>
                                     <button
@@ -331,32 +435,37 @@ export default function FamilyTree() {
                                     >
                                       {relationship.relatedMember.fullName}
                                     </button>
-                                    <p className="text-xs text-gray-500">Member #{relationship.relatedMember.id}</p>
+                                    <p className="text-xs text-gray-500">
+                                      Member #{relationship.relatedMember.id}
+                                    </p>
                                   </div>
                                 </div>
                               </td>
-                              
+
                               <td className="p-4">
                                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                                   {relationship.relationshipType}
                                 </span>
                               </td>
-                              
+
                               <td className="p-4">
                                 <div className="space-y-1">
-                                  <div className="text-sm font-medium">{relationship.relatedMember.phone}</div>
+                                  <div className="text-sm font-medium">
+                                    {relationship.relatedMember.phone}
+                                  </div>
                                   <div className="text-sm text-gray-600 truncate max-w-[200px]">
                                     {relationship.relatedMember.email}
                                   </div>
                                 </div>
                               </td>
-                              
+
                               <td className="p-4">
                                 <div className="text-sm text-gray-600">
-                                  {relationship.relatedMember.currentCity}, {relationship.relatedMember.currentState}
+                                  {relationship.relatedMember.currentCity},{" "}
+                                  {relationship.relatedMember.currentState}
                                 </div>
                               </td>
-                              
+
                               <td className="p-4 text-center">
                                 <button
                                   onClick={() => {
@@ -376,18 +485,37 @@ export default function FamilyTree() {
                     <div className="mt-4 p-4 bg-gradient-to-r from-temple-light to-saffron-50 rounded-lg">
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
                         <div>
-                          <div className="text-xl font-bold text-temple-brown">{memberRelationships.length}</div>
-                          <div className="text-sm text-gray-600">Total Relationships</div>
+                          <div className="text-xl font-bold text-temple-brown">
+                            {memberRelationships.length}
+                          </div>
+                          <div className="text-sm text-gray-600">
+                            Total Relationships
+                          </div>
                         </div>
                         <div>
                           <div className="text-xl font-bold text-saffron-600">
-                            {new Set(memberRelationships.map((r: any) => r.relationshipType)).size}
+                            {
+                              new Set(
+                                memberRelationships.map(
+                                  (r: any) => r.relationshipType,
+                                ),
+                              ).size
+                            }
                           </div>
-                          <div className="text-sm text-gray-600">Relationship Types</div>
+                          <div className="text-sm text-gray-600">
+                            Relationship Types
+                          </div>
                         </div>
                         <div>
                           <div className="text-xl font-bold text-temple-gold">
-                            {new Set(memberRelationships.map((r: any) => `${r.relatedMember.currentCity}, ${r.relatedMember.currentState}`)).size}
+                            {
+                              new Set(
+                                memberRelationships.map(
+                                  (r: any) =>
+                                    `${r.relatedMember.currentCity}, ${r.relatedMember.currentState}`,
+                                ),
+                              ).size
+                            }
                           </div>
                           <div className="text-sm text-gray-600">Locations</div>
                         </div>
@@ -397,9 +525,12 @@ export default function FamilyTree() {
                 ) : (
                   <Card className="p-8 text-center">
                     <Users className="mx-auto mb-4 text-gray-400" size={48} />
-                    <h3 className="text-lg font-semibold text-gray-600 mb-2">No Family Connections</h3>
+                    <h3 className="text-lg font-semibold text-gray-600 mb-2">
+                      No Family Connections
+                    </h3>
                     <p className="text-gray-500 mb-4">
-                      {selectedMember.fullName} doesn't have any family relationships added yet.
+                      {selectedMember.fullName} doesn't have any family
+                      relationships added yet.
                     </p>
                     <p className="text-sm text-gray-400">
                       Add family connections to see the relationship table.
@@ -410,8 +541,13 @@ export default function FamilyTree() {
             ) : (
               <Card className="p-12 text-center">
                 <Users className="mx-auto mb-4 text-gray-400" size={64} />
-                <h3 className="text-xl font-semibold text-gray-600 mb-2">Select a Member</h3>
-                <p className="text-gray-500">Choose a member to view their family relationships in table format</p>
+                <h3 className="text-xl font-semibold text-gray-600 mb-2">
+                  Select a Member
+                </h3>
+                <p className="text-gray-500">
+                  Choose a member to view their family relationships in table
+                  format
+                </p>
               </Card>
             )}
           </TabsContent>
@@ -424,29 +560,40 @@ export default function FamilyTree() {
                 allMembers={allMembers as Member[]}
                 allRelationships={allRelationships}
                 onMemberClick={(memberId) => {
-                  const member = (allMembers as Member[]).find(m => m.id === memberId);
+                  const member = (allMembers as Member[]).find(
+                    (m) => m.id === memberId,
+                  );
                   if (member) setSelectedMember(member);
                 }}
               />
             ) : (
               <Card className="p-12 text-center">
                 <Users className="mx-auto mb-4 text-gray-400" size={64} />
-                <h3 className="text-xl font-semibold text-gray-600 mb-2">Select a Member</h3>
-                <p className="text-gray-500">Choose a member to view all their family relationships and connections</p>
+                <h3 className="text-xl font-semibold text-gray-600 mb-2">
+                  Select a Member
+                </h3>
+                <p className="text-gray-500">
+                  Choose a member to view all their family relationships and
+                  connections
+                </p>
               </Card>
             )}
           </TabsContent>
 
           <TabsContent value="network" className="space-y-6">
-            <FamilyNetworkAnalysis 
+            <FamilyNetworkAnalysis
               allMembers={allMembers as Member[]}
               allRelationships={allRelationships}
               onMemberClick={(memberId) => {
-                const member = (allMembers as Member[]).find(m => m.id === memberId);
+                const member = (allMembers as Member[]).find(
+                  (m) => m.id === memberId,
+                );
                 if (member) {
                   setSelectedMember(member);
                   // Switch to explorer tab to show the selected member
-                  const explorerTab = document.querySelector('[value="explorer"]') as HTMLElement;
+                  const explorerTab = document.querySelector(
+                    '[value="explorer"]',
+                  ) as HTMLElement;
                   if (explorerTab) explorerTab.click();
                 }
               }}
@@ -457,31 +604,58 @@ export default function FamilyTree() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {/* Relationship Statistics */}
               <Card className="p-6 col-span-full">
-                <h3 className="text-xl font-semibold text-temple-brown mb-6">Family Network Overview</h3>
+                <h3 className="text-xl font-semibold text-temple-brown mb-6">
+                  Family Network Overview
+                </h3>
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                   <div className="text-center p-4 bg-saffron-50 rounded-lg">
-                    <Users className="mx-auto mb-2 text-saffron-600" size={24} />
-                    <div className="text-2xl font-bold text-temple-brown">{(allMembers as Member[]).length}</div>
+                    <Users
+                      className="mx-auto mb-2 text-saffron-600"
+                      size={24}
+                    />
+                    <div className="text-2xl font-bold text-temple-brown">
+                      {(allMembers as Member[]).length}
+                    </div>
                     <div className="text-sm text-gray-600">Total Members</div>
                   </div>
                   <div className="text-center p-4 bg-temple-light rounded-lg">
-                    <Heart className="mx-auto mb-2 text-temple-brown" size={24} />
-                    <div className="text-2xl font-bold text-temple-brown">{allRelationships.length}</div>
+                    <Heart
+                      className="mx-auto mb-2 text-temple-brown"
+                      size={24}
+                    />
+                    <div className="text-2xl font-bold text-temple-brown">
+                      {allRelationships.length}
+                    </div>
                     <div className="text-sm text-gray-600">Relationships</div>
                   </div>
                   <div className="text-center p-4 bg-gold-50 rounded-lg">
-                    <Network className="mx-auto mb-2 text-temple-gold" size={24} />
+                    <Network
+                      className="mx-auto mb-2 text-temple-gold"
+                      size={24}
+                    />
                     <div className="text-2xl font-bold text-temple-brown">
-                      {Math.round(allRelationships.length / Math.max((allMembers as Member[]).length, 1) * 100) / 100}
+                      {Math.round(
+                        (allRelationships.length /
+                          Math.max((allMembers as Member[]).length, 1)) *
+                          100,
+                      ) / 100}
                     </div>
                     <div className="text-sm text-gray-600">Avg Connections</div>
                   </div>
                   <div className="text-center p-4 bg-temple-gold-50 rounded-lg">
-                    <TreePine className="mx-auto mb-2 text-saffron-500" size={24} />
+                    <TreePine
+                      className="mx-auto mb-2 text-saffron-500"
+                      size={24}
+                    />
                     <div className="text-2xl font-bold text-temple-brown">
-                      {new Set(allRelationships.map(r => r.relationshipType)).size}
+                      {
+                        new Set(allRelationships.map((r) => r.relationshipType))
+                          .size
+                      }
                     </div>
-                    <div className="text-sm text-gray-600">Relationship Types</div>
+                    <div className="text-sm text-gray-600">
+                      Relationship Types
+                    </div>
                   </div>
                 </div>
               </Card>
@@ -490,32 +664,52 @@ export default function FamilyTree() {
         </Tabs>
 
         {/* Add Relationship Dialog */}
-        <Dialog open={isAddRelationshipOpen} onOpenChange={setIsAddRelationshipOpen}>
+        <Dialog
+          open={isAddRelationshipOpen}
+          onOpenChange={setIsAddRelationshipOpen}
+        >
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Add Family Relationship</DialogTitle>
             </DialogHeader>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-2">Select Family Member</label>
-                <Select value={relatedMemberId?.toString() || ""} onValueChange={(value) => setRelatedMemberId(parseInt(value))}>
+                <label className="block text-sm font-medium mb-2">
+                  Select Family Member
+                </label>
+                <Select
+                  value={relatedMemberId?.toString() || ""}
+                  onValueChange={(value) => setRelatedMemberId(parseInt(value))}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Choose a family member" />
                   </SelectTrigger>
                   <SelectContent>
-                    {(allMembers as Member[]).filter((m: Member) => selectedMember && m.id !== selectedMember.id)
+                    {(allMembers as Member[])
+                      .filter(
+                        (m: Member) =>
+                          selectedMember && m.id !== selectedMember.id,
+                      )
                       .map((member: Member) => (
-                      <SelectItem key={member.id} value={member.id.toString()}>
-                        {member.fullName}
-                      </SelectItem>
-                    ))}
+                        <SelectItem
+                          key={member.id}
+                          value={member.id.toString()}
+                        >
+                          {member.fullName}
+                        </SelectItem>
+                      ))}
                   </SelectContent>
                 </Select>
               </div>
-              
+
               <div>
-                <label className="block text-sm font-medium mb-2">Relationship Type</label>
-                <Select value={relationshipType} onValueChange={setRelationshipType}>
+                <label className="block text-sm font-medium mb-2">
+                  Relationship Type
+                </label>
+                <Select
+                  value={relationshipType}
+                  onValueChange={setRelationshipType}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Select relationship" />
                   </SelectTrigger>
@@ -528,13 +722,19 @@ export default function FamilyTree() {
                   </SelectContent>
                 </Select>
               </div>
-              
-              <Button 
+
+              <Button
                 onClick={handleAddRelationship}
                 className="w-full bg-saffron-500 hover:bg-saffron-600"
-                disabled={!relatedMemberId || !relationshipType || addRelationshipMutation.isPending}
+                disabled={
+                  !relatedMemberId ||
+                  !relationshipType ||
+                  addRelationshipMutation.isPending
+                }
               >
-                {addRelationshipMutation.isPending ? "Adding..." : "Add Relationship"}
+                {addRelationshipMutation.isPending
+                  ? "Adding..."
+                  : "Add Relationship"}
               </Button>
             </div>
           </DialogContent>
