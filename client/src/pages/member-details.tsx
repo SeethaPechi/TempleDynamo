@@ -978,6 +978,20 @@ export default function MemberDetails() {
                   relationships={relationships}
                   onMemberClick={(memberId) => window.location.href = `/member/${memberId}`}
                 />
+                
+                {/* Quick Add Relationship */}
+                {relationships && relationships.length > 0 && (
+                  <Card className="p-4 bg-gradient-to-r from-temple-light to-saffron-50">
+                    <div className="text-center">
+                      <h4 className="text-lg font-semibold text-temple-brown mb-2">
+                        {(member as Member).fullName} has {relationships.length} family connection{relationships.length !== 1 ? 's' : ''}
+                      </h4>
+                      <p className="text-sm text-gray-600 mb-4">
+                        Click on any family member above to view their complete family tree
+                      </p>
+                    </div>
+                  </Card>
+                )}
               </TabsContent>
 
               <TabsContent value="list" className="space-y-4">

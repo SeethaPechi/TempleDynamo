@@ -11,6 +11,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { FamilyTreeVisualization } from "@/components/family-tree-visualization";
 import { FamilyNetworkAnalysis } from "@/components/family-network-analysis";
+import { ComprehensiveFamilyDisplay } from "@/components/comprehensive-family-display";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { Member, Relationship } from "@shared/schema";
 
@@ -134,10 +135,14 @@ export default function FamilyTree() {
 
         <Tabs defaultValue="explorer" className="w-full">
           <div className="flex justify-center mb-8">
-            <TabsList className="grid grid-cols-3 w-full max-w-md">
+            <TabsList className="grid grid-cols-4 w-full max-w-2xl">
               <TabsTrigger value="explorer" className="flex items-center gap-2">
                 <Search size={16} />
                 Explorer
+              </TabsTrigger>
+              <TabsTrigger value="comprehensive" className="flex items-center gap-2">
+                <Users size={16} />
+                All Relations
               </TabsTrigger>
               <TabsTrigger value="network" className="flex items-center gap-2">
                 <Network size={16} />
@@ -225,14 +230,28 @@ export default function FamilyTree() {
               {/* Member Details & Family Tree */}
               <div className="lg:col-span-2 space-y-6">
                 {selectedMember ? (
-                  <FamilyTreeVisualization 
-                    member={selectedMember}
-                    relationships={memberRelationships}
-                    onMemberClick={(memberId) => {
-                      const member = (allMembers as Member[]).find(m => m.id === memberId);
-                      if (member) setSelectedMember(member);
-                    }}
-                  />
+                  <>
+                    <FamilyTreeVisualization 
+                      member={selectedMember}
+                      relationships={memberRelationships}
+                      onMemberClick={(memberId) => {
+                        const member = (allMembers as Member[]).find(m => m.id === memberId);
+                        if (member) setSelectedMember(member);
+                      }}
+                    />
+                    
+                    {/* Add Relationship Button */}
+                    <div className="flex justify-center">
+                      <Dialog open={isAddRelationshipOpen} onOpenChange={setIsAddRelationshipOpen}>
+                        <DialogTrigger asChild>
+                          <Button className="bg-saffron-500 hover:bg-saffron-600">
+                            <Plus className="mr-2" size={16} />
+                            Add New Relationship
+                          </Button>
+                        </DialogTrigger>
+                      </Dialog>
+                    </div>
+                  </>
                 ) : (
                   <Card className="p-12 text-center">
                     <Users className="mx-auto mb-4 text-gray-400" size={64} />
@@ -242,6 +261,27 @@ export default function FamilyTree() {
                 )}
               </div>
             </div>
+          </TabsContent>
+
+          <TabsContent value="comprehensive" className="space-y-6">
+            {selectedMember ? (
+              <ComprehensiveFamilyDisplay
+                member={selectedMember}
+                relationships={memberRelationships}
+                allMembers={allMembers as Member[]}
+                allRelationships={allRelationships}
+                onMemberClick={(memberId) => {
+                  const member = (allMembers as Member[]).find(m => m.id === memberId);
+                  if (member) setSelectedMember(member);
+                }}
+              />
+            ) : (
+              <Card className="p-12 text-center">
+                <Users className="mx-auto mb-4 text-gray-400" size={64} />
+                <h3 className="text-xl font-semibold text-gray-600 mb-2">Select a Member</h3>
+                <p className="text-gray-500">Choose a member to view all their family relationships and connections</p>
+              </Card>
+            )}
           </TabsContent>
 
           <TabsContent value="network" className="space-y-6">

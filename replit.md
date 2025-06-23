@@ -90,6 +90,18 @@ This is a full-stack temple community management system built with React, Expres
 
 ## Recent Changes
 
+✓ **Enhanced Family Tree Visualization with Comprehensive Relationship Display** (June 23, 2025)
+  - Created comprehensive family tree visualization with generational layout organization
+  - Added "All Relations" tab showing complete family connections when member is clicked
+  - Implemented relationship grouping by type (parents, siblings, children, etc.)
+  - Added extended family network discovery showing 2nd-degree connections
+  - Created color-coded relationship badges for easy identification
+  - Added interactive member cards with contact information and navigation
+  - Implemented family network analysis with cluster detection and statistics
+  - Enhanced member details page with tabbed family information display
+  - Added family statistics dashboard showing connections and relationship types
+  - Fixed JavaScript errors and improved overall user experience
+
 ✓ **Universal Auto-Save Functionality** (June 22, 2025)
   - Implemented auto-save functionality across all forms (Member Registry, Temple Registry, Member Details)
   - Added draft persistence using localStorage for form data protection
