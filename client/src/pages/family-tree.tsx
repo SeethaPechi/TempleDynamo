@@ -6,8 +6,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Users, Search, Plus, Heart, UserPlus, TreePine } from "lucide-react";
+import { Users, Search, Plus, Heart, UserPlus, TreePine, Network, BarChart3 } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
+import { FamilyTreeVisualization } from "@/components/family-tree-visualization";
+import { FamilyNetworkAnalysis } from "@/components/family-network-analysis";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { Member, Relationship } from "@shared/schema";
 
 const relationshipTypes = [
@@ -18,6 +22,7 @@ const relationshipTypes = [
 export default function FamilyTree() {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
+  const { toast } = useToast();
   const [selectedMember, setSelectedMember] = useState<Member | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState<Member[]>([]);
@@ -32,6 +37,10 @@ export default function FamilyTree() {
   const { data: memberRelationships = [] } = useQuery({
     queryKey: ["/api/relationships", selectedMember?.id],
     enabled: !!selectedMember?.id,
+  });
+
+  const { data: allRelationships = [] } = useQuery({
+    queryKey: ["/api/relationships"],
   });
 
   // Search for members
@@ -66,16 +75,25 @@ export default function FamilyTree() {
 
   const addRelationshipMutation = useMutation({
     mutationFn: async (data: { memberId: number; relatedMemberId: number; relationshipType: string }) => {
-      return apiRequest("/api/relationships", {
-        method: "POST",
-        body: JSON.stringify(data),
-      });
+      return apiRequest("POST", "/api/relationships", data);
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/relationships", selectedMember?.id] });
       queryClient.invalidateQueries({ queryKey: ["/api/relationships"] });
       setIsAddRelationshipOpen(false);
       setRelationshipType("");
       setRelatedMemberId(null);
+      toast({
+        title: "Relationship Added",
+        description: "Family relationship has been added successfully.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to add relationship. Please try again.",
+        variant: "destructive",
+      });
     },
   });
 
@@ -88,6 +106,17 @@ export default function FamilyTree() {
       });
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-saffron-50 to-temple-gold-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-saffron-500 mx-auto"></div>
+          <p className="mt-4 text-temple-brown">Loading family tree...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-saffron-50 to-temple-gold-50 py-8">
@@ -103,207 +132,220 @@ export default function FamilyTree() {
           </p>
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-8">
-          {/* Member Search & Selection Panel */}
-          <Card className="p-6 h-fit">
-            <h2 className="text-xl font-semibold text-temple-brown mb-4 flex items-center">
-              <Search className="mr-2" size={20} />
-              Select Member
-            </h2>
-            
-            <div className="space-y-4">
-              <Input
-                placeholder="Search by name or email..."
-                value={searchTerm}
-                onChange={(e) => {
-                  setSearchTerm(e.target.value);
-                  searchMembers(e.target.value);
-                }}
-                className="w-full"
-              />
+        <Tabs defaultValue="explorer" className="w-full">
+          <div className="flex justify-center mb-8">
+            <TabsList className="grid grid-cols-3 w-full max-w-md">
+              <TabsTrigger value="explorer" className="flex items-center gap-2">
+                <Search size={16} />
+                Explorer
+              </TabsTrigger>
+              <TabsTrigger value="network" className="flex items-center gap-2">
+                <Network size={16} />
+                Network
+              </TabsTrigger>
+              <TabsTrigger value="analytics" className="flex items-center gap-2">
+                <BarChart3 size={16} />
+                Analytics
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
-              {/* Search Results */}
-              {searchResults.length > 0 && (
-                <div className="max-h-64 overflow-y-auto space-y-2">
-                  {searchResults.map((member: Member) => (
-                    <div
-                      key={member.id}
-                      className={`p-3 rounded-lg border cursor-pointer transition-colors ${
-                        selectedMember?.id === member.id 
-                          ? 'bg-saffron-100 border-saffron-300' 
-                          : 'bg-white border-gray-200 hover:bg-gray-50'
-                      }`}
-                      onClick={() => setSelectedMember(member)}
-                    >
-                      <h4 className="font-medium text-gray-900">{member.fullName}</h4>
-                      <p className="text-sm text-gray-500">{member.email}</p>
-                      <p className="text-sm text-gray-500">{member.currentCity}, {member.currentState}</p>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {/* All Members List (when no search) */}
-              {!searchTerm && (
-                <div className="max-h-64 overflow-y-auto space-y-2">
-                  <h4 className="text-sm font-medium text-gray-700 mb-2">All Members:</h4>
-                  {(allMembers as Member[]).map((member: Member) => (
-                    <div
-                      key={member.id}
-                      className={`p-3 rounded-lg border cursor-pointer transition-colors ${
-                        selectedMember?.id === member.id 
-                          ? 'bg-saffron-100 border-saffron-300' 
-                          : 'bg-white border-gray-200 hover:bg-gray-50'
-                      }`}
-                      onClick={() => setSelectedMember(member)}
-                    >
-                      <h4 className="font-medium text-gray-900">{member.fullName}</h4>
-                      <p className="text-sm text-gray-500">{member.currentCity}, {member.currentState}</p>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </Card>
-
-          {/* Member Details & Family Tree */}
-          <div className="lg:col-span-2 space-y-6">
-            {selectedMember ? (
-              <>
-                {/* Selected Member Details */}
-                <Card className="p-6">
-                  <div className="flex items-start justify-between mb-6">
-                    <div className="flex items-center space-x-4">
-                      <div className="w-16 h-16 bg-saffron-500 rounded-full flex items-center justify-center">
-                        <Users className="text-white" size={24} />
-                      </div>
-                      <div>
-                        <h2 className="text-2xl font-bold text-temple-brown">{selectedMember.fullName}</h2>
-                        <p className="text-gray-600">{selectedMember.email}</p>
-                        <p className="text-gray-600">{selectedMember.phone}</p>
-                      </div>
+          <TabsContent value="explorer" className="space-y-8">
+            <div className="grid lg:grid-cols-3 gap-8">
+              {/* Search Panel */}
+              <div className="lg:col-span-1">
+                <Card className="p-6 sticky top-8">
+                  <h3 className="text-lg font-semibold text-temple-brown mb-4">
+                    Search Members
+                  </h3>
+                  <div className="space-y-4">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                      <Input
+                        placeholder="Search by name..."
+                        value={searchTerm}
+                        onChange={(e) => {
+                          setSearchTerm(e.target.value);
+                          searchMembers(e.target.value);
+                        }}
+                        className="pl-10"
+                      />
                     </div>
                     
-                    <Dialog open={isAddRelationshipOpen} onOpenChange={setIsAddRelationshipOpen}>
-                      <DialogTrigger asChild>
-                        <Button className="bg-saffron-500 hover:bg-saffron-600">
-                          <Plus className="mr-2" size={16} />
-                          Add Relationship
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent>
-                        <DialogHeader>
-                          <DialogTitle>Add Family Relationship</DialogTitle>
-                        </DialogHeader>
-                        <div className="space-y-4">
-                          <div>
-                            <label className="text-sm font-medium">Relationship Type</label>
-                            <Select value={relationshipType} onValueChange={setRelationshipType}>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select relationship..." />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {relationshipTypes.map((type) => (
-                                  <SelectItem key={type} value={type}>{type}</SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
-                          
-                          <div>
-                            <label className="text-sm font-medium">Related Member</label>
-                            <Select value={relatedMemberId?.toString() || ""} onValueChange={(value) => setRelatedMemberId(Number(value))}>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select member..." />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {(allMembers as Member[])
-                                  .filter(m => m.id !== selectedMember.id)
-                                  .map((member: Member) => (
-                                    <SelectItem key={member.id} value={member.id.toString()}>
-                                      {member.fullName}
-                                    </SelectItem>
-                                  ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
-                          
-                          <Button 
-                            onClick={handleAddRelationship}
-                            className="w-full bg-saffron-500 hover:bg-saffron-600"
-                            disabled={!relationshipType || !relatedMemberId || addRelationshipMutation.isPending}
+                    {searchResults.length > 0 && (
+                      <div className="space-y-2 max-h-64 overflow-y-auto">
+                        {searchResults.map((member: Member) => (
+                          <div
+                            key={member.id}
+                            onClick={() => setSelectedMember(member)}
+                            className={`p-3 rounded-lg cursor-pointer transition-colors ${
+                              selectedMember?.id === member.id
+                                ? 'bg-saffron-100 border-saffron-300'
+                                : 'bg-gray-50 hover:bg-gray-100'
+                            }`}
                           >
-                            {addRelationshipMutation.isPending ? "Adding..." : "Add Relationship"}
-                          </Button>
-                        </div>
-                      </DialogContent>
-                    </Dialog>
-                  </div>
-
-                  <div className="grid md:grid-cols-2 gap-4 mb-6">
-                    <div>
-                      <h4 className="font-semibold text-gray-700 mb-2">Birth Information</h4>
-                      <p className="text-gray-600">{selectedMember.birthCity}, {selectedMember.birthState}</p>
-                      <p className="text-gray-600">{selectedMember.birthCountry}</p>
-                    </div>
-                    <div>
-                      <h4 className="font-semibold text-gray-700 mb-2">Current Location</h4>
-                      <p className="text-gray-600">{selectedMember.currentCity}, {selectedMember.currentState}</p>
-                      <p className="text-gray-600">{selectedMember.currentCountry}</p>
-                    </div>
-                  </div>
-
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div>
-                      <h4 className="font-semibold text-gray-700 mb-2">Parents</h4>
-                      <p className="text-gray-600">Father: {selectedMember.fatherName}</p>
-                      <p className="text-gray-600">Mother: {selectedMember.motherName}</p>
-                    </div>
-                  </div>
-                </Card>
-
-                {/* Family Relationships */}
-                <Card className="p-6">
-                  <h3 className="text-xl font-semibold text-temple-brown mb-4 flex items-center">
-                    <Heart className="mr-2" size={20} />
-                    Family Relationships
-                  </h3>
-                  
-                  {memberRelationships.length > 0 ? (
-                    <div className="grid md:grid-cols-2 gap-4">
-                      {memberRelationships.map((relationship: any) => (
-                        <div key={relationship.id} className="bg-gradient-to-r from-saffron-50 to-temple-gold-50 p-4 rounded-lg border">
-                          <div className="flex items-center space-x-3">
-                            <div className="w-10 h-10 bg-saffron-500 rounded-full flex items-center justify-center">
-                              <UserPlus className="text-white" size={16} />
-                            </div>
-                            <div>
-                              <h4 className="font-semibold text-temple-brown">{relationship.relatedMember.fullName}</h4>
-                              <p className="text-sm text-gray-600">{relationship.relationshipType}</p>
-                              <p className="text-xs text-gray-500">{relationship.relatedMember.currentCity}, {relationship.relatedMember.currentState}</p>
-                            </div>
+                            <h4 className="font-medium text-temple-brown">{member.fullName}</h4>
+                            <p className="text-sm text-gray-600">{member.email}</p>
+                            <p className="text-xs text-gray-500">{member.currentCity}, {member.currentState}</p>
                           </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-8">
-                      <TreePine className="mx-auto mb-4 text-gray-400" size={48} />
-                      <p className="text-gray-500">No family relationships added yet.</p>
-                      <p className="text-sm text-gray-400 mt-2">Click "Add Relationship" to connect family members.</p>
-                    </div>
-                  )}
+                        ))}
+                      </div>
+                    )}
+                    
+                    {searchTerm && searchResults.length === 0 && (
+                      <p className="text-sm text-gray-500 text-center py-4">
+                        No members found matching "{searchTerm}"
+                      </p>
+                    )}
+                    
+                    {!searchTerm && (
+                      <div className="space-y-2 max-h-64 overflow-y-auto">
+                        <p className="text-sm text-gray-500 mb-3">All Members:</p>
+                        {(allMembers as Member[]).map((member: Member) => (
+                          <div
+                            key={member.id}
+                            onClick={() => setSelectedMember(member)}
+                            className={`p-3 rounded-lg cursor-pointer transition-colors ${
+                              selectedMember?.id === member.id
+                                ? 'bg-saffron-100 border-saffron-300'
+                                : 'bg-gray-50 hover:bg-gray-100'
+                            }`}
+                          >
+                            <h4 className="font-medium text-temple-brown">{member.fullName}</h4>
+                            <p className="text-sm text-gray-600">{member.email}</p>
+                            <p className="text-xs text-gray-500">{member.currentCity}, {member.currentState}</p>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </Card>
-              </>
-            ) : (
-              <Card className="p-12 text-center">
-                <Users className="mx-auto mb-4 text-gray-400" size={64} />
-                <h3 className="text-xl font-semibold text-gray-600 mb-2">Select a Member</h3>
-                <p className="text-gray-500">Choose a member from the search panel to view their family tree</p>
+              </div>
+
+              {/* Member Details & Family Tree */}
+              <div className="lg:col-span-2 space-y-6">
+                {selectedMember ? (
+                  <FamilyTreeVisualization 
+                    member={selectedMember}
+                    relationships={memberRelationships}
+                    onMemberClick={(memberId) => {
+                      const member = (allMembers as Member[]).find(m => m.id === memberId);
+                      if (member) setSelectedMember(member);
+                    }}
+                  />
+                ) : (
+                  <Card className="p-12 text-center">
+                    <Users className="mx-auto mb-4 text-gray-400" size={64} />
+                    <h3 className="text-xl font-semibold text-gray-600 mb-2">Select a Member</h3>
+                    <p className="text-gray-500">Choose a member from the search panel to view their family tree</p>
+                  </Card>
+                )}
+              </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="network" className="space-y-6">
+            <FamilyNetworkAnalysis 
+              allMembers={allMembers as Member[]}
+              allRelationships={allRelationships}
+              onMemberClick={(memberId) => {
+                const member = (allMembers as Member[]).find(m => m.id === memberId);
+                if (member) {
+                  setSelectedMember(member);
+                  // Switch to explorer tab to show the selected member
+                  const explorerTab = document.querySelector('[value="explorer"]') as HTMLElement;
+                  if (explorerTab) explorerTab.click();
+                }
+              }}
+            />
+          </TabsContent>
+
+          <TabsContent value="analytics" className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {/* Relationship Statistics */}
+              <Card className="p-6 col-span-full">
+                <h3 className="text-xl font-semibold text-temple-brown mb-6">Family Network Overview</h3>
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <div className="text-center p-4 bg-saffron-50 rounded-lg">
+                    <Users className="mx-auto mb-2 text-saffron-600" size={24} />
+                    <div className="text-2xl font-bold text-temple-brown">{(allMembers as Member[]).length}</div>
+                    <div className="text-sm text-gray-600">Total Members</div>
+                  </div>
+                  <div className="text-center p-4 bg-temple-light rounded-lg">
+                    <Heart className="mx-auto mb-2 text-temple-brown" size={24} />
+                    <div className="text-2xl font-bold text-temple-brown">{allRelationships.length}</div>
+                    <div className="text-sm text-gray-600">Relationships</div>
+                  </div>
+                  <div className="text-center p-4 bg-gold-50 rounded-lg">
+                    <Network className="mx-auto mb-2 text-temple-gold" size={24} />
+                    <div className="text-2xl font-bold text-temple-brown">
+                      {Math.round(allRelationships.length / Math.max((allMembers as Member[]).length, 1) * 100) / 100}
+                    </div>
+                    <div className="text-sm text-gray-600">Avg Connections</div>
+                  </div>
+                  <div className="text-center p-4 bg-temple-gold-50 rounded-lg">
+                    <TreePine className="mx-auto mb-2 text-saffron-500" size={24} />
+                    <div className="text-2xl font-bold text-temple-brown">
+                      {new Set(allRelationships.map(r => r.relationshipType)).size}
+                    </div>
+                    <div className="text-sm text-gray-600">Relationship Types</div>
+                  </div>
+                </div>
               </Card>
-            )}
-          </div>
-        </div>
+            </div>
+          </TabsContent>
+        </Tabs>
+
+        {/* Add Relationship Dialog */}
+        <Dialog open={isAddRelationshipOpen} onOpenChange={setIsAddRelationshipOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Add Family Relationship</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-2">Select Family Member</label>
+                <Select value={relatedMemberId?.toString() || ""} onValueChange={(value) => setRelatedMemberId(parseInt(value))}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Choose a family member" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {(allMembers as Member[]).filter((m: Member) => selectedMember && m.id !== selectedMember.id)
+                      .map((member: Member) => (
+                      <SelectItem key={member.id} value={member.id.toString()}>
+                        {member.fullName}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium mb-2">Relationship Type</label>
+                <Select value={relationshipType} onValueChange={setRelationshipType}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select relationship" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {relationshipTypes.map((type) => (
+                      <SelectItem key={type} value={type}>
+                        {type}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <Button 
+                onClick={handleAddRelationship}
+                className="w-full bg-saffron-500 hover:bg-saffron-600"
+                disabled={!relatedMemberId || !relationshipType || addRelationshipMutation.isPending}
+              >
+                {addRelationshipMutation.isPending ? "Adding..." : "Add Relationship"}
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );

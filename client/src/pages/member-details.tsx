@@ -10,10 +10,12 @@ import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Users, ArrowLeft, MapPin, Phone, Mail, Heart, Edit, Trash2, Save, Plus, Search, X } from "lucide-react";
+import { Users, ArrowLeft, MapPin, Phone, Mail, Heart, Edit, Trash2, Save, Plus, Search, X, TreePine } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { FamilyTreeVisualization } from "@/components/family-tree-visualization";
 import type { Member, Relationship, InsertMember } from "@shared/schema";
 import { insertMemberSchema } from "@shared/schema";
 
@@ -224,11 +226,11 @@ export default function MemberDetails() {
   });
 
   const handleAddRelationship = () => {
-    if (selectedRelatedMember && selectedRelationshipType) {
+    if (selectedRelative && selectedRelationship) {
       addRelationshipMutation.mutate({
-        memberId: memberId,
-        relatedMemberId: selectedRelatedMember.id,
-        relationshipType: selectedRelationshipType,
+        memberId: memberId!,
+        relatedMemberId: selectedRelative.id,
+        relationshipType: selectedRelationship,
       });
     }
   };
@@ -942,10 +944,10 @@ export default function MemberDetails() {
             </div>
           </Card>
 
-          {/* Family Relationships */}
+          {/* Family Information Tabs */}
           <Card className="p-4 sm:p-6 mt-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-3">
-              <h2 className="text-lg sm:text-xl font-semibold text-temple-brown">Family Relationships</h2>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-3">
+              <h2 className="text-lg sm:text-xl font-semibold text-temple-brown">Family Information</h2>
               <Button
                 variant="outline"
                 size="sm"
@@ -957,63 +959,91 @@ export default function MemberDetails() {
                 <span className="sm:hidden">Add</span>
               </Button>
             </div>
-            {relationships && relationships.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {relationships.map((relationship: any) => (
-                  <div key={relationship.id} className="p-3 sm:p-4 bg-gray-50 rounded-lg">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                      <div className="min-w-0 flex-1">
-                        <h3 className="font-medium text-temple-brown text-sm sm:text-base break-words">{relationship.relatedMember.fullName}</h3>
-                        <p className="text-xs sm:text-sm text-gray-600">{relationship.relationshipType}</p>
-                        <p className="text-xs text-gray-500 mt-1 break-all">{relationship.relatedMember.email}</p>
-                      </div>
-                      <div className="flex gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => window.location.href = `/member/${relationship.relatedMember.id}`}
-                          className="w-full sm:w-auto sm:flex-shrink-0"
-                        >
-                          <span className="hidden sm:inline">View Profile</span>
-                          <span className="sm:hidden">View</span>
-                        </Button>
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button variant="outline" size="sm" className="text-red-600 hover:text-red-700 hover:bg-red-50 w-full sm:w-auto">
-                              <Trash2 size={14} className="mr-1" />
-                              Remove
+
+            <Tabs defaultValue="tree" className="w-full">
+              <TabsList className="grid w-full grid-cols-2 mb-6">
+                <TabsTrigger value="tree" className="flex items-center gap-2">
+                  <TreePine size={16} />
+                  Family Tree
+                </TabsTrigger>
+                <TabsTrigger value="list" className="flex items-center gap-2">
+                  <Heart size={16} />
+                  Relationships
+                </TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="tree" className="space-y-6">
+                <FamilyTreeVisualization 
+                  member={member as Member}
+                  relationships={relationships}
+                  onMemberClick={(memberId) => window.location.href = `/member/${memberId}`}
+                />
+              </TabsContent>
+
+              <TabsContent value="list" className="space-y-4">
+                {relationships && relationships.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {relationships.map((relationship: any) => (
+                      <div key={relationship.id} className="p-3 sm:p-4 bg-gray-50 rounded-lg">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                          <div className="min-w-0 flex-1">
+                            <h3 className="font-medium text-temple-brown text-sm sm:text-base break-words">{relationship.relatedMember.fullName}</h3>
+                            <p className="text-xs sm:text-sm text-gray-600">{relationship.relationshipType}</p>
+                            <p className="text-xs text-gray-500 mt-1 break-all">{relationship.relatedMember.email}</p>
+                            <div className="flex items-center mt-1 text-xs text-gray-500">
+                              <MapPin size={10} className="mr-1" />
+                              {relationship.relatedMember.currentCity}, {relationship.relatedMember.currentState}
+                            </div>
+                          </div>
+                          <div className="flex gap-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => window.location.href = `/member/${relationship.relatedMember.id}`}
+                              className="w-full sm:w-auto sm:flex-shrink-0"
+                            >
+                              <span className="hidden sm:inline">View Profile</span>
+                              <span className="sm:hidden">View</span>
                             </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>Remove Relationship</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                Are you sure you want to remove the relationship between {(member as Member).fullName} and {relationship.relatedMember.fullName}?
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Cancel</AlertDialogCancel>
-                              <AlertDialogAction
-                                onClick={() => deleteRelationshipMutation.mutate(relationship.id)}
-                                className="bg-red-600 hover:bg-red-700"
-                              >
-                                Remove
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button variant="outline" size="sm" className="text-red-600 hover:text-red-700 hover:bg-red-50 w-full sm:w-auto">
+                                  <Trash2 size={14} className="mr-1" />
+                                  Remove
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Remove Relationship</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    Are you sure you want to remove the relationship between {(member as Member).fullName} and {relationship.relatedMember.fullName}?
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                  <AlertDialogAction
+                                    onClick={() => deleteRelationshipMutation.mutate(relationship.id)}
+                                    className="bg-red-600 hover:bg-red-700"
+                                  >
+                                    Remove
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          </div>
+                        </div>
                       </div>
-                    </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-8 text-gray-500">
-                <Users className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                <p className="text-sm">No family relationships added yet</p>
-                <p className="text-xs mt-1">Click "Add Relative" to link family members</p>
-              </div>
-            )}
+                ) : (
+                  <div className="text-center py-8 text-gray-500">
+                    <Users className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+                    <p className="text-sm">No family relationships added yet</p>
+                    <p className="text-xs mt-1">Click "Add Relative" to link family members</p>
+                  </div>
+                )}
+              </TabsContent>
+            </Tabs>
           </Card>
 
         {/* Add Relative Dialog */}
