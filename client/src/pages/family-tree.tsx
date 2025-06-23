@@ -39,13 +39,10 @@ export default function FamilyTree() {
   const { data: memberRelationships = [] } = useQuery({
     queryKey: ["/api/relationships", selectedMember?.id],
     enabled: !!selectedMember?.id,
-    onSuccess: (data) => {
-      console.log('Member relationships loaded:', data);
-    },
-    onError: (error) => {
-      console.error('Error loading member relationships:', error);
-    }
   });
+
+  console.log('Selected member:', selectedMember?.fullName);
+  console.log('Member relationships:', memberRelationships);
 
   const { data: allRelationships = [] } = useQuery({
     queryKey: ["/api/relationships"],
@@ -276,14 +273,140 @@ export default function FamilyTree() {
 
           <TabsContent value="table" className="space-y-6">
             {selectedMember ? (
-              <FamilyRelationshipsTable
-                member={selectedMember}
-                relationships={memberRelationships}
-                onMemberClick={(memberId) => {
-                  const member = (allMembers as Member[]).find(m => m.id === memberId);
-                  if (member) setSelectedMember(member);
-                }}
-              />
+              <div className="space-y-6">
+                <Card className="p-6 bg-gradient-to-r from-saffron-500 to-gold-500 text-white">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-4">
+                      <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center">
+                        <Users className="text-saffron-500" size={24} />
+                      </div>
+                      <div>
+                        <h2 className="text-xl font-bold">{selectedMember.fullName}</h2>
+                        <p className="text-saffron-100 text-sm">Family Relationships</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-2xl font-bold">{memberRelationships.length}</div>
+                      <div className="text-saffron-100 text-sm">Connections</div>
+                    </div>
+                  </div>
+                </Card>
+
+                {memberRelationships && memberRelationships.length > 0 ? (
+                  <Card className="p-6">
+                    <div className="mb-4">
+                      <h3 className="text-lg font-semibold text-temple-brown">
+                        Family Relationships for {selectedMember.fullName}
+                      </h3>
+                      <p className="text-sm text-gray-600">
+                        Click on any name to view their detailed profile
+                      </p>
+                    </div>
+
+                    <div className="overflow-x-auto">
+                      <table className="w-full border-collapse">
+                        <thead>
+                          <tr className="bg-saffron-50 border-b">
+                            <th className="text-left p-4 font-semibold text-temple-brown">Member Name</th>
+                            <th className="text-left p-4 font-semibold text-temple-brown">Relationship</th>
+                            <th className="text-left p-4 font-semibold text-temple-brown">Contact</th>
+                            <th className="text-left p-4 font-semibold text-temple-brown">Location</th>
+                            <th className="text-center p-4 font-semibold text-temple-brown">Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {memberRelationships.map((relationship: any) => (
+                            <tr key={relationship.id} className="border-b hover:bg-gray-50">
+                              <td className="p-4">
+                                <div className="flex items-center space-x-3">
+                                  <div className="w-10 h-10 bg-saffron-100 rounded-full flex items-center justify-center">
+                                    <Users className="text-saffron-600" size={16} />
+                                  </div>
+                                  <div>
+                                    <button
+                                      onClick={() => {
+                                        window.location.href = `/member/${relationship.relatedMember.id}`;
+                                      }}
+                                      className="font-bold text-temple-brown hover:text-saffron-600 transition-colors text-left underline hover:no-underline"
+                                    >
+                                      {relationship.relatedMember.fullName}
+                                    </button>
+                                    <p className="text-xs text-gray-500">Member #{relationship.relatedMember.id}</p>
+                                  </div>
+                                </div>
+                              </td>
+                              
+                              <td className="p-4">
+                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                  {relationship.relationshipType}
+                                </span>
+                              </td>
+                              
+                              <td className="p-4">
+                                <div className="space-y-1">
+                                  <div className="text-sm font-medium">{relationship.relatedMember.phone}</div>
+                                  <div className="text-sm text-gray-600 truncate max-w-[200px]">
+                                    {relationship.relatedMember.email}
+                                  </div>
+                                </div>
+                              </td>
+                              
+                              <td className="p-4">
+                                <div className="text-sm text-gray-600">
+                                  {relationship.relatedMember.currentCity}, {relationship.relatedMember.currentState}
+                                </div>
+                              </td>
+                              
+                              <td className="p-4 text-center">
+                                <button
+                                  onClick={() => {
+                                    window.location.href = `/member/${relationship.relatedMember.id}`;
+                                  }}
+                                  className="inline-flex items-center px-3 py-1 border border-saffron-200 text-sm font-medium rounded-md text-temple-brown bg-saffron-50 hover:bg-saffron-100 transition-colors"
+                                >
+                                  View Details
+                                </button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+
+                    <div className="mt-4 p-4 bg-gradient-to-r from-temple-light to-saffron-50 rounded-lg">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+                        <div>
+                          <div className="text-xl font-bold text-temple-brown">{memberRelationships.length}</div>
+                          <div className="text-sm text-gray-600">Total Relationships</div>
+                        </div>
+                        <div>
+                          <div className="text-xl font-bold text-saffron-600">
+                            {new Set(memberRelationships.map((r: any) => r.relationshipType)).size}
+                          </div>
+                          <div className="text-sm text-gray-600">Relationship Types</div>
+                        </div>
+                        <div>
+                          <div className="text-xl font-bold text-temple-gold">
+                            {new Set(memberRelationships.map((r: any) => `${r.relatedMember.currentCity}, ${r.relatedMember.currentState}`)).size}
+                          </div>
+                          <div className="text-sm text-gray-600">Locations</div>
+                        </div>
+                      </div>
+                    </div>
+                  </Card>
+                ) : (
+                  <Card className="p-8 text-center">
+                    <Users className="mx-auto mb-4 text-gray-400" size={48} />
+                    <h3 className="text-lg font-semibold text-gray-600 mb-2">No Family Connections</h3>
+                    <p className="text-gray-500 mb-4">
+                      {selectedMember.fullName} doesn't have any family relationships added yet.
+                    </p>
+                    <p className="text-sm text-gray-400">
+                      Add family connections to see the relationship table.
+                    </p>
+                  </Card>
+                )}
+              </div>
             ) : (
               <Card className="p-12 text-center">
                 <Users className="mx-auto mb-4 text-gray-400" size={64} />

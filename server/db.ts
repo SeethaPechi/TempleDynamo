@@ -120,6 +120,38 @@ export class DatabaseStorage implements IStorage {
     return result;
   }
 
+  async getAllRelationships(): Promise<Array<Relationship & { relatedMember: Member }>> {
+    const results = await this.db
+      .select({
+        id: relationships.id,
+        memberId: relationships.memberId,
+        relatedMemberId: relationships.relatedMemberId,
+        relationshipType: relationships.relationshipType,
+        createdAt: relationships.createdAt,
+        relatedMember: {
+          id: members.id,
+          fullName: members.fullName,
+          phone: members.phone,
+          email: members.email,
+          birthCity: members.birthCity,
+          birthState: members.birthState,
+          birthCountry: members.birthCountry,
+          currentCity: members.currentCity,
+          currentState: members.currentState,
+          currentCountry: members.currentCountry,
+          fatherName: members.fatherName,
+          motherName: members.motherName,
+          spouseName: members.spouseName,
+          maritalStatus: members.maritalStatus,
+          createdAt: members.createdAt,
+        },
+      })
+      .from(relationships)
+      .innerJoin(members, eq(relationships.relatedMemberId, members.id));
+
+    return results as Array<Relationship & { relatedMember: Member }>;
+  }
+
   async deleteRelationship(id: number): Promise<void> {
     await db.delete(relationships).where(eq(relationships.id, id));
   }
