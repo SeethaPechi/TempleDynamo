@@ -412,6 +412,9 @@ export default function FamilyTree() {
                               Relationship
                             </th>
                             <th className="text-left p-4 font-semibold text-temple-brown">
+                              Related Name
+                            </th>
+                            <th className="text-left p-4 font-semibold text-temple-brown">
                               Contact
                             </th>
                             <th className="text-left p-4 font-semibold text-temple-brown">
@@ -457,6 +460,16 @@ export default function FamilyTree() {
                                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                                   {relationship.relationshipType}
                                 </span>
+                              </td>
+
+                              <td className="p-4">
+                                <div className="text-sm text-gray-700">
+                                  <span className="font-medium">{relationship.relatedMember.fullName}</span> is the{" "}
+                                  <span className="text-temple-brown font-medium">
+                                    {relationship.relationshipType.toLowerCase()}
+                                  </span>{" "}
+                                  of <span className="font-medium">{selectedMember.fullName}</span>
+                                </div>
                               </td>
 
                               <td className="p-4">
