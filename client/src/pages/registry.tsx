@@ -22,7 +22,7 @@ const registrationSchema = insertMemberSchema.extend({
   fullName: z.string().min(2, "Full name must be at least 2 characters"),
   phone: z.string().min(10, "Phone number must be at least 10 digits"),
   email: z.string().email("Please enter a valid email address"),
-  selectedTemple: z.string().optional(),
+  selectedTemple: z.string().optional().default("none"),
   birthCity: z.string().min(1, "Birth city is required"),
   birthState: z.string().min(1, "Birth state is required"),
   birthCountry: z.string().min(1, "Birth country is required"),
@@ -425,7 +425,7 @@ export default function Registry() {
       motherName: "",
       spouseName: "",
       maritalStatus: "Single" as const,
-      selectedTemple: "",
+      selectedTemple: "none",
     },
   });
 
@@ -754,7 +754,7 @@ export default function Registry() {
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              <SelectItem value="">No temple selected</SelectItem>
+                              <SelectItem value="none">No temple selected</SelectItem>
                               {(allTemples as any[]).map((temple: any) => (
                                 <SelectItem key={temple.id} value={temple.id.toString()}>
                                   {temple.templeName} - {temple.village}, {temple.state}
