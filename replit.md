@@ -90,6 +90,15 @@ This is a full-stack temple community management system built with React, Expres
 
 ## Recent Changes
 
+✓ **Fixed Temple Registration and Image Display Issues** (June 24, 2025)
+  - Fixed PayloadTooLargeError by increasing Express server payload limit to 50MB
+  - Added image compression and resizing to limit uploads to 800px max dimension
+  - Added 5MB file size limit with user-friendly error messages
+  - Improved temple image display on home page with proper sizing and borders
+  - Images now automatically compress to JPEG with 80% quality for optimal loading
+  - Enhanced image error handling with fallback temple icon SVG
+  - Fixed all runtime errors related to temple registration functionality
+
 ✓ **Enhanced Family Tree Visualization with Comprehensive Relationship Display** (June 23, 2025)
   - Created comprehensive family tree visualization with generational layout organization
   - Added "All Relations" tab showing complete family connections when member is clicked
