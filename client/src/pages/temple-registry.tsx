@@ -417,25 +417,38 @@ export default function TempleRegistry() {
 
   const registrationMutation = useMutation({
     mutationFn: async (data: TempleRegistrationData) => {
-      const response = await apiRequest("POST", "/api/temples", {
+      const templateData = {
         ...data,
+        templeImage: capturedImage || data.templeImage || "",
         linkedTemples: selectedLinkedTemples,
         establishedYear: data.establishedYear || undefined,
-      });
+      };
+      console.log('Submitting temple data:', templateData);
+      const response = await apiRequest("POST", "/api/temples", templateData);
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('API Error:', errorText);
+        throw new Error(`Registration failed: ${response.status}`);
+      }
       return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/temples"] });
       setShowSuccessModal(true);
+      form.reset();
+      setSelectedLinkedTemples([]);
+      setCapturedImage(null);
+      localStorage.removeItem('temple-registry-draft');
       toast({
-        title: t('common.success'),
-        description: t('templeRegistry.success'),
+        title: "Registration Successful",
+        description: "Temple has been registered successfully!",
       });
     },
-    onError: () => {
+    onError: (error: any) => {
+      console.error('Temple registration error:', error);
       toast({
-        title: t('common.error'),
-        description: t('templeRegistry.error'),
+        title: "Registration Failed",
+        description: error.message || "Failed to register temple",
         variant: "destructive",
       });
     },
@@ -450,17 +463,36 @@ export default function TempleRegistry() {
   };
 
   const onSubmit = (data: TempleRegistrationData) => {
-    const transformedData = {
+    console.log('Form submitted with data:', data);
+    console.log('Captured image:', capturedImage ? 'Present' : 'None');
+    console.log('Selected linked temples:', selectedLinkedTemples);
+    
+    const finalData = {
       ...data,
+      templeImage: capturedImage || data.templeImage || "",
       linkedTemples: selectedLinkedTemples,
-      templeImage: capturedImage || "",
+      establishedYear: data.establishedYear || undefined,
     };
-    registrationMutation.mutate(transformedData);
+    
+    console.log('Final submission data:', finalData);
+    registrationMutation.mutate(finalData);
   };
 
   const handleImageCapture = (imageData: string) => {
+    console.log('Image captured, data length:', imageData.length);
     setCapturedImage(imageData);
     form.setValue("templeImage", imageData);
+    setIsCameraOpen(false);
+    
+    // Save to draft
+    const draftData = JSON.parse(localStorage.getItem('temple-registry-draft') || '{}');
+    draftData.templeImage = imageData;
+    localStorage.setItem('temple-registry-draft', JSON.stringify(draftData));
+    
+    toast({
+      title: "Image Captured",
+      description: "Temple image has been captured successfully!",
+    });
   };
 
   const handleCloseModal = () => {
