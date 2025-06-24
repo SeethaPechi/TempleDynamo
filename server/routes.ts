@@ -282,6 +282,50 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Temple routes
+  app.get("/api/temples", async (req, res) => {
+    try {
+      const temples = await storage.getAllTemples();
+      res.json(temples);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch temples" });
+    }
+  });
+
+  app.post("/api/temples", async (req, res) => {
+    try {
+      const templeData = insertTempleSchema.parse(req.body);
+      const temple = await storage.createTemple(templeData);
+      res.json(temple);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid data", errors: error.errors });
+      }
+      res.status(500).json({ message: "Failed to create temple" });
+    }
+  });
+
+  app.put("/api/temples/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid temple ID" });
+      }
+
+      const templeData = insertTempleSchema.parse(req.body);
+      const temple = await storage.updateTemple(id, templeData);
+      res.json(temple);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid data", errors: error.errors });
+      }
+      if (error.message === "Temple not found") {
+        return res.status(404).json({ message: "Temple not found" });
+      }
+      res.status(500).json({ message: "Failed to update temple" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

@@ -169,6 +169,15 @@ export class DatabaseStorage implements IStorage {
     return temple;
   }
 
+  async updateTemple(id: number, insertTemple: InsertTemple): Promise<Temple> {
+    const [temple] = await db
+      .update(temples)
+      .set(insertTemple)
+      .where(eq(temples.id, id))
+      .returning();
+    return temple;
+  }
+
   async getAllTemples(): Promise<Temple[]> {
     return await db.select().from(temples);
   }
