@@ -14,10 +14,10 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { Building, MapPin, Home, Calendar, Phone, Mail, Link as LinkIcon, Camera, Image } from "lucide-react";
+import { Building, MapPin, Home, Calendar, Phone, Mail, Link as LinkIcon, Upload, X } from "lucide-react";
 import { useTranslation } from 'react-i18next';
 import type { Temple } from "@shared/schema";
-import { CameraCapture } from "@/components/camera-capture";
+
 
 const templeRegistrationSchema = z.object({
   templeName: z.string().min(2, "Temple name must be at least 2 characters"),
@@ -253,10 +253,22 @@ export default function TempleRegistry() {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [selectedLinkedTemples, setSelectedLinkedTemples] = useState<string[]>([]);
   const [selectedCountry, setSelectedCountry] = useState("");
-  const [isCameraOpen, setIsCameraOpen] = useState(false);
-  const [capturedImage, setCapturedImage] = useState<string | null>(null);
+  const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const imageData = e.target?.result as string;
+        setUploadedImage(imageData);
+        form.setValue("templeImage", imageData);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const form = useForm<TempleRegistrationData>({
     resolver: zodResolver(templeRegistrationSchema),
@@ -440,10 +452,10 @@ export default function TempleRegistry() {
                     <div className="md:col-span-2">
                       <FormLabel className="text-base font-medium">Temple Image</FormLabel>
                       <div className="mt-2 space-y-4">
-                        {capturedImage ? (
+                        {uploadedImage ? (
                           <div className="relative">
                             <img
-                              src={capturedImage}
+                              src={uploadedImage}
                               alt="Temple"
                               className="w-full h-48 object-cover rounded-lg border"
                             />
@@ -453,28 +465,37 @@ export default function TempleRegistry() {
                               size="sm"
                               className="absolute top-2 right-2"
                               onClick={() => {
-                                setCapturedImage(null);
+                                setUploadedImage(null);
                                 form.setValue("templeImage", "");
                               }}
                             >
-                              Remove
+                              <X className="h-4 w-4" />
                             </Button>
                           </div>
                         ) : (
                           <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
-                            <Camera className="mx-auto h-12 w-12 text-gray-400" />
+                            <Upload className="mx-auto h-12 w-12 text-gray-400" />
                             <div className="mt-4">
-                              <Button
-                                type="button"
-                                onClick={() => setIsCameraOpen(true)}
-                                className="bg-saffron-500 hover:bg-saffron-600"
-                              >
-                                <Camera className="mr-2 h-4 w-4" />
-                                Take Photo
-                              </Button>
+                              <label className="cursor-pointer">
+                                <Button
+                                  type="button"
+                                  className="bg-saffron-500 hover:bg-saffron-600"
+                                  onClick={() => document.getElementById('temple-image-upload')?.click()}
+                                >
+                                  <Upload className="mr-2 h-4 w-4" />
+                                  Upload Image
+                                </Button>
+                                <input
+                                  id="temple-image-upload"
+                                  type="file"
+                                  accept="image/*"
+                                  onChange={handleImageUpload}
+                                  className="hidden"
+                                />
+                              </label>
                             </div>
                             <p className="mt-2 text-sm text-gray-500">
-                              Capture a photo of the temple using your camera
+                              Choose an image file for the temple
                             </p>
                           </div>
                         )}
@@ -691,12 +712,7 @@ const saveToLocalStorage = (key: string, value: string) => {
           </DialogContent>
         </Dialog>
 
-        {/* Camera Capture Modal */}
-        <CameraCapture
-          isOpen={isCameraOpen}
-          onClose={() => setIsCameraOpen(false)}
-          onImageCapture={handleImageCapture}
-        />
+
       </div>
     </div>
   );

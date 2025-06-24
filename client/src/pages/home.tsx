@@ -3,14 +3,45 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
-import { Users, Heart, Calendar, HandHeart, Building, MapPin } from "lucide-react";
+import { Users, Heart, Calendar, HandHeart, Building, MapPin, Edit } from "lucide-react";
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import type { Temple } from "@shared/schema";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
+import { Upload, X } from "lucide-react";
+
+const templeEditSchema = z.object({
+  templeName: z.string().min(2, "Temple name must be at least 2 characters"),
+  deity: z.string().optional(),
+  village: z.string().min(1, "Village is required"),
+  nearestCity: z.string().min(1, "Nearest city is required"),
+  state: z.string().min(1, "State is required"),
+  country: z.string().min(1, "Country is required"),
+  establishedYear: z.number().optional(),
+  contactPhone: z.string().optional(),
+  contactEmail: z.string().email("Please enter a valid email address").optional().or(z.literal("")),
+  description: z.string().optional(),
+  templeImage: z.string().optional(),
+});
+
+type TempleEditData = z.infer<typeof templeEditSchema>;
 
 export default function Home() {
   const { t } = useTranslation();
   const [selectedTemple, setSelectedTemple] = useState<Temple | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [uploadedImage, setUploadedImage] = useState<string | null>(null);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
   
   const { data: members = [] } = useQuery({
     queryKey: ["/api/members"],
@@ -34,6 +65,49 @@ export default function Home() {
     }
   }, [selectedTemple]);
 
+  const form = useForm<TempleEditData>({
+    resolver: zodResolver(templeEditSchema),
+    defaultValues: {
+      templeName: "",
+      deity: "",
+      village: "",
+      nearestCity: "",
+      state: "",
+      country: "",
+      establishedYear: undefined,
+      contactPhone: "",
+      contactEmail: "",
+      description: "",
+      templeImage: "",
+    },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: async (data: TempleEditData & { id: number }) => {
+      const response = await apiRequest(`/api/temples/${data.id}`, {
+        method: "PUT",
+        body: JSON.stringify(data),
+      });
+      return response;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/temples"] });
+      toast({
+        title: "Success",
+        description: "Temple updated successfully!",
+      });
+      setIsEditModalOpen(false);
+      setUploadedImage(null);
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to update temple. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
   const handleTempleSelect = (templeId: string) => {
     if (templeId === "reset") {
       setSelectedTemple(null);
@@ -41,6 +115,45 @@ export default function Home() {
     }
     const temple = (temples as Temple[]).find(t => t.id.toString() === templeId);
     setSelectedTemple(temple || null);
+  };
+
+  const handleEditTemple = () => {
+    if (!selectedTemple) return;
+    
+    form.reset({
+      templeName: selectedTemple.templeName,
+      deity: selectedTemple.deity || "",
+      village: selectedTemple.village,
+      nearestCity: selectedTemple.nearestCity,
+      state: selectedTemple.state,
+      country: selectedTemple.country,
+      establishedYear: selectedTemple.establishedYear || undefined,
+      contactPhone: selectedTemple.contactPhone || "",
+      contactEmail: selectedTemple.contactEmail || "",
+      description: selectedTemple.description || "",
+      templeImage: selectedTemple.templeImage || "",
+    });
+    
+    setUploadedImage(selectedTemple.templeImage || null);
+    setIsEditModalOpen(true);
+  };
+
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const imageData = e.target?.result as string;
+        setUploadedImage(imageData);
+        form.setValue("templeImage", imageData);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const onSubmit = (data: TempleEditData) => {
+    if (!selectedTemple) return;
+    updateMutation.mutate({ ...data, id: selectedTemple.id });
   };
 
   return (
@@ -164,6 +277,18 @@ export default function Home() {
                             <p className="text-gray-600 text-sm leading-relaxed">{selectedTemple.description}</p>
                           </div>
                         )}
+
+                        {/* Edit Temple Button */}
+                        <div className="mt-4">
+                          <Button
+                            onClick={handleEditTemple}
+                            variant="outline"
+                            className="w-full bg-temple-gold/10 hover:bg-temple-gold/20 border-temple-gold text-temple-brown"
+                          >
+                            <Edit className="mr-2 h-4 w-4" />
+                            Edit Temple Information
+                          </Button>
+                        </div>
                       </div>
                     </div>
                   </CardContent>
@@ -250,6 +375,247 @@ export default function Home() {
           </div>
         </div>
       </div>
+
+      {/* Temple Edit Modal */}
+      <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold text-temple-brown flex items-center">
+              <Edit className="mr-3" size={24} />
+              Edit Temple Information
+            </DialogTitle>
+            <DialogDescription>
+              Update the temple information below. All changes will be saved to the temple registry.
+            </DialogDescription>
+          </DialogHeader>
+
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <FormField
+                  control={form.control}
+                  name="templeName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Temple Name</FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g., Sri Lakshmi Narasimha Temple" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="deity"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Main Deity</FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g., Lord Narasimha, Goddess Lakshmi" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="village"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Village/Area</FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g., Tirupati, Mylapore" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="nearestCity"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Nearest City</FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g., Chennai, Bangalore" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="state"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>State/Province</FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g., Tamil Nadu, Karnataka" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="country"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Country</FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g., India, United States" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="establishedYear"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Established Year</FormLabel>
+                      <FormControl>
+                        <Input 
+                          type="number" 
+                          placeholder="e.g., 1985" 
+                          {...field}
+                          onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="contactPhone"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Contact Phone</FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g., +1 (555) 123-4567" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="contactEmail"
+                  render={({ field }) => (
+                    <FormItem className="md:col-span-2">
+                      <FormLabel>Contact Email</FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g., temple@example.com" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem className="md:col-span-2">
+                      <FormLabel>Temple Description</FormLabel>
+                      <FormControl>
+                        <Textarea 
+                          placeholder="Brief description of the temple, its history, and significance..." 
+                          className="min-h-[100px]"
+                          {...field} 
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Temple Image Upload */}
+                <div className="md:col-span-2">
+                  <FormLabel className="text-base font-medium">Temple Image</FormLabel>
+                  <div className="mt-2 space-y-4">
+                    {uploadedImage ? (
+                      <div className="relative">
+                        <img
+                          src={uploadedImage}
+                          alt="Temple"
+                          className="w-full h-48 object-cover rounded-lg border"
+                        />
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="sm"
+                          className="absolute top-2 right-2"
+                          onClick={() => {
+                            setUploadedImage(null);
+                            form.setValue("templeImage", "");
+                          }}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+                        <Upload className="mx-auto h-12 w-12 text-gray-400" />
+                        <div className="mt-4">
+                          <label className="cursor-pointer">
+                            <Button
+                              type="button"
+                              className="bg-saffron-500 hover:bg-saffron-600"
+                              onClick={() => document.getElementById('temple-image-edit-upload')?.click()}
+                            >
+                              <Upload className="mr-2 h-4 w-4" />
+                              Upload Image
+                            </Button>
+                            <input
+                              id="temple-image-edit-upload"
+                              type="file"
+                              accept="image/*"
+                              onChange={handleImageUpload}
+                              className="hidden"
+                            />
+                          </label>
+                        </div>
+                        <p className="mt-2 text-sm text-gray-500">
+                          Choose an image file for the temple
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-end space-x-4 pt-6 border-t">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setIsEditModalOpen(false)}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={updateMutation.isPending}
+                  className="bg-gradient-to-r from-saffron-500 to-temple-gold hover:from-saffron-600 hover:to-yellow-500"
+                >
+                  {updateMutation.isPending ? "Updating..." : "Update Temple"}
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
