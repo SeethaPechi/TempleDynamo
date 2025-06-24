@@ -17,6 +17,7 @@ export const members = pgTable("members", {
   motherName: text("mother_name").notNull(),
   spouseName: text("spouse_name"),
   maritalStatus: text("marital_status").notNull().default("Single"),
+  templeId: integer("temple_id").references(() => temples.id),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -32,6 +33,7 @@ export const insertMemberSchema = createInsertSchema(members).omit({
   createdAt: true,
 }).extend({
   maritalStatus: z.enum(["Single", "Married", "Divorced", "Widowed"]),
+  templeId: z.number().optional(),
 });
 
 export const insertRelationshipSchema = createInsertSchema(relationships).omit({

@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
-import { Users, Heart, Calendar, HandHeart, Building, MapPin, Edit } from "lucide-react";
+import { Users, Heart, Calendar, HandHeart, Building, MapPin, Edit, Phone, Mail } from "lucide-react";
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import type { Temple } from "@shared/schema";
@@ -82,31 +82,30 @@ export default function Home() {
     },
   });
 
-  const updateMutation = useMutation({
-    mutationFn: async (data: TempleEditData & { id: number }) => {
-      const response = await apiRequest(`/api/temples/${data.id}`, {
-        method: "PUT",
-        body: JSON.stringify(data),
-      });
-      return response;
+  // Temple update mutation
+  const updateTempleMutation = useMutation({
+    mutationFn: async (data: TempleEditData) => {
+      if (!selectedTemple) throw new Error("No temple selected");
+      return await apiRequest("PUT", `/api/temples/${selectedTemple.id}`, data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/temples"] });
-      toast({
-        title: "Success",
-        description: "Temple updated successfully!",
-      });
       setIsEditModalOpen(false);
-      setUploadedImage(null);
-    },
-    onError: () => {
       toast({
-        title: "Error",
-        description: "Failed to update temple. Please try again.",
+        title: "Temple Updated",
+        description: "Temple details have been successfully updated.",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Update Failed",
+        description: error.message || "Failed to update temple details",
         variant: "destructive",
       });
     },
   });
+
+
 
   const handleTempleSelect = (templeId: string) => {
     if (templeId === "reset") {
@@ -306,13 +305,13 @@ export default function Home() {
 
                         {selectedTemple.contactPhone && (
                           <div className="flex items-center text-temple-brown">
-                            <Bell className="mr-2 text-saffron-500" size={16} />
+                            <Phone className="mr-2 text-saffron-500" size={16} />
                             <span>{selectedTemple.contactPhone}</span>
                           </div>
                         )}
                         {selectedTemple.contactEmail && (
                           <div className="flex items-center text-temple-brown">
-                            <Heart className="mr-2 text-saffron-500" size={16} />
+                            <Mail className="mr-2 text-saffron-500" size={16} />
                             <span>{selectedTemple.contactEmail}</span>
                           </div>
                         )}
@@ -322,6 +321,17 @@ export default function Home() {
                             <p className="text-gray-600 text-sm leading-relaxed">{selectedTemple.description}</p>
                           </div>
                         )}
+                        
+                        <div className="mt-4 flex justify-center">
+                          <Button 
+                            onClick={() => setIsEditModalOpen(true)}
+                            className="bg-temple-gold hover:bg-temple-gold/90 text-white"
+                            size="sm"
+                          >
+                            <Edit className="mr-2" size={16} />
+                            Edit Temple Details
+                          </Button>
+                        </div>
 
                         {/* Edit Temple Button */}
                         <div className="mt-4">
@@ -354,9 +364,11 @@ export default function Home() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid md:grid-cols-2 gap-12 items-center">
           <div>
-            <h2 className="text-4xl font-bold text-temple-brown mb-6">{t('common.welcomeSacredSpace')}</h2>
+            <h2 className="text-4xl font-bold text-temple-brown mb-6">
+              {selectedTemple ? `Welcome to Our ${selectedTemple.templeName}` : t('common.welcomeSacredSpace')}
+            </h2>
             <p className="text-gray-700 text-lg leading-relaxed mb-6">
-              {t('common.spiritualBeacon')}
+              {selectedTemple ? (selectedTemple.description || t('common.spiritualBeacon')) : t('common.spiritualBeacon')}
             </p>
             <div className="grid grid-cols-2 gap-4">
               <Card className="bg-white/80 backdrop-blur border border-temple-gold/20">
@@ -651,10 +663,10 @@ export default function Home() {
                 </Button>
                 <Button
                   type="submit"
-                  disabled={updateMutation.isPending}
+                  disabled={updateTempleMutation.isPending}
                   className="bg-gradient-to-r from-saffron-500 to-temple-gold hover:from-saffron-600 hover:to-yellow-500"
                 >
-                  {updateMutation.isPending ? "Updating..." : "Update Temple"}
+                  {updateTempleMutation.isPending ? "Updating..." : "Update Temple"}
                 </Button>
               </div>
             </form>

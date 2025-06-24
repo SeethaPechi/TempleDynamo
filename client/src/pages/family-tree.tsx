@@ -75,12 +75,6 @@ export default function FamilyTree() {
 
   const { data: memberRelationships = [], isLoading: relationshipsLoading } = useQuery({
     queryKey: ["/api/relationships", selectedMember?.id],
-    queryFn: async () => {
-      if (!selectedMember?.id) return [];
-      const response = await fetch(`/api/relationships/${selectedMember.id}`);
-      if (!response.ok) throw new Error('Failed to fetch relationships');
-      return response.json();
-    },
     enabled: !!selectedMember?.id,
   });
 

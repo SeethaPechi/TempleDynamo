@@ -11,11 +11,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const memberData = insertMemberSchema.parse(req.body);
       
-      // Allow duplicate emails and phone numbers - removed uniqueness check
+      // Allow duplicate emails and phone numbers - no uniqueness check
       
       const member = await storage.createMember(memberData);
       res.json(member);
     } catch (error) {
+      console.error("Error creating member:", error);
       if (error instanceof z.ZodError) {
         return res.status(400).json({ message: "Invalid data", errors: error.errors });
       }

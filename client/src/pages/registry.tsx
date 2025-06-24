@@ -406,8 +406,14 @@ export default function Registry() {
   const [selectedMaritalStatus, setSelectedMaritalStatus] = useState("");
   const [selectedBirthCountry, setSelectedBirthCountry] = useState("");
   const [selectedCurrentCountry, setSelectedCurrentCountry] = useState("");
+  const [selectedTemple, setSelectedTemple] = useState("");
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  // Fetch temples for dropdown
+  const { data: temples = [] } = useQuery({
+    queryKey: ["/api/temples"],
+  });
 
   const form = useForm<RegistrationData>({
     resolver: zodResolver(registrationSchema),
@@ -436,7 +442,13 @@ export default function Registry() {
 
   const registrationMutation = useMutation({
     mutationFn: async (data: RegistrationData) => {
-      const response = await apiRequest("POST", "/api/members", data);
+      // Include temple selection
+      const memberData = {
+        ...data,
+        templeId: selectedTemple ? parseInt(selectedTemple) : null,
+      };
+      delete memberData.selectedTemple; // Remove from the payload
+      const response = await apiRequest("POST", "/api/members", memberData);
       return response.json();
     },
     onSuccess: async (newMember) => {
@@ -501,8 +513,46 @@ export default function Registry() {
   };
 
   const onSubmit = (data: RegistrationData) => {
+    // Clear autosave data before submitting
+    localStorage.removeItem('registry-form-draft');
     registrationMutation.mutate(data);
   };
+
+  // Auto-save functionality
+  const handleAutoSave = () => {
+    const formData = form.getValues();
+    localStorage.setItem('registry-form-draft', JSON.stringify({
+      ...formData,
+      linkedRelatives,
+      timestamp: new Date().toISOString()
+    }));
+  };
+
+  // Load draft data on component mount
+  useEffect(() => {
+    const savedDraft = localStorage.getItem('registry-form-draft');
+    if (savedDraft) {
+      try {
+        const draftData = JSON.parse(savedDraft);
+        // Only restore if less than 24 hours old
+        const draftAge = new Date().getTime() - new Date(draftData.timestamp).getTime();
+        if (draftAge < 24 * 60 * 60 * 1000) {
+          form.reset(draftData);
+          setLinkedRelatives(draftData.linkedRelatives || []);
+          setSelectedMaritalStatus(draftData.maritalStatus || "");
+          setSelectedBirthCountry(draftData.birthCountry || "");
+          setSelectedCurrentCountry(draftData.currentCountry || "");
+          setSelectedTemple(draftData.selectedTemple || "");
+          toast({
+            title: "Draft Restored",
+            description: "Your previously saved form data has been restored.",
+          });
+        }
+      } catch (error) {
+        console.error("Error loading draft:", error);
+      }
+    }
+  }, [form, toast]);
 
   const handleCloseModal = () => {
     setShowSuccessModal(false);
@@ -767,8 +817,77 @@ export default function Registry() {
                         <FormItem>
                           <FormLabel>Spouse Name</FormLabel>
                           <FormControl>
-                            <Input placeholder="Spouse's full name" {...field} />
+                            <Input 
+                              placeholder="Spouse's full name" 
+                              {...field} 
+                              disabled={selectedMaritalStatus !== "Married"}
+                            />
                           </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <div className="grid md:grid-cols-2 gap-6 mb-6">
+                    <FormField
+                      control={form.control}
+                      name="maritalStatus"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Marital Status *</FormLabel>
+                          <Select onValueChange={(value) => {
+                            field.onChange(value);
+                            setSelectedMaritalStatus(value);
+                            if (value !== "Married") {
+                              form.setValue("spouseName", "");
+                            }
+                          }} defaultValue={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select marital status" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="Single">Single</SelectItem>
+                              <SelectItem value="Married">Married</SelectItem>
+                              <SelectItem value="Divorced">Divorced</SelectItem>
+                              <SelectItem value="Widowed">Widowed</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="selectedTemple"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Select Temple (Optional)</FormLabel>
+                          <Select 
+                            onValueChange={(value) => {
+                              field.onChange(value);
+                              setSelectedTemple(value);
+                              handleAutoSave();
+                            }} 
+                            defaultValue={field.value}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Choose your temple" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="">No temple selected</SelectItem>
+                              {temples.map((temple: any) => (
+                                <SelectItem key={temple.id} value={temple.id.toString()}>
+                                  {temple.templeName} - {temple.village}, {temple.state}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                           <FormMessage />
                         </FormItem>
                       )}
