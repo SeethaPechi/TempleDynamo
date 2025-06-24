@@ -500,12 +500,9 @@ export default function TempleRegistry() {
                             field.onChange(value);
                             setSelectedCountry(value);
                             form.setValue("state", "");
-                            // Auto-save functionality using localStorage
-const saveToLocalStorage = (key: string, value: string) => {
-  const draftData = JSON.parse(localStorage.getItem('temple-registry-draft') || '{}');
-  draftData[key] = value;
-  localStorage.setItem('temple-registry-draft', JSON.stringify(draftData));
-};('country', value);
+                            const draftData = JSON.parse(localStorage.getItem('temple-registry-draft') || '{}');
+                            draftData.country = value;
+                            localStorage.setItem('temple-registry-draft', JSON.stringify(draftData));
                           }} defaultValue={field.value}>
                             <FormControl>
                               <SelectTrigger>
