@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -585,14 +585,7 @@ export default function Registry() {
                         <FormItem>
                           <FormLabel>Full Name *</FormLabel>
                           <FormControl>
-                            <Input 
-                              placeholder="Enter your full name" 
-                              {...field} 
-                              onBlur={(e) => {
-                                field.onBlur(e);
-                                handleAutoSave();
-                              }}
-                            />
+                            <Input placeholder="Enter your full name" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -605,14 +598,7 @@ export default function Registry() {
                         <FormItem>
                           <FormLabel>Phone Number *</FormLabel>
                           <FormControl>
-                            <Input 
-                              placeholder="+1 (555) 123-4567" 
-                              {...field} 
-                              onBlur={(e) => {
-                                field.onBlur(e);
-                                handleAutoSave();
-                              }}
-                            />
+                            <Input placeholder="+1 (555) 123-4567" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -625,15 +611,7 @@ export default function Registry() {
                         <FormItem className="md:col-span-2">
                           <FormLabel>Email Address *</FormLabel>
                           <FormControl>
-                            <Input 
-                              type="email" 
-                              placeholder="your.email@example.com" 
-                              {...field} 
-                              onBlur={(e) => {
-                                field.onBlur(e);
-                                handleAutoSave();
-                              }}
-                            />
+                            <Input type="email" placeholder="your.email@example.com" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -659,7 +637,6 @@ export default function Registry() {
                             field.onChange(value);
                             setSelectedBirthCountry(value);
                             form.setValue("birthState", "");
-                            handleAutoSave();
                           }} defaultValue={field.value}>
                             <FormControl>
                               <SelectTrigger>
@@ -684,10 +661,7 @@ export default function Registry() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>State/Province *</FormLabel>
-                          <Select onValueChange={(value) => {
-                            field.onChange(value);
-                            handleAutoSave();
-                          }} defaultValue={field.value} disabled={!selectedBirthCountry || !statesByCountry[selectedBirthCountry]}>
+                          <Select onValueChange={field.onChange} defaultValue={field.value} disabled={!selectedBirthCountry || !statesByCountry[selectedBirthCountry]}>
                             <FormControl>
                               <SelectTrigger>
                                 <SelectValue placeholder={selectedBirthCountry ? "Select State" : "Select Country first"} />
@@ -715,14 +689,7 @@ export default function Registry() {
                         <FormItem>
                           <FormLabel>City *</FormLabel>
                           <FormControl>
-                            <Input 
-                              placeholder="Birth city" 
-                              {...field} 
-                              onBlur={(e) => {
-                                field.onBlur(e);
-                                handleAutoSave();
-                              }}
-                            />
+                            <Input placeholder="Birth city" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -748,7 +715,6 @@ export default function Registry() {
                             field.onChange(value);
                             setSelectedCurrentCountry(value);
                             form.setValue("currentState", "");
-                            handleAutoSave();
                           }} defaultValue={field.value}>
                             <FormControl>
                               <SelectTrigger>
@@ -773,10 +739,7 @@ export default function Registry() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>State/Province *</FormLabel>
-                          <Select onValueChange={(value) => {
-                            field.onChange(value);
-                            handleAutoSave();
-                          }} defaultValue={field.value} disabled={!selectedCurrentCountry || !statesByCountry[selectedCurrentCountry]}>
+                          <Select onValueChange={field.onChange} defaultValue={field.value} disabled={!selectedCurrentCountry || !statesByCountry[selectedCurrentCountry]}>
                             <FormControl>
                               <SelectTrigger>
                                 <SelectValue placeholder={selectedCurrentCountry ? "Select State" : "Select Country first"} />
@@ -804,14 +767,7 @@ export default function Registry() {
                         <FormItem>
                           <FormLabel>City *</FormLabel>
                           <FormControl>
-                            <Input 
-                              placeholder="Current city" 
-                              {...field} 
-                              onBlur={(e) => {
-                                field.onBlur(e);
-                                handleAutoSave();
-                              }}
-                            />
+                            <Input placeholder="Current city" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -835,14 +791,7 @@ export default function Registry() {
                         <FormItem>
                           <FormLabel>Father's Name *</FormLabel>
                           <FormControl>
-                            <Input 
-                              placeholder="Father's full name" 
-                              {...field} 
-                              onBlur={(e) => {
-                                field.onBlur(e);
-                                handleAutoSave();
-                              }}
-                            />
+                            <Input placeholder="Father's full name" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -855,14 +804,7 @@ export default function Registry() {
                         <FormItem>
                           <FormLabel>Mother's Name *</FormLabel>
                           <FormControl>
-                            <Input 
-                              placeholder="Mother's full name" 
-                              {...field} 
-                              onBlur={(e) => {
-                                field.onBlur(e);
-                                handleAutoSave();
-                              }}
-                            />
+                            <Input placeholder="Mother's full name" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -879,10 +821,6 @@ export default function Registry() {
                               placeholder="Spouse's full name" 
                               {...field} 
                               disabled={selectedMaritalStatus !== "Married"}
-                              onBlur={(e) => {
-                                field.onBlur(e);
-                                handleAutoSave();
-                              }}
                             />
                           </FormControl>
                           <FormMessage />
@@ -904,7 +842,6 @@ export default function Registry() {
                             if (value !== "Married") {
                               form.setValue("spouseName", "");
                             }
-                            handleAutoSave();
                           }} defaultValue={field.value}>
                             <FormControl>
                               <SelectTrigger>
