@@ -121,7 +121,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getAllRelationships(): Promise<Array<Relationship & { relatedMember: Member }>> {
-    const results = await this.db
+    const results = await db
       .select({
         id: relationships.id,
         memberId: relationships.memberId,
