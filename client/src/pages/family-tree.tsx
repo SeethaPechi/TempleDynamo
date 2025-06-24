@@ -78,9 +78,6 @@ export default function FamilyTree() {
     enabled: !!selectedMember?.id,
   });
 
-  console.log("Selected member:", selectedMember?.fullName);
-  console.log("Member relationships:", memberRelationships);
-
   const { data: allRelationships = [] } = useQuery({
     queryKey: ["/api/relationships"],
     queryFn: async () => {
@@ -89,6 +86,15 @@ export default function FamilyTree() {
       return response.json();
     },
   });
+
+  // Filter relationships to show only those belonging to the selected member
+  const filteredMemberRelationships = selectedMember 
+    ? memberRelationships.filter((rel: any) => rel.memberId === selectedMember.id)
+    : [];
+
+  console.log("Selected member:", selectedMember?.fullName);
+  console.log("All relationships for member:", memberRelationships);
+  console.log("Filtered relationships:", filteredMemberRelationships);
 
   // Search for members
   const searchMembers = async (term: string) => {
@@ -316,7 +322,7 @@ export default function FamilyTree() {
                   <>
                     <FamilyTreeVisualization
                       member={selectedMember}
-                      relationships={memberRelationships}
+                      relationships={filteredMemberRelationships}
                       onMemberClick={(memberId) => {
                         const member = (allMembers as Member[]).find(
                           (m) => m.id === memberId,
@@ -376,7 +382,7 @@ export default function FamilyTree() {
                     </div>
                     <div className="text-right">
                       <div className="text-2xl font-bold">
-                        {memberRelationships.length}
+                        {filteredMemberRelationships.length}
                       </div>
                       <div className="text-saffron-100 text-sm">
                         Connections
@@ -390,7 +396,7 @@ export default function FamilyTree() {
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-saffron-500 mx-auto mb-4"></div>
                     <p className="text-gray-500">Loading family relationships...</p>
                   </Card>
-                ) : memberRelationships && memberRelationships.length > 0 ? (
+                ) : filteredMemberRelationships && filteredMemberRelationships.length > 0 ? (
                   <Card className="p-6">
                     <div className="mb-4">
                       <h3 className="text-lg font-semibold text-temple-brown">
@@ -426,7 +432,7 @@ export default function FamilyTree() {
                           </tr>
                         </thead>
                         <tbody>
-                          {memberRelationships.map((relationship: any) => (
+                          {filteredMemberRelationships.map((relationship: any) => (
                             <tr
                               key={relationship.id}
                               className="border-b hover:bg-gray-50"
@@ -511,7 +517,7 @@ export default function FamilyTree() {
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
                         <div>
                           <div className="text-xl font-bold text-temple-brown">
-                            {memberRelationships.length}
+                            {filteredMemberRelationships.length}
                           </div>
                           <div className="text-sm text-gray-600">
                             Total Relationships
@@ -521,7 +527,7 @@ export default function FamilyTree() {
                           <div className="text-xl font-bold text-saffron-600">
                             {
                               new Set(
-                                memberRelationships.map(
+                                filteredMemberRelationships.map(
                                   (r: any) => r.relationshipType,
                                 ),
                               ).size
@@ -535,7 +541,7 @@ export default function FamilyTree() {
                           <div className="text-xl font-bold text-temple-gold">
                             {
                               new Set(
-                                memberRelationships.map(
+                                filteredMemberRelationships.map(
                                   (r: any) =>
                                     `${r.relatedMember.currentCity}, ${r.relatedMember.currentState}`,
                                 ),
