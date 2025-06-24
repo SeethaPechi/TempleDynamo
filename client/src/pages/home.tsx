@@ -58,10 +58,10 @@ export default function Home() {
         <div className="relative h-full flex items-center justify-center text-center px-4">
           <div className="max-w-4xl mx-auto">
             <h1 className="text-5xl md:text-6xl font-bold text-white mb-4">
-              🕉️ {selectedTemple ? selectedTemple.templeName : t('home.title')}
+              🕉️ {selectedTemple ? `Welcome to Our ${selectedTemple.templeName}` : t('home.title')}
             </h1>
             <p className="text-xl md:text-2xl text-temple-cream mb-8">
-              {selectedTemple ? t('home.templeSubtitle') : t('home.subtitle')}
+              {selectedTemple ? (selectedTemple.description || "Experience the divine presence in our sacred temple where tradition meets spirituality.") : t('home.subtitle')}
             </p>
 
             {/* Temple Search Section */}
@@ -86,25 +86,86 @@ export default function Home() {
             </div>
 
             {selectedTemple && (
-              <div className="mb-8 max-w-2xl mx-auto">
-                <Card className="bg-white/90 border-temple-gold/30">
+              <div className="mb-8 max-w-4xl mx-auto">
+                <Card className="bg-white/95 border-temple-gold/30 shadow-xl">
                   <CardContent className="p-6">
-                    <div className="flex items-center justify-center space-x-3 mb-4">
-                      <Building className="text-temple-gold" size={24} />
-                      <h3 className="text-xl font-semibold text-temple-brown">{selectedTemple.templeName}</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {/* Temple Image */}
+                      <div className="flex justify-center">
+                        {selectedTemple.templeImage ? (
+                          <img 
+                            src={selectedTemple.templeImage} 
+                            alt={selectedTemple.templeName}
+                            className="w-full max-w-md h-64 object-cover rounded-lg shadow-md"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDQwMCAzMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iMzAwIiBmaWxsPSIjRkZGN0VEIi8+CjxwYXRoIGQ9Ik0yMDAgNzVMMjUwIDEyNUgxNTBMMjAwIDc1WiIgZmlsbD0iI0Q5NzcwNiIvPgo8cmVjdCB4PSIxNzAiIHk9IjEyNSIgd2lkdGg9IjYwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iI0Q5NzcwNiIvPgo8Y2lyY2xlIGN4PSIyMDAiIGN5PSIxNjAiIHI9IjE1IiBmaWxsPSIjRkJFRjNGIi8+Cjx0ZXh0IHg9IjIwMCIgeT0iMjUwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTYiIGZpbGw9IiM5MjQwMEQiPlRlbXBsZSBJbWFnZTwvdGV4dD4KPC9zdmc+';
+                            }}
+                          />
+                        ) : (
+                          <div className="w-full max-w-md h-64 bg-gradient-to-br from-saffron-100 to-gold-100 rounded-lg shadow-md flex items-center justify-center">
+                            <div className="text-center">
+                              <Building className="mx-auto text-temple-gold mb-2" size={48} />
+                              <p className="text-temple-brown font-medium">Temple Image</p>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                      
+                      {/* Temple Information */}
+                      <div className="space-y-4">
+                        <div>
+                          <h3 className="text-2xl font-bold text-temple-brown mb-2">{selectedTemple.templeName}</h3>
+                          {selectedTemple.deity && (
+                            <p className="text-lg text-saffron-600 font-medium">Deity: {selectedTemple.deity}</p>
+                          )}
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <div className="flex items-center text-temple-brown">
+                            <MapPin className="mr-2 text-saffron-500" size={16} />
+                            <span>{selectedTemple.village}, {selectedTemple.nearestCity}</span>
+                          </div>
+                          <div className="flex items-center text-temple-brown">
+                            <Building className="mr-2 text-saffron-500" size={16} />
+                            <span>{selectedTemple.state}, {selectedTemple.country}</span>
+                          </div>
+                          {selectedTemple.establishedYear && (
+                            <div className="flex items-center text-temple-brown">
+                              <Calendar className="mr-2 text-saffron-500" size={16} />
+                              <span>Established: {selectedTemple.establishedYear}</span>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Registered Members Counter */}
+                        <div className="mt-4 p-4 bg-gradient-to-r from-saffron-50 to-gold-50 rounded-lg">
+                          <div className="text-center">
+                            <div className="text-3xl font-bold text-temple-brown">{totalMembers}</div>
+                            <div className="text-sm text-gray-600">Registered Members</div>
+                          </div>
+                        </div>
+
+                        {selectedTemple.contactPhone && (
+                          <div className="flex items-center text-temple-brown">
+                            <Bell className="mr-2 text-saffron-500" size={16} />
+                            <span>{selectedTemple.contactPhone}</span>
+                          </div>
+                        )}
+                        {selectedTemple.contactEmail && (
+                          <div className="flex items-center text-temple-brown">
+                            <Heart className="mr-2 text-saffron-500" size={16} />
+                            <span>{selectedTemple.contactEmail}</span>
+                          </div>
+                        )}
+
+                        {selectedTemple.description && (
+                          <div className="mt-4">
+                            <p className="text-gray-600 text-sm leading-relaxed">{selectedTemple.description}</p>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                    {selectedTemple.deity && (
-                      <p className="text-temple-brown mb-2">
-                        <strong>{t('home.deity')}:</strong> {selectedTemple.deity}
-                      </p>
-                    )}
-                    <div className="flex items-center justify-center space-x-2 text-gray-600 mb-3">
-                      <MapPin size={16} />
-                      <span>{selectedTemple.village}, {selectedTemple.nearestCity}, {selectedTemple.state}</span>
-                    </div>
-                    {selectedTemple.description && (
-                      <p className="text-gray-600 text-sm">{selectedTemple.description}</p>
-                    )}
                   </CardContent>
                 </Card>
               </div>

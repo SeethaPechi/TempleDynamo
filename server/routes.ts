@@ -11,11 +11,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const memberData = insertMemberSchema.parse(req.body);
       
-      // Check if email already exists
-      const existingMember = await storage.getMemberByEmail(memberData.email);
-      if (existingMember) {
-        return res.status(400).json({ message: "Email already registered" });
-      }
+      // Allow duplicate emails and phone numbers - removed uniqueness check
       
       const member = await storage.createMember(memberData);
       res.json(member);

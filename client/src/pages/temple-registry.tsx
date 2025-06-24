@@ -365,7 +365,9 @@ export default function TempleRegistry() {
                               {...field} 
                               onBlur={(e) => {
                                 field.onBlur();
-                                autoSaveDraft('templeName', e.target.value);
+                                const draftData = JSON.parse(localStorage.getItem('temple-registry-draft') || '{}');
+                                draftData.templeName = e.target.value;
+                                localStorage.setItem('temple-registry-draft', JSON.stringify(draftData));
                               }}
                             />
                           </FormControl>
@@ -386,7 +388,9 @@ export default function TempleRegistry() {
                               {...field} 
                               onBlur={(e) => {
                                 field.onBlur();
-                                autoSaveDraft('deity', e.target.value);
+                                const draftData = JSON.parse(localStorage.getItem('temple-registry-draft') || '{}');
+                                draftData.deity = e.target.value;
+                                localStorage.setItem('temple-registry-draft', JSON.stringify(draftData));
                               }}
                             />
                           </FormControl>
@@ -496,7 +500,12 @@ export default function TempleRegistry() {
                             field.onChange(value);
                             setSelectedCountry(value);
                             form.setValue("state", "");
-                            autoSaveDraft('country', value);
+                            // Auto-save functionality using localStorage
+const saveToLocalStorage = (key: string, value: string) => {
+  const draftData = JSON.parse(localStorage.getItem('temple-registry-draft') || '{}');
+  draftData[key] = value;
+  localStorage.setItem('temple-registry-draft', JSON.stringify(draftData));
+};('country', value);
                           }} defaultValue={field.value}>
                             <FormControl>
                               <SelectTrigger>
