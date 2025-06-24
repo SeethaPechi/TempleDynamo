@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
-import { Bell, Users, Heart, Calendar, HandHeart, Building, MapPin } from "lucide-react";
+import { Users, Heart, Calendar, HandHeart, Building, MapPin } from "lucide-react";
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import type { Temple } from "@shared/schema";
@@ -209,56 +209,6 @@ export default function Home() {
               alt="Temple architecture" 
               className="rounded-xl shadow-xl w-full h-80 object-cover border-4 border-temple-gold/30"
             />
-          </div>
-        </div>
-      </div>
-
-      {/* Announcements */}
-      <div className="bg-white/60 backdrop-blur py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold text-temple-brown text-center mb-12 flex items-center justify-center">
-            <Bell className="text-temple-gold mr-3" size={32} />
-            {t('common.templeAnnouncements')}
-          </h2>
-          <div className="grid md:grid-cols-3 gap-8">
-            <Card className="overflow-hidden hover:shadow-xl transition-shadow border border-temple-gold/20">
-              <div className="bg-gradient-to-r from-saffron-500 to-temple-gold p-4">
-                <h3 className="font-semibold text-white">{t('common.divaliCelebrations')}</h3>
-                <p className="text-saffron-100 text-sm">{t('common.divaliDate')}</p>
-              </div>
-              <CardContent className="p-6">
-                <p className="text-gray-700">{t('common.divaliDesc')}</p>
-                <Button variant="link" className="mt-4 text-saffron-600 font-medium hover:text-saffron-800 p-0">
-                  {t('common.readMore')}
-                </Button>
-              </CardContent>
-            </Card>
-
-            <Card className="overflow-hidden hover:shadow-xl transition-shadow border border-temple-gold/20">
-              <div className="bg-gradient-to-r from-temple-crimson to-temple-red p-4">
-                <h3 className="font-semibold text-white">{t('common.volunteerDrive')}</h3>
-                <p className="text-red-100 text-sm">{t('common.ongoing')}</p>
-              </div>
-              <CardContent className="p-6">
-                <p className="text-gray-700">{t('common.volunteerDesc')}</p>
-                <Button variant="link" className="mt-4 text-temple-crimson font-medium hover:text-temple-red p-0">
-                  {t('common.joinUs')}
-                </Button>
-              </CardContent>
-            </Card>
-
-            <Card className="overflow-hidden hover:shadow-xl transition-shadow border border-temple-gold/20">
-              <div className="bg-gradient-to-r from-saffron-600 to-saffron-700 p-4">
-                <h3 className="font-semibold text-white">{t('common.sanskritClasses')}</h3>
-                <p className="text-saffron-100 text-sm">{t('common.startingNov')}</p>
-              </div>
-              <CardContent className="p-6">
-                <p className="text-gray-700">{t('common.sanskritDesc')}</p>
-                <Button variant="link" className="mt-4 text-saffron-600 font-medium hover:text-saffron-800 p-0">
-                  {t('common.enrollNow')}
-                </Button>
-              </CardContent>
-            </Card>
           </div>
         </div>
       </div>
