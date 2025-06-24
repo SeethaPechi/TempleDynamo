@@ -22,7 +22,7 @@ const registrationSchema = insertMemberSchema.extend({
   fullName: z.string().min(2, "Full name must be at least 2 characters"),
   phone: z.string().min(10, "Phone number must be at least 10 digits"),
   email: z.string().email("Please enter a valid email address"),
-  selectedTemple: z.string().optional().default("none"),
+  selectedTemple: z.string().optional(),
   birthCity: z.string().min(1, "Birth city is required"),
   birthState: z.string().min(1, "Birth state is required"),
   birthCountry: z.string().min(1, "Birth country is required"),
@@ -425,12 +425,7 @@ export default function Registry() {
       motherName: "",
       spouseName: "",
       maritalStatus: "Single" as const,
-      selectedTemple: "none",
     },
-  });
-
-  const { data: allTemples = [] } = useQuery({
-    queryKey: ["/api/temples"],
   });
 
   // Search members for relationship linking
@@ -566,17 +561,7 @@ export default function Registry() {
                         <FormItem className="md:col-span-2">
                           <FormLabel>Email Address *</FormLabel>
                           <FormControl>
-                            <Input 
-                              type="email" 
-                              placeholder="your.email@example.com" 
-                              {...field} 
-                              onBlur={(e) => {
-                                field.onBlur();
-                                const draftData = JSON.parse(localStorage.getItem('member-registry-draft') || '{}');
-                                draftData.email = e.target.value;
-                                localStorage.setItem('member-registry-draft', JSON.stringify(draftData));
-                              }}
-                            />
+                            <Input type="email" placeholder="your.email@example.com" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -734,34 +719,6 @@ export default function Registry() {
                           <FormControl>
                             <Input placeholder="Current city" {...field} />
                           </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  {/* Temple Selection - Optional */}
-                  <div className="mt-6">
-                    <FormField
-                      control={form.control}
-                      name="selectedTemple"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Select Temple (Optional)</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Choose a temple" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="none">No temple selected</SelectItem>
-                              {(allTemples as any[]).map((temple: any) => (
-                                <SelectItem key={temple.id} value={temple.id.toString()}>
-                                  {temple.templeName} - {temple.village}, {temple.state}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
                           <FormMessage />
                         </FormItem>
                       )}

@@ -282,53 +282,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Temple routes
-  app.get("/api/temples", async (req, res) => {
-    try {
-      const temples = await storage.getAllTemples();
-      res.json(temples);
-    } catch (error) {
-      console.error("Error fetching temples:", error);
-      res.status(500).json({ message: "Failed to fetch temples" });
-    }
-  });
-
-  app.post("/api/temples", async (req, res) => {
-    try {
-      console.log("Temple registration request body:", req.body);
-      const templeData = insertTempleSchema.parse(req.body);
-      console.log("Parsed temple data:", templeData);
-      const temple = await storage.createTemple(templeData);
-      console.log("Created temple:", temple);
-      res.json(temple);
-    } catch (error) {
-      console.error("Error creating temple:", error);
-      if (error instanceof Error) {
-        res.status(400).json({ message: error.message });
-      } else {
-        res.status(500).json({ message: "Failed to create temple" });
-      }
-    }
-  });
-
-  app.get("/api/temples/search", async (req, res) => {
-    try {
-      const { term, state, country } = req.query;
-      if (!term && !state && !country) {
-        return res.json([]);
-      }
-      const temples = await storage.searchTemples(
-        term as string || "", 
-        state as string || "", 
-        country as string || ""
-      );
-      res.json(temples);
-    } catch (error) {
-      console.error("Temple search error:", error);
-      res.status(500).json({ message: "Failed to search temples" });
-    }
-  });
-
   const httpServer = createServer(app);
   return httpServer;
 }

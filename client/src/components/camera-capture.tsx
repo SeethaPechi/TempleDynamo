@@ -47,9 +47,6 @@ export function CameraCapture({ onImageCapture, isOpen, onClose }: CameraCapture
       setStream(null);
       setIsStreaming(false);
     }
-    if (videoRef.current) {
-      videoRef.current.srcObject = null;
-    }
   }, [stream]);
 
   const captureImage = useCallback(() => {

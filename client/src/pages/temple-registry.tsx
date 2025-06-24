@@ -49,140 +49,6 @@ const states = [
   { value: "KL", label: "Kerala" },
 ];
 
-const statesByCountry: Record<string, Array<{ value: string; label: string }>> = {
-  "US": [
-    { value: "AL", label: "Alabama" },
-    { value: "AK", label: "Alaska" },
-    { value: "AZ", label: "Arizona" },
-    { value: "AR", label: "Arkansas" },
-    { value: "CA", label: "California" },
-    { value: "CO", label: "Colorado" },
-    { value: "CT", label: "Connecticut" },
-    { value: "DE", label: "Delaware" },
-    { value: "FL", label: "Florida" },
-    { value: "GA", label: "Georgia" },
-    { value: "HI", label: "Hawaii" },
-    { value: "ID", label: "Idaho" },
-    { value: "IL", label: "Illinois" },
-    { value: "IN", label: "Indiana" },
-    { value: "IA", label: "Iowa" },
-    { value: "KS", label: "Kansas" },
-    { value: "KY", label: "Kentucky" },
-    { value: "LA", label: "Louisiana" },
-    { value: "ME", label: "Maine" },
-    { value: "MD", label: "Maryland" },
-    { value: "MA", label: "Massachusetts" },
-    { value: "MI", label: "Michigan" },
-    { value: "MN", label: "Minnesota" },
-    { value: "MS", label: "Mississippi" },
-    { value: "MO", label: "Missouri" },
-    { value: "MT", label: "Montana" },
-    { value: "NE", label: "Nebraska" },
-    { value: "NV", label: "Nevada" },
-    { value: "NH", label: "New Hampshire" },
-    { value: "NJ", label: "New Jersey" },
-    { value: "NM", label: "New Mexico" },
-    { value: "NY", label: "New York" },
-    { value: "NC", label: "North Carolina" },
-    { value: "ND", label: "North Dakota" },
-    { value: "OH", label: "Ohio" },
-    { value: "OK", label: "Oklahoma" },
-    { value: "OR", label: "Oregon" },
-    { value: "PA", label: "Pennsylvania" },
-    { value: "RI", label: "Rhode Island" },
-    { value: "SC", label: "South Carolina" },
-    { value: "SD", label: "South Dakota" },
-    { value: "TN", label: "Tennessee" },
-    { value: "TX", label: "Texas" },
-    { value: "UT", label: "Utah" },
-    { value: "VT", label: "Vermont" },
-    { value: "VA", label: "Virginia" },
-    { value: "WA", label: "Washington" },
-    { value: "WV", label: "West Virginia" },
-    { value: "WI", label: "Wisconsin" },
-    { value: "WY", label: "Wyoming" }
-  ],
-  "IN": [
-    { value: "AP", label: "Andhra Pradesh" },
-    { value: "AR", label: "Arunachal Pradesh" },
-    { value: "AS", label: "Assam" },
-    { value: "BR", label: "Bihar" },
-    { value: "CT", label: "Chhattisgarh" },
-    { value: "GA", label: "Goa" },
-    { value: "GJ", label: "Gujarat" },
-    { value: "HR", label: "Haryana" },
-    { value: "HP", label: "Himachal Pradesh" },
-    { value: "JH", label: "Jharkhand" },
-    { value: "KA", label: "Karnataka" },
-    { value: "KL", label: "Kerala" },
-    { value: "MP", label: "Madhya Pradesh" },
-    { value: "MH", label: "Maharashtra" },
-    { value: "MN", label: "Manipur" },
-    { value: "ML", label: "Meghalaya" },
-    { value: "MZ", label: "Mizoram" },
-    { value: "NL", label: "Nagaland" },
-    { value: "OR", label: "Odisha" },
-    { value: "PB", label: "Punjab" },
-    { value: "RJ", label: "Rajasthan" },
-    { value: "SK", label: "Sikkim" },
-    { value: "TN", label: "Tamil Nadu" },
-    { value: "TG", label: "Telangana" },
-    { value: "TR", label: "Tripura" },
-    { value: "UP", label: "Uttar Pradesh" },
-    { value: "UT", label: "Uttarakhand" },
-    { value: "WB", label: "West Bengal" }
-  ],
-  "CA": [
-    { value: "AB", label: "Alberta" },
-    { value: "BC", label: "British Columbia" },
-    { value: "MB", label: "Manitoba" },
-    { value: "NB", label: "New Brunswick" },
-    { value: "NL", label: "Newfoundland and Labrador" },
-    { value: "NS", label: "Nova Scotia" },
-    { value: "ON", label: "Ontario" },
-    { value: "PE", label: "Prince Edward Island" },
-    { value: "QC", label: "Quebec" },
-    { value: "SK", label: "Saskatchewan" },
-    { value: "NT", label: "Northwest Territories" },
-    { value: "NU", label: "Nunavut" },
-    { value: "YT", label: "Yukon" }
-  ],
-  "AU": [
-    { value: "NSW", label: "New South Wales" },
-    { value: "QLD", label: "Queensland" },
-    { value: "SA", label: "South Australia" },
-    { value: "TAS", label: "Tasmania" },
-    { value: "VIC", label: "Victoria" },
-    { value: "WA", label: "Western Australia" },
-    { value: "ACT", label: "Australian Capital Territory" },
-    { value: "NT", label: "Northern Territory" }
-  ],
-  "GB": [
-    { value: "ENG", label: "England" },
-    { value: "SCT", label: "Scotland" },
-    { value: "WLS", label: "Wales" },
-    { value: "NIR", label: "Northern Ireland" }
-  ],
-  "DE": [
-    { value: "BW", label: "Baden-Württemberg" },
-    { value: "BY", label: "Bavaria" },
-    { value: "BE", label: "Berlin" },
-    { value: "BB", label: "Brandenburg" },
-    { value: "HB", label: "Bremen" },
-    { value: "HH", label: "Hamburg" },
-    { value: "HE", label: "Hesse" },
-    { value: "MV", label: "Mecklenburg-Vorpommern" },
-    { value: "NI", label: "Lower Saxony" },
-    { value: "NW", label: "North Rhine-Westphalia" },
-    { value: "RP", label: "Rhineland-Palatinate" },
-    { value: "SL", label: "Saarland" },
-    { value: "SN", label: "Saxony" },
-    { value: "ST", label: "Saxony-Anhalt" },
-    { value: "SH", label: "Schleswig-Holstein" },
-    { value: "TH", label: "Thuringia" }
-  ]
-};
-
 const countries = [
   { value: "AF", label: "Afghanistan" },
   { value: "AL", label: "Albania" },
@@ -417,38 +283,25 @@ export default function TempleRegistry() {
 
   const registrationMutation = useMutation({
     mutationFn: async (data: TempleRegistrationData) => {
-      const templateData = {
+      const response = await apiRequest("POST", "/api/temples", {
         ...data,
-        templeImage: capturedImage || data.templeImage || "",
         linkedTemples: selectedLinkedTemples,
         establishedYear: data.establishedYear || undefined,
-      };
-      console.log('Submitting temple data:', templateData);
-      const response = await apiRequest("POST", "/api/temples", templateData);
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('API Error:', errorText);
-        throw new Error(`Registration failed: ${response.status}`);
-      }
+      });
       return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/temples"] });
       setShowSuccessModal(true);
-      form.reset();
-      setSelectedLinkedTemples([]);
-      setCapturedImage(null);
-      localStorage.removeItem('temple-registry-draft');
       toast({
-        title: "Registration Successful",
-        description: "Temple has been registered successfully!",
+        title: t('common.success'),
+        description: t('templeRegistry.success'),
       });
     },
-    onError: (error: any) => {
-      console.error('Temple registration error:', error);
+    onError: () => {
       toast({
-        title: "Registration Failed",
-        description: error.message || "Failed to register temple",
+        title: t('common.error'),
+        description: t('templeRegistry.error'),
         variant: "destructive",
       });
     },
@@ -463,36 +316,17 @@ export default function TempleRegistry() {
   };
 
   const onSubmit = (data: TempleRegistrationData) => {
-    console.log('Form submitted with data:', data);
-    console.log('Captured image:', capturedImage ? 'Present' : 'None');
-    console.log('Selected linked temples:', selectedLinkedTemples);
-    
-    const finalData = {
+    const transformedData = {
       ...data,
-      templeImage: capturedImage || data.templeImage || "",
       linkedTemples: selectedLinkedTemples,
-      establishedYear: data.establishedYear || undefined,
+      templeImage: capturedImage || "",
     };
-    
-    console.log('Final submission data:', finalData);
-    registrationMutation.mutate(finalData);
+    registrationMutation.mutate(transformedData);
   };
 
   const handleImageCapture = (imageData: string) => {
-    console.log('Image captured, data length:', imageData.length);
     setCapturedImage(imageData);
     form.setValue("templeImage", imageData);
-    setIsCameraOpen(false);
-    
-    // Save to draft
-    const draftData = JSON.parse(localStorage.getItem('temple-registry-draft') || '{}');
-    draftData.templeImage = imageData;
-    localStorage.setItem('temple-registry-draft', JSON.stringify(draftData));
-    
-    toast({
-      title: "Image Captured",
-      description: "Temple image has been captured successfully!",
-    });
   };
 
   const handleCloseModal = () => {
@@ -666,9 +500,12 @@ export default function TempleRegistry() {
                             field.onChange(value);
                             setSelectedCountry(value);
                             form.setValue("state", "");
-                            const draftData = JSON.parse(localStorage.getItem('temple-registry-draft') || '{}');
-                            draftData.country = value;
-                            localStorage.setItem('temple-registry-draft', JSON.stringify(draftData));
+                            // Auto-save functionality using localStorage
+const saveToLocalStorage = (key: string, value: string) => {
+  const draftData = JSON.parse(localStorage.getItem('temple-registry-draft') || '{}');
+  draftData[key] = value;
+  localStorage.setItem('temple-registry-draft', JSON.stringify(draftData));
+};('country', value);
                           }} defaultValue={field.value}>
                             <FormControl>
                               <SelectTrigger>

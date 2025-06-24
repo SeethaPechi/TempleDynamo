@@ -78,13 +78,8 @@ export default function FamilyTree() {
     queryFn: async () => {
       if (!selectedMember?.id) return [];
       const response = await fetch(`/api/relationships/${selectedMember.id}`);
-      if (!response.ok) {
-        console.error('Failed to fetch relationships:', response.status, response.statusText);
-        return [];
-      }
-      const data = await response.json();
-      console.log('Fetched relationships data:', data);
-      return data;
+      if (!response.ok) throw new Error('Failed to fetch relationships');
+      return response.json();
     },
     enabled: !!selectedMember?.id,
   });
