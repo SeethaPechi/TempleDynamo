@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -445,7 +445,7 @@ export default function Registry() {
       // Include temple selection
       const memberData = {
         ...data,
-        templeId: selectedTemple ? parseInt(selectedTemple) : null,
+        templeId: selectedTemple && selectedTemple !== "none" ? parseInt(selectedTemple) : null,
       };
       delete memberData.selectedTemple; // Remove from the payload
       const response = await apiRequest("POST", "/api/members", memberData);
@@ -585,7 +585,14 @@ export default function Registry() {
                         <FormItem>
                           <FormLabel>Full Name *</FormLabel>
                           <FormControl>
-                            <Input placeholder="Enter your full name" {...field} />
+                            <Input 
+                              placeholder="Enter your full name" 
+                              {...field} 
+                              onBlur={(e) => {
+                                field.onBlur(e);
+                                handleAutoSave();
+                              }}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -598,7 +605,14 @@ export default function Registry() {
                         <FormItem>
                           <FormLabel>Phone Number *</FormLabel>
                           <FormControl>
-                            <Input placeholder="+1 (555) 123-4567" {...field} />
+                            <Input 
+                              placeholder="+1 (555) 123-4567" 
+                              {...field} 
+                              onBlur={(e) => {
+                                field.onBlur(e);
+                                handleAutoSave();
+                              }}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -611,7 +625,15 @@ export default function Registry() {
                         <FormItem className="md:col-span-2">
                           <FormLabel>Email Address *</FormLabel>
                           <FormControl>
-                            <Input type="email" placeholder="your.email@example.com" {...field} />
+                            <Input 
+                              type="email" 
+                              placeholder="your.email@example.com" 
+                              {...field} 
+                              onBlur={(e) => {
+                                field.onBlur(e);
+                                handleAutoSave();
+                              }}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -880,7 +902,7 @@ export default function Registry() {
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              <SelectItem value="">No temple selected</SelectItem>
+                              <SelectItem value="none">No temple selected</SelectItem>
                               {temples.map((temple: any) => (
                                 <SelectItem key={temple.id} value={temple.id.toString()}>
                                   {temple.templeName} - {temple.village}, {temple.state}

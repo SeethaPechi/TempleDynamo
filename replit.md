@@ -90,6 +90,18 @@ This is a full-stack temple community management system built with React, Expres
 
 ## Recent Changes
 
+✓ **Complete Feature Implementation and Bug Fixes** (June 24, 2025)
+  - Fixed critical runtime errors (Bell import, updateMutation reference, useEffect import)
+  - Added comprehensive temple edit functionality on home page with full mutation support
+  - Implemented temple selection dropdown in member registry (optional field)
+  - Added universal auto-save functionality with onBlur triggers and localStorage persistence
+  - Fixed family tree relationships display with proper member ID mapping
+  - Allow duplicate phone and email addresses in member registration (removed uniqueness constraints)
+  - Enhanced home page with dynamic temple-specific content and member counter
+  - Added temple selection support in database schema with proper nullable handling
+  - Fixed Select.Item empty value error with proper "none" fallback value
+  - All autosave functionality now works across registry, member details, and temple forms
+
 ✓ **Fixed Temple Registration and Image Display Issues** (June 24, 2025)
   - Fixed PayloadTooLargeError by increasing Express server payload limit to 50MB
   - Added image compression and resizing to limit uploads to 800px max dimension
