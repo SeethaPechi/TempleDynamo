@@ -439,7 +439,8 @@ export default function FamilyTree() {
                                   <div>
                                     <button
                                       onClick={() => {
-                                        window.location.href = `/member/${relationship.relatedMember.id}`;
+                                        const member = (allMembers as Member[]).find(m => m.id === relationship.relatedMember.id);
+                                        if (member) setSelectedMember(member);
                                       }}
                                       className="font-bold text-temple-brown hover:text-saffron-600 transition-colors text-left underline hover:no-underline"
                                     >
@@ -479,7 +480,8 @@ export default function FamilyTree() {
                               <td className="p-4 text-center">
                                 <button
                                   onClick={() => {
-                                    window.location.href = `/member/${relationship.relatedMember.id}`;
+                                    const member = (allMembers as Member[]).find(m => m.id === relationship.relatedMember.id);
+                                    if (member) setSelectedMember(member);
                                   }}
                                   className="inline-flex items-center px-3 py-1 border border-saffron-200 text-sm font-medium rounded-md text-temple-brown bg-saffron-50 hover:bg-saffron-100 transition-colors"
                                 >
