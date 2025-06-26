@@ -25,7 +25,8 @@ This is a full-stack temple community management system built with React, Expres
 
 ### Database Schema
 - **Members Table**: Core member information including personal details and location data
-- **Relationships Table**: Family relationships between members
+- **Relationships Table**: Family relationships between members with created_at timestamp
+- **Temples Table**: Temple information including location, contact details, and deity information
 - **Users Table**: Authentication (legacy compatibility)
 
 ## Key Components
@@ -34,7 +35,9 @@ This is a full-stack temple community management system built with React, Expres
 - Member registration with comprehensive form validation
 - Search functionality by name, email, phone, city, and state
 - Pagination support for large member lists
-- Family relationship tracking
+- Family relationship tracking with filtered display (no duplicates)
+- Auto-save functionality across all forms with localStorage persistence
+- Temple association support (optional field)
 
 ### WhatsApp Integration
 - Template-based message system for community communications
@@ -47,6 +50,8 @@ This is a full-stack temple community management system built with React, Expres
 - Custom temple-themed design system with saffron and gold colors
 - Responsive design with mobile-first approach
 - Accessible components following ARIA guidelines
+- Family Tree visualization with generational layout and relationship filtering
+- Enhanced member detail cards with comprehensive information display
 
 ## Data Flow
 
@@ -89,6 +94,17 @@ This is a full-stack temple community management system built with React, Expres
 - **REPL_ID**: Replit-specific identifier for development features
 
 ## Recent Changes
+
+✓ **Family Tree Filtering and Display Improvements** (June 26, 2025)
+  - Fixed Family Tree database error by adding missing created_at column to relationships table
+  - Implemented proper relationship filtering to show only selected member's direct relationships
+  - Eliminated duplicate entries in Family Tree by filtering based on memberId
+  - Added "Related Name" column showing relationship descriptions (e.g., "T.V.Solairaja is the father of Venkat Thirupathy")
+  - Updated all relationship counts and statistics to use filtered data instead of all relationships
+  - Enhanced member display with comprehensive contact information (phone, email, location, marital status)
+  - Fixed JavaScript errors related to undefined filteredMemberRelationships variable
+  - Improved Family Tree visualization to display clean, focused relationships without nested duplicates
+  - Updated dependency @replit/vite-plugin-cartographer to latest version
 
 ✓ **Complete Feature Implementation and Bug Fixes** (June 24, 2025)
   - Fixed critical runtime errors (Bell import, updateMutation reference, useEffect import)
@@ -219,6 +235,12 @@ This is a full-stack temple community management system built with React, Expres
 
 ```
 Changelog:
+- June 26, 2025: Fixed Family Tree filtering and database schema updates
+- June 24, 2025: Enhanced temple functionality and auto-save features
+- June 23, 2025: Comprehensive family tree visualization improvements
+- June 22, 2025: Universal auto-save and mobile responsiveness
+- June 21, 2025: Complete member management and family relationships
+- June 20, 2025: Enhanced registration forms and temple search
 - June 19, 2025: Added Tamil language support and security updates
 - June 14, 2025: Initial setup
 ```
