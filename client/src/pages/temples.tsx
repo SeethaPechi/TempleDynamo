@@ -1003,7 +1003,14 @@ export default function Temples() {
                       <FormItem>
                         <FormLabel>{t('temples.village')}</FormLabel>
                         <FormControl>
-                          <Input placeholder={t('temples.villagePlaceholder')} {...field} />
+                          <Input 
+                            placeholder={t('temples.villagePlaceholder')} 
+                            {...field}
+                            onBlur={(e) => {
+                              field.onBlur();
+                              autoSaveFormData();
+                            }}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -1016,7 +1023,14 @@ export default function Temples() {
                       <FormItem>
                         <FormLabel>{t('temples.nearestCity')}</FormLabel>
                         <FormControl>
-                          <Input placeholder={t('temples.nearestCityPlaceholder')} {...field} />
+                          <Input 
+                            placeholder={t('temples.nearestCityPlaceholder')} 
+                            {...field}
+                            onBlur={(e) => {
+                              field.onBlur();
+                              autoSaveFormData();
+                            }}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -1031,7 +1045,13 @@ export default function Temples() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>{t('temples.country')}</FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value}>
+                        <Select 
+                          onValueChange={(value) => {
+                            field.onChange(value);
+                            autoSaveFormData();
+                          }} 
+                          value={field.value}
+                        >
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder={t('temples.selectCountry')} />
@@ -1055,7 +1075,13 @@ export default function Temples() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>{t('temples.state')}</FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value}>
+                        <Select 
+                          onValueChange={(value) => {
+                            field.onChange(value);
+                            autoSaveFormData();
+                          }} 
+                          value={field.value}
+                        >
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder={t('temples.selectState')} />
@@ -1088,6 +1114,10 @@ export default function Temples() {
                             placeholder={t('temples.establishedYearPlaceholder')}
                             {...field}
                             onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                            onBlur={(e) => {
+                              field.onBlur();
+                              autoSaveFormData();
+                            }}
                           />
                         </FormControl>
                         <FormMessage />
@@ -1101,7 +1131,14 @@ export default function Temples() {
                       <FormItem>
                         <FormLabel>{t('temples.contactPhone')}</FormLabel>
                         <FormControl>
-                          <Input placeholder={t('temples.contactPhonePlaceholder')} {...field} />
+                          <Input 
+                            placeholder={t('temples.contactPhonePlaceholder')} 
+                            {...field}
+                            onBlur={(e) => {
+                              field.onBlur();
+                              autoSaveFormData();
+                            }}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -1116,7 +1153,14 @@ export default function Temples() {
                     <FormItem>
                       <FormLabel>{t('temples.contactEmail')}</FormLabel>
                       <FormControl>
-                        <Input placeholder={t('temples.contactEmailPlaceholder')} {...field} />
+                        <Input 
+                          placeholder={t('temples.contactEmailPlaceholder')} 
+                          {...field}
+                          onBlur={(e) => {
+                            field.onBlur();
+                            autoSaveFormData();
+                          }}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -1137,9 +1181,7 @@ export default function Temples() {
                           {...field}
                           onBlur={(e) => {
                             field.onBlur();
-                            // Auto-save functionality
-                            const formData = form.getValues();
-                            localStorage.setItem(`temple_edit_${selectedTemple?.id || 'new'}`, JSON.stringify(formData));
+                            autoSaveFormData();
                           }}
                         />
                       </FormControl>
@@ -1164,9 +1206,7 @@ export default function Temples() {
                             {...field}
                             onBlur={(e) => {
                               field.onBlur();
-                              // Auto-save functionality
-                              const formData = form.getValues();
-                              localStorage.setItem(`temple_edit_${selectedTemple?.id || 'new'}`, JSON.stringify(formData));
+                              autoSaveFormData();
                             }}
                           />
                         </FormControl>
@@ -1187,9 +1227,7 @@ export default function Temples() {
                             {...field}
                             onBlur={(e) => {
                               field.onBlur();
-                              // Auto-save functionality
-                              const formData = form.getValues();
-                              localStorage.setItem(`temple_edit_${selectedTemple?.id || 'new'}`, JSON.stringify(formData));
+                              autoSaveFormData();
                             }}
                           />
                         </FormControl>
@@ -1210,9 +1248,7 @@ export default function Temples() {
                             {...field}
                             onBlur={(e) => {
                               field.onBlur();
-                              // Auto-save functionality
-                              const formData = form.getValues();
-                              localStorage.setItem(`temple_edit_${selectedTemple?.id || 'new'}`, JSON.stringify(formData));
+                              autoSaveFormData();
                             }}
                           />
                         </FormControl>
