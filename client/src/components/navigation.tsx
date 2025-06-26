@@ -1,8 +1,17 @@
 import { Link, useLocation } from "wouter";
-import { Home, UserPlus, Users, Menu, X, MessageSquare, Building, TreePine } from "lucide-react";
+import {
+  Home,
+  UserPlus,
+  Users,
+  Menu,
+  X,
+  MessageSquare,
+  Building,
+  TreePine,
+} from "lucide-react";
 import { useState } from "react";
-import { useTranslation } from 'react-i18next';
-import { LanguageSwitcher } from './language-switcher';
+import { useTranslation } from "react-i18next";
+import { LanguageSwitcher } from "./language-switcher";
 
 export function Navigation() {
   const [location] = useLocation();
@@ -12,13 +21,13 @@ export function Navigation() {
   const isActive = (path: string) => location === path;
 
   const navItems = [
-    { path: "/", label: t('nav.home'), icon: Home },
-    { path: "/registry", label: t('nav.registry'), icon: UserPlus },
-    { path: "/members", label: t('nav.members'), icon: Users },
+    { path: "/", label: t("nav.home"), icon: Home },
+    { path: "/registry", label: t("nav.registry"), icon: UserPlus },
+    { path: "/members", label: t("nav.members"), icon: Users },
 
     { path: "/family-tree", label: "Family Tree", icon: TreePine },
-    { path: "/temples", label: t('nav.temples'), icon: Building },
-    { path: "/whatsapp", label: t('nav.whatsapp'), icon: MessageSquare },
+    { path: "/temples", label: t("nav.temples"), icon: Building },
+    { path: "/whatsapp", label: t("nav.whatsapp"), icon: MessageSquare },
   ];
 
   return (
@@ -27,11 +36,11 @@ export function Navigation() {
         <div className="flex justify-between items-center h-16">
           <Link href="/" className="flex items-center space-x-3">
             <div className="w-10 h-10 bg-gradient-to-br from-saffron-500 to-temple-red rounded-full flex items-center justify-center">
-              <span className="text-white text-lg">🕉️</span>
+              <span className="text-white text-lg"></span>
             </div>
             <div>
-              <h1 className="text-xl font-bold text-temple-brown">Sri Lakshmi Temple</h1>
-              <p className="text-xs text-gray-600">Community Registry</p>
+              <h1 className="text-xl font-bold text-temple-brown"></h1>
+              <p className="text-xs text-gray-600"></p>
             </div>
           </Link>
 
