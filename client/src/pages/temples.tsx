@@ -532,10 +532,22 @@ export default function Temples() {
     if (!open && selectedTemple && isEditModalOpen) {
       const formData = form.getValues();
       const savedData = localStorage.getItem(`temple_edit_${selectedTemple.id}`);
+      const templeId = selectedTemple.id;
       
-      // Only submit if there are changes
-      if (savedData) {
-        updateTempleMutation.mutate(formData);
+      // Only submit if there are changes and valid data
+      if (savedData && templeId) {
+        try {
+          // Create a dedicated mutation call with temple ID captured
+          apiRequest("PUT", `/api/temples/${templeId}`, formData)
+            .then(() => {
+              queryClient.invalidateQueries({ queryKey: ["/api/temples"] });
+            })
+            .catch((error) => {
+              console.error('Auto-submit error:', error);
+            });
+        } catch (error) {
+          console.error('Error during auto-submit:', error);
+        }
       }
     }
     setIsEditModalOpen(open);
