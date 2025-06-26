@@ -32,6 +32,9 @@ const templeRegistrationSchema = z.object({
   contactEmail: z.string().email("Please enter a valid email address").optional().or(z.literal("")),
   description: z.string().optional(),
   templeImage: z.string().optional(),
+  googleMapLink: z.string().url("Please enter a valid URL").optional().or(z.literal("")),
+  websiteLink: z.string().url("Please enter a valid URL").optional().or(z.literal("")),
+  wikiLink: z.string().url("Please enter a valid URL").optional().or(z.literal("")),
 });
 
 type TempleRegistrationData = z.infer<typeof templeRegistrationSchema>;
