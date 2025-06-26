@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
-import { Search, Building, MapPin, Calendar, Phone, Mail, Plus, Edit, Trash2, Upload, X } from "lucide-react";
+import { Search, Building, MapPin, Calendar, Phone, Mail, Plus, Edit, Trash2, Upload, X, ExternalLink, Globe, Map } from "lucide-react";
 import { useTranslation } from 'react-i18next';
 import { Link } from "wouter";
 import { useForm } from "react-hook-form";
@@ -415,6 +415,21 @@ const templeEditSchema = z.object({
     .or(z.literal("")),
   description: z.string().optional(),
   templeImage: z.string().optional(),
+  googleMapLink: z
+    .string()
+    .url("Please enter a valid Google Maps URL")
+    .optional()
+    .or(z.literal("")),
+  websiteLink: z
+    .string()
+    .url("Please enter a valid website URL")
+    .optional()
+    .or(z.literal("")),
+  wikiLink: z
+    .string()
+    .url("Please enter a valid Wikipedia URL")
+    .optional()
+    .or(z.literal("")),
 });
 
 type TempleEditData = z.infer<typeof templeEditSchema>;
@@ -453,6 +468,9 @@ export default function Temples() {
       contactEmail: "",
       description: "",
       templeImage: "",
+      googleMapLink: "",
+      websiteLink: "",
+      wikiLink: "",
     },
   });
 
@@ -501,6 +519,37 @@ export default function Temples() {
     },
   });
 
+  // Auto-save helper function
+  const autoSaveFormData = () => {
+    if (selectedTemple) {
+      const formData = form.getValues();
+      localStorage.setItem(`temple_edit_${selectedTemple.id}`, JSON.stringify(formData));
+    }
+  };
+
+  // Load saved form data when modal opens
+  useEffect(() => {
+    if (isEditModalOpen && selectedTemple) {
+      const savedData = localStorage.getItem(`temple_edit_${selectedTemple.id}`);
+      if (savedData) {
+        try {
+          const parsedData = JSON.parse(savedData);
+          form.reset(parsedData);
+          setUploadedImage(parsedData.templeImage || null);
+        } catch (error) {
+          console.error('Error loading saved form data:', error);
+        }
+      }
+    }
+  }, [isEditModalOpen, selectedTemple, form]);
+
+  // Clear saved data on successful update
+  useEffect(() => {
+    if (!isEditModalOpen && selectedTemple) {
+      localStorage.removeItem(`temple_edit_${selectedTemple.id}`);
+    }
+  }, [isEditModalOpen, selectedTemple]);
+
   // Handler functions
   const handleEditTemple = (temple: Temple) => {
     setSelectedTemple(temple);
@@ -516,6 +565,9 @@ export default function Temples() {
       contactEmail: temple.contactEmail || "",
       description: temple.description || "",
       templeImage: temple.templeImage || "",
+      googleMapLink: temple.googleMapLink || "",
+      websiteLink: temple.websiteLink || "",
+      wikiLink: temple.wikiLink || "",
     });
     setUploadedImage(temple.templeImage || null);
     setIsEditModalOpen(true);
@@ -798,6 +850,47 @@ export default function Temples() {
                     </div>
                   )}
 
+                  {/* External Links */}
+                  {(temple.googleMapLink || temple.websiteLink || temple.wikiLink) && (
+                    <div className="mt-4 pt-4 border-t border-gray-100">
+                      <div className="flex flex-wrap gap-2">
+                        {temple.googleMapLink && (
+                          <Button
+                            onClick={() => window.open(temple.googleMapLink!, '_blank')}
+                            variant="outline"
+                            size="sm"
+                            className="text-xs border-blue-300 text-blue-600 hover:bg-blue-50"
+                          >
+                            <Map className="mr-1" size={12} />
+                            {t('temples.openMap')}
+                          </Button>
+                        )}
+                        {temple.websiteLink && (
+                          <Button
+                            onClick={() => window.open(temple.websiteLink!, '_blank')}
+                            variant="outline"
+                            size="sm"
+                            className="text-xs border-green-300 text-green-600 hover:bg-green-50"
+                          >
+                            <Globe className="mr-1" size={12} />
+                            {t('temples.openWebsite')}
+                          </Button>
+                        )}
+                        {temple.wikiLink && (
+                          <Button
+                            onClick={() => window.open(temple.wikiLink!, '_blank')}
+                            variant="outline"
+                            size="sm"
+                            className="text-xs border-purple-300 text-purple-600 hover:bg-purple-50"
+                          >
+                            <ExternalLink className="mr-1" size={12} />
+                            {t('temples.openWiki')}
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
                   {/* Action Buttons */}
                   <div className="mt-6 flex space-x-2">
                     <Button
@@ -867,7 +960,14 @@ export default function Temples() {
                       <FormItem>
                         <FormLabel>{t('temples.templeName')}</FormLabel>
                         <FormControl>
-                          <Input placeholder={t('temples.templeNamePlaceholder')} {...field} />
+                          <Input 
+                            placeholder={t('temples.templeNamePlaceholder')} 
+                            {...field}
+                            onBlur={(e) => {
+                              field.onBlur();
+                              autoSaveFormData();
+                            }}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -880,7 +980,14 @@ export default function Temples() {
                       <FormItem>
                         <FormLabel>{t('temples.deity')}</FormLabel>
                         <FormControl>
-                          <Input placeholder={t('temples.deityPlaceholder')} {...field} />
+                          <Input 
+                            placeholder={t('temples.deityPlaceholder')} 
+                            {...field}
+                            onBlur={(e) => {
+                              field.onBlur();
+                              autoSaveFormData();
+                            }}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -1027,13 +1134,93 @@ export default function Temples() {
                           placeholder={t('temples.descriptionPlaceholder')} 
                           className="resize-none"
                           rows={4}
-                          {...field} 
+                          {...field}
+                          onBlur={(e) => {
+                            field.onBlur();
+                            // Auto-save functionality
+                            const formData = form.getValues();
+                            localStorage.setItem(`temple_edit_${selectedTemple?.id || 'new'}`, JSON.stringify(formData));
+                          }}
                         />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
+
+                {/* External Links Section */}
+                <div className="space-y-6 border-t pt-6">
+                  <h3 className="text-lg font-semibold text-temple-brown">{t('temples.externalLinks')}</h3>
+                  
+                  <FormField
+                    control={form.control}
+                    name="googleMapLink"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{t('temples.googleMapLink')}</FormLabel>
+                        <FormControl>
+                          <Input 
+                            placeholder={t('temples.googleMapPlaceholder')} 
+                            {...field}
+                            onBlur={(e) => {
+                              field.onBlur();
+                              // Auto-save functionality
+                              const formData = form.getValues();
+                              localStorage.setItem(`temple_edit_${selectedTemple?.id || 'new'}`, JSON.stringify(formData));
+                            }}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="websiteLink"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{t('temples.websiteLink')}</FormLabel>
+                        <FormControl>
+                          <Input 
+                            placeholder={t('temples.websitePlaceholder')} 
+                            {...field}
+                            onBlur={(e) => {
+                              field.onBlur();
+                              // Auto-save functionality
+                              const formData = form.getValues();
+                              localStorage.setItem(`temple_edit_${selectedTemple?.id || 'new'}`, JSON.stringify(formData));
+                            }}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="wikiLink"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{t('temples.wikiLink')}</FormLabel>
+                        <FormControl>
+                          <Input 
+                            placeholder={t('temples.wikiPlaceholder')} 
+                            {...field}
+                            onBlur={(e) => {
+                              field.onBlur();
+                              // Auto-save functionality
+                              const formData = form.getValues();
+                              localStorage.setItem(`temple_edit_${selectedTemple?.id || 'new'}`, JSON.stringify(formData));
+                            }}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
 
                 {/* Image Upload */}
                 <div className="space-y-4">

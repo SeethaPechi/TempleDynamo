@@ -75,6 +75,9 @@ export const temples = pgTable("temples", {
   contactEmail: text("contact_email"),
   description: text("description"),
   templeImage: text("temple_image"), // Base64 encoded image or image URL
+  googleMapLink: text("google_map_link"),
+  websiteLink: text("website_link"),
+  wikiLink: text("wiki_link"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -86,6 +89,9 @@ export const insertTempleSchema = createInsertSchema(temples).omit({
   contactEmail: z.string().email("Please enter a valid email address").optional().or(z.literal("")),
   linkedTemples: z.array(z.string()).default([]),
   templeImage: z.string().optional(),
+  googleMapLink: z.string().url("Please enter a valid Google Maps URL").optional().or(z.literal("")),
+  websiteLink: z.string().url("Please enter a valid website URL").optional().or(z.literal("")),
+  wikiLink: z.string().url("Please enter a valid Wikipedia URL").optional().or(z.literal("")),
 });
 
 export type InsertTemple = z.infer<typeof insertTempleSchema>;

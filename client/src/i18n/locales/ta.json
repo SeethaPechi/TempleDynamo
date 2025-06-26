@@ -242,7 +242,17 @@
     "description": "விளக்கம்",
     "descriptionPlaceholder": "கோயில் விளக்கத்தை உள்ளிடவும்",
     "templeImage": "கோயில் படம்",
-    "imageSizeError": "படத்தின் அளவு 5MB க்கு குறைவாக இருக்க வேண்டும்"
+    "imageSizeError": "படத்தின் அளவு 5MB க்கு குறைவாக இருக்க வேண்டும்",
+    "externalLinks": "வெளி இணைப்புகள்",
+    "googleMapLink": "கூகுள் மேப் இணைப்பு",
+    "googleMapPlaceholder": "கூகுள் மேப் URL ஐ உள்ளிடவும்",
+    "websiteLink": "இணையதள இணைப்பு",
+    "websitePlaceholder": "இணையதள URL ஐ உள்ளிடவும்",
+    "wikiLink": "விக்கிபீடியா இணைப்பு",
+    "wikiPlaceholder": "விக்கிபீடியா URL ஐ உள்ளிடவும்",
+    "openMap": "மேப் திறக்கவும்",
+    "openWebsite": "இணையதளம்",
+    "openWiki": "விக்கி"
   },
   "templeRegistry": {
     "title": "கோயில் பதிவு",
