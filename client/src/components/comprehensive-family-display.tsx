@@ -41,45 +41,8 @@ export function ComprehensiveFamilyDisplay({
     return 'bg-gray-100 text-gray-800 border-gray-200';
   };
 
-  // Find extended family connections (indirect relationships)
-  const findExtendedConnections = () => {
-    const extendedConnections: ExtendedConnection[] = [];
-    const visited = new Set<number>();
-    visited.add(member.id);
-
-    // Add direct relationships first
-    relationships.forEach(rel => {
-      visited.add(rel.relatedMember.id);
-    });
-
-    // Find second-degree connections
-    relationships.forEach(directRel => {
-      const relatedMemberRelationships = allRelationships.filter(
-        rel => rel.memberId === directRel.relatedMember.id && !visited.has(rel.relatedMember.id)
-      );
-
-      relatedMemberRelationships.forEach(indirectRel => {
-        if (!visited.has(indirectRel.relatedMember.id)) {
-          const connectionPath = [
-            `${directRel.relationshipType} of ${member.fullName}`,
-            `${indirectRel.relationshipType} of ${directRel.relatedMember.fullName}`
-          ];
-
-          extendedConnections.push({
-            member: indirectRel.relatedMember,
-            directRelationship: `${indirectRel.relationshipType} of ${directRel.relationshipType}`,
-            connectionPath,
-            distance: 2
-          });
-          visited.add(indirectRel.relatedMember.id);
-        }
-      });
-    });
-
-    return extendedConnections.slice(0, 10); // Limit to 10 extended connections
-  };
-
-  const extendedConnections = findExtendedConnections();
+  // Only show direct relationships - no extended connections to avoid circular issues
+  const extendedConnections: ExtendedConnection[] = [];
 
   // Group relationships by type
   const groupedRelationships = relationships.reduce((groups, rel) => {
@@ -193,77 +156,15 @@ export function ComprehensiveFamilyDisplay({
         </Card>
       )}
 
-      {/* Extended Family Network */}
-      {extendedConnections.length > 0 && (
-        <Card className="p-6 bg-gradient-to-r from-temple-light to-saffron-50">
-          <h2 className="text-xl font-semibold text-temple-brown mb-6 flex items-center">
-            <Network className="mr-2" size={20} />
-            Extended Family Network
-            <Badge variant="secondary" className="ml-2 bg-saffron-100 text-saffron-800">
-              {extendedConnections.length} connections
-            </Badge>
-          </h2>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {extendedConnections.map((connection, index) => (
-              <div 
-                key={index}
-                className="p-4 bg-white rounded-lg border border-gray-200 hover:shadow-md transition-all cursor-pointer hover:border-temple-gold"
-                onClick={() => onMemberClick?.(connection.member.id)}
-              >
-                <div className="flex items-start justify-between mb-2">
-                  <h4 className="font-bold text-temple-brown">
-                    {connection.member.fullName}
-                  </h4>
-                  <Badge variant="outline" className="text-xs bg-temple-gold-50 text-temple-gold border-temple-gold">
-                    2nd degree
-                  </Badge>
-                </div>
-                
-                <div className="text-sm text-gray-600 mb-3">
-                  <div className="font-medium text-temple-brown mb-1">Connection:</div>
-                  <div className="text-xs leading-relaxed">
-                    {connection.connectionPath.join(' → ')}
-                  </div>
-                </div>
-
-                <div className="space-y-1 text-xs text-gray-500">
-                  <div className="flex items-center">
-                    <MapPin className="mr-1" size={10} />
-                    <span>{connection.member.currentCity}, {connection.member.currentState}</span>
-                  </div>
-                </div>
-
-                <div className="mt-3">
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="w-full text-xs bg-temple-light hover:bg-temple-gold-50"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onMemberClick?.(connection.member.id);
-                    }}
-                  >
-                    Explore Connection
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </Card>
-      )}
 
       {/* Family Summary Stats */}
       <Card className="p-6 bg-gradient-to-r from-saffron-50 to-gold-50">
-        <h3 className="text-lg font-semibold text-temple-brown mb-4">Family Network Summary</h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <h3 className="text-lg font-semibold text-temple-brown mb-4">Family Summary</h3>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           <div className="text-center">
             <div className="text-2xl font-bold text-saffron-600">{relationships.length}</div>
             <div className="text-sm text-gray-600">Direct Relations</div>
-          </div>
-          <div className="text-center">
-            <div className="text-2xl font-bold text-temple-gold">{extendedConnections.length}</div>
-            <div className="text-sm text-gray-600">Extended Network</div>
           </div>
           <div className="text-center">
             <div className="text-2xl font-bold text-temple-brown">
@@ -272,10 +173,11 @@ export function ComprehensiveFamilyDisplay({
             <div className="text-sm text-gray-600">Relationship Types</div>
           </div>
           <div className="text-center">
-            <div className="text-2xl font-bold text-saffron-500">
-              {relationships.length + extendedConnections.length}
+            <div className="text-2xl font-bold text-temple-gold">
+              {relationships.filter(r => ['Father', 'Mother'].includes(r.relationshipType)).length + 
+               relationships.filter(r => ['Son', 'Daughter'].includes(r.relationshipType)).length}
             </div>
-            <div className="text-sm text-gray-600">Total Connections</div>
+            <div className="text-sm text-gray-600">Family Members</div>
           </div>
         </div>
       </Card>

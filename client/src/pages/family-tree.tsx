@@ -81,7 +81,7 @@ export default function FamilyTree() {
     queryKey: ["/api/members"],
   });
 
-  const { data: memberRelationships = [], isLoading: relationshipsLoading } = useQuery({
+  const { data: memberRelationships = [], isLoading: relationshipsLoading } = useQuery<Array<Relationship & { relatedMember: Member }>>({
     queryKey: ["/api/relationships", selectedMember?.id],
     enabled: !!selectedMember?.id,
   });
@@ -97,7 +97,7 @@ export default function FamilyTree() {
 
   // Filter relationships to show only those belonging to the selected member
   const filteredMemberRelationships = selectedMember 
-    ? memberRelationships.filter((rel: any) => rel.memberId === selectedMember.id)
+    ? (memberRelationships as Array<Relationship & { relatedMember: Member }>).filter(rel => rel.memberId === selectedMember.id)
     : [];
 
   console.log("Selected member:", selectedMember?.fullName);
@@ -123,7 +123,7 @@ export default function FamilyTree() {
         const filtered = (allMembers as Member[]).filter(
           (member: Member) =>
             member.fullName.toLowerCase().includes(term.toLowerCase()) ||
-            member.email.toLowerCase().includes(term.toLowerCase()),
+            (member.email && member.email.toLowerCase().includes(term.toLowerCase())),
         );
         setSearchResults(filtered);
       }
@@ -132,7 +132,7 @@ export default function FamilyTree() {
       const filtered = (allMembers as Member[]).filter(
         (member: Member) =>
           member.fullName.toLowerCase().includes(term.toLowerCase()) ||
-          member.email.toLowerCase().includes(term.toLowerCase()),
+          (member.email && member.email.toLowerCase().includes(term.toLowerCase())),
       );
       setSearchResults(filtered);
     }
@@ -687,7 +687,7 @@ export default function FamilyTree() {
                     />
                     <div className="text-2xl font-bold text-temple-brown">
                       {
-                        new Set(allRelationships.map((r) => r.relationshipType))
+                        new Set((allRelationships as Array<Relationship & { relatedMember: Member }>).map((r: Relationship & { relatedMember: Member }) => r.relationshipType))
                           .size
                       }
                     </div>
