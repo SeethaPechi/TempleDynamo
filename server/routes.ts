@@ -44,6 +44,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get("/api/members/search", async (req, res) => {
+    try {
+      const { term, city, state } = req.query;
+      
+      if (!term || typeof term !== 'string' || term.length < 2) {
+        return res.json([]);
+      }
+      
+      const members = await storage.searchMembers(
+        term as string,
+        city as string,
+        state as string
+      );
+      res.json(members);
+    } catch (error) {
+      console.error("Error searching members:", error);
+      res.status(500).json({ message: "Failed to search members" });
+    }
+  });
+
   app.get("/api/members/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);

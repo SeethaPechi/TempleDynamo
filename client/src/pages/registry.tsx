@@ -488,7 +488,13 @@ export default function Registry() {
 
   // Search members for relationship linking
   const { data: searchResults = [] } = useQuery({
-    queryKey: ["/api/members/search", searchTerm],
+    queryKey: ["/api/members/search", { term: searchTerm }],
+    queryFn: async () => {
+      if (!searchTerm || searchTerm.length < 2) return [];
+      const response = await fetch(`/api/members/search?term=${encodeURIComponent(searchTerm)}`);
+      if (!response.ok) return [];
+      return response.json();
+    },
     enabled: searchTerm.length > 2,
   });
 
@@ -562,19 +568,16 @@ export default function Registry() {
     }
   };
 
-  const handleRemoveRelationship = (memberId: number) => {
-    const removedMember = linkedRelatives.find(
-      (rel) => rel.member.id === memberId,
-    );
-    setLinkedRelatives(
-      linkedRelatives.filter((rel) => rel.member.id !== memberId),
-    );
+  const handleRemoveRelationship = (index: number) => {
+    const removedMember = linkedRelatives[index];
+    setLinkedRelatives(linkedRelatives.filter((_, i) => i !== index));
     if (removedMember) {
       toast({
         title: "Relative Removed",
         description: `${removedMember.member.fullName} removed from relationships`,
       });
     }
+    handleAutoSave();
   };
 
   const onSubmit = (data: RegistrationData) => {
@@ -630,8 +633,6 @@ export default function Registry() {
 
   // Auto-populate family relationships based on selected member
   const autoPopulateRelationships = (member: Member) => {
-    // This function can be used to auto-populate relationships
-    // based on the selected member's family information
     console.log("Auto-populating relationships for:", member.fullName);
   };
 
@@ -1197,7 +1198,7 @@ export default function Registry() {
                                   variant="ghost"
                                   size="sm"
                                   onClick={() =>
-                                    handleRemoveRelationship(rel.member.id)
+                                    handleRemoveRelationship(index)
                                   }
                                   className="text-red-600 hover:text-red-800"
                                 >
