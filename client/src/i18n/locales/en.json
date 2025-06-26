@@ -7,8 +7,8 @@
     "whatsapp": "WhatsApp"
   },
   "home": {
-    "title": "Temple Dynamo",
-    "subtitle": "Your Sacred Community Hub",
+    "title": "Welcome to your temple",
+    "subtitle": "Temple Information Portal",
     "description": "Manage temple members, registrations, and communications all in one place.",
     "getStarted": "Join Our Community",
     "selectTemple": "Select Temple",
@@ -43,7 +43,7 @@
     "title": "Member Registration",
     "subtitle": "Register new temple members",
     "personalInfo": "Personal Information",
-    "contactInfo": "Contact Information", 
+    "contactInfo": "Contact Information",
     "addressInfo": "Address Information",
     "familyRelations": "Family Relations",
     "form": {
