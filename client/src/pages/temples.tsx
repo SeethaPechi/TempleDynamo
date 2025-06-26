@@ -521,24 +521,50 @@ export default function Temples() {
 
   // Auto-save helper function
   const autoSaveFormData = () => {
+    console.log('Auto-save triggered');
     if (selectedTemple) {
       const formData = form.getValues();
+      console.log('Saving form data:', formData);
       localStorage.setItem(`temple_edit_${selectedTemple.id}`, JSON.stringify(formData));
+      console.log('Data saved to localStorage');
+    } else {
+      console.log('No selected temple for auto-save');
     }
   };
 
   // Load saved form data when modal opens
   useEffect(() => {
     if (isEditModalOpen && selectedTemple) {
+      console.log('Modal opened for temple:', selectedTemple.id);
       const savedData = localStorage.getItem(`temple_edit_${selectedTemple.id}`);
       if (savedData) {
         try {
           const parsedData = JSON.parse(savedData);
+          console.log('Loading saved data:', parsedData);
           form.reset(parsedData);
           setUploadedImage(parsedData.templeImage || null);
+          console.log('Form reset with saved data');
         } catch (error) {
           console.error('Error loading saved form data:', error);
         }
+      } else {
+        console.log('No saved data found, using original temple data');
+        form.reset({
+          templeName: selectedTemple.templeName || '',
+          deity: selectedTemple.deity || '',
+          village: selectedTemple.village || '',
+          nearestCity: selectedTemple.nearestCity || '',
+          state: selectedTemple.state || '',
+          country: selectedTemple.country || '',
+          establishedYear: selectedTemple.establishedYear || '',
+          contactPhone: selectedTemple.contactPhone || '',
+          contactEmail: selectedTemple.contactEmail || '',
+          description: selectedTemple.description || '',
+          templeImage: selectedTemple.templeImage || '',
+          googleMapsLink: selectedTemple.googleMapsLink || '',
+          websiteLink: selectedTemple.websiteLink || '',
+          wikiLink: selectedTemple.wikiLink || ''
+        });
       }
     }
   }, [isEditModalOpen, selectedTemple, form]);
