@@ -523,30 +523,22 @@ export default function Temples() {
   const autoSaveFormData = () => {
     if (selectedTemple) {
       const formData = form.getValues();
-      console.log('Auto-saving temple data:', formData);
       localStorage.setItem(`temple_edit_${selectedTemple.id}`, JSON.stringify(formData));
-      console.log('Saved to localStorage with key:', `temple_edit_${selectedTemple.id}`);
-    } else {
-      console.log('No selected temple for auto-save');
     }
   };
 
   // Load saved form data when modal opens
   useEffect(() => {
     if (isEditModalOpen && selectedTemple) {
-      console.log('Loading saved data for temple:', selectedTemple.id);
       const savedData = localStorage.getItem(`temple_edit_${selectedTemple.id}`);
       if (savedData) {
         try {
           const parsedData = JSON.parse(savedData);
-          console.log('Found saved data:', parsedData);
           form.reset(parsedData);
           setUploadedImage(parsedData.templeImage || null);
         } catch (error) {
           console.error('Error loading saved form data:', error);
         }
-      } else {
-        console.log('No saved data found for temple:', selectedTemple.id);
       }
     }
   }, [isEditModalOpen, selectedTemple, form]);
