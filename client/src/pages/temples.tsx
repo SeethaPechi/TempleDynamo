@@ -519,47 +519,44 @@ export default function Temples() {
     },
   });
 
-  // Auto-save and auto-submit
-  const [autoSubmitTimer, setAutoSubmitTimer] = useState<NodeJS.Timeout | null>(null);
-
+  // Auto-save helper function (localStorage only)
   const autoSaveFormData = () => {
     if (selectedTemple) {
       const formData = form.getValues();
-      
-      // Save to localStorage immediately
       localStorage.setItem(`temple_edit_${selectedTemple.id}`, JSON.stringify(formData));
+    }
+  };
+
+  // Auto-submit when modal closes
+  const handleModalClose = (open: boolean) => {
+    if (!open && selectedTemple && isEditModalOpen) {
+      const formData = form.getValues();
+      const savedData = localStorage.getItem(`temple_edit_${selectedTemple.id}`);
       
-      // Clear existing timer
-      if (autoSubmitTimer) {
-        clearTimeout(autoSubmitTimer);
-      }
-      
-      // Auto-submit after 3 seconds of no changes
-      const timer = setTimeout(() => {
+      // Only submit if there are changes
+      if (savedData) {
         updateTempleMutation.mutate(formData);
-      }, 3000);
-      
-      setAutoSubmitTimer(timer);
+      }
+    }
+    setIsEditModalOpen(open);
+    if (!open) {
+      setSelectedTemple(null);
     }
   };
 
   // Load saved form data when modal opens
   useEffect(() => {
     if (isEditModalOpen && selectedTemple) {
-      console.log('Modal opened for temple:', selectedTemple.id);
       const savedData = localStorage.getItem(`temple_edit_${selectedTemple.id}`);
       if (savedData) {
         try {
           const parsedData = JSON.parse(savedData);
-          console.log('Loading saved data:', parsedData);
           form.reset(parsedData);
           setUploadedImage(parsedData.templeImage || null);
-          console.log('Form reset with saved data');
         } catch (error) {
           console.error('Error loading saved form data:', error);
         }
       } else {
-        console.log('No saved data found, using original temple data');
         form.reset({
           templeName: selectedTemple.templeName || '',
           deity: selectedTemple.deity || '',
@@ -580,17 +577,12 @@ export default function Temples() {
     }
   }, [isEditModalOpen, selectedTemple, form]);
 
-  // Clear saved data on successful update and cleanup timer
+  // Clear saved data on successful update
   useEffect(() => {
     if (!isEditModalOpen && selectedTemple) {
       localStorage.removeItem(`temple_edit_${selectedTemple.id}`);
-      // Clear auto-submit timer when modal closes
-      if (autoSubmitTimer) {
-        clearTimeout(autoSubmitTimer);
-        setAutoSubmitTimer(null);
-      }
     }
-  }, [isEditModalOpen, selectedTemple, autoSubmitTimer]);
+  }, [isEditModalOpen, selectedTemple]);
 
   // Handler functions
   const handleEditTemple = (temple: Temple) => {
@@ -984,7 +976,7 @@ export default function Temples() {
         )}
 
         {/* Edit Temple Modal */}
-        <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+        <Dialog open={isEditModalOpen} onOpenChange={handleModalClose}>
           <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>{t('temples.editTemple')}</DialogTitle>

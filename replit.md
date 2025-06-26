@@ -98,11 +98,12 @@ This is a full-stack temple community management system built with React, Expres
 ✓ **Complete Temple Management with Auto-Save and External Links** (June 26, 2025)
   - Implemented comprehensive auto-save functionality for all temple edit form fields
   - Added external link support (Google Maps, Website, Wikipedia) that open directly when clicked
-  - All form fields save automatically on blur events (text inputs, dropdowns, textareas)
+  - Auto-save to localStorage on field blur events for data protection
+  - Auto-submit to database only when closing edit modal (prevents interruption during photo uploads)
   - Form data persists in localStorage and restores when reopening edit modal
   - Complete Tamil translations for all temple management features
   - External link buttons display in temple cards with proper color-coded icons
-  - Auto-save works across temple name, deity, location, contact details, and external links
+  - Photo upload protection - modal won't close during image upload process
   - Form validation and error handling maintained with auto-save functionality
 
 ✓ **Family Tree Filtering and Display Improvements** (June 26, 2025)
