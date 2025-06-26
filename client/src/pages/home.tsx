@@ -458,7 +458,7 @@ export default function Home() {
           </div>
           <div className="space-y-6">
             <img
-              src=compressedImage
+              src="https://images.unsplash.com/photo-1582510003544-4d00b7f74220?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
               alt="Temple architecture"
               className="rounded-xl shadow-xl w-full h-80 object-cover border-4 border-temple-gold/30"
             />
