@@ -227,25 +227,50 @@ export default function Home() {
 
   const onSubmit = (data: TempleEditData) => {
     if (!selectedTemple) return;
-    updateTempleMutation.mutate(data);
+    updateMutation.mutate({ ...data, id: selectedTemple.id });
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-temple-cream to-saffron-50">
-      {/* Temple Selection at Top - Always Visible */}
-      <div className="bg-white shadow-md sticky top-0 z-50 border-b border-temple-gold/20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-center space-x-4">
-            <Building className="text-temple-gold" size={24} />
-            <span className="text-lg font-semibold text-temple-brown">
-              {t("home.selectTemple")}
-            </span>
-            <div className="min-w-[300px]">
-              <Select onValueChange={handleTempleSelect} value={selectedTemple?.id.toString() || "reset"}>
-                <SelectTrigger className="w-full bg-white border-temple-gold focus:ring-temple-gold">
+      {/* Hero Section */}
+      <div className="relative h-96 overflow-hidden">
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{
+            backgroundImage:
+              "url('https://images.unsplash.com/photo-1544181485-7bb30de57dd8?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')",
+          }}
+        >
+          <div className="absolute inset-0 bg-gradient-to-r from-temple-brown/70 to-saffron-900/50"></div>
+        </div>
+        <div className="relative h-full flex items-center justify-center text-center px-4">
+          <div className="max-w-4xl mx-auto">
+            <h1 className="text-5xl md:text-6xl font-bold text-white mb-4">
+              🕉️{" "}
+              {selectedTemple
+                ? `Welcome to Our ${selectedTemple.templeName}`
+                : t("home.title")}
+            </h1>
+            <p className="text-xl md:text-2xl text-temple-cream mb-8">
+              {selectedTemple
+                ? selectedTemple.description ||
+                  "Experience the divine presence in our sacred temple where tradition meets spirituality."
+                : t("home.subtitle")}
+            </p>
+
+            {/* Temple Search Section */}
+            <div className="mb-8 max-w-md mx-auto">
+              <div className="flex items-center justify-center space-x-3 mb-4">
+                <Building className="text-temple-gold" size={20} />
+                <span className="text-lg font-medium text-white">
+                  {t("home.selectTemple")}
+                </span>
+              </div>
+              <Select onValueChange={handleTempleSelect}>
+                <SelectTrigger className="w-full bg-white/90 border-temple-gold focus:ring-temple-gold">
                   <SelectValue placeholder={t("home.chooseTemple")} />
                 </SelectTrigger>
-                <SelectContent className="z-50 max-h-60 overflow-y-auto">
+                <SelectContent>
                   <SelectItem value="reset">{t("home.allTemples")}</SelectItem>
                   {(temples as Temple[]).map((temple: Temple) => (
                     <SelectItem key={temple.id} value={temple.id.toString()}>
@@ -255,175 +280,161 @@ export default function Home() {
                 </SelectContent>
               </Select>
             </div>
+
+            {selectedTemple && (
+              <div className="mb-8 max-w-4xl mx-auto">
+                <Card className="bg-white/95 border-temple-gold/30 shadow-xl">
+                  <CardContent className="p-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {/* Temple Image */}
+                      <div className="flex justify-center">
+                        {selectedTemple.templeImage ? (
+                          <div className="relative w-full max-w-md mx-auto">
+                            <img
+                              src={selectedTemple.templeImage}
+                              alt={selectedTemple.templeName}
+                              className="w-full h-64 object-cover rounded-lg shadow-md border-2 border-temple-gold/20"
+                              style={{ maxWidth: "400px" }}
+                              onError={(e) => {
+                                const target = e.target as HTMLImageElement;
+                                target.src =
+                                  "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDQwMCAzMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iMzAwIiBmaWxsPSIjRkZGN0VEIi8+CjxwYXRoIGQ9Ik0yMDAgNzVMMjUwIDEyNUgxNTBMMjAwIDc1WiIgZmlsbD0iI0Q5NzcwNiIvPgo8cmVjdCB4PSIxNzAiIHk9IjEyNSIgd2lkdGg9IjYwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iI0Q5NzcwNiIvPgo8Y2lyY2xlIGN4PSIyMDAiIGN5PSIxNjAiIHI9IjE1IiBmaWxsPSIjRkJFRjNGIi8+Cjx0ZXh0IHg9IjIwMCIgeT0iMjUwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTYiIGZpbGw9IiM5MjQwMEQiPlRlbXBsZSBJbWFnZTwvdGV4dD4KPC9zdmc+";
+                              }}
+                            />
+                          </div>
+                        ) : (
+                          <div className="w-full max-w-md h-64 bg-gradient-to-br from-saffron-100 to-gold-100 rounded-lg shadow-md flex items-center justify-center mx-auto border-2 border-temple-gold/20">
+                            <div className="text-center">
+                              <Building
+                                className="mx-auto text-temple-gold mb-2"
+                                size={48}
+                              />
+                              <p className="text-temple-brown font-medium">
+                                Temple Image
+                              </p>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Temple Information */}
+                      <div className="space-y-4">
+                        <div>
+                          <h3 className="text-2xl font-bold text-temple-brown mb-2">
+                            {selectedTemple.templeName}
+                          </h3>
+                          {selectedTemple.deity && (
+                            <p className="text-lg text-saffron-600 font-medium">
+                              Deity: {selectedTemple.deity}
+                            </p>
+                          )}
+                        </div>
+
+                        <div className="space-y-2">
+                          <div className="flex items-center text-temple-brown">
+                            <MapPin
+                              className="mr-2 text-saffron-500"
+                              size={16}
+                            />
+                            <span>
+                              {selectedTemple.village},{" "}
+                              {selectedTemple.nearestCity}
+                            </span>
+                          </div>
+                          <div className="flex items-center text-temple-brown">
+                            <Building
+                              className="mr-2 text-saffron-500"
+                              size={16}
+                            />
+                            <span>
+                              {selectedTemple.state}, {selectedTemple.country}
+                            </span>
+                          </div>
+                          {selectedTemple.establishedYear && (
+                            <div className="flex items-center text-temple-brown">
+                              <Calendar
+                                className="mr-2 text-saffron-500"
+                                size={16}
+                              />
+                              <span>
+                                Established: {selectedTemple.establishedYear}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Registered Members Counter */}
+                        <div className="mt-4 p-4 bg-gradient-to-r from-saffron-50 to-gold-50 rounded-lg">
+                          <div className="text-center">
+                            <div className="text-3xl font-bold text-temple-brown">
+                              {totalMembers}
+                            </div>
+                            <div className="text-sm text-gray-600">
+                              Registered Members
+                            </div>
+                          </div>
+                        </div>
+
+                        {selectedTemple.contactPhone && (
+                          <div className="flex items-center text-temple-brown">
+                            <Phone
+                              className="mr-2 text-saffron-500"
+                              size={16}
+                            />
+                            <span>{selectedTemple.contactPhone}</span>
+                          </div>
+                        )}
+                        {selectedTemple.contactEmail && (
+                          <div className="flex items-center text-temple-brown">
+                            <Mail className="mr-2 text-saffron-500" size={16} />
+                            <span>{selectedTemple.contactEmail}</span>
+                          </div>
+                        )}
+
+                        {selectedTemple.description && (
+                          <div className="mt-4">
+                            <p className="text-gray-600 text-sm leading-relaxed">
+                              {selectedTemple.description}
+                            </p>
+                          </div>
+                        )}
+
+                        <div className="mt-4 flex justify-center">
+                          <Button
+                            onClick={() => setIsEditModalOpen(true)}
+                            className="bg-temple-gold hover:bg-temple-gold/90 text-white"
+                            size="sm"
+                          >
+                            <Edit className="mr-2" size={16} />
+                            Edit Temple Details
+                          </Button>
+                        </div>
+
+                        {/* Edit Temple Button */}
+                        <div className="mt-4">
+                          <Button
+                            onClick={handleEditTemple}
+                            variant="outline"
+                            className="w-full bg-temple-gold/10 hover:bg-temple-gold/20 border-temple-gold text-temple-brown"
+                          >
+                            <Edit className="mr-2 h-4 w-4" />
+                            Edit Temple Information
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+
+            <Link href="/registry">
+              <Button className="bg-temple-gold hover:bg-yellow-500 text-temple-brown font-semibold px-8 py-3 rounded-full transition-all transform hover:scale-105 shadow-lg">
+                {t("home.getStarted")}
+              </Button>
+            </Link>
           </div>
         </div>
-      </div>
-
-      {/* Dynamic Content Based on Temple Selection */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {selectedTemple ? (
-          /* Selected Temple Information */
-          <div className="space-y-8">
-            <div className="text-center">
-              <h1 className="text-4xl md:text-5xl font-bold text-temple-brown mb-4">
-                🕉️ {selectedTemple.templeName}
-              </h1>
-              {selectedTemple.deity && (
-                <p className="text-xl text-saffron-600 font-medium mb-2">
-                  {t("temples.deity")}: {selectedTemple.deity}
-                </p>
-              )}
-              <p className="text-lg text-gray-600 mb-6">
-                {selectedTemple.description || t("home.defaultTempleDescription")}
-              </p>
-            </div>
-
-            <Card className="bg-white shadow-xl border-temple-gold/30">
-              <CardContent className="p-8">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                  {/* Temple Image */}
-                  <div className="flex justify-center">
-                    {selectedTemple.templeImage ? (
-                      <div className="w-full max-w-lg">
-                        <img
-                          src={selectedTemple.templeImage}
-                          alt={selectedTemple.templeName}
-                          className="w-full h-80 object-cover rounded-lg shadow-lg border-2 border-temple-gold/20"
-                          onError={(e) => {
-                            const target = e.target as HTMLImageElement;
-                            target.src =
-                              "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDQwMCAzMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iMzAwIiBmaWxsPSIjRkZGN0VEIi8+CjxwYXRoIGQ9Ik0yMDAgNzVMMjUwIDEyNUgxNTBMMjAwIDc1WiIgZmlsbD0iI0Q5NzcwNiIvPgo8cmVjdCB4PSIxNzAiIHk9IjEyNSIgd2lkdGg9IjYwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iI0Q5NzcwNiIvPgo8Y2lyY2xlIGN4PSIyMDAiIGN5PSIxNjAiIHI9IjE1IiBmaWxsPSIjRkJFRjNGIi8+Cjx0ZXh0IHg9IjIwMCIgeT0iMjUwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTYiIGZpbGw9IiM5MjQwMEQiPlRlbXBsZSBJbWFnZTwvdGV4dD4KPC9zdmc+";
-                          }}
-                        />
-                      </div>
-                    ) : (
-                      <div className="w-full max-w-lg h-80 bg-gradient-to-br from-saffron-100 to-gold-100 rounded-lg shadow-lg flex items-center justify-center border-2 border-temple-gold/20">
-                        <div className="text-center">
-                          <Building className="mx-auto text-temple-gold mb-4" size={64} />
-                          <p className="text-temple-brown font-medium text-lg">
-                            {t("temples.noImage")}
-                          </p>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Temple Details */}
-                  <div className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="bg-gradient-to-r from-saffron-50 to-gold-50 p-4 rounded-lg">
-                        <div className="text-center">
-                          <div className="text-3xl font-bold text-temple-brown">{totalMembers}</div>
-                          <div className="text-sm text-gray-600">{t("home.registeredMembers")}</div>
-                        </div>
-                      </div>
-                      <div className="bg-gradient-to-r from-temple-cream to-saffron-50 p-4 rounded-lg">
-                        <div className="text-center">
-                          <div className="text-3xl font-bold text-temple-brown">{totalFamilies}</div>
-                          <div className="text-sm text-gray-600">{t("home.families")}</div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="space-y-3">
-                      <div className="flex items-center text-temple-brown">
-                        <MapPin className="mr-3 text-saffron-500" size={20} />
-                        <span className="text-lg">
-                          {selectedTemple.village}, {selectedTemple.nearestCity}
-                        </span>
-                      </div>
-                      <div className="flex items-center text-temple-brown">
-                        <Building className="mr-3 text-saffron-500" size={20} />
-                        <span className="text-lg">
-                          {selectedTemple.state}, {selectedTemple.country}
-                        </span>
-                      </div>
-                      {selectedTemple.establishedYear && (
-                        <div className="flex items-center text-temple-brown">
-                          <Calendar className="mr-3 text-saffron-500" size={20} />
-                          <span className="text-lg">
-                            {t("temples.established")}: {selectedTemple.establishedYear}
-                          </span>
-                        </div>
-                      )}
-                      {selectedTemple.contactPhone && (
-                        <div className="flex items-center text-temple-brown">
-                          <Phone className="mr-3 text-saffron-500" size={20} />
-                          <span className="text-lg">{selectedTemple.contactPhone}</span>
-                        </div>
-                      )}
-                      {selectedTemple.contactEmail && (
-                        <div className="flex items-center text-temple-brown">
-                          <Mail className="mr-3 text-saffron-500" size={20} />
-                          <span className="text-lg">{selectedTemple.contactEmail}</span>
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="pt-4">
-                      <Link href="/registry">
-                        <Button className="w-full bg-temple-gold hover:bg-yellow-500 text-temple-brown font-semibold py-3 rounded-lg transition-all transform hover:scale-105 shadow-lg">
-                          {t("home.joinCommunity")}
-                        </Button>
-                      </Link>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        ) : (
-          /* Default Content When No Temple Selected */
-          <div className="text-center space-y-8">
-            <div>
-              <h1 className="text-4xl md:text-5xl font-bold text-temple-brown mb-4">
-                🕉️ {t("home.title")}
-              </h1>
-              <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-                {t("home.subtitle")}
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-4xl mx-auto">
-              <Card className="bg-white shadow-lg hover:shadow-xl transition-shadow">
-                <CardContent className="p-6 text-center">
-                  <Users className="mx-auto text-temple-gold mb-4" size={48} />
-                  <div className="text-3xl font-bold text-temple-brown">{totalMembers}</div>
-                  <div className="text-sm text-gray-600">{t("home.totalMembers")}</div>
-                </CardContent>
-              </Card>
-              <Card className="bg-white shadow-lg hover:shadow-xl transition-shadow">
-                <CardContent className="p-6 text-center">
-                  <Heart className="mx-auto text-temple-gold mb-4" size={48} />
-                  <div className="text-3xl font-bold text-temple-brown">{totalFamilies}</div>
-                  <div className="text-sm text-gray-600">{t("home.families")}</div>
-                </CardContent>
-              </Card>
-              <Card className="bg-white shadow-lg hover:shadow-xl transition-shadow">
-                <CardContent className="p-6 text-center">
-                  <Calendar className="mx-auto text-temple-gold mb-4" size={48} />
-                  <div className="text-3xl font-bold text-temple-brown">{annualEvents}</div>
-                  <div className="text-sm text-gray-600">{t("home.annualEvents")}</div>
-                </CardContent>
-              </Card>
-              <Card className="bg-white shadow-lg hover:shadow-xl transition-shadow">
-                <CardContent className="p-6 text-center">
-                  <HandHeart className="mx-auto text-temple-gold mb-4" size={48} />
-                  <div className="text-3xl font-bold text-temple-brown">{volunteers}</div>
-                  <div className="text-sm text-gray-600">{t("home.volunteers")}</div>
-                </CardContent>
-              </Card>
-            </div>
-
-            <div className="pt-8">
-              <Link href="/registry">
-                <Button className="bg-temple-gold hover:bg-yellow-500 text-temple-brown font-semibold px-12 py-4 rounded-full text-lg transition-all transform hover:scale-105 shadow-lg">
-                  {t("home.getStarted")}
-                </Button>
-              </Link>
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Temple Information */}

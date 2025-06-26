@@ -25,7 +25,7 @@ export function Navigation() {
     { path: "/registry", label: t("nav.registry"), icon: UserPlus },
     { path: "/members", label: t("nav.members"), icon: Users },
 
-    { path: "/family-tree", label: t("nav.familyTree"), icon: TreePine },
+    { path: "/family-tree", label: "Family Tree", icon: TreePine },
     { path: "/temples", label: t("nav.temples"), icon: Building },
     { path: "/whatsapp", label: t("nav.whatsapp"), icon: MessageSquare },
   ];
