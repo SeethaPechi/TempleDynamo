@@ -8,20 +8,47 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { User, MapPin, Home, Users, Link as LinkIcon, Search, X } from "lucide-react";
-import { useTranslation } from 'react-i18next';
+import {
+  User,
+  MapPin,
+  Home,
+  Users,
+  Link as LinkIcon,
+  Search,
+  X,
+} from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { insertMemberSchema } from "@shared/schema";
 import type { Member } from "@shared/schema";
 
 const registrationSchema = insertMemberSchema.extend({
   fullName: z.string().min(2, "Full name must be at least 2 characters"),
   phone: z.string().min(10, "Phone number must be at least 10 digits"),
-  email: z.string().email("Please enter a valid email address"),
+  email: z.union([z.string().email("Please enter a valid email address"), z.literal("")]).optional(),
   selectedTemple: z.string().optional(),
   birthCity: z.string().min(1, "Birth city is required"),
   birthState: z.string().min(1, "Birth state is required"),
@@ -33,16 +60,23 @@ const registrationSchema = insertMemberSchema.extend({
   motherName: z.string().min(2, "Mother's name must be at least 2 characters"),
   spouseName: z.string().optional(),
   maritalStatus: z.enum(["Single", "Married", "Divorced", "Widowed"]),
-  linkedRelatives: z.array(z.object({
-    memberId: z.number(),
-    relationshipType: z.string(),
-  })).optional(),
+  linkedRelatives: z
+    .array(
+      z.object({
+        memberId: z.number(),
+        relationshipType: z.string(),
+      }),
+    )
+    .optional(),
 });
 
 type RegistrationData = z.infer<typeof registrationSchema>;
 
-const statesByCountry: Record<string, Array<{ value: string; label: string }>> = {
-  "US": [
+const statesByCountry: Record<
+  string,
+  Array<{ value: string; label: string }>
+> = {
+  US: [
     { value: "AL", label: "Alabama" },
     { value: "AK", label: "Alaska" },
     { value: "AZ", label: "Arizona" },
@@ -92,9 +126,9 @@ const statesByCountry: Record<string, Array<{ value: string; label: string }>> =
     { value: "WA", label: "Washington" },
     { value: "WV", label: "West Virginia" },
     { value: "WI", label: "Wisconsin" },
-    { value: "WY", label: "Wyoming" }
+    { value: "WY", label: "Wyoming" },
   ],
-  "IN": [
+  IN: [
     { value: "AP", label: "Andhra Pradesh" },
     { value: "AR", label: "Arunachal Pradesh" },
     { value: "AS", label: "Assam" },
@@ -130,9 +164,9 @@ const statesByCountry: Record<string, Array<{ value: string; label: string }>> =
     { value: "JK", label: "Jammu and Kashmir" },
     { value: "LA", label: "Ladakh" },
     { value: "LD", label: "Lakshadweep" },
-    { value: "PY", label: "Puducherry" }
+    { value: "PY", label: "Puducherry" },
   ],
-  "CA": [
+  CA: [
     { value: "AB", label: "Alberta" },
     { value: "BC", label: "British Columbia" },
     { value: "MB", label: "Manitoba" },
@@ -145,9 +179,9 @@ const statesByCountry: Record<string, Array<{ value: string; label: string }>> =
     { value: "SK", label: "Saskatchewan" },
     { value: "NT", label: "Northwest Territories" },
     { value: "NU", label: "Nunavut" },
-    { value: "YT", label: "Yukon" }
+    { value: "YT", label: "Yukon" },
   ],
-  "AU": [
+  AU: [
     { value: "NSW", label: "New South Wales" },
     { value: "QLD", label: "Queensland" },
     { value: "SA", label: "South Australia" },
@@ -155,15 +189,15 @@ const statesByCountry: Record<string, Array<{ value: string; label: string }>> =
     { value: "VIC", label: "Victoria" },
     { value: "WA", label: "Western Australia" },
     { value: "ACT", label: "Australian Capital Territory" },
-    { value: "NT", label: "Northern Territory" }
+    { value: "NT", label: "Northern Territory" },
   ],
-  "GB": [
+  GB: [
     { value: "ENG", label: "England" },
     { value: "SCT", label: "Scotland" },
     { value: "WLS", label: "Wales" },
-    { value: "NIR", label: "Northern Ireland" }
+    { value: "NIR", label: "Northern Ireland" },
   ],
-  "DE": [
+  DE: [
     { value: "BW", label: "Baden-Württemberg" },
     { value: "BY", label: "Bavaria" },
     { value: "BE", label: "Berlin" },
@@ -179,8 +213,8 @@ const statesByCountry: Record<string, Array<{ value: string; label: string }>> =
     { value: "SN", label: "Saxony" },
     { value: "ST", label: "Saxony-Anhalt" },
     { value: "SH", label: "Schleswig-Holstein" },
-    { value: "TH", label: "Thuringia" }
-  ]
+    { value: "TH", label: "Thuringia" },
+  ],
 };
 
 const countries = [
@@ -382,16 +416,32 @@ const countries = [
 ];
 
 const relationships = [
-  { value: "spouse", label: "Spouse" },
-  { value: "parent", label: "Parent" },
-  { value: "child", label: "Child" },
-  { value: "sibling", label: "Sibling" },
-  { value: "grandparent", label: "Grandparent" },
-  { value: "grandchild", label: "Grandchild" },
-  { value: "aunt", label: "Aunt" },
-  { value: "uncle", label: "Uncle" },
-  { value: "cousin", label: "Cousin" },
-  { value: "other", label: "Other" },
+  { value: "Father", label: "Father" },
+  { value: "Mother", label: "Mother" },
+  { value: "Wife", label: "Wife" },
+  { value: "Husband", label: "Husband" },
+  { value: "Son", label: "Son" },
+  { value: "Daughter", label: "Daughter" },
+  { value: "Brother", label: "Brother" },
+  { value: "Sister", label: "Sister" },
+  { value: "Step-Brother", label: "Step-Brother" },
+  { value: "Step-Sister", label: "Step-Sister" },
+  { value: "Paternal Grandfather", label: "Paternal Grandfather" },
+  { value: "Paternal Grandmother", label: "Paternal Grandmother" },
+  { value: "Maternal Grandfather", label: "Maternal Grandfather" },
+  { value: "Maternal Grandmother", label: "Maternal Grandmother" },
+  { value: "Grand Daugher", label: "Grand Daugher" },
+  { value: "Grand Son", label: "Grand Son" },
+  { value: "Nephew", label: "Nephew" },
+  { value: "Niece", label: "Niece" },
+  { value: "Mother-in-Law", label: "Mother-in-Law" },
+  { value: "Father-in-Law", label: "Father-in-Law" },
+  { value: "Brother-in-Law", label: "Brother-in-Law" },
+  { value: "Sister-in-Law", label: "Father-in-Law" },
+  { value: "Aunt", label: "Aunt" },
+  { value: "Uncle", label: "Uncle" },
+  { value: "Cousin", label: "Cousin" },
+  { value: "Other", label: "Other" },
 ];
 
 export default function Registry() {
@@ -401,7 +451,9 @@ export default function Registry() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedRelative, setSelectedRelative] = useState<Member | null>(null);
   const [selectedRelationship, setSelectedRelationship] = useState("");
-  const [linkedRelatives, setLinkedRelatives] = useState<Array<{ member: Member; relationship: string }>>([]);
+  const [linkedRelatives, setLinkedRelatives] = useState<
+    Array<{ member: Member; relationship: string }>
+  >([]);
   const [selectedMember, setSelectedMember] = useState<Member | null>(null);
   const [selectedMaritalStatus, setSelectedMaritalStatus] = useState("");
   const [selectedBirthCountry, setSelectedBirthCountry] = useState("");
@@ -445,7 +497,10 @@ export default function Registry() {
       // Include temple selection
       const memberData = {
         ...data,
-        templeId: selectedTemple && selectedTemple !== "none" ? parseInt(selectedTemple) : null,
+        templeId:
+          selectedTemple && selectedTemple !== "none"
+            ? parseInt(selectedTemple)
+            : null,
       };
       delete memberData.selectedTemple; // Remove from the payload
       const response = await apiRequest("POST", "/api/members", memberData);
@@ -460,7 +515,7 @@ export default function Registry() {
           relationshipType: relationship,
         });
       }
-      
+
       queryClient.invalidateQueries({ queryKey: ["/api/members"] });
       setShowSuccessModal(true);
       form.reset();
@@ -481,9 +536,14 @@ export default function Registry() {
   const handleAddRelationship = () => {
     if (selectedRelative && selectedRelationship) {
       // Check if this relationship already exists
-      const exists = linkedRelatives.some(rel => rel.member.id === selectedRelative.id);
+      const exists = linkedRelatives.some(
+        (rel) => rel.member.id === selectedRelative.id,
+      );
       if (!exists) {
-        setLinkedRelatives([...linkedRelatives, { member: selectedRelative, relationship: selectedRelationship }]);
+        setLinkedRelatives([
+          ...linkedRelatives,
+          { member: selectedRelative, relationship: selectedRelationship },
+        ]);
         setSelectedRelative(null);
         setSelectedRelationship("");
         setSearchTerm("");
@@ -494,7 +554,8 @@ export default function Registry() {
       } else {
         toast({
           title: "Already Added",
-          description: "This family member is already in your relationships list.",
+          description:
+            "This family member is already in your relationships list.",
           variant: "destructive",
         });
       }
@@ -502,8 +563,12 @@ export default function Registry() {
   };
 
   const handleRemoveRelationship = (memberId: number) => {
-    const removedMember = linkedRelatives.find(rel => rel.member.id === memberId);
-    setLinkedRelatives(linkedRelatives.filter(rel => rel.member.id !== memberId));
+    const removedMember = linkedRelatives.find(
+      (rel) => rel.member.id === memberId,
+    );
+    setLinkedRelatives(
+      linkedRelatives.filter((rel) => rel.member.id !== memberId),
+    );
     if (removedMember) {
       toast({
         title: "Relative Removed",
@@ -514,28 +579,32 @@ export default function Registry() {
 
   const onSubmit = (data: RegistrationData) => {
     // Clear autosave data before submitting
-    localStorage.removeItem('registry-form-draft');
+    localStorage.removeItem("registry-form-draft");
     registrationMutation.mutate(data);
   };
 
   // Auto-save functionality
   const handleAutoSave = () => {
     const formData = form.getValues();
-    localStorage.setItem('registry-form-draft', JSON.stringify({
-      ...formData,
-      linkedRelatives,
-      timestamp: new Date().toISOString()
-    }));
+    localStorage.setItem(
+      "registry-form-draft",
+      JSON.stringify({
+        ...formData,
+        linkedRelatives,
+        timestamp: new Date().toISOString(),
+      }),
+    );
   };
 
   // Load draft data on component mount
   useEffect(() => {
-    const savedDraft = localStorage.getItem('registry-form-draft');
+    const savedDraft = localStorage.getItem("registry-form-draft");
     if (savedDraft) {
       try {
         const draftData = JSON.parse(savedDraft);
         // Only restore if less than 24 hours old
-        const draftAge = new Date().getTime() - new Date(draftData.timestamp).getTime();
+        const draftAge =
+          new Date().getTime() - new Date(draftData.timestamp).getTime();
         if (draftAge < 24 * 60 * 60 * 1000) {
           form.reset(draftData);
           setLinkedRelatives(draftData.linkedRelatives || []);
@@ -559,23 +628,35 @@ export default function Registry() {
     setLocation("/");
   };
 
+  // Auto-populate family relationships based on selected member
+  const autoPopulateRelationships = (member: Member) => {
+    // This function can be used to auto-populate relationships
+    // based on the selected member's family information
+    console.log("Auto-populating relationships for:", member.fullName);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-temple-cream to-saffron-50 py-12">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <Card className="shadow-xl border border-temple-gold/20 overflow-hidden">
           <div className="bg-gradient-to-r from-saffron-500 to-temple-gold p-8 text-center">
-            <h2 className="text-3xl font-bold text-white mb-2">{t('common.communityRegistry')}</h2>
-            <p className="text-saffron-100">{t('common.joinTempleFamily')}</p>
+            <h2 className="text-3xl font-bold text-white mb-2">
+              {t("common.communityRegistry")}
+            </h2>
+            <p className="text-saffron-100">{t("common.joinTempleFamily")}</p>
           </div>
 
           <CardContent className="p-8">
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-8"
+              >
                 {/* Personal Information */}
                 <div className="border-l-4 border-temple-gold pl-6">
                   <h3 className="text-xl font-semibold text-temple-brown mb-6 flex items-center">
                     <User className="text-temple-gold mr-3" size={24} />
-                    {t('common.personalInformation')}
+                    {t("common.personalInformation")}
                   </h3>
                   <div className="grid md:grid-cols-2 gap-6">
                     <FormField
@@ -585,9 +666,9 @@ export default function Registry() {
                         <FormItem>
                           <FormLabel>Full Name *</FormLabel>
                           <FormControl>
-                            <Input 
-                              placeholder="Enter your full name" 
-                              {...field} 
+                            <Input
+                              placeholder="Enter your full name"
+                              {...field}
                               onBlur={(e) => {
                                 field.onBlur(e);
                                 handleAutoSave();
@@ -605,9 +686,9 @@ export default function Registry() {
                         <FormItem>
                           <FormLabel>Phone Number *</FormLabel>
                           <FormControl>
-                            <Input 
-                              placeholder="+1 (555) 123-4567" 
-                              {...field} 
+                            <Input
+                              placeholder="+1 (555) 123-4567"
+                              {...field}
                               onBlur={(e) => {
                                 field.onBlur(e);
                                 handleAutoSave();
@@ -623,12 +704,13 @@ export default function Registry() {
                       name="email"
                       render={({ field }) => (
                         <FormItem className="md:col-span-2">
-                          <FormLabel>Email Address *</FormLabel>
+                          <FormLabel>Email Address</FormLabel>
                           <FormControl>
-                            <Input 
-                              type="email" 
-                              placeholder="your.email@example.com" 
-                              {...field} 
+                            <Input
+                              type="email"
+                              placeholder="your.email@example.com (optional)"
+                              {...field}
+                              value={field.value || ""}
                               onBlur={(e) => {
                                 field.onBlur(e);
                                 handleAutoSave();
@@ -655,11 +737,14 @@ export default function Registry() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Country *</FormLabel>
-                          <Select onValueChange={(value) => {
-                            field.onChange(value);
-                            setSelectedBirthCountry(value);
-                            form.setValue("birthState", "");
-                          }} defaultValue={field.value}>
+                          <Select
+                            onValueChange={(value) => {
+                              field.onChange(value);
+                              setSelectedBirthCountry(value);
+                              form.setValue("birthState", "");
+                            }}
+                            defaultValue={field.value}
+                          >
                             <FormControl>
                               <SelectTrigger>
                                 <SelectValue placeholder="Select Country" />
@@ -667,7 +752,10 @@ export default function Registry() {
                             </FormControl>
                             <SelectContent>
                               {countries.map((country) => (
-                                <SelectItem key={country.value} value={country.value}>
+                                <SelectItem
+                                  key={country.value}
+                                  value={country.value}
+                                >
                                   {country.label}
                                 </SelectItem>
                               ))}
@@ -683,21 +771,43 @@ export default function Registry() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>State/Province *</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value} disabled={!selectedBirthCountry || !statesByCountry[selectedBirthCountry]}>
+                          <Select
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                            disabled={
+                              !selectedBirthCountry ||
+                              !statesByCountry[selectedBirthCountry]
+                            }
+                          >
                             <FormControl>
                               <SelectTrigger>
-                                <SelectValue placeholder={selectedBirthCountry ? "Select State" : "Select Country first"} />
+                                <SelectValue
+                                  placeholder={
+                                    selectedBirthCountry
+                                      ? "Select State"
+                                      : "Select Country first"
+                                  }
+                                />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              {selectedBirthCountry && statesByCountry[selectedBirthCountry] ? 
-                                statesByCountry[selectedBirthCountry].map((state) => (
-                                  <SelectItem key={state.value} value={state.value}>
-                                    {state.label}
-                                  </SelectItem>
-                                )) : 
-                                <SelectItem value="none" disabled>No states available</SelectItem>
-                              }
+                              {selectedBirthCountry &&
+                              statesByCountry[selectedBirthCountry] ? (
+                                statesByCountry[selectedBirthCountry].map(
+                                  (state) => (
+                                    <SelectItem
+                                      key={state.value}
+                                      value={state.value}
+                                    >
+                                      {state.label}
+                                    </SelectItem>
+                                  ),
+                                )
+                              ) : (
+                                <SelectItem value="none" disabled>
+                                  No states available
+                                </SelectItem>
+                              )}
                             </SelectContent>
                           </Select>
                           <FormMessage />
@@ -733,11 +843,14 @@ export default function Registry() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Country *</FormLabel>
-                          <Select onValueChange={(value) => {
-                            field.onChange(value);
-                            setSelectedCurrentCountry(value);
-                            form.setValue("currentState", "");
-                          }} defaultValue={field.value}>
+                          <Select
+                            onValueChange={(value) => {
+                              field.onChange(value);
+                              setSelectedCurrentCountry(value);
+                              form.setValue("currentState", "");
+                            }}
+                            defaultValue={field.value}
+                          >
                             <FormControl>
                               <SelectTrigger>
                                 <SelectValue placeholder="Select Country" />
@@ -745,7 +858,10 @@ export default function Registry() {
                             </FormControl>
                             <SelectContent>
                               {countries.map((country) => (
-                                <SelectItem key={country.value} value={country.value}>
+                                <SelectItem
+                                  key={country.value}
+                                  value={country.value}
+                                >
                                   {country.label}
                                 </SelectItem>
                               ))}
@@ -761,21 +877,43 @@ export default function Registry() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>State/Province *</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value} disabled={!selectedCurrentCountry || !statesByCountry[selectedCurrentCountry]}>
+                          <Select
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                            disabled={
+                              !selectedCurrentCountry ||
+                              !statesByCountry[selectedCurrentCountry]
+                            }
+                          >
                             <FormControl>
                               <SelectTrigger>
-                                <SelectValue placeholder={selectedCurrentCountry ? "Select State" : "Select Country first"} />
+                                <SelectValue
+                                  placeholder={
+                                    selectedCurrentCountry
+                                      ? "Select State"
+                                      : "Select Country first"
+                                  }
+                                />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              {selectedCurrentCountry && statesByCountry[selectedCurrentCountry] ? 
-                                statesByCountry[selectedCurrentCountry].map((state) => (
-                                  <SelectItem key={state.value} value={state.value}>
-                                    {state.label}
-                                  </SelectItem>
-                                )) : 
-                                <SelectItem value="none" disabled>No states available</SelectItem>
-                              }
+                              {selectedCurrentCountry &&
+                              statesByCountry[selectedCurrentCountry] ? (
+                                statesByCountry[selectedCurrentCountry].map(
+                                  (state) => (
+                                    <SelectItem
+                                      key={state.value}
+                                      value={state.value}
+                                    >
+                                      {state.label}
+                                    </SelectItem>
+                                  ),
+                                )
+                              ) : (
+                                <SelectItem value="none" disabled>
+                                  No states available
+                                </SelectItem>
+                              )}
                             </SelectContent>
                           </Select>
                           <FormMessage />
@@ -804,7 +942,7 @@ export default function Registry() {
                     <Users className="text-temple-gold mr-3" size={24} />
                     Family Information
                   </h3>
-                  
+
                   <div className="grid md:grid-cols-3 gap-6 mb-6">
                     <FormField
                       control={form.control}
@@ -813,7 +951,10 @@ export default function Registry() {
                         <FormItem>
                           <FormLabel>Father's Name *</FormLabel>
                           <FormControl>
-                            <Input placeholder="Father's full name" {...field} />
+                            <Input
+                              placeholder="Father's full name"
+                              {...field}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -826,45 +967,32 @@ export default function Registry() {
                         <FormItem>
                           <FormLabel>Mother's Name *</FormLabel>
                           <FormControl>
-                            <Input placeholder="Mother's full name" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="spouseName"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Spouse Name</FormLabel>
-                          <FormControl>
-                            <Input 
-                              placeholder="Spouse's full name" 
-                              {...field} 
-                              disabled={selectedMaritalStatus !== "Married"}
+                            <Input
+                              placeholder="Mother's full name"
+                              {...field}
                             />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
-                  </div>
 
-                  <div className="grid md:grid-cols-2 gap-6 mb-6">
                     <FormField
                       control={form.control}
                       name="maritalStatus"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Marital Status *</FormLabel>
-                          <Select onValueChange={(value) => {
-                            field.onChange(value);
-                            setSelectedMaritalStatus(value);
-                            if (value !== "Married") {
-                              form.setValue("spouseName", "");
-                            }
-                          }} defaultValue={field.value}>
+                          <Select
+                            onValueChange={(value) => {
+                              field.onChange(value);
+                              setSelectedMaritalStatus(value);
+                              if (value !== "Married") {
+                                form.setValue("spouseName", "");
+                              }
+                            }}
+                            defaultValue={field.value}
+                          >
                             <FormControl>
                               <SelectTrigger>
                                 <SelectValue placeholder="Select marital status" />
@@ -881,19 +1009,37 @@ export default function Registry() {
                         </FormItem>
                       )}
                     />
-
+                  </div>
+                  <div className="grid md:grid-cols-2 gap-6 mb-6">
+                    <FormField
+                      control={form.control}
+                      name="spouseName"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Spouse Name</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="Spouse's full name"
+                              {...field}
+                              disabled={selectedMaritalStatus !== "Married"}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                     <FormField
                       control={form.control}
                       name="selectedTemple"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Select Temple (Optional)</FormLabel>
-                          <Select 
+                          <Select
                             onValueChange={(value) => {
                               field.onChange(value);
                               setSelectedTemple(value);
                               handleAutoSave();
-                            }} 
+                            }}
                             defaultValue={field.value}
                           >
                             <FormControl>
@@ -902,10 +1048,16 @@ export default function Registry() {
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              <SelectItem value="none">No temple selected</SelectItem>
+                              <SelectItem value="none">
+                                No temple selected
+                              </SelectItem>
                               {temples.map((temple: any) => (
-                                <SelectItem key={temple.id} value={temple.id.toString()}>
-                                  {temple.templeName} - {temple.village}, {temple.state}
+                                <SelectItem
+                                  key={temple.id}
+                                  value={temple.id.toString()}
+                                >
+                                  {temple.templeName} - {temple.village},{" "}
+                                  {temple.state}
                                 </SelectItem>
                               ))}
                             </SelectContent>
@@ -915,36 +1067,6 @@ export default function Registry() {
                       )}
                     />
                   </div>
-
-                  <FormField
-                    control={form.control}
-                    name="maritalStatus"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Marital Status *</FormLabel>
-                        <Select onValueChange={(value) => {
-                          field.onChange(value);
-                          setSelectedMaritalStatus(value);
-                          if (value !== "Married") {
-                            form.setValue("spouseName", "");
-                          }
-                        }} defaultValue={field.value}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select marital status" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="Single">Single</SelectItem>
-                            <SelectItem value="Married">Married</SelectItem>
-                            <SelectItem value="Divorced">Divorced</SelectItem>
-                            <SelectItem value="Widowed">Widowed</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
                 </div>
 
                 {/* Family Relationships */}
@@ -953,12 +1075,14 @@ export default function Registry() {
                     <LinkIcon className="text-temple-crimson mr-3" size={24} />
                     Family Relationships
                   </h3>
-                  
+
                   {/* Auto-populate notice */}
                   {selectedMember && (
                     <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
                       <p className="text-sm text-blue-800">
-                        <strong>{selectedMember.fullName}</strong> selected. Family relationships will be auto-populated when this member is added.
+                        <strong>{selectedMember.fullName}</strong> selected.
+                        Family relationships will be auto-populated when this
+                        member is added.
                       </p>
                     </div>
                   )}
@@ -966,7 +1090,9 @@ export default function Registry() {
                     <CardContent className="p-6">
                       <div className="grid md:grid-cols-2 gap-6">
                         <div>
-                          <Label className="block text-sm font-medium text-gray-700 mb-2">Search Relative</Label>
+                          <Label className="block text-sm font-medium text-gray-700 mb-2">
+                            Search Relative
+                          </Label>
                           <div className="relative">
                             <Input
                               placeholder="Type name to search..."
@@ -974,34 +1100,50 @@ export default function Registry() {
                               onChange={(e) => setSearchTerm(e.target.value)}
                               className="pr-10"
                             />
-                            <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
+                            <Search
+                              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                              size={16}
+                            />
                           </div>
-                          {searchResults.length > 0 && searchTerm.length > 2 && (
-                            <div className="mt-2 bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto">
-                              {searchResults.map((member: Member) => (
-                                <button
-                                  key={member.id}
-                                  type="button"
-                                  onClick={() => {
-                                    setSelectedRelative(member);
-                                    setSelectedMember(member); // Set for auto-population
-                                    setSearchTerm(member.fullName);
-                                    // Auto-populate family relationships
-                                    autoPopulateRelationships(member);
-                                  }}
-                                  className="w-full text-left px-4 py-2 hover:bg-saffron-50 border-b border-gray-100 last:border-b-0 transition-colors"
-                                >
-                                  <div className="font-bold text-temple-brown text-lg">{member.fullName}</div>
-                                  <div className="text-sm text-gray-600">{member.email}</div>
-                                  <div className="text-xs text-gray-500">{member.currentCity}, {member.currentState}</div>
-                                </button>
-                              ))}
-                            </div>
-                          )}
+                          {searchResults.length > 0 &&
+                            searchTerm.length > 2 && (
+                              <div className="mt-2 bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                                {searchResults.map((member: Member) => (
+                                  <button
+                                    key={member.id}
+                                    type="button"
+                                    onClick={() => {
+                                      setSelectedRelative(member);
+                                      setSelectedMember(member); // Set for auto-population
+                                      setSearchTerm(member.fullName);
+                                      // Auto-populate family relationships
+                                      autoPopulateRelationships(member);
+                                    }}
+                                    className="w-full text-left px-4 py-2 hover:bg-saffron-50 border-b border-gray-100 last:border-b-0 transition-colors"
+                                  >
+                                    <div className="font-bold text-temple-brown text-lg">
+                                      {member.fullName}
+                                    </div>
+                                    <div className="text-sm text-gray-600">
+                                      {member.email}
+                                    </div>
+                                    <div className="text-xs text-gray-500">
+                                      {member.currentCity},{" "}
+                                      {member.currentState}
+                                    </div>
+                                  </button>
+                                ))}
+                              </div>
+                            )}
                         </div>
                         <div>
-                          <Label className="block text-sm font-medium text-gray-700 mb-2">Relationship</Label>
-                          <Select value={selectedRelationship} onValueChange={setSelectedRelationship}>
+                          <Label className="block text-sm font-medium text-gray-700 mb-2">
+                            Relationship
+                          </Label>
+                          <Select
+                            value={selectedRelationship}
+                            onValueChange={setSelectedRelationship}
+                          >
                             <SelectTrigger>
                               <SelectValue placeholder="Select Relationship" />
                             </SelectTrigger>
@@ -1026,24 +1168,37 @@ export default function Registry() {
                         </Button>
                       </div>
                       <div className="mt-6">
-                        <h4 className="font-medium text-gray-700 mb-3">Linked Relatives:</h4>
+                        <h4 className="font-medium text-gray-700 mb-3">
+                          Linked Relatives:
+                        </h4>
                         <div className="space-y-2">
                           {linkedRelatives.length === 0 ? (
                             <div className="flex items-center justify-between bg-white p-3 rounded border">
-                              <span className="text-gray-700">No relatives linked yet</span>
+                              <span className="text-gray-700">
+                                No relatives linked yet
+                              </span>
                             </div>
                           ) : (
                             linkedRelatives.map((rel, index) => (
-                              <div key={index} className="flex items-center justify-between bg-white p-3 rounded border">
+                              <div
+                                key={index}
+                                className="flex items-center justify-between bg-white p-3 rounded border"
+                              >
                                 <div>
-                                  <span className="font-medium">{rel.member.fullName}</span>
-                                  <span className="text-gray-500 ml-2">({rel.relationship})</span>
+                                  <span className="font-medium">
+                                    {rel.member.fullName}
+                                  </span>
+                                  <span className="text-gray-500 ml-2">
+                                    ({rel.relationship})
+                                  </span>
                                 </div>
                                 <Button
                                   type="button"
                                   variant="ghost"
                                   size="sm"
-                                  onClick={() => handleRemoveRelationship(rel.member.id)}
+                                  onClick={() =>
+                                    handleRemoveRelationship(rel.member.id)
+                                  }
                                   className="text-red-600 hover:text-red-800"
                                 >
                                   <X size={16} />
@@ -1091,7 +1246,8 @@ export default function Registry() {
               Registration Successful!
             </DialogTitle>
             <DialogDescription className="text-gray-600">
-              Welcome to our temple community. Your profile has been created successfully.
+              Welcome to our temple community. Your profile has been created
+              successfully.
             </DialogDescription>
           </DialogHeader>
           <Button

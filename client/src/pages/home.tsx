@@ -84,10 +84,33 @@ export default function Home() {
     queryKey: ["/api/temples"],
   });
 
-  const totalMembers = (members as any[]).length;
-  const totalFamilies = Math.ceil(totalMembers / 3.6); // Approximate families
-  const annualEvents = 48;
-  const volunteers = Math.ceil(totalMembers * 0.125);
+  // Calculate temple-specific statistics
+  const getTempleStatistics = () => {
+    if (!selectedTemple) {
+      // Show all members when no temple is selected
+      const totalMembers = (members as any[]).length;
+      return {
+        totalMembers,
+        totalFamilies: Math.ceil(totalMembers / 3.6),
+        annualEvents: 48,
+        volunteers: Math.ceil(totalMembers * 0.125)
+      };
+    } else {
+      // Show only members with selected temple as Primary Temple
+      const templeMembers = (members as any[]).filter((member: any) => 
+        member.templeId === selectedTemple.id
+      );
+      const templeMemberCount = templeMembers.length;
+      return {
+        totalMembers: templeMemberCount,
+        totalFamilies: Math.ceil(templeMemberCount / 3.6),
+        annualEvents: 48,
+        volunteers: Math.ceil(templeMemberCount * 0.125)
+      };
+    }
+  };
+
+  const { totalMembers, totalFamilies, annualEvents, volunteers } = getTempleStatistics();
 
   // Update page title when temple is selected
   useEffect(() => {

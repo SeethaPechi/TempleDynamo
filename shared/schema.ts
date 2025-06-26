@@ -6,7 +6,7 @@ export const members = pgTable("members", {
   id: serial("id").primaryKey(),
   fullName: text("full_name").notNull(),
   phone: text("phone").notNull(),
-  email: text("email").notNull(),
+  email: text("email"),
   birthCity: text("birth_city").notNull(),
   birthState: text("birth_state").notNull(),
   birthCountry: text("birth_country").notNull(),
@@ -34,6 +34,7 @@ export const insertMemberSchema = createInsertSchema(members).omit({
 }).extend({
   maritalStatus: z.enum(["Single", "Married", "Divorced", "Widowed"]),
   templeId: z.number().optional().nullable(),
+  email: z.string().optional().nullable(),
 });
 
 export const insertRelationshipSchema = createInsertSchema(relationships).omit({
