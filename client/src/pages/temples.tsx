@@ -519,16 +519,27 @@ export default function Temples() {
     },
   });
 
-  // Auto-save helper function
+  // Auto-save and auto-submit
+  const [autoSubmitTimer, setAutoSubmitTimer] = useState<NodeJS.Timeout | null>(null);
+
   const autoSaveFormData = () => {
-    console.log('Auto-save triggered');
     if (selectedTemple) {
       const formData = form.getValues();
-      console.log('Saving form data:', formData);
+      
+      // Save to localStorage immediately
       localStorage.setItem(`temple_edit_${selectedTemple.id}`, JSON.stringify(formData));
-      console.log('Data saved to localStorage');
-    } else {
-      console.log('No selected temple for auto-save');
+      
+      // Clear existing timer
+      if (autoSubmitTimer) {
+        clearTimeout(autoSubmitTimer);
+      }
+      
+      // Auto-submit after 3 seconds of no changes
+      const timer = setTimeout(() => {
+        updateTempleMutation.mutate(formData);
+      }, 3000);
+      
+      setAutoSubmitTimer(timer);
     }
   };
 
@@ -556,12 +567,12 @@ export default function Temples() {
           nearestCity: selectedTemple.nearestCity || '',
           state: selectedTemple.state || '',
           country: selectedTemple.country || '',
-          establishedYear: selectedTemple.establishedYear || '',
+          establishedYear: selectedTemple.establishedYear || 0,
           contactPhone: selectedTemple.contactPhone || '',
           contactEmail: selectedTemple.contactEmail || '',
           description: selectedTemple.description || '',
           templeImage: selectedTemple.templeImage || '',
-          googleMapsLink: selectedTemple.googleMapsLink || '',
+          googleMapLink: selectedTemple.googleMapLink || '',
           websiteLink: selectedTemple.websiteLink || '',
           wikiLink: selectedTemple.wikiLink || ''
         });
@@ -569,12 +580,17 @@ export default function Temples() {
     }
   }, [isEditModalOpen, selectedTemple, form]);
 
-  // Clear saved data on successful update
+  // Clear saved data on successful update and cleanup timer
   useEffect(() => {
     if (!isEditModalOpen && selectedTemple) {
       localStorage.removeItem(`temple_edit_${selectedTemple.id}`);
+      // Clear auto-submit timer when modal closes
+      if (autoSubmitTimer) {
+        clearTimeout(autoSubmitTimer);
+        setAutoSubmitTimer(null);
+      }
     }
-  }, [isEditModalOpen, selectedTemple]);
+  }, [isEditModalOpen, selectedTemple, autoSubmitTimer]);
 
   // Handler functions
   const handleEditTemple = (temple: Temple) => {
