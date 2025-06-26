@@ -189,12 +189,11 @@ export default function FamilyTree() {
           <div className="flex items-center justify-center mb-6">
             <TreePine className="text-temple-brown mr-4" size={48} />
             <h1 className="text-4xl font-bold text-temple-brown">
-              Family Tree
+              {t('familyTree.title')}
             </h1>
           </div>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Explore family connections and relationships within our temple
-            community
+            {t('familyTree.subtitle')}
           </p>
         </div>
 
@@ -203,29 +202,29 @@ export default function FamilyTree() {
             <TabsList className="grid grid-cols-5 w-full max-w-4xl">
               <TabsTrigger value="explorer" className="flex items-center gap-2">
                 <Search size={16} />
-                Explorer
+                {t('familyTree.selectMember')}
               </TabsTrigger>
               <TabsTrigger value="table" className="flex items-center gap-2">
                 <Users size={16} />
-                Relationships
+                {t('familyTree.directRelationships')}
               </TabsTrigger>
               <TabsTrigger
                 value="comprehensive"
                 className="flex items-center gap-2"
               >
                 <Heart size={16} />
-                All Relations
+                {t('familyTree.allRelations')}
               </TabsTrigger>
               <TabsTrigger value="network" className="flex items-center gap-2">
                 <Network size={16} />
-                Network
+                {t('familyTree.familyNetworkAnalysis')}
               </TabsTrigger>
               <TabsTrigger
                 value="analytics"
                 className="flex items-center gap-2"
               >
                 <BarChart3 size={16} />
-                Analytics
+                {t('familyTree.familyNetworkAnalysis')}
               </TabsTrigger>
             </TabsList>
           </div>
@@ -236,13 +235,13 @@ export default function FamilyTree() {
               <div className="lg:col-span-1">
                 <Card className="p-6 sticky top-8">
                   <h3 className="text-lg font-semibold text-temple-brown mb-4">
-                    Search Members
+                    {t('familyTree.searchMember')}
                   </h3>
                   <div className="space-y-4">
                     <div className="relative">
                       <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                       <Input
-                        placeholder="Search by name..."
+                        placeholder={t('familyTree.searchPlaceholder')}
                         value={searchTerm}
                         onChange={(e) => {
                           setSearchTerm(e.target.value);
