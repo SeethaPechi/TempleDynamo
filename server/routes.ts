@@ -327,23 +327,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/temples/:id", async (req, res) => {
-    try {
-      const id = parseInt(req.params.id);
-      if (isNaN(id)) {
-        return res.status(400).json({ message: "Invalid temple ID" });
-      }
-
-      await storage.deleteTemple(id);
-      res.json({ message: "Temple deleted successfully" });
-    } catch (error) {
-      if (error.message === "Temple not found") {
-        return res.status(404).json({ message: "Temple not found" });
-      }
-      res.status(500).json({ message: "Failed to delete temple" });
-    }
-  });
-
   const httpServer = createServer(app);
   return httpServer;
 }

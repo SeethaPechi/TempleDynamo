@@ -19,7 +19,6 @@ import {
   Edit,
   Phone,
   Mail,
-  Trash2,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useState, useEffect } from "react";
@@ -48,16 +47,6 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Upload, X } from "lucide-react";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 
 const templeEditSchema = z.object({
   templeName: z.string().min(2, "Temple name must be at least 2 characters"),
@@ -83,7 +72,6 @@ export default function Home() {
   const { t } = useTranslation();
   const [selectedTemple, setSelectedTemple] = useState<Temple | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -97,10 +85,11 @@ export default function Home() {
   });
 
   const totalMembers = (members as any[]).length;
-  const totalFamilies = Math.ceil(totalMembers / 3.6);
+  const totalFamilies = Math.ceil(totalMembers / 3.6); // Approximate families
   const annualEvents = 48;
   const volunteers = Math.ceil(totalMembers * 0.125);
 
+  // Update page title when temple is selected
   useEffect(() => {
     if (selectedTemple) {
       document.title = `${selectedTemple.templeName} - Temple Dynamo`;
@@ -126,6 +115,7 @@ export default function Home() {
     },
   });
 
+  // Temple update mutation
   const updateTempleMutation = useMutation({
     mutationFn: async (data: TempleEditData) => {
       if (!selectedTemple) throw new Error("No temple selected");
@@ -143,29 +133,6 @@ export default function Home() {
       toast({
         title: "Update Failed",
         description: error.message || "Failed to update temple details",
-        variant: "destructive",
-      });
-    },
-  });
-
-  const deleteTempleMutation = useMutation({
-    mutationFn: async () => {
-      if (!selectedTemple) throw new Error("No temple selected");
-      return await apiRequest("DELETE", `/api/temples/${selectedTemple.id}`);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/temples"] });
-      setIsDeleteModalOpen(false);
-      setSelectedTemple(null);
-      toast({
-        title: "Temple Deleted",
-        description: "Temple has been successfully removed.",
-      });
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Delete Failed",
-        description: error.message || "Failed to delete temple",
         variant: "destructive",
       });
     },
@@ -206,6 +173,7 @@ export default function Home() {
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
+      // Check file size (limit to 5MB)
       if (file.size > 5 * 1024 * 1024) {
         toast({
           title: "Error",
@@ -219,11 +187,13 @@ export default function Home() {
       reader.onload = (e) => {
         const imageData = e.target?.result as string;
 
+        // Create canvas to resize image
         const img = new Image();
         img.onload = () => {
           const canvas = document.createElement("canvas");
           const ctx = canvas.getContext("2d");
 
+          // Calculate new dimensions (max 800px width/height)
           const maxSize = 800;
           let { width, height } = img;
 
@@ -242,6 +212,7 @@ export default function Home() {
           canvas.width = width;
           canvas.height = height;
 
+          // Draw and compress
           ctx?.drawImage(img, 0, 0, width, height);
           const compressedImage = canvas.toDataURL("image/jpeg", 0.8);
 
@@ -256,198 +227,238 @@ export default function Home() {
 
   const onSubmit = (data: TempleEditData) => {
     if (!selectedTemple) return;
-    updateTempleMutation.mutate(data);
+    updateMutation.mutate({ ...data, id: selectedTemple.id });
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-temple-cream to-saffron-50">
-      {/* Temple Selection - Always on Top */}
-      <div className="relative z-50 bg-gradient-to-r from-temple-brown to-saffron-900 shadow-lg">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex items-center justify-center space-x-3 mb-4">
-            <Building className="text-temple-gold" size={24} />
-            <span className="text-xl font-semibold text-white">
-              {t("home.selectTemple")}
-            </span>
-          </div>
-          <div className="max-w-md mx-auto">
-            <Select onValueChange={handleTempleSelect}>
-              <SelectTrigger className="w-full bg-white/95 border-temple-gold focus:ring-temple-gold h-12 text-lg">
-                <SelectValue placeholder={t("home.chooseTemple")} />
-              </SelectTrigger>
-              <SelectContent className="z-[60]">
-                <SelectItem value="reset">{t("home.allTemples")}</SelectItem>
-                {(temples as Temple[]).map((temple: Temple) => (
-                  <SelectItem key={temple.id} value={temple.id.toString()}>
-                    {temple.templeName} - {temple.village}, {temple.state}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+      {/* Hero Section */}
+      <div className="relative h-96 overflow-hidden">
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{
+            backgroundImage:
+              "url('https://images.unsplash.com/photo-1544181485-7bb30de57dd8?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')",
+          }}
+        >
+          <div className="absolute inset-0 bg-gradient-to-r from-temple-brown/70 to-saffron-900/50"></div>
         </div>
-      </div>
+        <div className="relative h-full flex items-center justify-center text-center px-4">
+          <div className="max-w-4xl mx-auto">
+            <h1 className="text-5xl md:text-6xl font-bold text-white mb-4">
+              🕉️{" "}
+              {selectedTemple
+                ? `Welcome to Our ${selectedTemple.templeName}`
+                : t("home.title")}
+            </h1>
+            <p className="text-xl md:text-2xl text-temple-cream mb-8">
+              {selectedTemple
+                ? selectedTemple.description ||
+                  "Experience the divine presence in our sacred temple where tradition meets spirituality."
+                : t("home.subtitle")}
+            </p>
 
-      {/* Welcome Header */}
-      <div className="relative bg-gradient-to-br from-saffron-100 to-temple-cream py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-4xl md:text-5xl font-bold text-temple-brown mb-4">
-            🕉️{" "}
-            {selectedTemple
-              ? `${t("home.welcomeTo")} ${selectedTemple.templeName}`
-              : t("home.title")}
-          </h1>
-          <p className="text-lg md:text-xl text-gray-700 max-w-3xl mx-auto mb-8">
-            {selectedTemple
-              ? selectedTemple.description ||
-                t("home.templeDescription")
-              : t("home.subtitle")}
-          </p>
-          
-          <Link href="/registry">
-            <Button className="bg-temple-gold hover:bg-yellow-500 text-temple-brown font-semibold px-8 py-3 rounded-full transition-all transform hover:scale-105 shadow-lg">
-              {t("home.getStarted")}
-            </Button>
-          </Link>
-        </div>
-      </div>
-
-      {/* Temple Information Display */}
-      {selectedTemple && (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <Card className="bg-white/95 border-temple-gold/30 shadow-xl">
-            <CardContent className="p-8">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {/* Temple Image */}
-                <div className="flex justify-center">
-                  {selectedTemple.templeImage ? (
-                    <div className="relative w-full max-w-md mx-auto">
-                      <img
-                        src={selectedTemple.templeImage}
-                        alt={selectedTemple.templeName}
-                        className="w-full h-64 object-cover rounded-lg shadow-md border-2 border-temple-gold/20"
-                        style={{ maxWidth: "400px" }}
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          target.src =
-                            "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDQwMCAzMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iMzAwIiBmaWxsPSIjRkZGN0VEIi8+CjxwYXRoIGQ9Ik0yMDAgNzVMMjUwIDEyNUgxNTBMMjAwIDc1WiIgZmlsbD0iI0Q5NzcwNiIvPgo8cmVjdCB4PSIxNzAiIHk9IjEyNSIgd2lkdGg9IjYwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iI0Q5NzcwNiIvPgo8Y2lyY2xlIGN4PSIyMDAiIGN5PSIxNjAiIHI9IjE1IiBmaWxsPSIjRkJFRjNGIi8+Cjx0ZXh0IHg9IjIwMCIgeT0iMjUwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTYiIGZpbGw9IiM5MjQwMEQiPlRlbXBsZSBJbWFnZTwvdGV4dD4KPC9zdmc+";
-                        }}
-                      />
-                    </div>
-                  ) : (
-                    <div className="w-full max-w-md h-64 bg-gradient-to-br from-saffron-100 to-gold-100 rounded-lg shadow-md flex items-center justify-center mx-auto border-2 border-temple-gold/20">
-                      <div className="text-center">
-                        <Building
-                          className="mx-auto text-temple-gold mb-2"
-                          size={48}
-                        />
-                        <p className="text-temple-brown font-medium">
-                          {t("temple.templeImage")}
-                        </p>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Temple Information */}
-                <div className="space-y-6">
-                  <div>
-                    <h3 className="text-3xl font-bold text-temple-brown mb-2">
-                      {selectedTemple.templeName}
-                    </h3>
-                    {selectedTemple.deity && (
-                      <p className="text-xl text-saffron-600 font-medium">
-                        {t("temple.deity")}: {selectedTemple.deity}
-                      </p>
-                    )}
-                  </div>
-
-                  <div className="space-y-3">
-                    <div className="flex items-center text-temple-brown">
-                      <MapPin className="mr-3 text-saffron-500" size={18} />
-                      <span className="text-lg">
-                        {selectedTemple.village}, {selectedTemple.nearestCity}
-                      </span>
-                    </div>
-                    <div className="flex items-center text-temple-brown">
-                      <Building className="mr-3 text-saffron-500" size={18} />
-                      <span className="text-lg">
-                        {selectedTemple.state}, {selectedTemple.country}
-                      </span>
-                    </div>
-                    {selectedTemple.establishedYear && (
-                      <div className="flex items-center text-temple-brown">
-                        <Calendar className="mr-3 text-saffron-500" size={18} />
-                        <span className="text-lg">
-                          {t("temple.established")}: {selectedTemple.establishedYear}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Contact Information */}
-                  {(selectedTemple.contactPhone || selectedTemple.contactEmail) && (
-                    <div className="space-y-3">
-                      {selectedTemple.contactPhone && (
-                        <div className="flex items-center text-temple-brown">
-                          <Phone className="mr-3 text-saffron-500" size={18} />
-                          <span className="text-lg">{selectedTemple.contactPhone}</span>
-                        </div>
-                      )}
-                      {selectedTemple.contactEmail && (
-                        <div className="flex items-center text-temple-brown">
-                          <Mail className="mr-3 text-saffron-500" size={18} />
-                          <span className="text-lg">{selectedTemple.contactEmail}</span>
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Description */}
-                  {selectedTemple.description && (
-                    <div className="bg-gradient-to-r from-saffron-50 to-gold-50 rounded-lg p-4">
-                      <p className="text-gray-700 leading-relaxed">
-                        {selectedTemple.description}
-                      </p>
-                    </div>
-                  )}
-
-                  {/* Registered Members Counter */}
-                  <div className="bg-gradient-to-r from-temple-gold/10 to-saffron-100 rounded-lg p-6">
-                    <div className="text-center">
-                      <div className="text-4xl font-bold text-temple-brown mb-2">
-                        {totalMembers}
-                      </div>
-                      <div className="text-lg text-gray-600">
-                        {t("temple.registeredMembers")}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Action Buttons */}
-                  <div className="flex flex-col sm:flex-row gap-3">
-                    <Button
-                      onClick={handleEditTemple}
-                      className="flex-1 bg-temple-gold hover:bg-temple-gold/90 text-white"
-                    >
-                      <Edit className="mr-2" size={16} />
-                      {t("temple.editTemple")}
-                    </Button>
-                    <Button
-                      onClick={() => setIsDeleteModalOpen(true)}
-                      variant="outline"
-                      className="flex-1 border-red-200 text-red-600 hover:bg-red-50"
-                    >
-                      <Trash2 className="mr-2" size={16} />
-                      {t("temple.deleteTemple")}
-                    </Button>
-                  </div>
-                </div>
+            {/* Temple Search Section */}
+            <div className="mb-8 max-w-md mx-auto">
+              <div className="flex items-center justify-center space-x-3 mb-4">
+                <Building className="text-temple-gold" size={20} />
+                <span className="text-lg font-medium text-white">
+                  {t("home.selectTemple")}
+                </span>
               </div>
-            </CardContent>
-          </Card>
+              <Select onValueChange={handleTempleSelect}>
+                <SelectTrigger className="w-full bg-white/90 border-temple-gold focus:ring-temple-gold">
+                  <SelectValue placeholder={t("home.chooseTemple")} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="reset">{t("home.allTemples")}</SelectItem>
+                  {(temples as Temple[]).map((temple: Temple) => (
+                    <SelectItem key={temple.id} value={temple.id.toString()}>
+                      {temple.templeName} - {temple.village}, {temple.state}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {selectedTemple && (
+              <div className="mb-8 max-w-4xl mx-auto">
+                <Card className="bg-white/95 border-temple-gold/30 shadow-xl">
+                  <CardContent className="p-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {/* Temple Image */}
+                      <div className="flex justify-center">
+                        {selectedTemple.templeImage ? (
+                          <div className="relative w-full max-w-md mx-auto">
+                            <img
+                              src={selectedTemple.templeImage}
+                              alt={selectedTemple.templeName}
+                              className="w-full h-64 object-cover rounded-lg shadow-md border-2 border-temple-gold/20"
+                              style={{ maxWidth: "400px" }}
+                              onError={(e) => {
+                                const target = e.target as HTMLImageElement;
+                                target.src =
+                                  "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDQwMCAzMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iMzAwIiBmaWxsPSIjRkZGN0VEIi8+CjxwYXRoIGQ9Ik0yMDAgNzVMMjUwIDEyNUgxNTBMMjAwIDc1WiIgZmlsbD0iI0Q5NzcwNiIvPgo8cmVjdCB4PSIxNzAiIHk9IjEyNSIgd2lkdGg9IjYwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iI0Q5NzcwNiIvPgo8Y2lyY2xlIGN4PSIyMDAiIGN5PSIxNjAiIHI9IjE1IiBmaWxsPSIjRkJFRjNGIi8+Cjx0ZXh0IHg9IjIwMCIgeT0iMjUwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTYiIGZpbGw9IiM5MjQwMEQiPlRlbXBsZSBJbWFnZTwvdGV4dD4KPC9zdmc+";
+                              }}
+                            />
+                          </div>
+                        ) : (
+                          <div className="w-full max-w-md h-64 bg-gradient-to-br from-saffron-100 to-gold-100 rounded-lg shadow-md flex items-center justify-center mx-auto border-2 border-temple-gold/20">
+                            <div className="text-center">
+                              <Building
+                                className="mx-auto text-temple-gold mb-2"
+                                size={48}
+                              />
+                              <p className="text-temple-brown font-medium">
+                                Temple Image
+                              </p>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Temple Information */}
+                      <div className="space-y-4">
+                        <div>
+                          <h3 className="text-2xl font-bold text-temple-brown mb-2">
+                            {selectedTemple.templeName}
+                          </h3>
+                          {selectedTemple.deity && (
+                            <p className="text-lg text-saffron-600 font-medium">
+                              Deity: {selectedTemple.deity}
+                            </p>
+                          )}
+                        </div>
+
+                        <div className="space-y-2">
+                          <div className="flex items-center text-temple-brown">
+                            <MapPin
+                              className="mr-2 text-saffron-500"
+                              size={16}
+                            />
+                            <span>
+                              {selectedTemple.village},{" "}
+                              {selectedTemple.nearestCity}
+                            </span>
+                          </div>
+                          <div className="flex items-center text-temple-brown">
+                            <Building
+                              className="mr-2 text-saffron-500"
+                              size={16}
+                            />
+                            <span>
+                              {selectedTemple.state}, {selectedTemple.country}
+                            </span>
+                          </div>
+                          {selectedTemple.establishedYear && (
+                            <div className="flex items-center text-temple-brown">
+                              <Calendar
+                                className="mr-2 text-saffron-500"
+                                size={16}
+                              />
+                              <span>
+                                Established: {selectedTemple.establishedYear}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Registered Members Counter */}
+                        <div className="mt-4 p-4 bg-gradient-to-r from-saffron-50 to-gold-50 rounded-lg">
+                          <div className="text-center">
+                            <div className="text-3xl font-bold text-temple-brown">
+                              {totalMembers}
+                            </div>
+                            <div className="text-sm text-gray-600">
+                              Registered Members
+                            </div>
+                          </div>
+                        </div>
+
+                        {selectedTemple.contactPhone && (
+                          <div className="flex items-center text-temple-brown">
+                            <Phone
+                              className="mr-2 text-saffron-500"
+                              size={16}
+                            />
+                            <span>{selectedTemple.contactPhone}</span>
+                          </div>
+                        )}
+                        {selectedTemple.contactEmail && (
+                          <div className="flex items-center text-temple-brown">
+                            <Mail className="mr-2 text-saffron-500" size={16} />
+                            <span>{selectedTemple.contactEmail}</span>
+                          </div>
+                        )}
+
+                        {selectedTemple.description && (
+                          <div className="mt-4">
+                            <p className="text-gray-600 text-sm leading-relaxed">
+                              {selectedTemple.description}
+                            </p>
+                          </div>
+                        )}
+
+                        <div className="mt-4 flex justify-center">
+                          <Button
+                            onClick={() => setIsEditModalOpen(true)}
+                            className="bg-temple-gold hover:bg-temple-gold/90 text-white"
+                            size="sm"
+                          >
+                            <Edit className="mr-2" size={16} />
+                            Edit Temple Details
+                          </Button>
+                        </div>
+
+                        {/* Edit Temple Button */}
+                        <div className="mt-4">
+                          <Button
+                            onClick={handleEditTemple}
+                            variant="outline"
+                            className="w-full bg-temple-gold/10 hover:bg-temple-gold/20 border-temple-gold text-temple-brown"
+                          >
+                            <Edit className="mr-2 h-4 w-4" />
+                            Edit Temple Information
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+
+            <Link href="/registry">
+              <Button className="bg-temple-gold hover:bg-yellow-500 text-temple-brown font-semibold px-8 py-3 rounded-full transition-all transform hover:scale-105 shadow-lg">
+                {t("home.getStarted")}
+              </Button>
+            </Link>
+          </div>
         </div>
-      )}
+      </div>
+
+      {/* Temple Information */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div className="grid md:grid-cols-2 gap-12 items-center">
+          <div>
+            <h2 className="text-4xl font-bold text-temple-brown mb-6">
+              {selectedTemple
+                ? `Welcome to Our ${selectedTemple.templeName}`
+                : t("common.welcomeSacredSpace")}
+            </h2>
+            <p className="text-gray-700 text-lg leading-relaxed mb-6">
+              {selectedTemple
+                ? selectedTemple.description || t("common.spiritualBeacon")
+                : t("common.spiritualBeacon")}
+            </p>
+            <div className="grid grid-cols-2 gap-4">
+              <Card className="bg-white/80 backdrop-blur border border-temple-gold/20"></Card>
+              <Card className="bg-white/80 backdrop-blur border border-temple-gold/20"></Card>
+            </div>
+          </div>
+          <div className="space-y-6"></div>
+        </div>
+      </div>
 
       {/* Community Stats */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
@@ -505,10 +516,11 @@ export default function Home() {
           <DialogHeader>
             <DialogTitle className="text-2xl font-bold text-temple-brown flex items-center">
               <Edit className="mr-3" size={24} />
-              {t("temple.editTempleInfo")}
+              Edit Temple Information
             </DialogTitle>
             <DialogDescription>
-              {t("temple.editDescription")}
+              Update the temple information below. All changes will be saved to
+              the temple registry.
             </DialogDescription>
           </DialogHeader>
 
@@ -520,7 +532,7 @@ export default function Home() {
                   name="templeName"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{t("temple.templeName")}</FormLabel>
+                      <FormLabel>Temple Name</FormLabel>
                       <FormControl>
                         <Input
                           placeholder="e.g., Sri Lakshmi Narasimha Temple"
@@ -537,7 +549,7 @@ export default function Home() {
                   name="deity"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{t("temple.mainDeity")}</FormLabel>
+                      <FormLabel>Main Deity</FormLabel>
                       <FormControl>
                         <Input
                           placeholder="e.g., Lord Narasimha, Goddess Lakshmi"
@@ -554,7 +566,7 @@ export default function Home() {
                   name="village"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{t("temple.village")}</FormLabel>
+                      <FormLabel>Village/Area</FormLabel>
                       <FormControl>
                         <Input
                           placeholder="e.g., Tirupati, Mylapore"
@@ -571,7 +583,7 @@ export default function Home() {
                   name="nearestCity"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{t("temple.nearestCity")}</FormLabel>
+                      <FormLabel>Nearest City</FormLabel>
                       <FormControl>
                         <Input
                           placeholder="e.g., Chennai, Bangalore"
@@ -588,7 +600,7 @@ export default function Home() {
                   name="state"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{t("temple.state")}</FormLabel>
+                      <FormLabel>State/Province</FormLabel>
                       <FormControl>
                         <Input
                           placeholder="e.g., Tamil Nadu, Karnataka"
@@ -605,10 +617,10 @@ export default function Home() {
                   name="country"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{t("temple.country")}</FormLabel>
+                      <FormLabel>Country</FormLabel>
                       <FormControl>
                         <Input
-                          placeholder="e.g., India, USA"
+                          placeholder="e.g., India, United States"
                           {...field}
                         />
                       </FormControl>
@@ -622,13 +634,19 @@ export default function Home() {
                   name="establishedYear"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{t("temple.establishedYear")}</FormLabel>
+                      <FormLabel>Established Year</FormLabel>
                       <FormControl>
                         <Input
                           type="number"
-                          placeholder="e.g., 1998"
+                          placeholder="e.g., 1985"
                           {...field}
-                          onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                          onChange={(e) =>
+                            field.onChange(
+                              e.target.value
+                                ? parseInt(e.target.value)
+                                : undefined,
+                            )
+                          }
                         />
                       </FormControl>
                       <FormMessage />
@@ -641,10 +659,10 @@ export default function Home() {
                   name="contactPhone"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{t("temple.contactPhone")}</FormLabel>
+                      <FormLabel>Contact Phone</FormLabel>
                       <FormControl>
                         <Input
-                          placeholder="e.g., +91 9876543210"
+                          placeholder="e.g., +1 (555) 123-4567"
                           {...field}
                         />
                       </FormControl>
@@ -652,127 +670,125 @@ export default function Home() {
                     </FormItem>
                   )}
                 />
-              </div>
 
-              <FormField
-                control={form.control}
-                name="contactEmail"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t("temple.contactEmail")}</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="email"
-                        placeholder="e.g., temple@example.com"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t("temple.description")}</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder={t("temple.descriptionPlaceholder")}
-                        className="min-h-[100px]"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {/* Image Upload */}
-              <div className="space-y-4">
-                <label className="text-sm font-medium">
-                  {t("temple.templeImage")}
-                </label>
-                <div className="flex items-center space-x-4">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageUpload}
-                    className="hidden"
-                    id="temple-image-upload"
-                  />
-                  <label
-                    htmlFor="temple-image-upload"
-                    className="cursor-pointer flex items-center px-4 py-2 bg-temple-gold text-white rounded-md hover:bg-temple-gold/90"
-                  >
-                    <Upload className="mr-2" size={16} />
-                    {t("temple.uploadImage")}
-                  </label>
-                  {uploadedImage && (
-                    <div className="relative">
-                      <img
-                        src={uploadedImage}
-                        alt="Preview"
-                        className="w-20 h-20 object-cover rounded border"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setUploadedImage(null);
-                          form.setValue("templeImage", "");
-                        }}
-                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1"
-                      >
-                        <X size={12} />
-                      </button>
-                    </div>
+                <FormField
+                  control={form.control}
+                  name="contactEmail"
+                  render={({ field }) => (
+                    <FormItem className="md:col-span-2">
+                      <FormLabel>Contact Email</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="e.g., temple@example.com"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
                   )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem className="md:col-span-2">
+                      <FormLabel>Temple Description</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Brief description of the temple, its history, and significance..."
+                          className="min-h-[100px]"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Temple Image Upload */}
+                <div className="md:col-span-2">
+                  <FormLabel className="text-base font-medium">
+                    Temple Image
+                  </FormLabel>
+                  <div className="mt-2 space-y-4">
+                    {uploadedImage ? (
+                      <div className="relative">
+                        <img
+                          src={uploadedImage}
+                          alt="Temple"
+                          className="w-full h-48 object-cover rounded-lg border"
+                        />
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="sm"
+                          className="absolute top-2 right-2"
+                          onClick={() => {
+                            setUploadedImage(null);
+                            form.setValue("templeImage", "");
+                          }}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+                        <Upload className="mx-auto h-12 w-12 text-gray-400" />
+                        <div className="mt-4">
+                          <label className="cursor-pointer">
+                            <Button
+                              type="button"
+                              className="bg-saffron-500 hover:bg-saffron-600"
+                              onClick={() =>
+                                document
+                                  .getElementById("temple-image-edit-upload")
+                                  ?.click()
+                              }
+                            >
+                              <Upload className="mr-2 h-4 w-4" />
+                              Upload Image
+                            </Button>
+                            <input
+                              id="temple-image-edit-upload"
+                              type="file"
+                              accept="image/*"
+                              onChange={handleImageUpload}
+                              className="hidden"
+                            />
+                          </label>
+                        </div>
+                        <p className="mt-2 text-sm text-gray-500">
+                          Choose an image file for the temple
+                        </p>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
 
-              <div className="flex justify-end space-x-4 pt-6">
+              <div className="flex justify-end space-x-4 pt-6 border-t">
                 <Button
                   type="button"
                   variant="outline"
                   onClick={() => setIsEditModalOpen(false)}
                 >
-                  {t("common.cancel")}
+                  Cancel
                 </Button>
                 <Button
                   type="submit"
-                  className="bg-temple-gold hover:bg-temple-gold/90"
                   disabled={updateTempleMutation.isPending}
+                  className="bg-gradient-to-r from-saffron-500 to-temple-gold hover:from-saffron-600 hover:to-yellow-500"
                 >
-                  {updateTempleMutation.isPending ? t("common.saving") : t("common.saveChanges")}
+                  {updateTempleMutation.isPending
+                    ? "Updating..."
+                    : "Update Temple"}
                 </Button>
               </div>
             </form>
           </Form>
         </DialogContent>
       </Dialog>
-
-      {/* Delete Confirmation Modal */}
-      <AlertDialog open={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>{t("temple.deleteConfirmTitle")}</AlertDialogTitle>
-            <AlertDialogDescription>
-              {t("temple.deleteConfirmDescription", { templeName: selectedTemple?.templeName })}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => deleteTempleMutation.mutate()}
-              className="bg-red-600 hover:bg-red-700"
-            >
-              {deleteTempleMutation.isPending ? t("common.deleting") : t("common.delete")}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 }

@@ -25,7 +25,6 @@ export interface IStorage {
   getTemple(id: number): Promise<Temple | undefined>;
   createTemple(temple: InsertTemple): Promise<Temple>;
   updateTemple(id: number, temple: InsertTemple): Promise<Temple>;
-  deleteTemple(id: number): Promise<void>;
   getAllTemples(): Promise<Temple[]>;
   searchTemples(searchTerm: string, state?: string, country?: string): Promise<Temple[]>;
 }
@@ -200,13 +199,6 @@ export class MemStorage implements IStorage {
 
   async getAllTemples(): Promise<Temple[]> {
     return Array.from(this.temples.values());
-  }
-
-  async deleteTemple(id: number): Promise<void> {
-    if (!this.temples.has(id)) {
-      throw new Error("Temple not found");
-    }
-    this.temples.delete(id);
   }
 
   async searchTemples(searchTerm: string, state?: string, country?: string): Promise<Temple[]> {

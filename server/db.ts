@@ -156,20 +156,7 @@ export class DatabaseStorage implements IStorage {
       .set(insertTemple)
       .where(eq(temples.id, id))
       .returning();
-    if (!temple) {
-      throw new Error("Temple not found");
-    }
     return temple;
-  }
-
-  async deleteTemple(id: number): Promise<void> {
-    const result = await db
-      .delete(temples)
-      .where(eq(temples.id, id))
-      .returning();
-    if (result.length === 0) {
-      throw new Error("Temple not found");
-    }
   }
 
   async getAllTemples(): Promise<Temple[]> {
