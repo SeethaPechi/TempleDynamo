@@ -3,10 +3,16 @@ import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Search, ChevronLeft, ChevronRight, Users } from "lucide-react";
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from "react-i18next";
 import type { Member } from "@shared/schema";
 import { SimpleMemberCard } from "@/components/simple-member-card";
 
@@ -36,34 +42,56 @@ export default function Members() {
   console.log("Is loading:", isLoading);
 
   // Filter members based on search criteria
-  const filteredMembers = Array.isArray(allMembers) ? allMembers.filter((member: Member) => {
-    // Search term filter - search in name, email, phone
-    const matchesSearch = !searchTerm || searchTerm.trim() === "" || 
-      member.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      member.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      member.phone?.includes(searchTerm);
-    
-    // City filter
-    const matchesCity = !selectedCity || selectedCity === "" || selectedCity === "all-cities" || 
-      member.currentCity?.toLowerCase().includes(selectedCity.toLowerCase());
-    
-    // State filter
-    const matchesState = !selectedState || selectedState === "" || selectedState === "all-states" || 
-      member.currentState === selectedState;
-    
-    return matchesSearch && matchesCity && matchesState;
-  }) : [];
+  const filteredMembers = Array.isArray(allMembers)
+    ? allMembers.filter((member: Member) => {
+        // Search term filter - search in name, email, phone
+        const matchesSearch =
+          !searchTerm ||
+          searchTerm.trim() === "" ||
+          member.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          member.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          member.phone?.includes(searchTerm);
+
+        // City filter
+        const matchesCity =
+          !selectedCity ||
+          selectedCity === "" ||
+          selectedCity === "all-cities" ||
+          member.currentCity
+            ?.toLowerCase()
+            .includes(selectedCity.toLowerCase());
+
+        // State filter
+        const matchesState =
+          !selectedState ||
+          selectedState === "" ||
+          selectedState === "all-states" ||
+          member.currentState === selectedState;
+
+        return matchesSearch && matchesCity && matchesState;
+      })
+    : [];
 
   // Pagination
   const totalPages = Math.ceil(filteredMembers.length / membersPerPage);
   const startIndex = (currentPage - 1) * membersPerPage;
-  const paginatedMembers = filteredMembers.slice(startIndex, startIndex + membersPerPage);
+  const paginatedMembers = filteredMembers.slice(
+    startIndex,
+    startIndex + membersPerPage,
+  );
 
   // Debug logging removed for cleaner console
 
   // Get unique cities for filter
-  const uniqueCities = Array.isArray(allMembers) ? 
-    Array.from(new Set(allMembers.map((member: Member) => member.currentCity).filter(Boolean))) : [];
+  const uniqueCities = Array.isArray(allMembers)
+    ? Array.from(
+        new Set(
+          allMembers
+            .map((member: Member) => member.currentCity)
+            .filter(Boolean),
+        ),
+      )
+    : [];
 
   const handleSearch = () => {
     setCurrentPage(1);
@@ -124,7 +152,9 @@ export default function Members() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Search and Filter */}
         <Card className="shadow-lg border border-temple-gold/20 p-6 mb-8">
-          <h2 className="text-2xl font-bold text-temple-brown mb-6">{t('members.title')}</h2>
+          <h2 className="text-2xl font-bold text-temple-brown mb-6">
+            {t("members.title")}
+          </h2>
           <div className="grid md:grid-cols-5 gap-4">
             <div className="col-span-2">
               <Input
@@ -138,15 +168,20 @@ export default function Members() {
               />
             </div>
             <div>
-              <Select value={selectedCity} onValueChange={(value) => {
-                setSelectedCity(value);
-                setCurrentPage(1);
-              }}>
+              <Select
+                value={selectedCity}
+                onValueChange={(value) => {
+                  setSelectedCity(value);
+                  setCurrentPage(1);
+                }}
+              >
                 <SelectTrigger>
-                  <SelectValue placeholder={t('members.allCities')} />
+                  <SelectValue placeholder={t("members.allCities")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all-cities">{t('members.allCities')}</SelectItem>
+                  <SelectItem value="all-cities">
+                    {t("members.allCities")}
+                  </SelectItem>
                   {uniqueCities.map((city: string) => (
                     <SelectItem key={city} value={city.toLowerCase()}>
                       {city}
@@ -156,10 +191,13 @@ export default function Members() {
               </Select>
             </div>
             <div>
-              <Select value={selectedState} onValueChange={(value) => {
-                setSelectedState(value);
-                setCurrentPage(1);
-              }}>
+              <Select
+                value={selectedState}
+                onValueChange={(value) => {
+                  setSelectedState(value);
+                  setCurrentPage(1);
+                }}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="All States" />
                 </SelectTrigger>
@@ -193,7 +231,9 @@ export default function Members() {
             </div>
           </div>
           <div className="mt-4 text-sm text-gray-600">
-            {t('common.showing')} {filteredMembers.length} {t('common.of')} {Array.isArray(allMembers) ? allMembers.length : 0} {t('nav.members')}
+            {t("common.showing")} {filteredMembers.length} {t("common.of")}{" "}
+            {Array.isArray(allMembers) ? allMembers.length : 0}{" "}
+            {t("nav.members")}
           </div>
         </Card>
 
@@ -201,18 +241,20 @@ export default function Members() {
         {filteredMembers.length === 0 ? (
           <Card className="p-12 text-center">
             <Users className="mx-auto mb-4 text-gray-400" size={48} />
-            <h3 className="text-xl font-semibold text-gray-600 mb-2">{t('common.noMembersFound')}</h3>
-            <p className="text-gray-500">{t('common.adjustSearchCriteria')}</p>
+            <h3 className="text-xl font-semibold text-gray-600 mb-2">
+              {t("common.noMembersFound")}
+            </h3>
+            <p className="text-gray-500">{t("common.adjustSearchCriteria")}</p>
           </Card>
         ) : (
           <>
             <div className="space-y-4">
               {paginatedMembers.map((member: Member, index: number) => (
-                <div 
-                  key={member.id} 
+                <div
+                  key={member.id}
                   className="bg-white p-4 rounded-lg shadow border flex items-center space-x-4 cursor-pointer hover:shadow-lg transition-shadow"
                   onClick={() => {
-                    console.log('Navigating to member:', member.id);
+                    console.log("Navigating to member:", member.id);
                     window.location.href = `/member/${member.id}`;
                   }}
                 >
@@ -221,11 +263,16 @@ export default function Members() {
                   </div>
                   <div className="flex-1">
                     <h3 className="text-lg font-semibold text-temple-brown hover:text-saffron-600">
-                      {member.fullName}
+                      {member.fullName} : Father Name is :{" "}
+                      {(member as Member).fatherName}
                     </h3>
-                    <p className="text-sm text-gray-500">Member #{startIndex + index + 1}</p>
+                    <p className="text-sm text-gray-500">
+                      Member #{startIndex + index + 1}
+                    </p>
                     <p className="text-sm text-gray-500">{member.email}</p>
-                    <p className="text-sm text-gray-500">{member.currentCity}, {member.currentState}</p>
+                    <p className="text-sm text-gray-500">
+                      {member.currentCity}, {member.currentState}
+                    </p>
                   </div>
                   <div className="text-gray-400">
                     <span className="text-xs">Click to view details</span>
@@ -246,18 +293,20 @@ export default function Members() {
                   >
                     <ChevronLeft size={16} />
                   </Button>
-                  
+
                   {[...Array(totalPages)].map((_, i) => {
                     const page = i + 1;
                     const isCurrentPage = page === currentPage;
-                    const isVisible = 
-                      page === 1 || 
-                      page === totalPages || 
+                    const isVisible =
+                      page === 1 ||
+                      page === totalPages ||
                       (page >= currentPage - 1 && page <= currentPage + 1);
 
                     if (!isVisible) {
                       return page === 2 || page === totalPages - 1 ? (
-                        <span key={page} className="px-2 py-1 text-gray-400">...</span>
+                        <span key={page} className="px-2 py-1 text-gray-400">
+                          ...
+                        </span>
                       ) : null;
                     }
 
@@ -267,8 +316,8 @@ export default function Members() {
                         variant={isCurrentPage ? "default" : "outline"}
                         onClick={() => setCurrentPage(page)}
                         className={`px-4 py-2 ${
-                          isCurrentPage 
-                            ? "bg-saffron-500 hover:bg-saffron-600 text-white" 
+                          isCurrentPage
+                            ? "bg-saffron-500 hover:bg-saffron-600 text-white"
                             : "text-temple-brown border-temple-gold/30 hover:bg-temple-gold/10"
                         }`}
                       >
@@ -276,10 +325,12 @@ export default function Members() {
                       </Button>
                     );
                   })}
-                  
+
                   <Button
                     variant="outline"
-                    onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                    onClick={() =>
+                      setCurrentPage(Math.min(totalPages, currentPage + 1))
+                    }
                     disabled={currentPage === totalPages}
                     className="px-4 py-2"
                   >
@@ -303,18 +354,22 @@ export default function Members() {
               >
                 <ChevronLeft size={16} />
               </Button>
-              
+
               {[...Array(totalPages)].map((_, i) => {
                 const page = i + 1;
                 const isCurrentPage = page === currentPage;
-                const isVisible = 
-                  page === 1 || 
-                  page === totalPages || 
+                const isVisible =
+                  page === 1 ||
+                  page === totalPages ||
                   (page >= currentPage - 1 && page <= currentPage + 1);
 
                 if (!isVisible) {
                   if (page === currentPage - 2 || page === currentPage + 2) {
-                    return <span key={page} className="px-2 py-2 text-gray-400">...</span>;
+                    return (
+                      <span key={page} className="px-2 py-2 text-gray-400">
+                        ...
+                      </span>
+                    );
                   }
                   return null;
                 }
@@ -325,8 +380,8 @@ export default function Members() {
                     variant={isCurrentPage ? "default" : "outline"}
                     onClick={() => setCurrentPage(page)}
                     className={`px-4 py-2 ${
-                      isCurrentPage 
-                        ? "bg-saffron-500 text-white hover:bg-saffron-600" 
+                      isCurrentPage
+                        ? "bg-saffron-500 text-white hover:bg-saffron-600"
                         : "text-gray-700 hover:bg-gray-50"
                     }`}
                   >
@@ -334,10 +389,12 @@ export default function Members() {
                   </Button>
                 );
               })}
-              
+
               <Button
                 variant="outline"
-                onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                onClick={() =>
+                  setCurrentPage(Math.min(totalPages, currentPage + 1))
+                }
                 disabled={currentPage === totalPages}
                 className="px-4 py-2"
               >

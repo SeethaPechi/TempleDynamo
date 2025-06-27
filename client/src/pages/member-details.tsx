@@ -469,24 +469,36 @@ export default function MemberDetails() {
   const { toast } = useToast();
 
   const relationshipTypes = [
-    "Spouse",
     "Father",
     "Mother",
+    "Husband",
+    "Wife",
     "Son",
     "Daughter",
-    "Sibling",
+    "Elder Brother",
+    "Elder Sister",
+    "Younger Brother",
+    "Younger Sister",
+    "Son-in-Law",
+    "Daughter-in-Law",
+    "Father-in-Law",
+    "Mother-in-Law",
+    "Brother-in-Law",
+    "Sister-in-Law",
     "Paternal Grandfather",
     "Paternal Grandmother",
     "Maternal Grand Father",
     "Maternal Grand Mother",
     "Grand Daugher",
     "Grand Son",
-    "Uncle",
-    "Aunt",
+    "Paternal Uncle",
+    "Paternal Aunt",
+    "Maternal Uncle",
+    "Maternal Uncle",
     "Cousin",
     "Nephew",
     "Niece",
-    "In-law"
+    "In-law",
   ];
 
   const { data: member, isLoading: memberLoading } = useQuery({
@@ -742,7 +754,7 @@ export default function MemberDetails() {
                 <span className="sm:hidden">Back</span>
               </Button>
               <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-temple-brown">
-                Member Details
+                Member Details for {(member as Member).fullName}
               </h1>
             </div>
           </div>
@@ -801,7 +813,8 @@ export default function MemberDetails() {
                       <div className="sticky top-0 bg-white border-b p-4 sm:p-6 z-10">
                         <DialogHeader>
                           <DialogTitle className="text-lg sm:text-xl font-bold text-temple-brown">
-                            Manage Family Relationships
+                            Manage Family Relationships for {member.fullName}{" "}
+                            (Father : {(member as Member).fatherName})
                           </DialogTitle>
                         </DialogHeader>
                       </div>
@@ -889,7 +902,8 @@ export default function MemberDetails() {
                               {selectedRelative && (
                                 <div className="p-3 bg-saffron-50 rounded border border-saffron-200">
                                   <p className="font-medium text-base break-words text-temple-brown">
-                                    Selected: {selectedRelative.fullName}
+                                    Selected: {selectedRelative.fullName}:
+                                    (Father : {(member as Member).fatherName})
                                   </p>
                                   <p className="text-sm text-gray-600 break-all">
                                     {selectedRelative.email}
@@ -1270,11 +1284,18 @@ export default function MemberDetails() {
                                     </FormLabel>
                                     <Select
                                       onValueChange={(value) => {
-                                        const templeId = value === "none" ? null : parseInt(value);
+                                        const templeId =
+                                          value === "none"
+                                            ? null
+                                            : parseInt(value);
                                         field.onChange(templeId);
                                         autoSave("templeId", templeId);
                                       }}
-                                      value={field.value ? field.value.toString() : "none"}
+                                      value={
+                                        field.value
+                                          ? field.value.toString()
+                                          : "none"
+                                      }
                                     >
                                       <FormControl>
                                         <SelectTrigger className="h-10 sm:h-11">
@@ -1282,12 +1303,19 @@ export default function MemberDetails() {
                                         </SelectTrigger>
                                       </FormControl>
                                       <SelectContent>
-                                        <SelectItem value="none">No temple selected</SelectItem>
-                                        {(existingTemples as any[])?.map((temple: any) => (
-                                          <SelectItem key={temple.id} value={temple.id.toString()}>
-                                            {temple.templeName}
-                                          </SelectItem>
-                                        ))}
+                                        <SelectItem value="none">
+                                          No temple selected
+                                        </SelectItem>
+                                        {(existingTemples as any[])?.map(
+                                          (temple: any) => (
+                                            <SelectItem
+                                              key={temple.id}
+                                              value={temple.id.toString()}
+                                            >
+                                              {temple.templeName}
+                                            </SelectItem>
+                                          ),
+                                        )}
                                       </SelectContent>
                                     </Select>
                                     <FormMessage className="text-xs" />
@@ -1667,7 +1695,7 @@ export default function MemberDetails() {
           {/* Personal Information */}
           <Card className="p-4 sm:p-6">
             <h2 className="text-lg sm:text-xl font-semibold text-temple-brown mb-4">
-              Personal Information
+              Personal Information of {member.fullName}
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               <div>
@@ -1717,7 +1745,7 @@ export default function MemberDetails() {
           <Card className="p-4 sm:p-6 mt-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-3">
               <h2 className="text-lg sm:text-xl font-semibold text-temple-brown">
-                Family Information
+                Family Information of {member.fullName}
               </h2>
               <Button
                 variant="outline"

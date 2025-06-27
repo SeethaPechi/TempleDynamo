@@ -34,6 +34,7 @@ import { FamilyTreeVisualization } from "@/components/family-tree-visualization"
 import { FamilyNetworkAnalysis } from "@/components/family-network-analysis";
 import { ComprehensiveFamilyDisplay } from "@/components/comprehensive-family-display";
 import { FamilyRelationshipsTable } from "@/components/family-relationships-table";
+import { RelationshipCounters } from "@/components/relationship-counters";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { Member, Relationship } from "@shared/schema";
 
@@ -81,23 +82,26 @@ export default function FamilyTree() {
     queryKey: ["/api/members"],
   });
 
-  const { data: memberRelationships = [], isLoading: relationshipsLoading } = useQuery<Array<Relationship & { relatedMember: Member }>>({
-    queryKey: ["/api/relationships", selectedMember?.id],
-    enabled: !!selectedMember?.id,
-  });
+  const { data: memberRelationships = [], isLoading: relationshipsLoading } =
+    useQuery<Array<Relationship & { relatedMember: Member }>>({
+      queryKey: ["/api/relationships", selectedMember?.id],
+      enabled: !!selectedMember?.id,
+    });
 
   const { data: allRelationships = [] } = useQuery({
     queryKey: ["/api/relationships"],
     queryFn: async () => {
-      const response = await fetch('/api/relationships');
+      const response = await fetch("/api/relationships");
       if (!response.ok) return [];
       return response.json();
     },
   });
 
   // Filter relationships to show only those belonging to the selected member
-  const filteredMemberRelationships = selectedMember 
-    ? (memberRelationships as Array<Relationship & { relatedMember: Member }>).filter(rel => rel.memberId === selectedMember.id)
+  const filteredMemberRelationships = selectedMember
+    ? (
+        memberRelationships as Array<Relationship & { relatedMember: Member }>
+      ).filter((rel) => rel.memberId === selectedMember.id)
     : [];
 
   console.log("Selected member:", selectedMember?.fullName);
@@ -123,7 +127,8 @@ export default function FamilyTree() {
         const filtered = (allMembers as Member[]).filter(
           (member: Member) =>
             member.fullName.toLowerCase().includes(term.toLowerCase()) ||
-            (member.email && member.email.toLowerCase().includes(term.toLowerCase())),
+            (member.email &&
+              member.email.toLowerCase().includes(term.toLowerCase())),
         );
         setSearchResults(filtered);
       }
@@ -132,7 +137,8 @@ export default function FamilyTree() {
       const filtered = (allMembers as Member[]).filter(
         (member: Member) =>
           member.fullName.toLowerCase().includes(term.toLowerCase()) ||
-          (member.email && member.email.toLowerCase().includes(term.toLowerCase())),
+          (member.email &&
+            member.email.toLowerCase().includes(term.toLowerCase())),
       );
       setSearchResults(filtered);
     }
@@ -197,11 +203,11 @@ export default function FamilyTree() {
           <div className="flex items-center justify-center mb-6">
             <TreePine className="text-temple-brown mr-4" size={48} />
             <h1 className="text-4xl font-bold text-temple-brown">
-              {t('familyTree.title')}
+              {t("familyTree.title")}
             </h1>
           </div>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            {t('familyTree.subtitle')}
+            {t("familyTree.subtitle")}
           </p>
         </div>
 
@@ -210,29 +216,29 @@ export default function FamilyTree() {
             <TabsList className="grid grid-cols-5 w-full max-w-4xl">
               <TabsTrigger value="explorer" className="flex items-center gap-2">
                 <Search size={16} />
-                {t('familyTree.selectMember')}
+                {t("familyTree.selectMember")}
               </TabsTrigger>
               <TabsTrigger value="table" className="flex items-center gap-2">
                 <Users size={16} />
-                {t('familyTree.directRelationships')}
+                {t("familyTree.directRelationships")}
               </TabsTrigger>
               <TabsTrigger
                 value="comprehensive"
                 className="flex items-center gap-2"
               >
                 <Heart size={16} />
-                {t('familyTree.allRelations')}
+                {t("familyTree.allRelations")}
               </TabsTrigger>
               <TabsTrigger value="network" className="flex items-center gap-2">
                 <Network size={16} />
-                {t('familyTree.familyNetworkAnalysis')}
+                {t("familyTree.familyNetworkAnalysis")}
               </TabsTrigger>
               <TabsTrigger
-                value="analytics"
+                value="counters"
                 className="flex items-center gap-2"
               >
                 <BarChart3 size={16} />
-                {t('familyTree.familyNetworkAnalysis')}
+                Relationship Counters
               </TabsTrigger>
             </TabsList>
           </div>
@@ -243,13 +249,13 @@ export default function FamilyTree() {
               <div className="lg:col-span-1">
                 <Card className="p-6 sticky top-8">
                   <h3 className="text-lg font-semibold text-temple-brown mb-4">
-                    {t('familyTree.searchMember')}
+                    {t("familyTree.searchMember")}
                   </h3>
                   <div className="space-y-4">
                     <div className="relative">
                       <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                       <Input
-                        placeholder={t('familyTree.searchPlaceholder')}
+                        placeholder={t("familyTree.searchPlaceholder")}
                         value={searchTerm}
                         onChange={(e) => {
                           setSearchTerm(e.target.value);
@@ -401,9 +407,12 @@ export default function FamilyTree() {
                 {relationshipsLoading ? (
                   <Card className="p-8 text-center">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-saffron-500 mx-auto mb-4"></div>
-                    <p className="text-gray-500">Loading family relationships...</p>
+                    <p className="text-gray-500">
+                      Loading family relationships...
+                    </p>
                   </Card>
-                ) : filteredMemberRelationships && filteredMemberRelationships.length > 0 ? (
+                ) : filteredMemberRelationships &&
+                  filteredMemberRelationships.length > 0 ? (
                   <Card className="p-6">
                     <div className="mb-4">
                       <h3 className="text-lg font-semibold text-temple-brown">
@@ -439,83 +448,103 @@ export default function FamilyTree() {
                           </tr>
                         </thead>
                         <tbody>
-                          {filteredMemberRelationships.map((relationship: any) => (
-                            <tr
-                              key={relationship.id}
-                              className="border-b hover:bg-gray-50"
-                            >
-                              <td className="p-4">
-                                <div className="flex items-center space-x-3">
-                                  <div className="w-10 h-10 bg-saffron-100 rounded-full flex items-center justify-center">
-                                    <Users
-                                      className="text-saffron-600"
-                                      size={16}
-                                    />
+                          {filteredMemberRelationships.map(
+                            (relationship: any) => (
+                              <tr
+                                key={relationship.id}
+                                className="border-b hover:bg-gray-50"
+                              >
+                                <td className="p-4">
+                                  <div className="flex items-center space-x-3">
+                                    <div className="w-10 h-10 bg-saffron-100 rounded-full flex items-center justify-center">
+                                      <Users
+                                        className="text-saffron-600"
+                                        size={16}
+                                      />
+                                    </div>
+                                    <div>
+                                      <button
+                                        onClick={() => {
+                                          const member = (
+                                            allMembers as Member[]
+                                          ).find(
+                                            (m) =>
+                                              m.id ===
+                                              relationship.relatedMember.id,
+                                          );
+                                          if (member) setSelectedMember(member);
+                                        }}
+                                        className="font-bold text-temple-brown hover:text-saffron-600 transition-colors text-left underline hover:no-underline"
+                                      >
+                                        {relationship.relatedMember.fullName}
+                                      </button>
+                                      <p className="text-xs text-gray-500">
+                                        Member #{relationship.relatedMember.id}
+                                      </p>
+                                    </div>
                                   </div>
-                                  <div>
-                                    <button
-                                      onClick={() => {
-                                        const member = (allMembers as Member[]).find(m => m.id === relationship.relatedMember.id);
-                                        if (member) setSelectedMember(member);
-                                      }}
-                                      className="font-bold text-temple-brown hover:text-saffron-600 transition-colors text-left underline hover:no-underline"
-                                    >
+                                </td>
+
+                                <td className="p-4">
+                                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                    {relationship.relationshipType}
+                                  </span>
+                                </td>
+
+                                <td className="p-4">
+                                  <div className="text-sm text-gray-700">
+                                    <span className="font-medium">
                                       {relationship.relatedMember.fullName}
-                                    </button>
-                                    <p className="text-xs text-gray-500">
-                                      Member #{relationship.relatedMember.id}
-                                    </p>
+                                    </span>{" "}
+                                    is the{" "}
+                                    <span className="text-temple-brown font-medium">
+                                      {relationship.relationshipType.toLowerCase()}
+                                    </span>{" "}
+                                    of{" "}
+                                    <span className="font-medium">
+                                      {selectedMember.fullName}
+                                    </span>
                                   </div>
-                                </div>
-                              </td>
+                                </td>
 
-                              <td className="p-4">
-                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                  {relationship.relationshipType}
-                                </span>
-                              </td>
-
-                              <td className="p-4">
-                                <div className="text-sm text-gray-700">
-                                  <span className="font-medium">{relationship.relatedMember.fullName}</span> is the{" "}
-                                  <span className="text-temple-brown font-medium">
-                                    {relationship.relationshipType.toLowerCase()}
-                                  </span>{" "}
-                                  of <span className="font-medium">{selectedMember.fullName}</span>
-                                </div>
-                              </td>
-
-                              <td className="p-4">
-                                <div className="space-y-1">
-                                  <div className="text-sm font-medium">
-                                    {relationship.relatedMember.phone}
+                                <td className="p-4">
+                                  <div className="space-y-1">
+                                    <div className="text-sm font-medium">
+                                      {relationship.relatedMember.phone}
+                                    </div>
+                                    <div className="text-sm text-gray-600 truncate max-w-[200px]">
+                                      {relationship.relatedMember.email}
+                                    </div>
                                   </div>
-                                  <div className="text-sm text-gray-600 truncate max-w-[200px]">
-                                    {relationship.relatedMember.email}
+                                </td>
+
+                                <td className="p-4">
+                                  <div className="text-sm text-gray-600">
+                                    {relationship.relatedMember.currentCity},{" "}
+                                    {relationship.relatedMember.currentState}
                                   </div>
-                                </div>
-                              </td>
+                                </td>
 
-                              <td className="p-4">
-                                <div className="text-sm text-gray-600">
-                                  {relationship.relatedMember.currentCity},{" "}
-                                  {relationship.relatedMember.currentState}
-                                </div>
-                              </td>
-
-                              <td className="p-4 text-center">
-                                <button
-                                  onClick={() => {
-                                    const member = (allMembers as Member[]).find(m => m.id === relationship.relatedMember.id);
-                                    if (member) setSelectedMember(member);
-                                  }}
-                                  className="inline-flex items-center px-3 py-1 border border-saffron-200 text-sm font-medium rounded-md text-temple-brown bg-saffron-50 hover:bg-saffron-100 transition-colors"
-                                >
-                                  View Details
-                                </button>
-                              </td>
-                            </tr>
-                          ))}
+                                <td className="p-4 text-center">
+                                  <button
+                                    onClick={() => {
+                                      const member = (
+                                        allMembers as Member[]
+                                      ).find(
+                                        (m) =>
+                                          m.id ===
+                                          relationship.relatedMember.id,
+                                      );
+                                      if (member) setSelectedMember(member);
+                                    }}
+                                    className="inline-flex items-center px-3 py-1 border border-saffron-200 text-sm font-medium rounded-md text-temple-brown bg-saffron-50 hover:bg-saffron-100 transition-colors"
+                                  >
+                                    View Details
+                                  </button>
+                                </td>
+                              </tr>
+                            ),
+                          )}
                         </tbody>
                       </table>
                     </div>
@@ -618,6 +647,31 @@ export default function FamilyTree() {
             )}
           </TabsContent>
 
+          <TabsContent value="counters" className="space-y-6">
+            {selectedMember ? (
+              <RelationshipCounters
+                member={selectedMember}
+                relationships={filteredMemberRelationships}
+                onMemberClick={(memberId) => {
+                  const member = (allMembers as Member[]).find(
+                    (m) => m.id === memberId,
+                  );
+                  if (member) setSelectedMember(member);
+                }}
+              />
+            ) : (
+              <Card className="p-12 text-center">
+                <BarChart3 className="mx-auto mb-4 text-gray-400" size={64} />
+                <h3 className="text-xl font-semibold text-gray-600 mb-2">
+                  Select a Member
+                </h3>
+                <p className="text-gray-500">
+                  Choose a member to view their relationship statistics and counters
+                </p>
+              </Card>
+            )}
+          </TabsContent>
+
           <TabsContent value="network" className="space-y-6">
             <FamilyNetworkAnalysis
               allMembers={allMembers as Member[]}
@@ -687,8 +741,16 @@ export default function FamilyTree() {
                     />
                     <div className="text-2xl font-bold text-temple-brown">
                       {
-                        new Set((allRelationships as Array<Relationship & { relatedMember: Member }>).map((r: Relationship & { relatedMember: Member }) => r.relationshipType))
-                          .size
+                        new Set(
+                          (
+                            allRelationships as Array<
+                              Relationship & { relatedMember: Member }
+                            >
+                          ).map(
+                            (r: Relationship & { relatedMember: Member }) =>
+                              r.relationshipType,
+                          ),
+                        ).size
                       }
                     </div>
                     <div className="text-sm text-gray-600">

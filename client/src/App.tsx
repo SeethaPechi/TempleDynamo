@@ -10,6 +10,7 @@ import Members from "@/pages/members";
 import WhatsApp from "./pages/whatsapp";
 import Temples from "./pages/temples";
 import TempleRegistry from "./pages/temple-registry";
+import TempleMembers from "./pages/temple-members";
 import FamilyTree from "./pages/family-tree";
 import MemberDetails from "./pages/member-details";
 import NotFound from "./pages/not-found";
@@ -23,6 +24,7 @@ function Router() {
       <Route path="/whatsapp" component={WhatsApp} />
       <Route path="/temples" component={Temples} />
       <Route path="/temple-registry" component={TempleRegistry} />
+      <Route path="/temple-members" component={TempleMembers} />
       <Route path="/family-tree" component={FamilyTree} />
       <Route path="/member/:id" component={MemberDetails} />
       <Route component={NotFound} />
