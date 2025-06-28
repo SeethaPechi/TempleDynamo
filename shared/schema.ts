@@ -7,6 +7,7 @@ export const members = pgTable("members", {
   fullName: text("full_name").notNull(),
   phone: text("phone"),
   email: text("email"),
+  gender: text("gender", { enum: ["Male", "Female"] }),
   birthCity: text("birth_city").notNull(),
   birthState: text("birth_state").notNull(),
   birthCountry: text("birth_country").notNull(),

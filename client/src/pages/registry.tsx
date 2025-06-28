@@ -47,7 +47,8 @@ import type { Member } from "@shared/schema";
 
 const registrationSchema = insertMemberSchema.extend({
   fullName: z.string().min(2, "Full name must be at least 2 characters"),
-  phone: z.string().min(10, "Phone number must be at least 10 digits"),
+  phone: z.string().optional(),
+  gender: z.enum(["Male", "Female"]).optional(),
   email: z.union([z.string().email("Please enter a valid email address"), z.literal("")]).optional(),
   selectedTemple: z.string().optional(),
   birthCity: z.string().min(1, "Birth city is required"),
@@ -473,6 +474,7 @@ export default function Registry() {
       fullName: "",
       phone: "",
       email: "",
+      gender: undefined,
       birthCity: "",
       birthState: "",
       birthCountry: "",
@@ -704,7 +706,7 @@ export default function Registry() {
                       control={form.control}
                       name="email"
                       render={({ field }) => (
-                        <FormItem className="md:col-span-2">
+                        <FormItem>
                           <FormLabel>Email Address</FormLabel>
                           <FormControl>
                             <Input
@@ -718,6 +720,33 @@ export default function Registry() {
                               }}
                             />
                           </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="gender"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Gender</FormLabel>
+                          <Select
+                            onValueChange={(value) => {
+                              field.onChange(value);
+                              handleAutoSave();
+                            }}
+                            value={field.value || ""}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select gender (optional)" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="Male">Male</SelectItem>
+                              <SelectItem value="Female">Female</SelectItem>
+                            </SelectContent>
+                          </Select>
                           <FormMessage />
                         </FormItem>
                       )}
