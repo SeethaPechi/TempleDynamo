@@ -95,12 +95,19 @@ This is a full-stack temple community management system built with React, Expres
 
 ## Recent Changes
 
+✓ **Gender Field Implementation and Database Cleanup** (June 27, 2025)
+  - Added optional Gender field (Male/Female) to member registry database schema and forms
+  - Updated Edit Member Details form to include gender dropdown with auto-save functionality
+  - Created gender database column with proper enum constraints for Male/Female values
+  - Cleaned up all database tables (members, relationships, temples) and reset ID sequences to start from 1
+  - Gender field includes proper form validation and placeholder text for user experience
+  - Both member registry and member details editing now support gender selection
+
 ✓ **Comprehensive Feature Implementation and Database Cleanup** (June 27, 2025)
   - Created new Temple Members page with grouping by temple and clickable location counters
   - Made phone number optional in member registry schema and forms
   - Implemented relationship counters in Family Tree with clickable functionality to view members by type
   - Added relationship counters component with color-coded badges and member detail modals
-  - Cleaned up all database tables and reset ID sequences to start from 1
   - Fixed circular relationship display issues by removing extended connections
   - Added Temple Members navigation link for easy access to temple-based member grouping
   - Enhanced member filtering by location with clickable statistics

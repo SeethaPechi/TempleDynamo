@@ -558,6 +558,7 @@ export default function MemberDetails() {
         fullName: memberData.fullName,
         phone: memberData.phone,
         email: memberData.email,
+        gender: memberData.gender,
         birthCity: memberData.birthCity,
         birthState: memberData.birthState,
         birthCountry: memberData.birthCountry,
@@ -1141,6 +1142,36 @@ export default function MemberDetails() {
                                         }}
                                       />
                                     </FormControl>
+                                    <FormMessage className="text-xs" />
+                                  </FormItem>
+                                )}
+                              />
+
+                              <FormField
+                                control={form.control}
+                                name="gender"
+                                render={({ field }) => (
+                                  <FormItem className="space-y-2">
+                                    <FormLabel className="text-sm font-medium">
+                                      Gender
+                                    </FormLabel>
+                                    <Select
+                                      onValueChange={(value) => {
+                                        field.onChange(value);
+                                        autoSave("gender", value);
+                                      }}
+                                      value={field.value || ""}
+                                    >
+                                      <FormControl>
+                                        <SelectTrigger className="h-10 sm:h-11">
+                                          <SelectValue placeholder="Select gender (optional)" />
+                                        </SelectTrigger>
+                                      </FormControl>
+                                      <SelectContent>
+                                        <SelectItem value="Male">Male</SelectItem>
+                                        <SelectItem value="Female">Female</SelectItem>
+                                      </SelectContent>
+                                    </Select>
                                     <FormMessage className="text-xs" />
                                   </FormItem>
                                 )}
