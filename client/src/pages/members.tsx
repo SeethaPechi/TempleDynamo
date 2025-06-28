@@ -267,7 +267,7 @@ export default function Members() {
                       {(member as Member).fatherName}
                     </h3>
                     <p className="text-sm text-gray-500">
-                      Member #{startIndex + index + 1}
+                      Member #{member.id}
                     </p>
                     <p className="text-sm text-gray-500">{member.email}</p>
                     <p className="text-sm text-gray-500">
