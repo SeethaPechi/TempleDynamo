@@ -1,5 +1,4 @@
-import { useState } from "react";
-import React from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRoute } from "wouter";
 import { useForm } from "react-hook-form";
@@ -551,7 +550,7 @@ export default function MemberDetails() {
   });
 
   // Update form when member data loads
-  React.useEffect(() => {
+  useEffect(() => {
     if (member) {
       const memberData = member as Member;
       form.reset({
@@ -615,7 +614,7 @@ export default function MemberDetails() {
   };
 
   // Auto-save function for individual fields
-  const autoSave = React.useCallback(
+  const autoSave = useCallback(
     (fieldName: keyof InsertMember, value: any) => {
       if (!member || updateMutation.isPending) return;
 

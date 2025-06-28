@@ -1,4 +1,4 @@
-import React from "react";
+import { useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -21,7 +21,7 @@ export function FamilyRelationshipsTable({
   console.log('FamilyRelationshipsTable rendered with:', { member: member.fullName, relationshipsCount: relationships?.length || 0, relationships });
 
   // Debug: Check if relationships data is properly formatted
-  React.useEffect(() => {
+  useEffect(() => {
     if (relationships && relationships.length > 0) {
       console.log('First relationship:', relationships[0]);
       console.log('Related member structure:', relationships[0]?.relatedMember);

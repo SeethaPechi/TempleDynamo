@@ -21,7 +21,7 @@ import {
   Mail,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { useState, useEffect } from "react";
+import { useState, useEffect, ChangeEvent } from "react";
 import type { Temple } from "@shared/schema";
 import {
   Dialog,
@@ -193,7 +193,7 @@ export default function Home() {
     setIsEditModalOpen(true);
   };
 
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
       // Check file size (limit to 5MB)

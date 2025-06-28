@@ -1,4 +1,4 @@
-import React, { useRef, useState, useCallback } from 'react';
+import { useRef, useState, useCallback, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Camera, Upload, X, RotateCcw } from 'lucide-react';
@@ -99,7 +99,7 @@ export function CameraCapture({ onImageCapture, isOpen, onClose }: CameraCapture
     onClose();
   }, [stopCamera, onClose]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (isOpen && !capturedImage) {
       startCamera();
     }
