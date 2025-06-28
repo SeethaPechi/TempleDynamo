@@ -46,11 +46,11 @@ export const queryClient = new QueryClient({
     queries: {
       queryFn: getQueryFn({ on401: "throw" }),
       refetchInterval: false,
-      refetchOnWindowFocus: true,
+      refetchOnWindowFocus: false, // Disable automatic refetch on focus
       refetchOnReconnect: true,
-      staleTime: 0,
-      gcTime: 0, // Updated from cacheTime to gcTime for React Query v5
-      retry: false,
+      staleTime: 5 * 60 * 1000, // 5 minutes - data stays fresh for 5 minutes
+      gcTime: 10 * 60 * 1000, // 10 minutes - keep in cache for 10 minutes
+      retry: 1, // Allow 1 retry for failed requests
     },
     mutations: {
       retry: false,
@@ -58,22 +58,13 @@ export const queryClient = new QueryClient({
   },
 });
 
-// Clear cache on page refresh and visibility changes
+// Optimized cache management - only clear on actual page refresh
 if (typeof window !== 'undefined') {
-  // Clear cache when page becomes visible (after refresh or tab switch)
-  document.addEventListener('visibilitychange', () => {
-    if (!document.hidden) {
+  // Only clear cache on actual page reload, not tab switches
+  window.addEventListener('beforeunload', () => {
+    // Only clear if user is actually leaving the page
+    if (performance.navigation?.type === 1) {
       queryClient.clear();
     }
-  });
-
-  // Clear cache on page load
-  window.addEventListener('load', () => {
-    queryClient.clear();
-  });
-
-  // Clear cache before page unload
-  window.addEventListener('beforeunload', () => {
-    queryClient.clear();
   });
 }

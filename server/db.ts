@@ -13,7 +13,14 @@ if (!process.env.DATABASE_URL) {
   );
 }
 
-export const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+// Optimized connection pool configuration for better performance
+export const pool = new Pool({ 
+  connectionString: process.env.DATABASE_URL,
+  max: 20, // Maximum pool size
+  min: 2,  // Minimum pool size
+  idleTimeoutMillis: 30000, // 30 seconds
+  connectionTimeoutMillis: 2000, // 2 seconds
+});
 export const db = drizzle({ client: pool, schema });
 
 import type { IStorage } from "./storage";
@@ -105,31 +112,35 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getMemberRelationships(memberId: number): Promise<Array<Relationship & { relatedMember: Member }>> {
-    const memberRelationships = await db
-      .select()
+    // Optimized single query with JOIN instead of N+1 queries
+    const result = await db
+      .select({
+        id: relationships.id,
+        memberId: relationships.memberId,
+        relatedMemberId: relationships.relatedMemberId,
+        relationshipType: relationships.relationshipType,
+        relatedMember: members
+      })
       .from(relationships)
+      .innerJoin(members, eq(relationships.relatedMemberId, members.id))
       .where(eq(relationships.memberId, memberId));
     
-    const result = [];
-    for (const rel of memberRelationships) {
-      const relatedMember = await this.getMember(rel.relatedMemberId);
-      if (relatedMember) {
-        result.push({ ...rel, relatedMember });
-      }
-    }
     return result;
   }
 
   async getAllRelationships(): Promise<Array<Relationship & { relatedMember: Member }>> {
-    const allRelationships = await db.select().from(relationships);
+    // Optimized single query with JOIN instead of N+1 queries
+    const result = await db
+      .select({
+        id: relationships.id,
+        memberId: relationships.memberId,
+        relatedMemberId: relationships.relatedMemberId,
+        relationshipType: relationships.relationshipType,
+        relatedMember: members
+      })
+      .from(relationships)
+      .innerJoin(members, eq(relationships.relatedMemberId, members.id));
     
-    const result = [];
-    for (const rel of allRelationships) {
-      const relatedMember = await this.getMember(rel.relatedMemberId);
-      if (relatedMember) {
-        result.push({ ...rel, relatedMember });
-      }
-    }
     return result;
   }
 

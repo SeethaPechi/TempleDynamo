@@ -34,29 +34,10 @@ function Router() {
 }
 
 function App() {
-  // Clear cache on app initialization and page refresh
+  // Optimized cache management - minimal clearing for better performance
   useEffect(() => {
-    const handlePageRefresh = () => {
-      queryClient.clear();
-    };
-
-    // Clear cache on mount (page refresh)
-    queryClient.clear();
-
-    // Listen for page visibility changes
-    const handleVisibilityChange = () => {
-      if (!document.hidden) {
-        queryClient.invalidateQueries();
-      }
-    };
-
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    window.addEventListener('beforeunload', handlePageRefresh);
-
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-      window.removeEventListener('beforeunload', handlePageRefresh);
-    };
+    // Only invalidate queries on app mount, don't clear entire cache
+    queryClient.invalidateQueries();
   }, []);
 
   return (
