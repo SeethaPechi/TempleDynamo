@@ -1,6 +1,6 @@
 import { Pool, neonConfig } from '@neondatabase/serverless';
 import { drizzle } from 'drizzle-orm/neon-serverless';
-import { eq, or } from 'drizzle-orm';
+import { eq, or, asc } from 'drizzle-orm';
 import ws from "ws";
 import * as schema from "@shared/schema";
 import { users, type User, type InsertUser, members, type Member, type InsertMember, relationships, type Relationship, type InsertRelationship, temples, type Temple, type InsertTemple } from "@shared/schema";
@@ -85,7 +85,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getAllMembers(): Promise<Member[]> {
-    return await db.select().from(members);
+    return await db.select().from(members).orderBy(asc(members.id));
   }
 
   async searchMembers(searchTerm: string, city?: string, state?: string): Promise<Member[]> {
