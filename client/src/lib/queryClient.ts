@@ -46,8 +46,10 @@ export const queryClient = new QueryClient({
     queries: {
       queryFn: getQueryFn({ on401: "throw" }),
       refetchInterval: false,
-      refetchOnWindowFocus: false,
-      staleTime: Infinity,
+      refetchOnWindowFocus: true,
+      refetchOnReconnect: true,
+      staleTime: 0,
+      gcTime: 0, // Updated from cacheTime to gcTime for React Query v5
       retry: false,
     },
     mutations: {
@@ -55,3 +57,23 @@ export const queryClient = new QueryClient({
     },
   },
 });
+
+// Clear cache on page refresh and visibility changes
+if (typeof window !== 'undefined') {
+  // Clear cache when page becomes visible (after refresh or tab switch)
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) {
+      queryClient.clear();
+    }
+  });
+
+  // Clear cache on page load
+  window.addEventListener('load', () => {
+    queryClient.clear();
+  });
+
+  // Clear cache before page unload
+  window.addEventListener('beforeunload', () => {
+    queryClient.clear();
+  });
+}
