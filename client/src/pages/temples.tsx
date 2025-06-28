@@ -503,8 +503,14 @@ export default function Temples() {
       return await apiRequest("DELETE", `/api/temples/${templeId}`);
     },
     onSuccess: () => {
+      // Force immediate cache invalidation and refetch
       queryClient.invalidateQueries({ queryKey: ["/api/temples"] });
+      queryClient.refetchQueries({ queryKey: ["/api/temples"] });
+      queryClient.removeQueries({ queryKey: ["/api/temples"] });
+      
       setIsDeleteModalOpen(false);
+      setSelectedTemple(null);
+      
       toast({
         title: t("temples.deleteSuccess"),
         description: t("temples.deleteSuccessDesc"),

@@ -1,7 +1,9 @@
 import { Pool, neonConfig } from '@neondatabase/serverless';
 import { drizzle } from 'drizzle-orm/neon-serverless';
+import { eq, or } from 'drizzle-orm';
 import ws from "ws";
 import * as schema from "@shared/schema";
+import { users, type User, type InsertUser, members, type Member, type InsertMember, relationships, type Relationship, type InsertRelationship, temples, type Temple, type InsertTemple } from "@shared/schema";
 
 neonConfig.webSocketConstructor = ws;
 
@@ -14,8 +16,6 @@ if (!process.env.DATABASE_URL) {
 export const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 export const db = drizzle({ client: pool, schema });
 
-import { users, type User, type InsertUser, members, type Member, type InsertMember, relationships, type Relationship, type InsertRelationship, temples, type Temple, type InsertTemple } from "@shared/schema";
-import { eq, or } from "drizzle-orm";
 import type { IStorage } from "./storage";
 
 export class DatabaseStorage implements IStorage {
@@ -157,6 +157,17 @@ export class DatabaseStorage implements IStorage {
       .where(eq(temples.id, id))
       .returning();
     return temple;
+  }
+
+  async deleteTemple(id: number): Promise<void> {
+    const result = await db
+      .delete(temples)
+      .where(eq(temples.id, id))
+      .returning();
+    
+    if (result.length === 0) {
+      throw new Error("Temple not found");
+    }
   }
 
   async getAllTemples(): Promise<Temple[]> {
