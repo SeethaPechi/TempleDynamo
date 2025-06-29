@@ -55,6 +55,22 @@ export const formatRelativeDate = (date: string | Date, language: string = 'en')
 export const useFormDataTransformation = () => {
   const { i18n, t } = useTranslation();
   
+  const transformRelationshipType = (relationshipType: string) => {
+    if (!relationshipType) return relationshipType;
+    const key = relationshipType.toLowerCase().replace(/\s+/g, '');
+    return t(`registry.form.relationships.${key}`, { defaultValue: relationshipType });
+  };
+  
+  const transformGender = (gender: string) => {
+    if (!gender) return gender;
+    return t(`registry.form.genders.${gender.toLowerCase()}`, { defaultValue: gender });
+  };
+  
+  const transformMaritalStatus = (maritalStatus: string) => {
+    if (!maritalStatus) return maritalStatus;
+    return t(`registry.form.maritalStatus.${maritalStatus.toLowerCase()}`, { defaultValue: maritalStatus });
+  };
+  
   const transformFormData = (data: any) => {
     if (!data) return data;
     
@@ -104,7 +120,7 @@ export const useFormDataTransformation = () => {
     
     return relationships.map(rel => ({
       ...rel,
-      relationshipType: t(`registry.form.relationships.${rel.relationshipType.toLowerCase().replace(/\s+/g, '')}`),
+      relationshipType: transformRelationshipType(rel.relationshipType),
       createdAt: rel.createdAt ? formatDate(rel.createdAt, 'PPP', i18n.language) : '',
       relatedMember: transformMemberData(rel.relatedMember)
     }));
@@ -114,6 +130,9 @@ export const useFormDataTransformation = () => {
     transformFormData,
     transformMemberData,
     transformRelationshipData,
+    transformRelationshipType,
+    transformGender,
+    transformMaritalStatus,
     formatDate: (date: string | Date, formatStr?: string) => formatDate(date, formatStr, i18n.language),
     formatRelativeDate: (date: string | Date) => formatRelativeDate(date, i18n.language)
   };

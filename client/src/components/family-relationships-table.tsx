@@ -20,7 +20,7 @@ export function FamilyRelationshipsTable({
   onMemberClick 
 }: FamilyRelationshipsTableProps) {
   const { t } = useTranslation();
-  const { transformRelationshipData, formatDate } = useFormDataTransformation();
+  const { transformRelationshipData, transformRelationshipType, formatDate } = useFormDataTransformation();
 
   // Transform relationships data for current language
   const localizedRelationships = transformRelationshipData(relationships || []);
@@ -134,7 +134,7 @@ export function FamilyRelationshipsTable({
                         variant="secondary" 
                         className={`${getRelationshipColor(relationship.relationshipType)}`}
                       >
-                        {relationship.relationshipType}
+                        {transformRelationshipType(relationship.relationshipType)}
                       </Badge>
                       <div className="text-xs text-gray-500">
                         {relationship.relatedMember.fullName} is the{' '}

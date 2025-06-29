@@ -12,6 +12,7 @@ import {
   Network,
 } from "lucide-react";
 import type { Member, Relationship } from "@shared/schema";
+import { useFormDataTransformation } from "@/lib/i18n-utils";
 
 interface ComprehensiveFamilyDisplayProps {
   member: Member;
@@ -35,6 +36,7 @@ export function ComprehensiveFamilyDisplay({
   allRelationships,
   onMemberClick,
 }: ComprehensiveFamilyDisplayProps) {
+  const { transformRelationshipType } = useFormDataTransformation();
   // Get relationship color coding
   const getRelationshipColor = (relationship: string) => {
     const type = relationship.toLowerCase();
@@ -110,7 +112,7 @@ export function ComprehensiveFamilyDisplay({
               <div key={type} className="border-l-4 border-saffron-500 pl-4">
                 <h3 className="font-semibold text-temple-brown mb-3 flex items-center">
                   <Badge className={`mr-2 ${getRelationshipColor(type)}`}>
-                    {type}
+                    {transformRelationshipType(type)}
                   </Badge>
                   <span className="text-sm text-gray-600">({rels.length})</span>
                 </h3>
