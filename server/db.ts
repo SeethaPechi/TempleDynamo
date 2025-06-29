@@ -5,6 +5,7 @@ import ws from "ws";
 import * as schema from "@shared/schema";
 import { users, type User, type InsertUser, members, type Member, type InsertMember, relationships, type Relationship, type InsertRelationship, temples, type Temple, type InsertTemple } from "@shared/schema";
 
+// Configure WebSocket for Neon
 neonConfig.webSocketConstructor = ws;
 
 if (!process.env.DATABASE_URL) {
@@ -13,15 +14,33 @@ if (!process.env.DATABASE_URL) {
   );
 }
 
-// Optimized connection pool configuration for better performance
+// Simplified connection pool configuration to prevent WebSocket issues
 export const pool = new Pool({ 
   connectionString: process.env.DATABASE_URL,
-  max: 20, // Maximum pool size
-  min: 2,  // Minimum pool size
-  idleTimeoutMillis: 30000, // 30 seconds
-  connectionTimeoutMillis: 2000, // 2 seconds
+  max: 10, // Reduced pool size
+  min: 1,  // Reduced minimum
+  idleTimeoutMillis: 60000, // Increased timeout
+  connectionTimeoutMillis: 5000, // Increased timeout
 });
+
+// Initialize database with error handling
 export const db = drizzle({ client: pool, schema });
+
+// Test database connection on startup
+pool.on('error', (err) => {
+  console.error('Database pool error:', err);
+});
+
+// Graceful cleanup on process exit
+process.on('SIGINT', async () => {
+  await pool.end();
+  process.exit(0);
+});
+
+process.on('SIGTERM', async () => {
+  await pool.end();
+  process.exit(0);
+});
 
 import type { IStorage } from "./storage";
 
@@ -93,8 +112,8 @@ export class DatabaseStorage implements IStorage {
     return allMembers.filter(member => {
       const matchesSearch = !searchTerm || 
         member.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        member.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        member.phone.includes(searchTerm);
+        (member.email && member.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (member.phone && member.phone.includes(searchTerm));
       
       const matchesCity = !city || member.currentCity.toLowerCase().includes(city.toLowerCase());
       const matchesState = !state || member.currentState === state;
@@ -119,13 +138,14 @@ export class DatabaseStorage implements IStorage {
         memberId: relationships.memberId,
         relatedMemberId: relationships.relatedMemberId,
         relationshipType: relationships.relationshipType,
+        createdAt: relationships.createdAt,
         relatedMember: members
       })
       .from(relationships)
       .innerJoin(members, eq(relationships.relatedMemberId, members.id))
       .where(eq(relationships.memberId, memberId));
     
-    return result;
+    return result as Array<Relationship & { relatedMember: Member }>;
   }
 
   async getAllRelationships(): Promise<Array<Relationship & { relatedMember: Member }>> {
@@ -136,12 +156,13 @@ export class DatabaseStorage implements IStorage {
         memberId: relationships.memberId,
         relatedMemberId: relationships.relatedMemberId,
         relationshipType: relationships.relationshipType,
+        createdAt: relationships.createdAt,
         relatedMember: members
       })
       .from(relationships)
       .innerJoin(members, eq(relationships.relatedMemberId, members.id));
     
-    return result;
+    return result as Array<Relationship & { relatedMember: Member }>;
   }
 
   async deleteRelationship(id: number): Promise<void> {
@@ -189,9 +210,10 @@ export class DatabaseStorage implements IStorage {
     const allTemples = await db.select().from(temples);
     return allTemples.filter(temple => {
       const matchesSearch = !searchTerm || 
-        temple.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        temple.deity.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        temple.city.toLowerCase().includes(searchTerm.toLowerCase());
+        temple.templeName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (temple.deity && temple.deity.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        temple.village.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        temple.nearestCity.toLowerCase().includes(searchTerm.toLowerCase());
       
       const matchesState = !state || temple.state === state;
       const matchesCountry = !country || temple.country === country;

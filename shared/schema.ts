@@ -27,6 +27,7 @@ export const relationships = pgTable("relationships", {
   memberId: integer("member_id").notNull().references(() => members.id),
   relatedMemberId: integer("related_member_id").notNull().references(() => members.id),
   relationshipType: text("relationship_type").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
 });
 
 export const insertMemberSchema = createInsertSchema(members).omit({
