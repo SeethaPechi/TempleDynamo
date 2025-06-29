@@ -49,15 +49,24 @@
     "addressInfo": "Address Information",
     "familyRelations": "Family Relations",
     "form": {
+      "fullName": "Full Name",
       "firstName": "First Name",
       "lastName": "Last Name",
       "email": "Email Address",
       "phone": "Phone Number",
       "dateOfBirth": "Date of Birth",
       "gender": "Gender",
-      "male": "Male",
-      "female": "Female",
-      "other": "Other",
+      "birthCity": "Birth City",
+      "birthState": "Birth State",
+      "birthCountry": "Birth Country",
+      "currentCity": "Current City",
+      "currentState": "Current State",
+      "currentCountry": "Current Country",
+      "fatherName": "Father's Name",
+      "motherName": "Mother's Name",
+      "spouseName": "Spouse Name",
+      "maritalStatus": "Marital Status",
+      "templeId": "Temple",
       "address": "Street Address",
       "city": "City",
       "state": "State",
@@ -65,6 +74,17 @@
       "searchRelatives": "Search for family members...",
       "addRelation": "Add Relation",
       "relationship": "Relationship",
+      "genders": {
+        "male": "Male",
+        "female": "Female",
+        "other": "Other"
+      },
+      "maritalStatus": {
+        "single": "Single",
+        "married": "Married",
+        "divorced": "Divorced",
+        "widowed": "Widowed"
+      },
       "relationships": {
         "father": "Father",
         "mother": "Mother",
@@ -76,9 +96,21 @@
         "wife": "Wife",
         "grandfather": "Grandfather",
         "grandmother": "Grandmother",
+        "paternalgrandfather": "Paternal Grandfather",
+        "paternalgrandmother": "Paternal Grandmother",
+        "maternalgrandfather": "Maternal Grandfather",
+        "maternalgrandmother": "Maternal Grandmother",
         "uncle": "Uncle",
         "aunt": "Aunt",
-        "cousin": "Cousin"
+        "paternaluncle": "Paternal Uncle",
+        "paternalaunt": "Paternal Aunt",
+        "maternaluncle": "Maternal Uncle",
+        "maternalaunt": "Maternal Aunt",
+        "cousin": "Cousin",
+        "nephew": "Nephew",
+        "niece": "Niece",
+        "brotherinlaw": "Brother-in-law",
+        "sisterinlaw": "Sister-in-law"
       }
     },
     "validation": {
@@ -139,6 +171,14 @@
       "sendMessage": "Send Message",
       "back": "Back"
     }
+  },
+  "familyTree": {
+    "title": "Family Tree",
+    "noConnections": "No Family Connections",
+    "noConnectionsDesc": "doesn't have any family relationships added yet.",
+    "addConnectionsDesc": "Add family connections to see the relationship table.",
+    "familyRelationships": "Family Relationships",
+    "totalConnections": "Total Connections"
   },
   "common": {
     "loading": "Loading...",

@@ -52,15 +52,24 @@
     "addressInfo": "முகவரி தகவல்",
     "familyRelations": "குடும்ப உறவுகள்",
     "form": {
+      "fullName": "முழு பெயர்",
       "firstName": "முதல் பெயர்",
       "lastName": "கடைசி பெயர்",
       "email": "மின்னஞ்சல் முகவரி",
       "phone": "தொலைபேசி எண்",
       "dateOfBirth": "பிறந்த தேதி",
       "gender": "பாலினம்",
-      "male": "ஆண்",
-      "female": "பெண்",
-      "other": "மற்றவை",
+      "birthCity": "பிறந்த நகரம்",
+      "birthState": "பிறந்த மாநிலம்",
+      "birthCountry": "பிறந்த நாடு",
+      "currentCity": "தற்போதைய நகரம்",
+      "currentState": "தற்போதைய மாநிலம்",
+      "currentCountry": "தற்போதைய நாடு",
+      "fatherName": "தந்தையின் பெயர்",
+      "motherName": "தாயின் பெயர்",
+      "spouseName": "மனைவி/கணவன் பெயர்",
+      "maritalStatus": "திருமண நிலை",
+      "templeId": "கோயில்",
       "address": "தெரு முகவரி",
       "city": "நகரம்",
       "state": "மாநிலம்",
@@ -68,6 +77,17 @@
       "searchRelatives": "குடும்ப உறுப்பினர்களைத் தேடவும்...",
       "addRelation": "உறவைச் சேர்க்கவும்",
       "relationship": "உறவு",
+      "genders": {
+        "male": "ஆண்",
+        "female": "பெண்",
+        "other": "மற்றவை"
+      },
+      "maritalStatus": {
+        "single": "திருமணமாகாதவர்",
+        "married": "திருமணமானவர்",
+        "divorced": "விவாகரத்தானவர்",
+        "widowed": "விதவை/விதவர்"
+      },
       "relationships": {
         "father": "தந்தை",
         "mother": "தாய்",
@@ -79,9 +99,21 @@
         "wife": "மனைவி",
         "grandfather": "தாத்தா",
         "grandmother": "பாட்டி",
+        "paternalgrandfather": "தந்தையின் தாத்தா",
+        "paternalgrandmother": "தந்தையின் பாட்டி",
+        "maternalgrandfather": "தாயின் தாத்தா",
+        "maternalgrandmother": "தாயின் பாட்டி",
         "uncle": "மாமா",
         "aunt": "அத்தை",
-        "cousin": "உறவினர்"
+        "paternaluncle": "தந்தையின் சகோதரன்",
+        "paternalaunt": "தந்தையின் சகோதரி",
+        "maternaluncle": "தாயின் சகோதரன்",
+        "maternalaunt": "தாயின் சகோதரி",
+        "cousin": "உறவினர்",
+        "nephew": "மருமகன்",
+        "niece": "மருமகள்",
+        "brotherinlaw": "மைத்துனன்",
+        "sisterinlaw": "மைத்துனி"
       }
     },
     "validation": {
@@ -142,6 +174,14 @@
       "sendMessage": "செய்தி அனுப்பவும்",
       "back": "பின்செல்லவும்"
     }
+  },
+  "familyTree": {
+    "title": "குடும்ப மரம்",
+    "noConnections": "குடும்ப உறவுகள் இல்லை",
+    "noConnectionsDesc": "இன்னும் குடும்ப உறவுகள் சேர்க்கப்படவில்லை.",
+    "addConnectionsDesc": "உறவுகள் அட்டவணையைக் காண குடும்ப இணைப்புகளைச் சேர்க்கவும்.",
+    "familyRelationships": "குடும்ப உறவுகள்",
+    "totalConnections": "மொத்த இணைப்புகள்"
   },
   "common": {
     "loading": "ஏற்றுகிறது...",

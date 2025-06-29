@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Users, ExternalLink, Phone, Mail, MapPin } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { useFormDataTransformation } from "@/lib/i18n-utils";
 import type { Member, Relationship } from "@shared/schema";
 
 interface FamilyRelationshipsTableProps {
@@ -17,16 +19,21 @@ export function FamilyRelationshipsTable({
   relationships, 
   onMemberClick 
 }: FamilyRelationshipsTableProps) {
+  const { t } = useTranslation();
+  const { transformRelationshipData, formatDate } = useFormDataTransformation();
+
+  // Transform relationships data for current language
+  const localizedRelationships = transformRelationshipData(relationships || []);
   
-  console.log('FamilyRelationshipsTable rendered with:', { member: member.fullName, relationshipsCount: relationships?.length || 0, relationships });
+  console.log('FamilyRelationshipsTable rendered with:', { member: member.fullName, relationshipsCount: localizedRelationships?.length || 0, localizedRelationships });
 
   // Debug: Check if relationships data is properly formatted
   useEffect(() => {
-    if (relationships && relationships.length > 0) {
-      console.log('First relationship:', relationships[0]);
-      console.log('Related member structure:', relationships[0]?.relatedMember);
+    if (localizedRelationships && localizedRelationships.length > 0) {
+      console.log('First localized relationship:', localizedRelationships[0]);
+      console.log('Related member structure:', localizedRelationships[0]?.relatedMember);
     }
-  }, [relationships]);
+  }, [localizedRelationships]);
   
   const getRelationshipColor = (relationship: string) => {
     const type = relationship.toLowerCase();
@@ -40,16 +47,16 @@ export function FamilyRelationshipsTable({
     return 'bg-gray-100 text-gray-800';
   };
 
-  if (!relationships || relationships.length === 0) {
+  if (!localizedRelationships || localizedRelationships.length === 0) {
     return (
       <Card className="p-8 text-center">
         <Users className="mx-auto mb-4 text-gray-400" size={48} />
-        <h3 className="text-lg font-semibold text-gray-600 mb-2">No Family Connections</h3>
+        <h3 className="text-lg font-semibold text-gray-600 mb-2">{t('familyTree.noConnections')}</h3>
         <p className="text-gray-500 mb-4">
-          {member.fullName} doesn't have any family relationships added yet.
+          {member.fullName} {t('familyTree.noConnectionsDesc')}
         </p>
         <p className="text-sm text-gray-400">
-          Add family connections to see the relationship table.
+          {t('familyTree.addConnectionsDesc')}
         </p>
       </Card>
     );
@@ -70,7 +77,7 @@ export function FamilyRelationshipsTable({
             </div>
           </div>
           <div className="text-right">
-            <div className="text-2xl font-bold">{relationships.length}</div>
+            <div className="text-2xl font-bold">{localizedRelationships.length}</div>
             <div className="text-saffron-100 text-sm">Connections</div>
           </div>
         </div>
@@ -99,7 +106,7 @@ export function FamilyRelationshipsTable({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {relationships.map((relationship) => (
+              {localizedRelationships.map((relationship) => (
                 <TableRow key={relationship.id} className="hover:bg-gray-50">
                   <TableCell className="py-4">
                     <div className="flex items-center space-x-3">

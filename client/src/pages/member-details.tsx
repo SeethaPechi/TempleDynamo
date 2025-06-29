@@ -3,6 +3,8 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRoute } from "wouter";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useTranslation } from "react-i18next";
+import { useFormDataTransformation } from "@/lib/i18n-utils";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -494,7 +496,10 @@ export default function MemberDetails() {
     "Paternal Aunt",
     "Maternal Uncle",
     "Maternal Uncle",
-    "Cousin",
+    "Cousin Brother Mother Side",
+    "Cousin Sister Mother Side",
+    "Cousin Brother Father Side",
+    "Cousin Brother Father Side",
     "Nephew",
     "Niece",
     "In-law",
@@ -1167,8 +1172,12 @@ export default function MemberDetails() {
                                         </SelectTrigger>
                                       </FormControl>
                                       <SelectContent>
-                                        <SelectItem value="Male">Male</SelectItem>
-                                        <SelectItem value="Female">Female</SelectItem>
+                                        <SelectItem value="Male">
+                                          Male
+                                        </SelectItem>
+                                        <SelectItem value="Female">
+                                          Female
+                                        </SelectItem>
                                       </SelectContent>
                                     </Select>
                                     <FormMessage className="text-xs" />

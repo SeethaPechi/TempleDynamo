@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Users, Heart, Phone, Mail, MapPin, X } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { useFormDataTransformation } from "@/lib/i18n-utils";
 import type { Member, Relationship } from "@shared/schema";
 
 interface RelationshipCountersProps {
@@ -20,10 +22,15 @@ interface RelationshipCount {
 }
 
 export function RelationshipCounters({ member, relationships, onMemberClick }: RelationshipCountersProps) {
+  const { t } = useTranslation();
+  const { transformRelationshipData, formatDate } = useFormDataTransformation();
   const [selectedRelationship, setSelectedRelationship] = useState<RelationshipCount | null>(null);
 
+  // Transform relationships data for current language
+  const localizedRelationships = transformRelationshipData(relationships || []);
+
   // Group relationships by type and count them
-  const relationshipCounts = relationships.reduce((counts, rel) => {
+  const relationshipCounts = localizedRelationships.reduce((counts, rel) => {
     const type = rel.relationshipType;
     if (!counts[type]) {
       counts[type] = {

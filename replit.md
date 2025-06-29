@@ -95,6 +95,16 @@ This is a full-stack temple community management system built with React, Expres
 
 ## Recent Changes
 
+✓ **Dynamic Language Transformation for Form Data and Backend Dates** (June 29, 2025)
+  - Implemented comprehensive i18n utilities for dynamic form data transformation
+  - Added localized date formatting with language-specific formats and relative time
+  - Enhanced translation files with complete form field translations (gender, marital status, relationships)
+  - Integrated language transformation across family relationship displays and member data
+  - Form data now automatically transforms based on current language selection
+  - Backend dates display in localized format when language is switched
+  - Relationship types, marital status, and gender values show in selected language
+  - Added comprehensive Tamil translations for all form elements and relationship types
+
 ✓ **Gender Field Implementation and Database Cleanup** (June 27, 2025)
   - Added optional Gender field (Male/Female) to member registry database schema and forms
   - Updated Edit Member Details form to include gender dropdown with auto-save functionality
