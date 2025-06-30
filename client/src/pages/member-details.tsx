@@ -3,8 +3,6 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRoute } from "wouter";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useTranslation } from "react-i18next";
-import { useFormDataTransformation } from "@/lib/i18n-utils";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -495,7 +493,7 @@ export default function MemberDetails() {
     "Paternal Uncle",
     "Paternal Aunt",
     "Maternal Uncle",
-    "Maternal Uncle",
+    "Maternal Aunt",
     "Cousin Brother Mother Side",
     "Cousin Sister Mother Side",
     "Cousin Brother Father Side",
@@ -908,7 +906,7 @@ export default function MemberDetails() {
                                 <div className="p-3 bg-saffron-50 rounded border border-saffron-200">
                                   <p className="font-medium text-base break-words text-temple-brown">
                                     Selected: {selectedRelative.fullName}:
-                                    (Father : {(member as Member).fatherName})
+                                    {/* Add New Relationship (Father : {(member as Member).spouseName})*/}
                                   </p>
                                   <p className="text-sm text-gray-600 break-all">
                                     {selectedRelative.email}

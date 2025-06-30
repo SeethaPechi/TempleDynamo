@@ -4,17 +4,17 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { 
-  Search, 
-  Users, 
-  MapPin, 
-  Phone, 
-  Mail, 
+import {
+  Search,
+  Users,
+  MapPin,
+  Phone,
+  Mail,
   Heart,
   TreePine,
-  Building2
+  Building2,
 } from "lucide-react";
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from "react-i18next";
 import type { Member, Temple } from "@shared/schema";
 import { SimpleMemberCard } from "@/components/simple-member-card";
 
@@ -33,49 +33,67 @@ export default function TempleMembers() {
   });
 
   // Group members by temple
-  const membersByTemple = (allMembers as Member[]).reduce((groups, member) => {
-    const templeId = member.templeId || 'unassigned';
-    if (!groups[templeId]) {
-      groups[templeId] = [];
-    }
-    groups[templeId].push(member);
-    return groups;
-  }, {} as Record<string | number, Member[]>);
+  const membersByTemple = (allMembers as Member[]).reduce(
+    (groups, member) => {
+      const templeId = member.templeId || "unassigned";
+      if (!groups[templeId]) {
+        groups[templeId] = [];
+      }
+      groups[templeId].push(member);
+      return groups;
+    },
+    {} as Record<string | number, Member[]>,
+  );
 
   // Get temple info by ID
   const getTempleById = (id: number | string) => {
-    if (id === 'unassigned') return { id: 'unassigned', templeName: 'Unassigned Members', nearestCity: '', state: '' };
-    return (allTemples as Temple[]).find(temple => temple.id === Number(id));
+    if (id === "unassigned")
+      return {
+        id: "unassigned",
+        templeName: "Unassigned Members",
+        nearestCity: "",
+        state: "",
+      };
+    return (allTemples as Temple[]).find((temple) => temple.id === Number(id));
   };
 
   // Filter members by location if selected
   const getFilteredMembers = (members: Member[]) => {
     if (!selectedLocation) return members;
-    return members.filter(member => 
-      `${member.currentCity}, ${member.currentState}` === selectedLocation
+    return members.filter(
+      (member) =>
+        `${member.currentCity}, ${member.currentState}` === selectedLocation,
     );
   };
 
   // Get location statistics for a temple
   const getLocationStats = (members: Member[]) => {
-    const locationCounts = members.reduce((counts, member) => {
-      const location = `${member.currentCity}, ${member.currentState}`;
-      counts[location] = (counts[location] || 0) + 1;
-      return counts;
-    }, {} as Record<string, number>);
-    
+    const locationCounts = members.reduce(
+      (counts, member) => {
+        const location = `${member.currentCity}, ${member.currentState}`;
+        counts[location] = (counts[location] || 0) + 1;
+        return counts;
+      },
+      {} as Record<string, number>,
+    );
+
     return Object.entries(locationCounts)
-      .sort(([,a], [,b]) => b - a)
+      .sort(([, a], [, b]) => b - a)
       .slice(0, 5); // Top 5 locations
   };
 
   // Search functionality
-  const filteredMembers = selectedTemple 
-    ? getFilteredMembers(membersByTemple[String(selectedTemple.id)] || []).filter((member: Member) => {
+  const filteredMembers = selectedTemple
+    ? getFilteredMembers(
+        membersByTemple[String(selectedTemple.id)] || [],
+      ).filter((member: Member) => {
         if (!searchTerm.trim()) return true;
-        return member.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-               (member.email && member.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
-               member.phone?.includes(searchTerm);
+        return (
+          member.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          (member.email &&
+            member.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
+          member.phone?.includes(searchTerm)
+        );
       })
     : [];
 
@@ -86,7 +104,7 @@ export default function TempleMembers() {
           <div className="animate-pulse space-y-6">
             <div className="h-8 bg-gray-300 rounded w-1/3"></div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[1, 2, 3, 4, 5, 6].map(i => (
+              {[1, 2, 3, 4, 5, 6].map((i) => (
                 <div key={i} className="h-48 bg-gray-300 rounded-lg"></div>
               ))}
             </div>
@@ -106,7 +124,8 @@ export default function TempleMembers() {
             {t("common.templeMembers") || "Temple Members"}
           </h1>
           <p className="text-gray-600 text-lg">
-            {t("common.exploreMembersByTemple") || "Explore community members grouped by their temple associations"}
+            {t("common.exploreMembersByTemple") ||
+              "Explore community members grouped by their temple associations"}
           </p>
         </div>
 
@@ -119,22 +138,32 @@ export default function TempleMembers() {
                 <h2 className="text-2xl font-bold mb-4">Community Overview</h2>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div className="text-center">
-                    <div className="text-3xl font-bold">{(allMembers as Member[]).length}</div>
+                    <div className="text-3xl font-bold">
+                      {(allMembers as Member[]).length}
+                    </div>
                     <div className="text-saffron-100">Total Members</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-3xl font-bold">{(allTemples as Temple[]).length}</div>
+                    <div className="text-3xl font-bold">
+                      {(allTemples as Temple[]).length}
+                    </div>
                     <div className="text-saffron-100">Active Temples</div>
                   </div>
                   <div className="text-center">
                     <div className="text-3xl font-bold">
-                      {new Set((allMembers as Member[]).map(m => `${m.currentCity}, ${m.currentState}`)).size}
+                      {
+                        new Set(
+                          (allMembers as Member[]).map(
+                            (m) => `${m.currentCity}, ${m.currentState}`,
+                          ),
+                        ).size
+                      }
                     </div>
                     <div className="text-saffron-100">Locations</div>
                   </div>
                   <div className="text-center">
                     <div className="text-3xl font-bold">
-                      {membersByTemple['unassigned']?.length || 0}
+                      {membersByTemple["unassigned"]?.length || 0}
                     </div>
                     <div className="text-saffron-100">Unassigned</div>
                   </div>
@@ -148,20 +177,28 @@ export default function TempleMembers() {
               {(allTemples as Temple[]).map((temple) => {
                 const members = membersByTemple[String(temple.id)] || [];
                 const locationStats = getLocationStats(members);
-                
+
                 return (
-                  <Card 
-                    key={temple.id} 
+                  <Card
+                    key={temple.id}
                     className="cursor-pointer hover:shadow-lg transition-all border-2 hover:border-temple-gold"
                     onClick={() => setSelectedTemple(temple)}
                   >
                     <CardHeader className="bg-gradient-to-r from-saffron-100 to-gold-100">
                       <CardTitle className="flex items-center justify-between">
                         <div className="flex items-center">
-                          <TreePine className="mr-2 text-saffron-600" size={24} />
-                          <span className="text-temple-brown">{temple.templeName}</span>
+                          <TreePine
+                            className="mr-2 text-saffron-600"
+                            size={24}
+                          />
+                          <span className="text-temple-brown">
+                            {temple.templeName}
+                          </span>
                         </div>
-                        <Badge variant="secondary" className="bg-saffron-500 text-white">
+                        <Badge
+                          variant="secondary"
+                          className="bg-saffron-500 text-white"
+                        >
                           {members.length} members
                         </Badge>
                       </CardTitle>
@@ -170,24 +207,36 @@ export default function TempleMembers() {
                       <div className="space-y-3">
                         <div className="flex items-center text-sm text-gray-600">
                           <MapPin className="mr-1" size={14} />
-                          {temple.nearestCity}, {temple.state}
+                          {temple.village},near {temple.nearestCity},{" "}
+                          {temple.state}
                         </div>
-                        
+
                         {locationStats.length > 0 && (
                           <div>
-                            <p className="text-sm font-medium text-temple-brown mb-2">Top Locations:</p>
+                            <p className="text-sm font-medium text-temple-brown mb-2">
+                              Top Locations:
+                            </p>
                             <div className="space-y-1">
-                              {locationStats.slice(0, 3).map(([location, count]) => (
-                                <div key={location} className="flex justify-between text-xs">
-                                  <span className="text-gray-600">{location}</span>
-                                  <span className="font-medium text-saffron-600">{count}</span>
-                                </div>
-                              ))}
+                              {locationStats
+                                .slice(0, 3)
+                                .map(([location, count]) => (
+                                  <div
+                                    key={location}
+                                    className="flex justify-between text-xs"
+                                  >
+                                    <span className="text-gray-600">
+                                      {location}
+                                    </span>
+                                    <span className="font-medium text-saffron-600">
+                                      {count}
+                                    </span>
+                                  </div>
+                                ))}
                             </div>
                           </div>
                         )}
-                        
-                        <Button 
+
+                        <Button
                           className="w-full bg-saffron-500 hover:bg-saffron-600 text-white"
                           onClick={(e) => {
                             e.stopPropagation();
@@ -203,39 +252,56 @@ export default function TempleMembers() {
               })}
 
               {/* Unassigned Members */}
-              {membersByTemple['unassigned'] && membersByTemple['unassigned'].length > 0 && (
-                <Card 
-                  className="cursor-pointer hover:shadow-lg transition-all border-2 hover:border-gray-400 border-dashed"
-                  onClick={() => setSelectedTemple({ id: 'unassigned', templeName: 'Unassigned Members', nearestCity: '', state: '' } as any)}
-                >
-                  <CardHeader className="bg-gradient-to-r from-gray-100 to-gray-200">
-                    <CardTitle className="flex items-center justify-between">
-                      <div className="flex items-center">
-                        <Users className="mr-2 text-gray-600" size={24} />
-                        <span className="text-gray-700">Unassigned Members</span>
-                      </div>
-                      <Badge variant="outline" className="border-gray-400 text-gray-600">
-                        {membersByTemple['unassigned'].length} members
-                      </Badge>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="p-4">
-                    <p className="text-sm text-gray-600 mb-3">
-                      Members who haven't been assigned to a specific temple yet.
-                    </p>
-                    <Button 
-                      variant="outline" 
-                      className="w-full border-gray-400 text-gray-600 hover:bg-gray-50"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setSelectedTemple({ id: 'unassigned', templeName: 'Unassigned Members' } as any);
-                      }}
-                    >
-                      View Members
-                    </Button>
-                  </CardContent>
-                </Card>
-              )}
+              {membersByTemple["unassigned"] &&
+                membersByTemple["unassigned"].length > 0 && (
+                  <Card
+                    className="cursor-pointer hover:shadow-lg transition-all border-2 hover:border-gray-400 border-dashed"
+                    onClick={() =>
+                      setSelectedTemple({
+                        id: "unassigned",
+                        templeName: "Unassigned Members",
+                        nearestCity: "",
+                        state: "",
+                      } as any)
+                    }
+                  >
+                    <CardHeader className="bg-gradient-to-r from-gray-100 to-gray-200">
+                      <CardTitle className="flex items-center justify-between">
+                        <div className="flex items-center">
+                          <Users className="mr-2 text-gray-600" size={24} />
+                          <span className="text-gray-700">
+                            Unassigned Members
+                          </span>
+                        </div>
+                        <Badge
+                          variant="outline"
+                          className="border-gray-400 text-gray-600"
+                        >
+                          {membersByTemple["unassigned"].length} members
+                        </Badge>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-4">
+                      <p className="text-sm text-gray-600 mb-3">
+                        Members who haven't been assigned to a specific temple
+                        yet.
+                      </p>
+                      <Button
+                        variant="outline"
+                        className="w-full border-gray-400 text-gray-600 hover:bg-gray-50"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedTemple({
+                            id: "unassigned",
+                            templeName: "Unassigned Members",
+                          } as any);
+                        }}
+                      >
+                        View Members
+                      </Button>
+                    </CardContent>
+                  </Card>
+                )}
             </div>
           </div>
         ) : (
@@ -243,8 +309,8 @@ export default function TempleMembers() {
           <div className="space-y-6">
             {/* Back Button and Temple Header */}
             <div className="flex items-center justify-between">
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 onClick={() => {
                   setSelectedTemple(null);
                   setSelectedLocation(null);
@@ -261,25 +327,32 @@ export default function TempleMembers() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
                   <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center">
-                    {selectedTemple.id === 'unassigned' ? (
+                    {selectedTemple.id === "unassigned" ? (
                       <Users className="text-gray-600" size={32} />
                     ) : (
                       <TreePine className="text-saffron-500" size={32} />
                     )}
                   </div>
                   <div>
-                    <h2 className="text-2xl font-bold">{selectedTemple.templeName}</h2>
-                    {String(selectedTemple.id) !== 'unassigned' && (
+                    <h2 className="text-2xl font-bold">
+                      {selectedTemple.templeName}
+                    </h2>
+                    {String(selectedTemple.id) !== "unassigned" && (
                       <p className="text-saffron-100">
-                        {getTempleById(selectedTemple.id)?.nearestCity}, {getTempleById(selectedTemple.id)?.state}
+                        {getTempleById(selectedTemple.id)?.nearestCity},{" "}
+                        {getTempleById(selectedTemple.id)?.state}
                       </p>
                     )}
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="text-3xl font-bold">{filteredMembers.length}</div>
+                  <div className="text-3xl font-bold">
+                    {filteredMembers.length}
+                  </div>
                   <div className="text-saffron-100">
-                    {selectedLocation ? `Members in ${selectedLocation}` : 'Total Members'}
+                    {selectedLocation
+                      ? `Members in ${selectedLocation}`
+                      : "Total Members"}
                   </div>
                 </div>
               </div>
@@ -288,16 +361,22 @@ export default function TempleMembers() {
             {/* Location Statistics */}
             {!selectedLocation && (
               <Card className="p-6">
-                <h3 className="text-lg font-semibold text-temple-brown mb-4">Member Distribution by Location</h3>
+                <h3 className="text-lg font-semibold text-temple-brown mb-4">
+                  Member Distribution by Location
+                </h3>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                  {getLocationStats(membersByTemple[String(selectedTemple.id)] || []).map(([location, count]) => (
-                    <div 
+                  {getLocationStats(
+                    membersByTemple[String(selectedTemple.id)] || [],
+                  ).map(([location, count]) => (
+                    <div
                       key={location}
                       className="p-4 bg-saffron-50 rounded-lg cursor-pointer hover:bg-saffron-100 transition-colors border-2 hover:border-saffron-300"
                       onClick={() => setSelectedLocation(location)}
                     >
                       <div className="text-center">
-                        <div className="text-2xl font-bold text-saffron-600">{count}</div>
+                        <div className="text-2xl font-bold text-saffron-600">
+                          {count}
+                        </div>
                         <div className="text-sm text-gray-600">{location}</div>
                       </div>
                     </div>
@@ -310,7 +389,10 @@ export default function TempleMembers() {
             <Card className="p-4">
               <div className="flex items-center space-x-4">
                 <div className="flex-1 relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                  <Search
+                    className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                    size={20}
+                  />
                   <Input
                     placeholder="Search members by name, email, or phone..."
                     value={searchTerm}
@@ -319,8 +401,8 @@ export default function TempleMembers() {
                   />
                 </div>
                 {selectedLocation && (
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     onClick={() => setSelectedLocation(null)}
                     className="whitespace-nowrap"
                   >
@@ -334,19 +416,24 @@ export default function TempleMembers() {
             {filteredMembers.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredMembers.map((member, index) => (
-                  <Card key={member.id} className="p-4 hover:shadow-lg transition-shadow">
+                  <Card
+                    key={member.id}
+                    className="p-4 hover:shadow-lg transition-shadow"
+                  >
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
-                        <h3 className="font-bold text-temple-brown text-lg">{member.fullName}</h3>
+                        <h3 className="font-bold text-temple-brown text-lg">
+                          {member.fullName}
+                        </h3>
                         <Badge variant="outline" className="text-xs">
                           #{member.id}
                         </Badge>
                       </div>
-                      
+
                       <div className="space-y-2 text-sm">
                         <div className="flex items-center text-gray-600">
                           <Phone className="mr-2" size={14} />
-                          {member.phone || 'No phone'}
+                          {member.phone || "No phone"}
                         </div>
                         {member.email && (
                           <div className="flex items-center text-gray-600">
@@ -362,9 +449,12 @@ export default function TempleMembers() {
                           <div className="flex items-center text-gray-600">
                             <Heart className="mr-2" size={14} />
                             {member.maritalStatus}
-                            {member.spouseName && member.maritalStatus === 'Married' && (
-                              <span className="ml-1">- {member.spouseName}</span>
-                            )}
+                            {member.spouseName &&
+                              member.maritalStatus === "Married" && (
+                                <span className="ml-1">
+                                  - {member.spouseName}
+                                </span>
+                              )}
                           </div>
                         )}
                       </div>
@@ -375,14 +465,15 @@ export default function TempleMembers() {
             ) : (
               <Card className="p-8 text-center">
                 <Users className="mx-auto mb-4 text-gray-400" size={48} />
-                <h3 className="text-lg font-semibold text-gray-600 mb-2">No Members Found</h3>
+                <h3 className="text-lg font-semibold text-gray-600 mb-2">
+                  No Members Found
+                </h3>
                 <p className="text-gray-500">
-                  {searchTerm 
-                    ? "No members match your search criteria." 
-                    : selectedLocation 
-                    ? `No members found in ${selectedLocation}.`
-                    : "This temple doesn't have any members yet."
-                  }
+                  {searchTerm
+                    ? "No members match your search criteria."
+                    : selectedLocation
+                      ? `No members found in ${selectedLocation}.`
+                      : "This temple doesn't have any members yet."}
                 </p>
               </Card>
             )}
