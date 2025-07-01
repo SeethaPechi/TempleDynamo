@@ -45,19 +45,70 @@ export function RelationshipCounters({ member, relationships, onMemberClick }: R
     return counts;
   }, {} as Record<string, RelationshipCount>);
 
-  // Get color coding for relationship types
+  // Get unique color coding for each relationship type
   function getRelationshipColor(relationship: string): string {
-    const type = relationship.toLowerCase();
-    if (['father', 'mother'].includes(type)) return 'bg-blue-100 text-blue-800 border-blue-200';
-    if (['wife', 'husband', 'spouse'].includes(type)) return 'bg-pink-100 text-pink-800 border-pink-200';
-    if (['brother', 'sister', 'elder brother', 'elder sister', 'younger brother', 'younger sister'].includes(type)) return 'bg-green-100 text-green-800 border-green-200';
-    if (['son', 'daughter', 'child'].includes(type)) return 'bg-purple-100 text-purple-800 border-purple-200';
-    if (['paternal grandfather', 'paternal grandmother', 'maternal grandfather', 'maternal grandmother'].includes(type)) return 'bg-gray-100 text-gray-800 border-gray-200';
-    if (['uncle', 'aunt', 'cousin', 'paternal uncle', 'maternal uncle'].includes(type)) return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-    if (['nephew', 'niece'].includes(type)) return 'bg-orange-100 text-orange-800 border-orange-200';
-    if (['grand son', 'grand daughter'].includes(type)) return 'bg-indigo-100 text-indigo-800 border-indigo-200';
-    if (['father-in-law', 'mother-in-law', 'brother-in-law', 'sister-in-law'].includes(type)) return 'bg-rose-100 text-rose-800 border-rose-200';
-    return 'bg-gray-100 text-gray-800 border-gray-200';
+    const type = relationship.toLowerCase().replace(/\s+/g, '');
+    
+    // Each relationship gets its own unique color
+    const relationshipColors: Record<string, string> = {
+      // Parents
+      'father': 'bg-blue-600 text-white border-blue-700',
+      'mother': 'bg-rose-500 text-white border-rose-600',
+      
+      // Grandparents
+      'paternalgrandfather': 'bg-slate-800 text-white border-slate-900', // Dark blue
+      'paternalgrandmother': 'bg-slate-600 text-white border-slate-700',
+      'maternalgrandfather': 'bg-purple-800 text-white border-purple-900', // Velvet
+      'maternalgrandmother': 'bg-purple-600 text-white border-purple-700',
+      
+      // Spouses
+      'husband': 'bg-emerald-600 text-white border-emerald-700',
+      'wife': 'bg-pink-600 text-white border-pink-700',
+      'spouse': 'bg-teal-600 text-white border-teal-700',
+      
+      // Children
+      'son': 'bg-indigo-600 text-white border-indigo-700',
+      'daughter': 'bg-pink-500 text-white border-pink-600',
+      'child': 'bg-purple-500 text-white border-purple-600',
+      
+      // Siblings
+      'brother': 'bg-green-600 text-white border-green-700',
+      'sister': 'bg-pink-400 text-white border-pink-500',
+      'elderbrother': 'bg-green-700 text-white border-green-800',
+      'eldersister': 'bg-pink-600 text-white border-pink-700',
+      'youngerbrother': 'bg-green-500 text-white border-green-600',
+      'youngersister': 'bg-pink-300 text-gray-800 border-pink-400',
+      
+      // Uncles and Aunts
+      'paternaluncle': 'bg-orange-600 text-white border-orange-700',
+      'paternalaunt': 'bg-orange-400 text-white border-orange-500',
+      'maternaluncle': 'bg-amber-600 text-white border-amber-700',
+      'maternalaunt': 'bg-amber-400 text-white border-amber-500',
+      'uncle': 'bg-yellow-600 text-white border-yellow-700',
+      'aunt': 'bg-yellow-400 text-gray-800 border-yellow-500',
+      
+      // Extended family
+      'cousin': 'bg-lime-600 text-white border-lime-700',
+      'nephew': 'bg-cyan-600 text-white border-cyan-700',
+      'niece': 'bg-cyan-400 text-white border-cyan-500',
+      'grandson': 'bg-violet-600 text-white border-violet-700',
+      'granddaughter': 'bg-violet-400 text-white border-violet-500',
+      
+      // In-laws
+      'fatherinlaw': 'bg-gray-700 text-white border-gray-800',
+      'motherinlaw': 'bg-gray-500 text-white border-gray-600',
+      'brotherinlaw': 'bg-stone-600 text-white border-stone-700',
+      'sisterinlaw': 'bg-stone-400 text-white border-stone-500',
+    };
+    
+    return relationshipColors[type] || 'bg-gray-400 text-white border-gray-500';
+  }
+
+  // Get gender-based color for member cards
+  function getMemberGenderColor(gender: string | null): string {
+    if (gender === 'Male') return 'bg-blue-50 border-blue-200';
+    if (gender === 'Female') return 'bg-pink-50 border-pink-200';
+    return 'bg-gray-50 border-gray-200';
   }
 
   const counters = Object.values(relationshipCounts).sort((a, b) => b.count - a.count);
