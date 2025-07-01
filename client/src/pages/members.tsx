@@ -14,6 +14,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Search, ChevronLeft, ChevronRight, Users } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { Member } from "@shared/schema";
+import { getGenderColors } from "@/lib/color-utils";
 import { SimpleMemberCard } from "@/components/simple-member-card";
 
 const states = [
@@ -249,36 +250,38 @@ export default function Members() {
         ) : (
           <>
             <div className="space-y-4">
-              {paginatedMembers.map((member: Member, index: number) => (
-                <div
-                  key={member.id}
-                  className="bg-white p-4 rounded-lg shadow border flex items-center space-x-4 cursor-pointer hover:shadow-lg transition-shadow"
-                  onClick={() => {
-                    console.log("Navigating to member:", member.id);
-                    window.location.href = `/member/${member.id}`;
-                  }}
-                >
-                  <div className="w-12 h-12 bg-saffron-500 rounded-full flex items-center justify-center">
-                    <Users className="text-white" size={20} />
+              {paginatedMembers.map((member: Member, index: number) => {
+                const colors = getGenderColors(member.gender);
+                return (
+                  <div
+                    key={member.id}
+                    className={`${colors.background} ${colors.border} p-4 rounded-lg shadow border flex items-center space-x-4 cursor-pointer hover:shadow-lg transition-shadow`}
+                    onClick={() => {
+                      console.log("Navigating to member:", member.id);
+                      window.location.href = `/member/${member.id}`;
+                    }}
+                  >
+                    <div className={`w-12 h-12 ${colors.iconBg} rounded-full flex items-center justify-center`}>
+                      <Users className={colors.iconColor} size={20} />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className={`text-lg font-semibold hover:text-saffron-600 ${colors.text}`}>
+                        {member.fullName} : Father Name is : {(member as Member).fatherName}
+                      </h3>
+                      <p className="text-sm text-gray-500">
+                        Member #{member.id} • {member.gender || 'Unspecified'}
+                      </p>
+                      <p className="text-sm text-gray-500">{member.email}</p>
+                      <p className="text-sm text-gray-500">
+                        {member.currentCity}, {member.currentState}
+                      </p>
+                    </div>
+                    <div className="text-gray-400">
+                      <span className="text-xs">Click to view details</span>
+                    </div>
                   </div>
-                  <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-temple-brown hover:text-saffron-600">
-                      {member.fullName} : Father Name is :{" "}
-                      {(member as Member).fatherName}
-                    </h3>
-                    <p className="text-sm text-gray-500">
-                      Member #{member.id}
-                    </p>
-                    <p className="text-sm text-gray-500">{member.email}</p>
-                    <p className="text-sm text-gray-500">
-                      {member.currentCity}, {member.currentState}
-                    </p>
-                  </div>
-                  <div className="text-gray-400">
-                    <span className="text-xs">Click to view details</span>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
             {/* Pagination */}
