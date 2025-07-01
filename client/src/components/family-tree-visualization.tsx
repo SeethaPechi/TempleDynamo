@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Users, Heart, Phone, Mail, MapPin, TreePine } from "lucide-react";
 import type { Member, Relationship } from "@shared/schema";
+import { getGenderColors, getRelationshipColor } from "@/lib/color-utils";
 
 interface FamilyTreeProps {
   member: Member;
@@ -158,16 +159,16 @@ export function FamilyTreeVisualization({ member, relationships, onMemberClick }
             {relationships.map((relationship) => (
               <div 
                 key={relationship.id} 
-                className="p-4 bg-white rounded-lg border-l-4 border-saffron-500 hover:shadow-md transition-shadow cursor-pointer"
+                className={`p-4 rounded-lg border-l-4 border-saffron-500 hover:shadow-md transition-shadow cursor-pointer ${getGenderColors(relationship.relatedMember.gender).background}`}
                 onClick={() => onMemberClick?.(relationship.relatedMember.id)}
               >
                 <div className="flex items-center justify-between mb-2">
-                  <h4 className="font-bold text-temple-brown text-lg">
+                  <h4 className={`font-bold text-lg ${getGenderColors(relationship.relatedMember.gender).text}`}>
                     {relationship.relatedMember.fullName}
                   </h4>
                   <Badge 
                     variant="secondary" 
-                    className={`text-xs ${getRelationshipColor(relationship.relationshipType)}`}
+                    className={getRelationshipColor(relationship.relationshipType)}
                   >
                     {relationship.relationshipType}
                   </Badge>
