@@ -32,6 +32,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { FamilyTreeVisualization } from "@/components/family-tree-visualization";
 import { FamilyNetworkAnalysis } from "@/components/family-network-analysis";
+import { getGenderColors } from "@/lib/color-utils";
 import { ComprehensiveFamilyDisplay } from "@/components/comprehensive-family-display";
 import { FamilyRelationshipsTable } from "@/components/family-relationships-table";
 import { RelationshipCounters } from "@/components/relationship-counters";
@@ -267,27 +268,30 @@ export default function FamilyTree() {
 
                     {searchResults.length > 0 && (
                       <div className="space-y-2 max-h-64 overflow-y-auto">
-                        {searchResults.map((member: Member) => (
-                          <div
-                            key={member.id}
-                            onClick={() => setSelectedMember(member)}
-                            className={`p-3 rounded-lg cursor-pointer transition-colors ${
-                              selectedMember?.id === member.id
-                                ? "bg-saffron-100 border-saffron-300"
-                                : "bg-gray-50 hover:bg-gray-100"
-                            }`}
-                          >
-                            <h4 className="font-medium text-temple-brown">
-                              {member.fullName}
-                            </h4>
-                            <p className="text-sm text-gray-600">
-                              {member.email}
-                            </p>
-                            <p className="text-xs text-gray-500">
-                              {member.currentCity}, {member.currentState}
-                            </p>
-                          </div>
-                        ))}
+                        {searchResults.map((member: Member) => {
+                          const colors = getGenderColors(member.gender);
+                          return (
+                            <div
+                              key={member.id}
+                              onClick={() => setSelectedMember(member)}
+                              className={`p-3 rounded-lg cursor-pointer transition-colors ${colors.background} ${colors.border} border ${
+                                selectedMember?.id === member.id
+                                  ? "ring-2 ring-saffron-400"
+                                  : "hover:shadow-md"
+                              }`}
+                            >
+                              <h4 className={`font-medium ${colors.text}`}>
+                                {member.fullName} {member.gender && `• ${member.gender}`}
+                              </h4>
+                              <p className="text-sm text-gray-600">
+                                {member.email}
+                              </p>
+                              <p className="text-xs text-gray-500">
+                                {member.currentCity}, {member.currentState}
+                              </p>
+                            </div>
+                          );
+                        })}
                       </div>
                     )}
 
@@ -302,27 +306,30 @@ export default function FamilyTree() {
                         <p className="text-sm text-gray-500 mb-3">
                           All Members:
                         </p>
-                        {(allMembers as Member[]).map((member: Member) => (
-                          <div
-                            key={member.id}
-                            onClick={() => setSelectedMember(member)}
-                            className={`p-3 rounded-lg cursor-pointer transition-colors ${
-                              selectedMember?.id === member.id
-                                ? "bg-saffron-100 border-saffron-300"
-                                : "bg-gray-50 hover:bg-gray-100"
-                            }`}
-                          >
-                            <h4 className="font-medium text-temple-brown">
-                              {member.fullName}
-                            </h4>
-                            <p className="text-sm text-gray-600">
-                              {member.email}
-                            </p>
-                            <p className="text-xs text-gray-500">
-                              {member.currentCity}, {member.currentState}
-                            </p>
-                          </div>
-                        ))}
+                        {(allMembers as Member[]).map((member: Member) => {
+                          const colors = getGenderColors(member.gender);
+                          return (
+                            <div
+                              key={member.id}
+                              onClick={() => setSelectedMember(member)}
+                              className={`p-3 rounded-lg cursor-pointer transition-colors ${colors.background} ${colors.border} border ${
+                                selectedMember?.id === member.id
+                                  ? "ring-2 ring-saffron-400"
+                                  : "hover:shadow-md"
+                              }`}
+                            >
+                              <h4 className={`font-medium ${colors.text}`}>
+                                {member.fullName} {member.gender && `• ${member.gender}`}
+                              </h4>
+                              <p className="text-sm text-gray-600">
+                                {member.email}
+                              </p>
+                              <p className="text-xs text-gray-500">
+                                {member.currentCity}, {member.currentState}
+                              </p>
+                            </div>
+                          );
+                        })}
                       </div>
                     )}
                   </div>

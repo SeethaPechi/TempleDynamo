@@ -111,7 +111,7 @@ export function RelationshipCounters({ member, relationships, onMemberClick }: R
     return 'bg-gray-50 border-gray-200';
   }
 
-  const counters = Object.values(relationshipCounts).sort((a, b) => b.count - a.count);
+  const counters = Object.values(relationshipCounts).sort((a: RelationshipCount, b: RelationshipCount) => b.count - a.count);
 
   if (counters.length === 0) {
     return (
@@ -143,7 +143,7 @@ export function RelationshipCounters({ member, relationships, onMemberClick }: R
 
           {/* Relationship Type Counters */}
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-            {counters.map((relationshipCount) => (
+            {counters.map((relationshipCount: RelationshipCount) => (
               <div
                 key={relationshipCount.type}
                 className={`p-4 rounded-lg border-2 cursor-pointer hover:shadow-md transition-all ${relationshipCount.color} hover:scale-105`}
