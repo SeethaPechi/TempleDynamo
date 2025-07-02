@@ -470,37 +470,39 @@ export default function MemberDetails() {
   const relationshipTypes = [
     "Father",
     "Mother",
-    "Husband",
+    "Step Father",
+    "Step Mother",
     "Wife",
+    "Husband",
     "Son",
     "Daughter",
     "Elder Brother",
     "Elder Sister",
     "Younger Brother",
     "Younger Sister",
-    "Son-in-Law",
-    "Daughter-in-Law",
-    "Father-in-Law",
-    "Mother-in-Law",
-    "Brother-in-Law",
-    "Sister-in-Law",
+    "Step-Brother",
+    "Step-Sister",
     "Paternal Grandfather",
     "Paternal Grandmother",
-    "Maternal Grand Father",
-    "Maternal Grand Mother",
-    "Grand Daugher",
-    "Grand Son",
-    "Paternal Uncle",
-    "Paternal Aunt",
-    "Maternal Uncle",
-    "Maternal Aunt",
-    "Cousin Brother Mother Side",
-    "Cousin Sister Mother Side",
-    "Cousin Brother Father Side",
-    "Cousin Brother Father Side",
+    "Maternal Grandfather",
+    "Maternal Grandmother",
+    "Grand Daugher-Son Side",
+    "Grand Son-Son Side",
+    "Grand Daugher-Daughter Side",
+    "Grand Son-Daughter Side",
     "Nephew",
     "Niece",
-    "In-law",
+    "Mother-in-Law",
+    "Father-in-Law",
+    "Brother-in-Law",
+    "Sister-in-Law",
+    "Aunt",
+    "Uncle",
+    "Cousin Brother-Father Side",
+    "Cousin Sister-Father Side",
+    "Cousin Brother-Mother Side",
+    "Cousin Sister-Mother Side",
+    "Other",
   ];
 
   const { data: member, isLoading: memberLoading } = useQuery({
@@ -859,7 +861,7 @@ export default function MemberDetails() {
                                       className="w-full text-left px-3 py-3 hover:bg-gray-100 border-b last:border-b-0 transition-colors"
                                     >
                                       <div className="font-medium text-sm sm:text-base break-words">
-                                        {member.fullName}
+                                        {member.fullName}{member.fatherName ? ` (Father: ${member.fatherName})` : ''}
                                       </div>
                                       <div className="text-xs sm:text-sm text-gray-500 break-all">
                                         {member.email}
@@ -1962,7 +1964,9 @@ export default function MemberDetails() {
                               setSearchTerm("");
                             }}
                           >
-                            <p className="font-medium">{member.fullName}</p>
+                            <p className="font-medium">
+                              {member.fullName}{member.fatherName ? ` (Father: ${member.fatherName})` : ''}
+                            </p>
                             <p className="text-sm text-gray-600">
                               {member.email}
                             </p>
@@ -1975,7 +1979,7 @@ export default function MemberDetails() {
                 {selectedRelative && (
                   <div className="p-3 bg-gray-50 rounded-md">
                     <p className="font-medium">
-                      Selected: {selectedRelative.fullName}
+                      Selected: {selectedRelative.fullName}{selectedRelative.fatherName ? ` (Father: ${selectedRelative.fatherName})` : ''}
                     </p>
                     <p className="text-sm text-gray-600">
                       {selectedRelative.email}
