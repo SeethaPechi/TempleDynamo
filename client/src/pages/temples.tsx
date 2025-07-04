@@ -37,6 +37,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
 import {
   Search,
   Building,
@@ -52,6 +53,7 @@ import {
   ExternalLink,
   Globe,
   Map,
+  Users,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Link } from "wouter";
@@ -60,7 +62,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import type { Temple } from "@shared/schema";
+import type { Temple, Member } from "@shared/schema";
+import { MemberListModal } from "@/components/member-list-modal";
 
 const countries = [
   { value: "AF", label: "Afghanistan" },
@@ -490,6 +493,12 @@ export default function Temples() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedTemple, setSelectedTemple] = useState<Temple | null>(null);
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
+  const [isMemberListOpen, setIsMemberListOpen] = useState(false);
+  const [memberListData, setMemberListData] = useState<{
+    members: Member[];
+    title: string;
+    description?: string;
+  }>({ members: [], title: "", description: "" });
   const templesPerPage = 9;
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -501,6 +510,26 @@ export default function Temples() {
   const { data: allTemples = [], isLoading } = useQuery({
     queryKey: ["/api/temples"],
   });
+
+  const { data: allMembers = [] } = useQuery({
+    queryKey: ["/api/members"],
+  });
+
+  // Get member count for a specific temple
+  const getTempleMembers = (templeId: number) => {
+    return (allMembers as Member[]).filter(member => member.templeId === templeId);
+  };
+
+  // Show temple members in modal
+  const showTempleMembers = (temple: Temple) => {
+    const templeMembers = getTempleMembers(temple.id);
+    setMemberListData({
+      members: templeMembers,
+      title: `${temple.templeName} - Members`,
+      description: `${templeMembers.length} registered members associated with this temple`,
+    });
+    setIsMemberListOpen(true);
+  };
 
   const form = useForm<TempleEditData>({
     resolver: zodResolver(templeEditSchema),
@@ -932,18 +961,30 @@ export default function Temples() {
                 <div
                   className={`bg-gradient-to-r ${getGradientColor(index)} p-4`}
                 >
-                  <div className="flex items-center space-x-3">
-                    <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
-                      <Building className="text-white" size={20} />
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
+                        <Building className="text-white" size={20} />
+                      </div>
+                      <div>
+                        <h3 className="text-gray-600 text-sm">
+                          {temple.templeName}
+                        </h3>
+                        {temple.deity && (
+                          <p className="text-gray-600 text-sm">{temple.deity}</p>
+                        )}
+                      </div>
                     </div>
-                    <div>
-                      <h3 className="text-gray-600 text-sm">
-                        {temple.templeName}
-                      </h3>
-                      {temple.deity && (
-                        <p className="text-gray-600 text-sm">{temple.deity}</p>
-                      )}
-                    </div>
+                    <Badge
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        showTempleMembers(temple);
+                      }}
+                      className="bg-white/90 text-gray-700 hover:bg-white cursor-pointer transition-colors"
+                    >
+                      <Users className="mr-1" size={12} />
+                      {getTempleMembers(temple.id).length} members
+                    </Badge>
                   </div>
                 </div>
                 <CardContent className="p-6">
@@ -1541,6 +1582,15 @@ export default function Temples() {
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
+
+        {/* Member List Modal */}
+        <MemberListModal
+          isOpen={isMemberListOpen}
+          onClose={() => setIsMemberListOpen(false)}
+          members={memberListData.members}
+          title={memberListData.title}
+          description={memberListData.description}
+        />
       </div>
     </div>
   );

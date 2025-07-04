@@ -17,12 +17,19 @@ import {
 import { useTranslation } from "react-i18next";
 import type { Member, Temple } from "@shared/schema";
 import { SimpleMemberCard } from "@/components/simple-member-card";
+import { MemberListModal } from "@/components/member-list-modal";
 
 export default function TempleMembers() {
   const { t } = useTranslation();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedTemple, setSelectedTemple] = useState<Temple | null>(null);
   const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
+  const [isMemberListOpen, setIsMemberListOpen] = useState(false);
+  const [memberListData, setMemberListData] = useState<{
+    members: Member[];
+    title: string;
+    description?: string;
+  }>({ members: [], title: "", description: "" });
 
   const { data: allMembers = [], isLoading: membersLoading } = useQuery({
     queryKey: ["/api/members"],
@@ -82,6 +89,38 @@ export default function TempleMembers() {
       .slice(0, 5); // Top 5 locations
   };
 
+  // Handler functions for showing member lists
+  const showAllMembers = () => {
+    setMemberListData({
+      members: allMembers as Member[],
+      title: "All Community Members",
+      description: `Complete directory of ${(allMembers as Member[]).length} registered community members`,
+    });
+    setIsMemberListOpen(true);
+  };
+
+  const showTempleMembers = (temple: Temple) => {
+    const templeMembers = membersByTemple[String(temple.id)] || [];
+    setMemberListData({
+      members: templeMembers,
+      title: `${temple.templeName} - Members`,
+      description: `${templeMembers.length} registered members associated with this temple`,
+    });
+    setIsMemberListOpen(true);
+  };
+
+  const showLocationMembers = (location: string, templeMembers: Member[]) => {
+    const locationMembers = templeMembers.filter(
+      member => `${member.currentCity}, ${member.currentState}` === location
+    );
+    setMemberListData({
+      members: locationMembers,
+      title: `Members in ${location}`,
+      description: `${locationMembers.length} members currently residing in this location`,
+    });
+    setIsMemberListOpen(true);
+  };
+
   // Search functionality
   const filteredMembers = selectedTemple
     ? getFilteredMembers(
@@ -137,11 +176,15 @@ export default function TempleMembers() {
               <div className="text-center">
                 <h2 className="text-2xl font-bold mb-4">Community Overview</h2>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div className="text-center">
+                  <div 
+                    className="text-center cursor-pointer hover:bg-white/10 rounded-lg p-3 transition-colors"
+                    onClick={showAllMembers}
+                  >
                     <div className="text-3xl font-bold">
                       {(allMembers as Member[]).length}
                     </div>
                     <div className="text-saffron-100">Total Members</div>
+                    <div className="text-xs text-saffron-200 mt-1">Click to view</div>
                   </div>
                   <div className="text-center">
                     <div className="text-3xl font-bold">
@@ -161,11 +204,23 @@ export default function TempleMembers() {
                     </div>
                     <div className="text-saffron-100">Locations</div>
                   </div>
-                  <div className="text-center">
+                  <div 
+                    className="text-center cursor-pointer hover:bg-white/10 rounded-lg p-3 transition-colors"
+                    onClick={() => {
+                      const unassignedMembers = membersByTemple["unassigned"] || [];
+                      setMemberListData({
+                        members: unassignedMembers,
+                        title: "Unassigned Members",
+                        description: `${unassignedMembers.length} members not yet associated with a specific temple`,
+                      });
+                      setIsMemberListOpen(true);
+                    }}
+                  >
                     <div className="text-3xl font-bold">
                       {membersByTemple["unassigned"]?.length || 0}
                     </div>
                     <div className="text-saffron-100">Unassigned</div>
+                    <div className="text-xs text-saffron-200 mt-1">Click to view</div>
                   </div>
                 </div>
               </div>
@@ -197,8 +252,13 @@ export default function TempleMembers() {
                         </div>
                         <Badge
                           variant="secondary"
-                          className="bg-saffron-500 text-white"
+                          className="bg-saffron-500 text-white cursor-pointer hover:bg-saffron-600 transition-colors"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            showTempleMembers(temple);
+                          }}
                         >
+                          <Users className="mr-1" size={12} />
                           {members.length} members
                         </Badge>
                       </CardTitle>
@@ -222,13 +282,17 @@ export default function TempleMembers() {
                                 .map(([location, count]) => (
                                   <div
                                     key={location}
-                                    className="flex justify-between text-xs"
+                                    className="flex justify-between text-xs cursor-pointer hover:bg-saffron-50 rounded px-2 py-1 transition-colors"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      showLocationMembers(location, members);
+                                    }}
                                   >
                                     <span className="text-gray-600">
                                       {location}
                                     </span>
                                     <span className="font-medium text-saffron-600">
-                                      {count}
+                                      {count} members
                                     </span>
                                   </div>
                                 ))}
@@ -327,7 +391,7 @@ export default function TempleMembers() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
                   <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center">
-                    {selectedTemple.id === "unassigned" ? (
+                    {selectedTemple.templeName === "Unassigned Members" ? (
                       <Users className="text-gray-600" size={32} />
                     ) : (
                       <TreePine className="text-saffron-500" size={32} />
@@ -337,7 +401,7 @@ export default function TempleMembers() {
                     <h2 className="text-2xl font-bold">
                       {selectedTemple.templeName}
                     </h2>
-                    {String(selectedTemple.id) !== "unassigned" && (
+                    {selectedTemple.templeName !== "Unassigned Members" && (
                       <p className="text-saffron-100">
                         {getTempleById(selectedTemple.id)?.nearestCity},{" "}
                         {getTempleById(selectedTemple.id)?.state}
@@ -479,6 +543,15 @@ export default function TempleMembers() {
             )}
           </div>
         )}
+
+        {/* Member List Modal */}
+        <MemberListModal
+          isOpen={isMemberListOpen}
+          onClose={() => setIsMemberListOpen(false)}
+          members={memberListData.members}
+          title={memberListData.title}
+          description={memberListData.description}
+        />
       </div>
     </div>
   );
