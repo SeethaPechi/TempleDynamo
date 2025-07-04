@@ -8,7 +8,7 @@ NODE_ENV=production
 DATABASE_URL=postgresql://temple_app:your_secure_password@localhost:5432/temple_management
 
 # Server Configuration
-PORT=5000
+PORT=8080
 HOST=0.0.0.0
 
 # Session Configuration

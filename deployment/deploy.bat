@@ -3,7 +3,7 @@ REM Temple Management System - Windows IIS Deployment Script
 REM Run this script as Administrator
 
 echo ============================================
-echo Temple Management System - IIS Deployment
+echo TMS (Temple Management System) - IIS Deployment
 echo ============================================
 echo.
 
@@ -18,10 +18,10 @@ if %errorLevel% == 0 (
     exit /b 1
 )
 
-set SITE_NAME=Temple Management System
-set APP_POOL=TempleManagementPool
-set SITE_PATH=C:\inetpub\wwwroot\temple-app
-set SITE_PORT=80
+set SITE_NAME=TMS
+set APP_POOL=TMSPool
+set SITE_PATH=C:\inetpub\wwwroot\tms
+set SITE_PORT=8080
 
 echo.
 echo Step 1: Creating Application Pool...

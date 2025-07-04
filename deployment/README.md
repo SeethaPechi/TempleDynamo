@@ -40,7 +40,7 @@ psql -h localhost -U temple_app -d temple_management -f sample-data.sql
 ## Application Deployment
 
 ### 1. Prepare Application Files
-Copy the following files to your IIS web directory (e.g., `C:\inetpub\wwwroot\temple-app\`):
+Copy the following files to your IIS web directory (e.g., `C:\inetpub\wwwroot\tms\`):
 - `server.js` (main application file)
 - `package.json` (dependencies)
 - `web.config` (IIS configuration)
@@ -49,7 +49,7 @@ Copy the following files to your IIS web directory (e.g., `C:\inetpub\wwwroot\te
 ### 2. Install Dependencies
 ```bash
 # Navigate to application directory
-cd C:\inetpub\wwwroot\temple-app\
+cd C:\inetpub\wwwroot\tms\
 # Install production dependencies
 npm install --production
 ```
@@ -68,16 +68,16 @@ SESSION_SECRET=your_secure_session_secret_here
 #### Create Application Pool
 1. Open IIS Manager
 2. Right-click "Application Pools" → "Add Application Pool"
-3. Name: `TempleManagementPool`
+3. Name: `TMSPool`
 4. .NET CLR Version: `No Managed Code`
 5. Managed Pipeline Mode: `Integrated`
 
 #### Create Website
 1. Right-click "Sites" → "Add Website"
-2. Site name: `Temple Management System`
-3. Application pool: `TempleManagementPool`
-4. Physical path: `C:\inetpub\wwwroot\temple-app\`
-5. Port: `80` (or your preferred port)
+2. Site name: `TMS`
+3. Application pool: `TMSPool`
+4. Physical path: `C:\inetpub\wwwroot\tms\`
+5. Port: `8080`
 
 #### Configure URL Rewrite
 Ensure the `web.config` file is in the application root. This handles routing for the React frontend.
@@ -91,7 +91,7 @@ Set appropriate permissions for the application folder:
 
 ### 2. Firewall
 Open necessary ports in Windows Firewall:
-- HTTP: Port 80
+- HTTP: Port 8080
 - HTTPS: Port 443 (if using SSL)
 - PostgreSQL: Port 5432 (for database access)
 
