@@ -766,10 +766,10 @@ export default function MemberDetails() {
 
           {/* Member Profile Card */}
           <Card className="mb-8 overflow-hidden">
-            <div className="bg-gradient-to-r from-saffron-500 to-gold-500 p-4 sm:p-6 text-white">
+            <div className="bg-gradient-to-r from-saffron-500 to-gold-500 p-4 sm:p-6 text-black">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="min-w-0 flex-1">
-                  <h2 className="text-xl sm:text-2xl font-bold mb-2 break-words">
+                  <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-temple-brown">
                     {(member as Member).fullName}
                   </h2>
                   <p className="text-saffron-100">
@@ -777,14 +777,14 @@ export default function MemberDetails() {
                   </p>
                 </div>
                 <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-                  <Button
+                  {/*<Button
                     variant="outline"
                     size="sm"
                     className="bg-temple-gold hover:bg-temple-gold/90 text-white border-temple-gold"
                     onClick={() => setIsAddRelativeOpen(true)}
                   >
                     <Plus className="mr-1 sm:mr-2" size={16} />
-                    <span className="hidden sm:inline">Link Family Member</span>
+                     <span className="hidden sm:inline">Link Family Member</span> 
                     <span className="sm:hidden">Link</span>
                   </Button>
                   <Button
@@ -793,10 +793,10 @@ export default function MemberDetails() {
                     className="bg-saffron-500 hover:bg-saffron-600 text-white border-saffron-500 w-full sm:w-auto"
                     onClick={() => setIsAddRelativeOpen(true)}
                   >
-                    <Plus className="mr-1 sm:mr-2" size={16} />
+                    {/*<Plus className="mr-1 sm:mr-2" size={16} />
                     <span className="hidden sm:inline">Link Family Member</span>
                     <span className="sm:hidden">Link</span>
-                  </Button>
+                  </Button>*/}
                   <Dialog
                     open={isRelativesModalOpen}
                     onOpenChange={setIsRelativesModalOpen}
@@ -1693,7 +1693,7 @@ export default function MemberDetails() {
                   </AlertDialog>
                 </div>
               </div>
-              <div className="space-y-2 text-white/90">
+              <div className="space-y-2 text-black/90">
                 <div className="flex items-start">
                   <Mail className="mr-2 mt-0.5 flex-shrink-0" size={16} />
                   <span className="break-all">{(member as Member).email}</span>

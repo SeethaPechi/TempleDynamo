@@ -442,8 +442,7 @@ const relationships = [
   { value: "Maternal Grandmother", label: "Maternal Grandmother" },
   { value: "Grand Daugher-Son Side", label: "Grand Daugher-Son Side" },
   { value: "Grand Son-Son Side", label: "Grand Son-Son Side" },
-  {
-    value: "Grand Daugher-Daughter Side",
+  {value: "Grand Daugher-Daughter Side",
     label: "Grand Daugher-Daughter Side",
   },
   { value: "Grand Son-Daughter Side", label: "Grand Son-Daughter Side" },
