@@ -95,6 +95,17 @@ This is a full-stack temple community management system built with React, Expres
 
 ## Recent Changes
 
+✓ **Registry Form Auto-Clear and Live Counters Implementation** (July 4, 2025)
+  - Fixed registry page to completely clear all form data after successful member registration
+  - Implemented comprehensive form reset that removes localStorage draft data and resets all state variables
+  - Added live member counters across Home, Temple, and Member pages with real-time database updates
+  - Created clickable counter functionality that displays detailed member information in modal dialogs
+  - Built reusable MemberListModal component for consistent member display across all pages
+  - Added member count badges to temple cards with clickable functionality to view temple-specific members
+  - Enhanced temple-members page with clickable statistics and location-based member filtering
+  - Fixed TypeScript errors in auto-save functionality and optimized form performance
+  - Registry now prevents data retention errors when entering consecutive member records
+
 ✓ **Comprehensive Color Coding System Implementation** (June 30, 2025)
   - Implemented gender-based color coding: Male members in blue, Female members in pink
   - Created unique color scheme for each relationship type (Paternal Grandfather: Dark blue, Maternal Grandfather: Velvet purple, etc.)
