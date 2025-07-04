@@ -481,7 +481,7 @@ export default function Registry() {
   const queryClient = useQueryClient();
 
   // Fetch temples for dropdown
-  const { data: temples = [] } = useQuery({
+  const { data: temples = [] } = useQuery<any[]>({
     queryKey: ["/api/temples"],
   });
 
@@ -545,11 +545,46 @@ export default function Registry() {
 
       queryClient.invalidateQueries({ queryKey: ["/api/members"] });
       setShowSuccessModal(true);
-      form.reset();
+      
+      // Clear localStorage draft data
+      localStorage.removeItem("registry-form-draft");
+      
+      // Reset all form fields and state
+      form.reset({
+        fullName: "",
+        phone: "",
+        email: "",
+        gender: undefined,
+        birthCity: "",
+        birthState: "",
+        birthCountry: "",
+        currentCity: "",
+        currentState: "",
+        currentCountry: "",
+        fatherName: "",
+        motherName: "",
+        spouseName: "",
+        maritalStatus: "Single",
+        selectedTemple: "",
+        linkedRelatives: []
+      });
+      
+      // Reset all state variables
       setLinkedRelatives([]);
       setSearchTerm("");
       setSelectedRelative(null);
       setSelectedRelationship("");
+      setSelectedMaritalStatus("");
+      setSelectedBirthCountry("");
+      setSelectedCurrentCountry("");
+      setSelectedTemple("");
+      
+      // Show success toast
+      toast({
+        title: "Registration Successful!",
+        description: "Member has been registered and form has been cleared for next entry.",
+        variant: "default",
+      });
     },
     onError: (error: any) => {
       toast({
@@ -691,8 +726,7 @@ export default function Registry() {
                             <Input
                               placeholder="Enter your full name"
                               {...field}
-                              onBlur={(e) => {
-                                field.onBlur(e);
+                              onBlur={() => {
                                 handleAutoSave();
                               }}
                             />
@@ -706,13 +740,12 @@ export default function Registry() {
                       name="phone"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Phone Number *</FormLabel>
+                          <FormLabel>Phone Number(Optional)</FormLabel>
                           <FormControl>
                             <Input
                               placeholder="+1 (555) 123-4567"
                               {...field}
-                              onBlur={(e) => {
-                                field.onBlur(e);
+                              onBlur={() => {
                                 handleAutoSave();
                               }}
                             />
@@ -726,15 +759,14 @@ export default function Registry() {
                       name="email"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Email Address</FormLabel>
+                          <FormLabel>Email Address(Optional)</FormLabel>
                           <FormControl>
                             <Input
                               type="email"
                               placeholder="your.email@example.com (optional)"
                               {...field}
                               value={field.value || ""}
-                              onBlur={(e) => {
-                                field.onBlur(e);
+                              onBlur={() => {
                                 handleAutoSave();
                               }}
                             />
