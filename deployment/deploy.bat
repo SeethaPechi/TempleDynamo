@@ -47,6 +47,9 @@ copy /Y server.js "%SITE_PATH%\"
 copy /Y package.json "%SITE_PATH%\"
 copy /Y web.config "%SITE_PATH%\"
 copy /Y index.js "%SITE_PATH%\"
+copy /Y environment.template "%SITE_PATH%\"
+copy /Y database-schema.sql "%SITE_PATH%\"
+copy /Y sample-data.sql "%SITE_PATH%\"
 if exist public\ xcopy /E /Y public "%SITE_PATH%\public\"
 
 echo.
@@ -69,12 +72,19 @@ call npm install --production
 
 echo.
 echo Step 9: Creating Environment File...
-if not exist .env (
+if not exist "%SITE_PATH%\.env" (
     echo Creating .env file from template...
-    copy environment.template .env
+    copy "%SITE_PATH%\environment.template" "%SITE_PATH%\.env"
     echo.
     echo IMPORTANT: Edit .env file with your database and security settings
     echo Location: %SITE_PATH%\.env
+    echo.
+    echo Required changes in .env:
+    echo - DATABASE_URL: Update with your PostgreSQL credentials
+    echo - SESSION_SECRET: Replace with a secure random string (32+ characters)
+    echo - CORS_ORIGIN: Update with your domain name
+) else (
+    echo .env file already exists, skipping creation
 )
 
 echo.
