@@ -93,31 +93,32 @@ export default function Home() {
         totalMembers,
         totalFamilies: Math.ceil(totalMembers / 3.6),
         annualEvents: 48,
-        volunteers: Math.ceil(totalMembers * 0.125)
+        volunteers: Math.ceil(totalMembers * 0.125),
       };
     } else {
       // Show only members with selected temple as Primary Temple
-      const templeMembers = (members as any[]).filter((member: any) => 
-        member.templeId === selectedTemple.id
+      const templeMembers = (members as any[]).filter(
+        (member: any) => member.templeId === selectedTemple.id,
       );
       const templeMemberCount = templeMembers.length;
       return {
         totalMembers: templeMemberCount,
         totalFamilies: Math.ceil(templeMemberCount / 3.6),
         annualEvents: 48,
-        volunteers: Math.ceil(templeMemberCount * 0.125)
+        volunteers: Math.ceil(templeMemberCount * 0.125),
       };
     }
   };
 
-  const { totalMembers, totalFamilies, annualEvents, volunteers } = getTempleStatistics();
+  const { totalMembers, totalFamilies, annualEvents, volunteers } =
+    getTempleStatistics();
 
   // Update page title when temple is selected
   useEffect(() => {
     if (selectedTemple) {
-      document.title = `${selectedTemple.templeName} - Temple Dynamo`;
+      document.title = `${selectedTemple.templeName} - Our Temple`;
     } else {
-      document.title = "Temple Dynamo - Hindu Temple Community Management";
+      document.title = "Nam Kovil - Devine Portal";
     }
   }, [selectedTemple]);
 
@@ -264,7 +265,10 @@ export default function Home() {
               {t("home.selectTemple")}
             </span>
             <div className="min-w-[300px]">
-              <Select onValueChange={handleTempleSelect} value={selectedTemple?.id.toString() || "reset"}>
+              <Select
+                onValueChange={handleTempleSelect}
+                value={selectedTemple?.id.toString() || "reset"}
+              >
                 <SelectTrigger className="w-full bg-white border-temple-gold focus:ring-temple-gold">
                   <SelectValue placeholder={t("home.chooseTemple")} />
                 </SelectTrigger>
@@ -297,7 +301,8 @@ export default function Home() {
                 </p>
               )}
               <p className="text-lg text-gray-600 mb-6">
-                {selectedTemple.description || t("home.defaultTempleDescription")}
+                {selectedTemple.description ||
+                  t("home.defaultTempleDescription")}
               </p>
             </div>
 
@@ -322,7 +327,10 @@ export default function Home() {
                     ) : (
                       <div className="w-full max-w-lg h-80 bg-gradient-to-br from-saffron-100 to-gold-100 rounded-lg shadow-lg flex items-center justify-center border-2 border-temple-gold/20">
                         <div className="text-center">
-                          <Building className="mx-auto text-temple-gold mb-4" size={64} />
+                          <Building
+                            className="mx-auto text-temple-gold mb-4"
+                            size={64}
+                          />
                           <p className="text-temple-brown font-medium text-lg">
                             {t("temples.noImage")}
                           </p>
@@ -336,14 +344,22 @@ export default function Home() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="bg-gradient-to-r from-saffron-50 to-gold-50 p-4 rounded-lg">
                         <div className="text-center">
-                          <div className="text-3xl font-bold text-temple-brown">{totalMembers}</div>
-                          <div className="text-sm text-gray-600">{t("home.registeredMembers")}</div>
+                          <div className="text-3xl font-bold text-temple-brown">
+                            {totalMembers}
+                          </div>
+                          <div className="text-sm text-gray-600">
+                            {t("home.registeredMembers")}
+                          </div>
                         </div>
                       </div>
                       <div className="bg-gradient-to-r from-temple-cream to-saffron-50 p-4 rounded-lg">
                         <div className="text-center">
-                          <div className="text-3xl font-bold text-temple-brown">{totalFamilies}</div>
-                          <div className="text-sm text-gray-600">{t("home.families")}</div>
+                          <div className="text-3xl font-bold text-temple-brown">
+                            {totalFamilies}
+                          </div>
+                          <div className="text-sm text-gray-600">
+                            {t("home.families")}
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -363,22 +379,30 @@ export default function Home() {
                       </div>
                       {selectedTemple.establishedYear && (
                         <div className="flex items-center text-temple-brown">
-                          <Calendar className="mr-3 text-saffron-500" size={20} />
+                          <Calendar
+                            className="mr-3 text-saffron-500"
+                            size={20}
+                          />
                           <span className="text-lg">
-                            {t("temples.established")}: {selectedTemple.establishedYear}
+                            {t("temples.established")}:{" "}
+                            {selectedTemple.establishedYear}
                           </span>
                         </div>
                       )}
                       {selectedTemple.contactPhone && (
                         <div className="flex items-center text-temple-brown">
                           <Phone className="mr-3 text-saffron-500" size={20} />
-                          <span className="text-lg">{selectedTemple.contactPhone}</span>
+                          <span className="text-lg">
+                            {selectedTemple.contactPhone}
+                          </span>
                         </div>
                       )}
                       {selectedTemple.contactEmail && (
                         <div className="flex items-center text-temple-brown">
                           <Mail className="mr-3 text-saffron-500" size={20} />
-                          <span className="text-lg">{selectedTemple.contactEmail}</span>
+                          <span className="text-lg">
+                            {selectedTemple.contactEmail}
+                          </span>
                         </div>
                       )}
                     </div>
@@ -411,29 +435,51 @@ export default function Home() {
               <Card className="bg-white shadow-lg hover:shadow-xl transition-shadow">
                 <CardContent className="p-6 text-center">
                   <Users className="mx-auto text-temple-gold mb-4" size={48} />
-                  <div className="text-3xl font-bold text-temple-brown">{totalMembers}</div>
-                  <div className="text-sm text-gray-600">{t("home.totalMembers")}</div>
+                  <div className="text-3xl font-bold text-temple-brown">
+                    {totalMembers}
+                  </div>
+                  <div className="text-sm text-gray-600">
+                    {t("home.totalMembers")}
+                  </div>
                 </CardContent>
               </Card>
               <Card className="bg-white shadow-lg hover:shadow-xl transition-shadow">
                 <CardContent className="p-6 text-center">
                   <Heart className="mx-auto text-temple-gold mb-4" size={48} />
-                  <div className="text-3xl font-bold text-temple-brown">{totalFamilies}</div>
-                  <div className="text-sm text-gray-600">{t("home.families")}</div>
+                  <div className="text-3xl font-bold text-temple-brown">
+                    {totalFamilies}
+                  </div>
+                  <div className="text-sm text-gray-600">
+                    {t("home.families")}
+                  </div>
                 </CardContent>
               </Card>
               <Card className="bg-white shadow-lg hover:shadow-xl transition-shadow">
                 <CardContent className="p-6 text-center">
-                  <Calendar className="mx-auto text-temple-gold mb-4" size={48} />
-                  <div className="text-3xl font-bold text-temple-brown">{annualEvents}</div>
-                  <div className="text-sm text-gray-600">{t("home.annualEvents")}</div>
+                  <Calendar
+                    className="mx-auto text-temple-gold mb-4"
+                    size={48}
+                  />
+                  <div className="text-3xl font-bold text-temple-brown">
+                    {annualEvents}
+                  </div>
+                  <div className="text-sm text-gray-600">
+                    {t("home.annualEvents")}
+                  </div>
                 </CardContent>
               </Card>
               <Card className="bg-white shadow-lg hover:shadow-xl transition-shadow">
                 <CardContent className="p-6 text-center">
-                  <HandHeart className="mx-auto text-temple-gold mb-4" size={48} />
-                  <div className="text-3xl font-bold text-temple-brown">{volunteers}</div>
-                  <div className="text-sm text-gray-600">{t("home.volunteers")}</div>
+                  <HandHeart
+                    className="mx-auto text-temple-gold mb-4"
+                    size={48}
+                  />
+                  <div className="text-3xl font-bold text-temple-brown">
+                    {volunteers}
+                  </div>
+                  <div className="text-sm text-gray-600">
+                    {t("home.volunteers")}
+                  </div>
                 </CardContent>
               </Card>
             </div>

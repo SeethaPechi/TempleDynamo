@@ -861,7 +861,10 @@ export default function MemberDetails() {
                                       className="w-full text-left px-3 py-3 hover:bg-gray-100 border-b last:border-b-0 transition-colors"
                                     >
                                       <div className="font-medium text-sm sm:text-base break-words">
-                                        {member.fullName}{member.fatherName ? ` (Father: ${member.fatherName})` : ''}
+                                        {member.fullName}
+                                        {member.fatherName
+                                          ? ` (Father: ${member.fatherName})`
+                                          : ""}
                                       </div>
                                       <div className="text-xs sm:text-sm text-gray-500 break-all">
                                         {member.email}
@@ -1293,12 +1296,6 @@ export default function MemberDetails() {
                                         </SelectItem>
                                         <SelectItem value="Married">
                                           Married
-                                        </SelectItem>
-                                        <SelectItem value="Divorced">
-                                          Divorced
-                                        </SelectItem>
-                                        <SelectItem value="Widowed">
-                                          Widowed
                                         </SelectItem>
                                       </SelectContent>
                                     </Select>
@@ -1965,7 +1962,10 @@ export default function MemberDetails() {
                             }}
                           >
                             <p className="font-medium">
-                              {member.fullName}{member.fatherName ? ` (Father: ${member.fatherName})` : ''}
+                              {member.fullName}
+                              {member.fatherName
+                                ? ` (Father: ${member.fatherName})`
+                                : ""}
                             </p>
                             <p className="text-sm text-gray-600">
                               {member.email}
@@ -1979,7 +1979,10 @@ export default function MemberDetails() {
                 {selectedRelative && (
                   <div className="p-3 bg-gray-50 rounded-md">
                     <p className="font-medium">
-                      Selected: {selectedRelative.fullName}{selectedRelative.fatherName ? ` (Father: ${selectedRelative.fatherName})` : ''}
+                      Selected: {selectedRelative.fullName}
+                      {selectedRelative.fatherName
+                        ? ` (Father: ${selectedRelative.fatherName})`
+                        : ""}
                     </p>
                     <p className="text-sm text-gray-600">
                       {selectedRelative.email}

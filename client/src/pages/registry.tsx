@@ -49,7 +49,12 @@ const registrationSchema = insertMemberSchema.extend({
   fullName: z.string().min(2, "Full name must be at least 2 characters"),
   phone: z.string().optional(),
   gender: z.enum(["Male", "Female"]).optional(),
-  email: z.union([z.string().email("Please enter a valid email address"), z.literal("")]).optional(),
+  email: z
+    .union([
+      z.string().email("Please enter a valid email address"),
+      z.literal(""),
+    ])
+    .optional(),
   selectedTemple: z.string().optional(),
   birthCity: z.string().min(1, "Birth city is required"),
   birthState: z.string().min(1, "Birth state is required"),
@@ -437,7 +442,10 @@ const relationships = [
   { value: "Maternal Grandmother", label: "Maternal Grandmother" },
   { value: "Grand Daugher-Son Side", label: "Grand Daugher-Son Side" },
   { value: "Grand Son-Son Side", label: "Grand Son-Son Side" },
-  { value: "Grand Daugher-Daughter Side", label: "Grand Daugher-Daughter Side" },
+  {
+    value: "Grand Daugher-Daughter Side",
+    label: "Grand Daugher-Daughter Side",
+  },
   { value: "Grand Son-Daughter Side", label: "Grand Son-Daughter Side" },
   { value: "Nephew", label: "Nephew" },
   { value: "Niece", label: "Niece" },
@@ -502,7 +510,9 @@ export default function Registry() {
     queryKey: ["/api/members/search", { term: searchTerm }],
     queryFn: async () => {
       if (!searchTerm || searchTerm.length < 2) return [];
-      const response = await fetch(`/api/members/search?term=${encodeURIComponent(searchTerm)}`);
+      const response = await fetch(
+        `/api/members/search?term=${encodeURIComponent(searchTerm)}`,
+      );
       if (!response.ok) return [];
       return response.json();
     },
@@ -1040,8 +1050,6 @@ export default function Registry() {
                             <SelectContent>
                               <SelectItem value="Single">Single</SelectItem>
                               <SelectItem value="Married">Married</SelectItem>
-                              <SelectItem value="Divorced">Divorced</SelectItem>
-                              <SelectItem value="Widowed">Widowed</SelectItem>
                             </SelectContent>
                           </Select>
                           <FormMessage />
@@ -1108,14 +1116,14 @@ export default function Registry() {
                   </div>
                 </div>
 
-                {/* Family Relationships */}
+                {/* Family Relationships 
                 <div className="border-l-4 border-temple-crimson pl-6">
                   <h3 className="text-xl font-semibold text-temple-brown mb-6 flex items-center">
                     <LinkIcon className="text-temple-crimson mr-3" size={24} />
                     Family Relationships
-                  </h3>
+                  </h3>*/}
 
-                  {/* Auto-populate notice */}
+                {/* Auto-populate notice 
                   {selectedMember && (
                     <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
                       <p className="text-sm text-blue-800">
@@ -1250,7 +1258,7 @@ export default function Registry() {
                     </CardContent>
                   </Card>
                 </div>
-
+                */}
                 {/* Submit Button */}
                 <div className="flex justify-center pt-8">
                   <Button
