@@ -32,7 +32,7 @@ echo PostgreSQL found - OK
 REM Prompt for PostgreSQL admin password if not set
 if "%POSTGRES_ADMIN_PASSWORD%"=="" (
     echo.
-    set /p POSTGRES_ADMIN_PASSWORD=Enter PostgreSQL admin (postgres) password: 
+    set /p POSTGRES_ADMIN_PASSWORD=Enter PostgreSQL admin postgres password: 
 )
 
 REM Test connection to PostgreSQL
