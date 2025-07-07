@@ -217,6 +217,24 @@ if exist "index.html" (
     exit /b 1
 )
 
+REM Step 2: Verify database connection
+echo.
+echo Testing database connection...
+psql -h localhost -p 5432 -U temple_app -d temple_management -c "SELECT count(*) as member_count FROM members;" 2>nul
+if %ERRORLEVEL% EQU 0 (
+    echo ✅ Database connection verified
+    
+    REM Get actual counts from database
+    for /f "tokens=2" %%i in ('psql -h localhost -p 5432 -U temple_app -d temple_management -t -c "SELECT count(*) FROM members;" 2^>nul') do set MEMBER_COUNT=%%i
+    for /f "tokens=2" %%i in ('psql -h localhost -p 5432 -U temple_app -d temple_management -t -c "SELECT count(*) FROM temples;" 2^>nul') do set TEMPLE_COUNT=%%i
+    
+    echo Database has %MEMBER_COUNT% members and %TEMPLE_COUNT% temples
+) else (
+    echo ⚠️ Database connection test failed
+    echo Please ensure PostgreSQL is running and credentials are correct
+    echo Database: postgresql://temple_app:TMS2024SecurePass!@localhost:5432/temple_management
+)
+
 echo.
 echo ============================================
 echo Nam Kovil Deployment Complete

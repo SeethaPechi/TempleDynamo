@@ -1,30 +1,32 @@
-import { Pool, neonConfig } from '@neondatabase/serverless';
-import { drizzle } from 'drizzle-orm/neon-serverless';
+import { Pool } from 'pg';
+import { drizzle } from 'drizzle-orm/node-postgres';
 import { eq, or, asc } from 'drizzle-orm';
-import ws from "ws";
 import * as schema from "@shared/schema";
 import { users, type User, type InsertUser, members, type Member, type InsertMember, relationships, type Relationship, type InsertRelationship, temples, type Temple, type InsertTemple } from "@shared/schema";
 
-// Configure WebSocket for Neon
-neonConfig.webSocketConstructor = ws;
+// Force use of your specific local database credentials (override system DATABASE_URL)
+const DATABASE_URL = "postgresql://temple_app:TMS2024SecurePass!@localhost:5432/temple_management";
 
-if (!process.env.DATABASE_URL) {
+if (!DATABASE_URL) {
   throw new Error(
     "DATABASE_URL must be set. Did you forget to provision a database?",
   );
 }
 
-// Simplified connection pool configuration to prevent WebSocket issues
+console.log('Connecting to PostgreSQL database:', DATABASE_URL.replace(/:[^:]*@/, ':****@'));
+
+// Standard PostgreSQL connection pool configuration
 export const pool = new Pool({ 
-  connectionString: process.env.DATABASE_URL,
-  max: 10, // Reduced pool size
-  min: 1,  // Reduced minimum
-  idleTimeoutMillis: 60000, // Increased timeout
-  connectionTimeoutMillis: 5000, // Increased timeout
+  connectionString: DATABASE_URL,
+  max: 20, // Standard pool size for local PostgreSQL
+  min: 2,  // Minimum connections
+  idleTimeoutMillis: 30000, // 30 seconds idle timeout
+  connectionTimeoutMillis: 10000, // 10 seconds connection timeout
+  ssl: false // Disable SSL for local connection
 });
 
 // Initialize database with error handling
-export const db = drizzle({ client: pool, schema });
+export const db = drizzle(pool, { schema });
 
 // Test database connection on startup
 pool.on('error', (err) => {
