@@ -3,7 +3,7 @@ const { Pool } = require('pg');
 const path = require('path');
 
 const app = express();
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT || 3000;
 
 // Use your local database credentials for production
 const DATABASE_URL = "postgresql://temple_app:TMS2024SecurePass!@localhost:5432/temple_management";

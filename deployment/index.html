@@ -4,366 +4,270 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nam Kovil - Divine Portal</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --background: hsl(48, 100%, 97%);
-            --foreground: hsl(25, 47%, 15%);
-            --temple-gold: hsl(51, 100%, 50%);
-            --temple-brown: hsl(25, 47%, 15%);
-            --temple-cream: hsl(50, 100%, 93%);
-            --saffron-50: hsl(48, 100%, 97%);
-            --saffron-600: hsl(37, 100%, 50%);
-            --primary: hsl(33, 100%, 60%);
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
         }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: linear-gradient(135deg, #fff8dc 0%, #ffeaa7 100%); 
+            min-height: 100vh; 
+            color: #2c3e50; 
         }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, var(--temple-cream) 0%, var(--saffron-50) 100%);
-            color: var(--foreground);
-            line-height: 1.6;
-            min-height: 100vh;
+        
+        .nav { 
+            background: rgba(255,255,255,0.95); 
+            border-bottom: 4px solid #f39c12; 
+            position: sticky; 
+            top: 0; 
+            z-index: 100; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
         }
-
-        .nav {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid #e5e5e5;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        
+        .nav-content { 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            padding: 1rem 2rem; 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
         }
-
-        .nav-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 1rem 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+        
+        .nav-brand { 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+            text-decoration: none; 
+            color: #8B4513; 
         }
-
-        .nav-brand {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--temple-brown);
-            text-decoration: none;
+        
+        .nav-brand .logo { 
+            width: 40px; 
+            height: 40px; 
+            background: linear-gradient(135deg, #ff6b6b, #f39c12); 
+            border-radius: 50%; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            color: white; 
+            font-size: 20px; 
         }
-
-        .nav-links {
-            display: flex;
-            gap: 2rem;
-            list-style: none;
+        
+        .nav-brand h1 { 
+            font-size: 24px; 
+            font-weight: bold; 
         }
-
-        .nav-link {
-            color: var(--foreground);
-            text-decoration: none;
-            font-weight: 500;
-            padding: 0.5rem 1rem;
-            border-radius: 6px;
-            transition: all 0.3s ease;
-            cursor: pointer;
+        
+        .nav-links { 
+            display: flex; 
+            gap: 2rem; 
+            list-style: none; 
+            align-items: center; 
+            flex-wrap: wrap;
         }
-
-        .nav-link:hover, .nav-link.active {
-            color: var(--primary);
-            background: rgba(255, 204, 102, 0.2);
+        
+        .nav-link { 
+            color: #2c3e50; 
+            text-decoration: none; 
+            font-weight: 500; 
+            padding: 0.5rem 1rem; 
+            border-radius: 6px; 
+            transition: all 0.3s; 
+            cursor: pointer; 
         }
-
-        .temple-selector {
-            background: white;
-            border-bottom: 1px solid #e5e5e5;
-            padding: 1rem 0;
-            position: sticky;
-            top: 60px;
-            z-index: 90;
+        
+        .nav-link:hover, .nav-link.active { 
+            background: rgba(243,156,18,0.2); 
+            color: #f39c12; 
         }
-
-        .temple-selector-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 1rem;
+        
+        .temple-selector { 
+            background: white; 
+            border-bottom: 1px solid #ddd; 
+            padding: 1rem 0; 
         }
-
-        .select {
-            min-width: 300px;
-            padding: 0.75rem 1rem;
-            border: 2px solid var(--temple-gold);
-            border-radius: 6px;
-            background: white;
-            font-size: 1rem;
-            cursor: pointer;
+        
+        .temple-selector-content { 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            padding: 0 2rem; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 1rem; 
         }
-
-        .main-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 2rem 20px;
+        
+        .select { 
+            min-width: 300px; 
+            padding: 0.75rem 1rem; 
+            border: 2px solid #f39c12; 
+            border-radius: 6px; 
+            font-size: 16px; 
         }
-
-        .hero-section {
-            text-align: center;
-            margin-bottom: 3rem;
+        
+        .main-content { 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            padding: 2rem; 
         }
-
-        .hero-icon {
-            width: 80px;
-            height: 80px;
-            margin: 0 auto 1rem;
-            background: var(--primary);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2rem;
-            color: white;
+        
+        .hero { 
+            text-align: center; 
+            margin-bottom: 3rem; 
         }
-
-        .hero-title {
-            font-size: 3rem;
-            font-weight: 700;
-            color: var(--temple-brown);
-            margin-bottom: 1rem;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        
+        .hero-icon { 
+            width: 80px; 
+            height: 80px; 
+            margin: 0 auto 1rem; 
+            background: #f39c12; 
+            border-radius: 12px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 40px; 
+            color: white; 
         }
-
-        .hero-subtitle {
-            font-size: 1.25rem;
-            color: var(--saffron-600);
-            font-weight: 500;
-            margin-bottom: 0.5rem;
+        
+        .hero-title { 
+            font-size: 48px; 
+            font-weight: bold; 
+            color: #8B4513; 
+            margin-bottom: 1rem; 
         }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 3rem;
+        
+        .hero-subtitle { 
+            font-size: 20px; 
+            color: #f39c12; 
+            margin-bottom: 0.5rem; 
         }
-
-        .stat-card {
-            background: linear-gradient(135deg, var(--saffron-50) 0%, var(--temple-cream) 100%);
-            border-radius: 12px;
-            padding: 2rem;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border: 2px solid transparent;
-            position: relative;
-            overflow: hidden;
+        
+        .stats-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+            gap: 1.5rem; 
+            margin-bottom: 3rem; 
         }
-
-        .stat-card:hover {
-            transform: translateY(-3px);
-            border-color: var(--temple-gold);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        
+        .stat-card { 
+            background: linear-gradient(135deg, #fff8dc 0%, #ffffff 100%); 
+            border-radius: 12px; 
+            padding: 2rem; 
+            text-align: center; 
+            cursor: pointer; 
+            transition: all 0.3s; 
+            border: 2px solid transparent; 
         }
-
-        .stat-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-            transition: left 0.5s;
+        
+        .stat-card:hover { 
+            transform: translateY(-3px); 
+            border-color: #f39c12; 
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15); 
         }
-
-        .stat-card:hover::before {
-            left: 100%;
+        
+        .stat-icon { 
+            font-size: 40px; 
+            margin-bottom: 1rem; 
         }
-
-        .stat-icon {
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
-            color: var(--primary);
+        
+        .stat-number { 
+            font-size: 40px; 
+            font-weight: bold; 
+            color: #8B4513; 
+            margin-bottom: 0.5rem; 
         }
-
-        .stat-number {
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: var(--temple-brown);
-            margin-bottom: 0.5rem;
+        
+        .stat-label { 
+            font-size: 14px; 
+            color: #666; 
+            font-weight: 500; 
+            text-transform: uppercase; 
         }
-
-        .stat-label {
-            font-size: 0.875rem;
-            color: #666;
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+        
+        .content-area { 
+            background: white; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1); 
+            min-height: 400px; 
+            overflow: hidden; 
         }
-
-        .content-area {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-            border: 1px solid #e5e5e5;
-            overflow: hidden;
-            min-height: 400px;
+        
+        .content-header { 
+            background: linear-gradient(135deg, #f39c12 0%, #ff6b6b 100%); 
+            color: white; 
+            padding: 1.5rem 2rem; 
         }
-
-        .content-header {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--saffron-600) 100%);
-            color: white;
-            padding: 1.5rem 2rem;
-            border-bottom: 1px solid #e5e5e5;
+        
+        .content-body { 
+            padding: 2rem; 
         }
-
-        .content-header h2 {
-            font-size: 1.5rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
+        
+        .loading { 
+            text-align: center; 
+            padding: 2rem; 
+            color: #666; 
         }
-
-        .content-header p {
-            opacity: 0.9;
+        
+        .error { 
+            text-align: center; 
+            padding: 2rem; 
+            color: #e74c3c; 
+            background: #ffeaea; 
+            border-radius: 8px; 
         }
-
-        .content-body {
-            padding: 2rem;
+        
+        .member-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
+            gap: 1rem; 
         }
-
-        .welcome-message {
-            text-align: center;
-            padding: 3rem 2rem;
-            color: #666;
+        
+        .member-card { 
+            background: #f8f9fa; 
+            border-radius: 8px; 
+            padding: 1.5rem; 
+            border: 1px solid #dee2e6; 
         }
-
-        .welcome-message h3 {
-            font-size: 1.5rem;
-            color: var(--temple-brown);
-            margin-bottom: 1rem;
+        
+        .member-name { 
+            font-size: 18px; 
+            font-weight: bold; 
+            color: #8B4513; 
+            margin-bottom: 0.5rem; 
         }
-
-        .loading {
-            text-align: center;
-            padding: 2rem;
-            color: #666;
+        
+        .member-info { 
+            color: #666; 
+            margin-bottom: 0.25rem; 
         }
-
-        .error {
-            text-align: center;
-            padding: 2rem;
-            color: #dc2626;
-            background: #fef2f2;
-            border-radius: 8px;
-            margin: 1rem 0;
+        
+        .status-indicator { 
+            display: inline-block; 
+            width: 12px; 
+            height: 12px; 
+            border-radius: 50%; 
+            margin-right: 8px; 
         }
-
-        .member-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 1.5rem;
-            margin-top: 1rem;
+        
+        .status-connected { 
+            background: #27ae60; 
         }
-
-        .member-card {
-            background: #f9fafb;
-            border-radius: 8px;
-            padding: 1.5rem;
-            border: 1px solid #e5e7eb;
-            transition: all 0.3s ease;
+        
+        .status-disconnected { 
+            background: #e74c3c; 
         }
-
-        .member-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-
-        .member-name {
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: var(--temple-brown);
-            margin-bottom: 0.5rem;
-        }
-
-        .member-info {
-            color: #666;
-            font-size: 0.9rem;
-            margin-bottom: 0.25rem;
-        }
-
-        .temple-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-            gap: 1.5rem;
-            margin-top: 1rem;
-        }
-
-        .temple-card {
-            background: #f9fafb;
-            border-radius: 8px;
-            padding: 1.5rem;
-            border: 1px solid #e5e7eb;
-            transition: all 0.3s ease;
-        }
-
-        .temple-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-
-        .temple-name {
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: var(--temple-brown);
-            margin-bottom: 0.5rem;
-        }
-
-        .temple-info {
-            color: #666;
-            font-size: 0.9rem;
-            margin-bottom: 0.25rem;
-        }
-
-        .status-indicator {
-            display: inline-block;
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            margin-right: 8px;
-        }
-
-        .status-connected {
-            background: #10b981;
-            box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
-        }
-
-        .status-disconnected {
-            background: #ef4444;
-            box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
-        }
-
-        @media (max-width: 768px) {
-            .nav-links {
-                flex-wrap: wrap;
-                gap: 1rem;
-            }
-            
-            .hero-title {
-                font-size: 2rem;
-            }
-            
-            .stats-grid {
-                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            }
+        
+        @media (max-width: 768px) { 
+            .nav-links { 
+                flex-wrap: wrap; 
+                gap: 1rem; 
+            } 
+            .hero-title { 
+                font-size: 32px; 
+            } 
         }
     </style>
 </head>
@@ -371,8 +275,8 @@
     <nav class="nav">
         <div class="nav-content">
             <a href="#" class="nav-brand">
-                <span style="font-size: 1.5rem;">🕉️</span>
-                Nam Kovil
+                <div class="logo">ॐ</div>
+                <h1>Nam Kovil</h1>
             </a>
             <ul class="nav-links">
                 <li><a href="#" class="nav-link active" onclick="showPage('home')">Home</a></li>
@@ -381,30 +285,29 @@
                 <li><a href="#" class="nav-link" onclick="showPage('family')">Family Tree</a></li>
                 <li><a href="#" class="nav-link" onclick="showPage('temples')">Temples</a></li>
                 <li><a href="#" class="nav-link" onclick="showPage('temple-registry')">Temple Registry</a></li>
-                <li><a href="#" class="nav-link" onclick="showPage('nav-temple-members')">nav.temple/Members</a></li>
+                <li><a href="#" class="nav-link" onclick="showPage('temple-members')">Temple Members</a></li>
                 <li><a href="#" class="nav-link" onclick="showPage('whatsapp')">WhatsApp</a></li>
                 <li><a href="#" class="nav-link" onclick="showPage('english')">English</a></li>
             </ul>
         </div>
     </nav>
-
+    
     <div class="temple-selector">
         <div class="temple-selector-content">
-            <span style="font-size: 1.2rem;">🏛️</span>
-            <span style="font-weight: 600;">Select Temple</span>
+            <span>🏛️ Select Temple</span>
             <select class="select" id="templeSelect">
                 <option value="">All Temples</option>
             </select>
         </div>
     </div>
-
+    
     <main class="main-content">
-        <div class="hero-section">
-            <div class="hero-icon">🕉️</div>
+        <div class="hero">
+            <div class="hero-icon">ॐ</div>
             <h1 class="hero-title">Welcome to your temple</h1>
             <p class="hero-subtitle">Temple Information Portal</p>
         </div>
-
+        
         <div class="stats-grid">
             <div class="stat-card" onclick="showPage('members')">
                 <div class="stat-icon">👥</div>
@@ -416,354 +319,163 @@
                 <div class="stat-number" id="templeCount">Loading...</div>
                 <div class="stat-label">Temples</div>
             </div>
-            <div class="stat-card" onclick="showPage('family')">
+            <div class="stat-card">
                 <div class="stat-icon">📅</div>
                 <div class="stat-number" id="relationshipCount">Loading...</div>
                 <div class="stat-label">Relationships</div>
             </div>
             <div class="stat-card">
                 <div class="stat-icon">🔗</div>
-                <div class="stat-number">
-                    <span class="status-indicator" id="dbStatus"></span>
-                    <span id="dbStatusText">Checking...</span>
-                </div>
+                <div class="stat-number"><span class="status-indicator" id="dbStatus"></span><span id="dbStatusText">Checking...</span></div>
                 <div class="stat-label">Database Status</div>
             </div>
         </div>
-
+        
         <div class="content-area" id="contentArea">
-            <div class="welcome-message">
-                <h3>Welcome to Nam Kovil Community Portal</h3>
-                <p>Your comprehensive temple management and family connection system</p>
-            </div>
+            <div class="loading">Welcome to Nam Kovil Community Portal</div>
         </div>
     </main>
-
+    
     <script>
-        let currentPage = 'home';
         let membersData = [];
         let templesData = [];
         let relationshipsData = [];
-
-        function showPage(page) {
-            currentPage = page;
-            const contentArea = document.getElementById('contentArea');
-            const navLinks = document.querySelectorAll('.nav-link');
-            
-            // Update active nav link
-            navLinks.forEach(link => link.classList.remove('active'));
-            event.target.classList.add('active');
-
-            switch(page) {
-                case 'home':
-                    showHome();
-                    break;
-                case 'members':
-                    showMembers();
-                    break;
-                case 'registry':
-                    showRegistry();
-                    break;
-                case 'temples':
-                    showTemples();
-                    break;
-                case 'family':
-                    showFamilyTree();
-                    break;
-                case 'temple-registry':
-                    showTempleRegistry();
-                    break;
-                case 'nav-temple-members':
-                    showTempleMembers();
-                    break;
-                case 'whatsapp':
-                    showWhatsApp();
-                    break;
-                case 'english':
-                    showLanguage();
-                    break;
-            }
-        }
-
-        function showHome() {
-            const contentArea = document.getElementById('contentArea');
-            contentArea.innerHTML = `
-                <div class="welcome-message">
-                    <h3>Welcome to Nam Kovil Community Portal</h3>
-                    <p>Your comprehensive temple management and family connection system</p>
-                    <div style="margin-top: 2rem;">
-                        <p><strong>Database Status:</strong> <span id="homeDbStatus">Checking...</span></p>
-                        <p><strong>Total Members:</strong> ${membersData.length}</p>
-                        <p><strong>Total Temples:</strong> ${templesData.length}</p>
-                        <p><strong>Total Relationships:</strong> ${relationshipsData.length}</p>
-                    </div>
-                </div>
-            `;
-        }
-
-        function showMembers() {
-            const contentArea = document.getElementById('contentArea');
-            
-            if (membersData.length === 0) {
-                contentArea.innerHTML = `
-                    <div class="content-header">
-                        <h2>Members</h2>
-                        <p>Community member directory</p>
-                    </div>
-                    <div class="content-body">
-                        <div class="error">No members found or failed to load data</div>
-                    </div>
-                `;
-                return;
-            }
-
-            let html = `
-                <div class="content-header">
-                    <h2>Members (${membersData.length})</h2>
-                    <p>Community member directory</p>
-                </div>
-                <div class="content-body">
-                    <div class="member-grid">
-            `;
-
-            membersData.forEach(member => {
-                html += `
-                    <div class="member-card">
-                        <div class="member-name">${member.fullName || member.full_name || 'Unknown'}</div>
-                        <div class="member-info">📧 ${member.email || 'No email'}</div>
-                        <div class="member-info">📱 ${member.phone || 'No phone'}</div>
-                        <div class="member-info">🏠 ${member.currentCity || member.current_city || 'No city'}, ${member.currentState || member.current_state || 'No state'}</div>
-                        ${member.gender ? `<div class="member-info">⚧ ${member.gender}</div>` : ''}
-                        ${member.maritalStatus || member.marital_status ? `<div class="member-info">💑 ${member.maritalStatus || member.marital_status}</div>` : ''}
-                    </div>
-                `;
-            });
-
-            html += `
-                    </div>
-                </div>
-            `;
-
-            contentArea.innerHTML = html;
-        }
-
-        function showTemples() {
-            const contentArea = document.getElementById('contentArea');
-            
-            if (templesData.length === 0) {
-                contentArea.innerHTML = `
-                    <div class="content-header">
-                        <h2>Temples</h2>
-                        <p>Sacred places directory</p>
-                    </div>
-                    <div class="content-body">
-                        <div class="error">No temples found or failed to load data</div>
-                    </div>
-                `;
-                return;
-            }
-
-            let html = `
-                <div class="content-header">
-                    <h2>Temples (${templesData.length})</h2>
-                    <p>Sacred places directory</p>
-                </div>
-                <div class="content-body">
-                    <div class="temple-grid">
-            `;
-
-            templesData.forEach(temple => {
-                html += `
-                    <div class="temple-card">
-                        <div class="temple-name">${temple.templeName || temple.temple_name || 'Unknown Temple'}</div>
-                        <div class="temple-info">🕉️ ${temple.deity || 'No deity specified'}</div>
-                        <div class="temple-info">🏛️ ${temple.village || 'No village'}</div>
-                        <div class="temple-info">📍 ${temple.nearestCity || temple.nearest_city || 'No city'}, ${temple.state || 'No state'}</div>
-                        <div class="temple-info">🌍 ${temple.country || 'No country'}</div>
-                        ${temple.establishedYear || temple.established_year ? `<div class="temple-info">📅 Est. ${temple.establishedYear || temple.established_year}</div>` : ''}
-                        ${temple.contactPhone || temple.contact_phone ? `<div class="temple-info">📱 ${temple.contactPhone || temple.contact_phone}</div>` : ''}
-                    </div>
-                `;
-            });
-
-            html += `
-                    </div>
-                </div>
-            `;
-
-            contentArea.innerHTML = html;
-        }
-
-        function showRegistry() {
-            const contentArea = document.getElementById('contentArea');
-            contentArea.innerHTML = `
-                <div class="content-header">
-                    <h2>Member Registry</h2>
-                    <p>Register new community members</p>
-                </div>
-                <div class="content-body">
-                    <div style="text-align: center; padding: 2rem;">
-                        <h3>Member Registration Form</h3>
-                        <p>This feature will be implemented to match the development environment.</p>
-                    </div>
-                </div>
-            `;
-        }
-
-        function showFamilyTree() {
-            const contentArea = document.getElementById('contentArea');
-            contentArea.innerHTML = `
-                <div class="content-header">
-                    <h2>Family Tree</h2>
-                    <p>Explore family relationships and connections</p>
-                </div>
-                <div class="content-body">
-                    <div style="text-align: center; padding: 2rem;">
-                        <h3>Family Tree Visualization</h3>
-                        <p>Relationships: ${relationshipsData.length}</p>
-                        <p>This feature will show family connections and relationship mapping.</p>
-                    </div>
-                </div>
-            `;
-        }
-
-        function showTempleRegistry() {
-            const contentArea = document.getElementById('contentArea');
-            contentArea.innerHTML = `
-                <div class="content-header">
-                    <h2>Temple Registry</h2>
-                    <p>Register new temples and sacred places</p>
-                </div>
-                <div class="content-body">
-                    <div style="text-align: center; padding: 2rem;">
-                        <h3>Temple Registration Form</h3>
-                        <p>This feature will be implemented to match the development environment.</p>
-                    </div>
-                </div>
-            `;
-        }
-
-        function showTempleMembers() {
-            const contentArea = document.getElementById('contentArea');
-            contentArea.innerHTML = `
-                <div class="content-header">
-                    <h2>Temple Members</h2>
-                    <p>Members organized by temple affiliation</p>
-                </div>
-                <div class="content-body">
-                    <div style="text-align: center; padding: 2rem;">
-                        <h3>Temple-based Member Directory</h3>
-                        <p>This feature will show members grouped by their temple associations.</p>
-                    </div>
-                </div>
-            `;
-        }
-
-        function showWhatsApp() {
-            const contentArea = document.getElementById('contentArea');
-            contentArea.innerHTML = `
-                <div class="content-header">
-                    <h2>WhatsApp Integration</h2>
-                    <p>Community communication tools</p>
-                </div>
-                <div class="content-body">
-                    <div style="text-align: center; padding: 2rem;">
-                        <h3>WhatsApp Messaging</h3>
-                        <p>This feature will provide WhatsApp integration for community communications.</p>
-                    </div>
-                </div>
-            `;
-        }
-
-        function showLanguage() {
-            const contentArea = document.getElementById('contentArea');
-            contentArea.innerHTML = `
-                <div class="content-header">
-                    <h2>Language Settings</h2>
-                    <p>Choose your preferred language</p>
-                </div>
-                <div class="content-body">
-                    <div style="text-align: center; padding: 2rem;">
-                        <h3>Language Selection</h3>
-                        <p>English | தமிழ்</p>
-                        <p>This feature will provide language switching functionality.</p>
-                    </div>
-                </div>
-            `;
-        }
-
+        
         async function loadData() {
             try {
-                const [membersResponse, templesResponse, relationshipsResponse, healthResponse] = await Promise.all([
+                const [membersRes, templesRes, relationshipsRes, healthRes] = await Promise.all([
                     fetch('/api/members'),
                     fetch('/api/temples'),
                     fetch('/api/relationships'),
                     fetch('/api/health')
                 ]);
-
-                // Load members data
-                if (membersResponse.ok) {
-                    membersData = await membersResponse.json();
+                
+                if (membersRes.ok) {
+                    membersData = await membersRes.json();
                     document.getElementById('memberCount').textContent = membersData.length;
+                }
+                
+                if (templesRes.ok) {
+                    templesData = await templesRes.json();
+                    document.getElementById('templeCount').textContent = templesData.length;
                     
                     // Populate temple selector
-                    const templeSelect = document.getElementById('templeSelect');
-                    const uniqueTemples = [...new Set(membersData.map(m => m.temple_name || m.templeName).filter(Boolean))];
-                    uniqueTemples.forEach(temple => {
+                    const select = document.getElementById('templeSelect');
+                    templesData.forEach(temple => {
                         const option = document.createElement('option');
-                        option.value = temple;
-                        option.textContent = temple;
-                        templeSelect.appendChild(option);
+                        option.value = temple.id;
+                        option.textContent = temple.templeName || temple.temple_name || 'Unknown Temple';
+                        select.appendChild(option);
                     });
-                } else {
-                    console.error('Failed to load members');
-                    document.getElementById('memberCount').textContent = 'Error';
                 }
-
-                // Load temples data
-                if (templesResponse.ok) {
-                    templesData = await templesResponse.json();
-                    document.getElementById('templeCount').textContent = templesData.length;
-                } else {
-                    console.error('Failed to load temples');
-                    document.getElementById('templeCount').textContent = 'Error';
-                }
-
-                // Load relationships data
-                if (relationshipsResponse.ok) {
-                    relationshipsData = await relationshipsResponse.json();
+                
+                if (relationshipsRes.ok) {
+                    relationshipsData = await relationshipsRes.json();
                     document.getElementById('relationshipCount').textContent = relationshipsData.length;
-                } else {
-                    console.error('Failed to load relationships');
-                    document.getElementById('relationshipCount').textContent = 'Error';
                 }
-
-                // Check database health
-                if (healthResponse.ok) {
-                    const health = await healthResponse.json();
+                
+                if (healthRes.ok) {
                     document.getElementById('dbStatus').className = 'status-indicator status-connected';
                     document.getElementById('dbStatusText').textContent = 'Connected';
                 } else {
                     document.getElementById('dbStatus').className = 'status-indicator status-disconnected';
                     document.getElementById('dbStatusText').textContent = 'Disconnected';
                 }
-
             } catch (error) {
                 console.error('Error loading data:', error);
-                document.getElementById('memberCount').textContent = 'Error';
-                document.getElementById('templeCount').textContent = 'Error';
-                document.getElementById('relationshipCount').textContent = 'Error';
                 document.getElementById('dbStatus').className = 'status-indicator status-disconnected';
                 document.getElementById('dbStatusText').textContent = 'Error';
             }
         }
-
-        // Load data when page loads
-        document.addEventListener('DOMContentLoaded', function() {
-            loadData();
-            // Refresh data every 30 seconds
-            setInterval(loadData, 30000);
-        });
+        
+        function showPage(page) {
+            const contentArea = document.getElementById('contentArea');
+            const navLinks = document.querySelectorAll('.nav-link');
+            
+            navLinks.forEach(link => link.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            switch(page) {
+                case 'members':
+                    showMembers();
+                    break;
+                case 'temples':
+                    showTemples();
+                    break;
+                case 'registry':
+                    showRegistry();
+                    break;
+                case 'family':
+                    showFamilyTree();
+                    break;
+                case 'whatsapp':
+                    showWhatsApp();
+                    break;
+                default:
+                    contentArea.innerHTML = '<div class="loading">Welcome to Nam Kovil Community Portal</div>';
+            }
+        }
+        
+        function showMembers() {
+            const contentArea = document.getElementById('contentArea');
+            if (membersData.length === 0) {
+                contentArea.innerHTML = '<div class="content-header"><h2>Members</h2></div><div class="content-body"><div class="error">No members found</div></div>';
+                return;
+            }
+            
+            let html = '<div class="content-header"><h2>Members (' + membersData.length + ')</h2></div><div class="content-body"><div class="member-grid">';
+            
+            membersData.forEach(member => {
+                html += '<div class="member-card">';
+                html += '<div class="member-name">' + (member.fullName || member.full_name || 'Unknown') + '</div>';
+                html += '<div class="member-info">📧 ' + (member.email || 'No email') + '</div>';
+                html += '<div class="member-info">📱 ' + (member.phone || 'No phone') + '</div>';
+                html += '<div class="member-info">🏠 ' + (member.currentCity || member.current_city || 'No city') + '</div>';
+                html += '</div>';
+            });
+            
+            html += '</div></div>';
+            contentArea.innerHTML = html;
+        }
+        
+        function showTemples() {
+            const contentArea = document.getElementById('contentArea');
+            if (templesData.length === 0) {
+                contentArea.innerHTML = '<div class="content-header"><h2>Temples</h2></div><div class="content-body"><div class="error">No temples found</div></div>';
+                return;
+            }
+            
+            let html = '<div class="content-header"><h2>Temples (' + templesData.length + ')</h2></div><div class="content-body"><div class="member-grid">';
+            
+            templesData.forEach(temple => {
+                html += '<div class="member-card">';
+                html += '<div class="member-name">' + (temple.templeName || temple.temple_name || 'Unknown Temple') + '</div>';
+                html += '<div class="member-info">🕉️ ' + (temple.deity || 'No deity') + '</div>';
+                html += '<div class="member-info">📍 ' + (temple.village || 'No village') + ', ' + (temple.state || 'No state') + '</div>';
+                html += '</div>';
+            });
+            
+            html += '</div></div>';
+            contentArea.innerHTML = html;
+        }
+        
+        function showRegistry() {
+            const contentArea = document.getElementById('contentArea');
+            contentArea.innerHTML = '<div class="content-header"><h2>Member Registry</h2></div><div class="content-body"><div class="loading">Member registration functionality</div></div>';
+        }
+        
+        function showFamilyTree() {
+            const contentArea = document.getElementById('contentArea');
+            contentArea.innerHTML = '<div class="content-header"><h2>Family Tree</h2></div><div class="content-body"><div class="loading">Family tree visualization</div></div>';
+        }
+        
+        function showWhatsApp() {
+            const contentArea = document.getElementById('contentArea');
+            contentArea.innerHTML = '<div class="content-header"><h2>WhatsApp Integration</h2></div><div class="content-body"><div class="loading">WhatsApp messaging functionality</div></div>';
+        }
+        
+        document.addEventListener('DOMContentLoaded', loadData);
+        setInterval(loadData, 30000); // Refresh every 30 seconds
     </script>
 </body>
 </html>
