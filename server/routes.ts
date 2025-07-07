@@ -18,6 +18,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Serve Tamil Kovil interface
+  app.get("/tamil-kovil-interface.html", (req, res) => {
+    const path = require("path");
+    const fs = require("fs");
+    
+    const filePath = path.join(process.cwd(), "deployment", "tamil-kovil-interface.html");
+    
+    if (fs.existsSync(filePath)) {
+      res.sendFile(filePath);
+    } else {
+      res.status(404).send("Tamil Kovil interface file not found");
+    }
+  });
+
   // Member routes
   app.post("/api/members", async (req, res) => {
     try {

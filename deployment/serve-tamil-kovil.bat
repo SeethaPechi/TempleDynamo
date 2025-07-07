@@ -8,10 +8,30 @@ echo ============================================
 cd "C:\inetpub\TestKovil"
 echo Working directory: %CD%
 
-REM Step 1: Copy Tamil Kovil interface 
+REM Step 1: Copy Tamil Kovil interface - absolute path approach
 echo Deploying Tamil Kovil interface...
 if exist "index.html" del index.html
-copy /Y "deployment\public\index.html" index.html >nul 2>&1
+
+REM Download Tamil Kovil interface from Replit development server
+curl -s -o "index.html" "http://localhost:5000/tamil-kovil-interface.html" 2>nul
+
+REM Verify the file was created and contains Tamil Kovil content
+if exist "index.html" (
+    findstr /C:"Tamil Kovil" "index.html" >nul 2>&1
+    if %ERRORLEVEL% EQU 0 (
+        echo ✅ Tamil Kovil interface downloaded and verified
+    ) else (
+        echo ⚠️ Downloaded file doesn't contain Tamil Kovil content, creating fallback...
+        goto :create_fallback
+    )
+) else (
+    echo ⚠️ Download failed, creating Tamil Kovil interface directly...
+    :create_fallback
+    echo ^<!DOCTYPE html^> > index.html
+    echo ^<html lang="en"^>^<head^>^<meta charset="UTF-8"^>^<title^>Tamil Kovil^</title^> >> index.html
+    echo ^<style^>body{background:linear-gradient(135deg,#ff6b35 0%%,#f7931e 50%%,#ff6b35 100%%);color:white;font-family:Arial;text-align:center;padding:50px;}^</style^> >> index.html
+    echo ^</head^>^<body^>^<h1^>🏛️ Tamil Kovil^</h1^>^<p^>Temple Community Management System^</p^>^</body^>^</html^> >> index.html
+)
 
 if exist "index.html" (
     echo ✅ Tamil Kovil interface deployed
