@@ -20,16 +20,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Serve Tamil Kovil interface
   app.get("/tamil-kovil-interface.html", (req, res) => {
-    const path = require("path");
-    const fs = require("fs");
-    
-    const filePath = path.join(process.cwd(), "deployment", "tamil-kovil-interface.html");
-    
-    if (fs.existsSync(filePath)) {
-      res.sendFile(filePath);
-    } else {
-      res.status(404).send("Tamil Kovil interface file not found");
-    }
+    import("path").then(({ default: path }) => {
+      import("fs").then(({ default: fs }) => {
+        const filePath = path.join(process.cwd(), "deployment", "tamil-kovil-interface.html");
+        
+        if (fs.existsSync(filePath)) {
+          res.sendFile(filePath);
+        } else {
+          res.status(404).send("Tamil Kovil interface file not found");
+        }
+      });
+    });
+  });
+
+  // Serve production React app (exact development UI)
+  app.get("/production-app.html", (req, res) => {
+    import("path").then(({ default: path }) => {
+      import("fs").then(({ default: fs }) => {
+        const filePath = path.join(process.cwd(), "deployment", "production-react-app.html");
+        
+        if (fs.existsSync(filePath)) {
+          res.sendFile(filePath);
+        } else {
+          res.status(404).send("Production React app file not found");
+        }
+      });
+    });
   });
 
   // Member routes
