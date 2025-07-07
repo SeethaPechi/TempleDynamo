@@ -4,8 +4,8 @@ import { eq, or, asc } from 'drizzle-orm';
 import * as schema from "@shared/schema";
 import { users, type User, type InsertUser, members, type Member, type InsertMember, relationships, type Relationship, type InsertRelationship, temples, type Temple, type InsertTemple } from "@shared/schema";
 
-// Force use of your specific local database credentials (override system DATABASE_URL)
-const DATABASE_URL = "postgresql://temple_app:TMS2024SecurePass!@localhost:5432/temple_management";
+// Use environment DATABASE_URL or fallback for development
+const DATABASE_URL = process.env.DATABASE_URL || "postgresql://temple_app:TMS2024SecurePass!@localhost:5432/temple_management";
 
 if (!DATABASE_URL) {
   throw new Error(
