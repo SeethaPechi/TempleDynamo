@@ -97,35 +97,12 @@ echo PGUSER: %PGUSER%
 
 echo.
 echo Step 10: Testing database connection...
-node -e "
-const { Pool } = require('pg');
-const pool = new Pool({
-  host: process.env.PGHOST || 'localhost',
-  port: process.env.PGPORT || 5432,
-  database: process.env.PGDATABASE || 'temple_management',
-  user: process.env.PGUSER || 'temple_app',
-  password: process.env.PGPASSWORD || 'TMS2024SecurePass!',
-  ssl: false
-});
-
-console.log('Testing database connection...');
-pool.connect((err, client, release) => {
-  if (err) {
-    console.log('❌ Database connection failed:', err.message);
-  } else {
-    console.log('✅ Database connection successful');
-    client.query('SELECT COUNT(*) FROM members', (err, result) => {
-      if (err) {
-        console.log('❌ Query failed:', err.message);
-      } else {
-        console.log('✅ Query successful - Members:', result.rows[0].count);
-      }
-      release();
-      pool.end();
-    });
-  }
-});
-"
+if exist "test-db-connection.js" (
+    node test-db-connection.js
+) else (
+    echo Database test script not found
+    node --version
+)
 
 echo.
 echo ============================================
