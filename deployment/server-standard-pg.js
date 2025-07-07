@@ -7,9 +7,48 @@ const compression = require('compression');
 const helmet = require('helmet');
 const cors = require('cors');
 const { Pool } = require('pg');
+const fs = require('fs');
+
+// Create logs directory if it doesn't exist
+if (!fs.existsSync('./logs')) {
+  fs.mkdirSync('./logs', { recursive: true });
+}
+
+// Enhanced logging function
+function log(level, message, data = null) {
+  const timestamp = new Date().toISOString();
+  const logEntry = `[${timestamp}] [${level.toUpperCase()}] ${message}${data ? ' | Data: ' + JSON.stringify(data) : ''}`;
+  
+  console.log(logEntry);
+  
+  // Write to log file
+  fs.appendFileSync('./logs/tms.log', logEntry + '\n');
+}
 
 const app = express();
 const PORT = process.env.PORT || 8080;
+
+log('info', 'Starting TMS Server', { port: PORT, nodeEnv: process.env.NODE_ENV });
+
+// Request logging middleware
+app.use((req, res, next) => {
+  const start = Date.now();
+  log('info', `${req.method} ${req.url}`, { 
+    ip: req.ip, 
+    userAgent: req.get('User-Agent'),
+    headers: req.headers 
+  });
+  
+  res.on('finish', () => {
+    const duration = Date.now() - start;
+    log('info', `${req.method} ${req.url} - ${res.statusCode}`, { 
+      duration: `${duration}ms`,
+      size: res.get('Content-Length') || 0
+    });
+  });
+  
+  next();
+});
 
 // Database configuration for local PostgreSQL
 const dbConfig = {
@@ -28,18 +67,27 @@ const dbConfig = {
 const pool = new Pool(dbConfig);
 
 // Test database connection
+log('info', 'Testing database connection', dbConfig);
 pool.connect((err, client, release) => {
   if (err) {
-    console.error('Error connecting to PostgreSQL database:', err);
-    console.log('Database config:', {
-      host: dbConfig.host,
-      port: dbConfig.port,
-      database: dbConfig.database,
-      user: dbConfig.user
+    log('error', 'Database connection failed', { 
+      error: err.message, 
+      code: err.code,
+      config: {
+        host: dbConfig.host,
+        port: dbConfig.port,
+        database: dbConfig.database,
+        user: dbConfig.user
+      }
     });
   } else {
-    console.log('Successfully connected to PostgreSQL database');
-    release();
+    log('info', 'Database connection successful');
+    client.query('SELECT version()', (queryErr, result) => {
+      if (!queryErr) {
+        log('info', 'Database version check', { version: result.rows[0].version });
+      }
+      release();
+    });
   }
 });
 
@@ -66,11 +114,133 @@ app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
+// Check if public directory exists
+const publicDir = path.join(__dirname, 'public');
+log('info', 'Checking public directory', { path: publicDir, exists: fs.existsSync(publicDir) });
+
+if (!fs.existsSync(publicDir)) {
+  log('warn', 'Public directory does not exist, creating it');
+  fs.mkdirSync(publicDir, { recursive: true });
+  
+  // Create a simple index.html for testing
+  const indexHtml = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TMS - Temple Management System</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .status { padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>🏛️ Temple Management System</h1>
+    <div class="status success">
+        <strong>✅ Application Started Successfully</strong><br>
+        Server is running and ready to accept requests.
+    </div>
+    
+    <div class="test-section">
+        <h2>🔍 System Status</h2>
+        <p><strong>Server Time:</strong> <span id="serverTime"></span></p>
+        <p><strong>Application:</strong> TMS v1.0.0</p>
+        <p><strong>Environment:</strong> Production</p>
+        
+        <h3>🧪 Test API Endpoints</h3>
+        <button onclick="testHealth()">Test Health Check</button>
+        <button onclick="testMembers()">Test Members API</button>
+        <button onclick="testTemples()">Test Temples API</button>
+        
+        <div id="testResults" style="margin-top: 15px;"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>📊 Database Status</h2>
+        <button onclick="testDatabase()">Test Database Connection</button>
+        <div id="dbResults" style="margin-top: 15px;"></div>
+    </div>
+    
+    <script>
+        // Update server time
+        document.getElementById('serverTime').textContent = new Date().toLocaleString();
+        
+        async function testHealth() {
+            showResult('testResults', 'Testing health endpoint...', 'info');
+            try {
+                const response = await fetch('/api/health');
+                const data = await response.json();
+                showResult('testResults', 'Health Check: ' + JSON.stringify(data, null, 2), 'success');
+            } catch (error) {
+                showResult('testResults', 'Health Check Failed: ' + error.message, 'error');
+            }
+        }
+        
+        async function testMembers() {
+            showResult('testResults', 'Testing members API...', 'info');
+            try {
+                const response = await fetch('/api/members');
+                const data = await response.json();
+                showResult('testResults', 'Members API: Found ' + data.length + ' members', 'success');
+            } catch (error) {
+                showResult('testResults', 'Members API Failed: ' + error.message, 'error');
+            }
+        }
+        
+        async function testTemples() {
+            showResult('testResults', 'Testing temples API...', 'info');
+            try {
+                const response = await fetch('/api/temples');
+                const data = await response.json();
+                showResult('testResults', 'Temples API: Found ' + data.length + ' temples', 'success');
+            } catch (error) {
+                showResult('testResults', 'Temples API Failed: ' + error.message, 'error');
+            }
+        }
+        
+        async function testDatabase() {
+            showResult('dbResults', 'Testing database connection...', 'info');
+            try {
+                const response = await fetch('/api/health');
+                const data = await response.json();
+                if (data.database && data.database.connected) {
+                    showResult('dbResults', 'Database: Connected ✅<br>Version: ' + data.database.version, 'success');
+                } else {
+                    showResult('dbResults', 'Database: Not Connected ❌', 'error');
+                }
+            } catch (error) {
+                showResult('dbResults', 'Database Test Failed: ' + error.message, 'error');
+            }
+        }
+        
+        function showResult(elementId, message, type) {
+            const element = document.getElementById(elementId);
+            element.innerHTML = '<div class="status ' + type + '">' + message + '</div>';
+        }
+        
+        // Auto-test health on page load
+        setTimeout(testHealth, 1000);
+    </script>
+</body>
+</html>`;
+  
+  fs.writeFileSync(path.join(publicDir, 'index.html'), indexHtml);
+  log('info', 'Created test index.html file');
+}
+
 // Serve static files from public directory
-app.use(express.static(path.join(__dirname, 'public'), {
+app.use(express.static(publicDir, {
   maxAge: '1y',
   etag: true,
-  lastModified: true
+  lastModified: true,
+  setHeaders: (res, path) => {
+    log('info', 'Serving static file', { file: path });
+  }
 }));
 
 // Database health check endpoint
@@ -300,10 +470,19 @@ app.get('/api/members/search', async (req, res) => {
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-  console.error('Server error:', err);
+  log('error', 'Server error occurred', { 
+    error: err.message, 
+    stack: err.stack, 
+    url: req.url, 
+    method: req.method,
+    ip: req.ip,
+    userAgent: req.get('User-Agent')
+  });
+  
   res.status(500).json({ 
     error: 'Internal server error',
-    message: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong'
+    message: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong',
+    timestamp: new Date().toISOString()
   });
 });
 
@@ -314,13 +493,39 @@ app.get('*', (req, res) => {
 
 // Start server
 app.listen(PORT, () => {
-  console.log(`TMS Server running on port ${PORT}`);
-  console.log(`Health check: http://localhost:${PORT}/api/health`);
-  console.log('Database config:', {
+  log('info', `TMS Server started successfully`, {
+    port: PORT,
+    healthUrl: `http://localhost:${PORT}/api/health`,
+    publicDir: publicDir,
+    publicExists: fs.existsSync(publicDir),
+    logsDir: './logs',
+    logsExists: fs.existsSync('./logs')
+  });
+  
+  log('info', 'Server endpoints available', {
+    main: `http://localhost:${PORT}/`,
+    health: `http://localhost:${PORT}/api/health`,
+    members: `http://localhost:${PORT}/api/members`,
+    temples: `http://localhost:${PORT}/api/temples`
+  });
+  
+  log('info', 'Database configuration', {
     host: dbConfig.host,
     port: dbConfig.port,
     database: dbConfig.database,
-    user: dbConfig.user
+    user: dbConfig.user,
+    ssl: dbConfig.ssl
+  });
+  
+  // Log environment variables for debugging
+  log('info', 'Environment check', {
+    NODE_ENV: process.env.NODE_ENV,
+    PORT: process.env.PORT,
+    PGHOST: process.env.PGHOST,
+    PGPORT: process.env.PGPORT,
+    PGDATABASE: process.env.PGDATABASE,
+    PGUSER: process.env.PGUSER,
+    DATABASE_URL: process.env.DATABASE_URL ? 'SET' : 'NOT SET'
   });
 });
 
