@@ -3,44 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nam Kovil - Devine Portal</title>
+    <title>Nam Kovil - Temple Information Portal</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        /* Tamil Kovil Temple Theme CSS */
         :root {
             --background: hsl(48, 100%, 97%);
             --foreground: hsl(25, 47%, 15%);
-            --muted: hsl(48, 100%, 95%);
-            --muted-foreground: hsl(25, 20%, 45%);
-            --card: hsl(0, 0%, 100%);
-            --card-foreground: hsl(25, 47%, 15%);
-            --border: hsl(48, 100%, 90%);
-            --input: hsl(48, 100%, 90%);
-            --primary: hsl(33, 100%, 60%);
-            --primary-foreground: hsl(0, 0%, 100%);
-            --secondary: hsl(48, 100%, 95%);
-            --secondary-foreground: hsl(25, 47%, 15%);
-            --accent: hsl(33, 100%, 85%);
-            --accent-foreground: hsl(25, 47%, 15%);
-            --destructive: hsl(0, 84%, 60%);
-            --destructive-foreground: hsl(0, 0%, 98%);
-            --ring: hsl(33, 100%, 60%);
-            --radius: 0.5rem;
-            --saffron-50: hsl(48, 100%, 97%);
-            --saffron-100: hsl(48, 100%, 88%);
-            --saffron-200: hsl(47, 100%, 82%);
-            --saffron-300: hsl(45, 100%, 72%);
-            --saffron-400: hsl(43, 100%, 68%);
-            --saffron-500: hsl(33, 100%, 60%);
-            --saffron-600: hsl(37, 100%, 50%);
-            --saffron-700: hsl(33, 100%, 44%);
-            --saffron-800: hsl(28, 100%, 38%);
-            --saffron-900: hsl(24, 100%, 28%);
             --temple-gold: hsl(51, 100%, 50%);
-            --temple-red: hsl(0, 100%, 27%);
-            --temple-crimson: hsl(348, 83%, 47%);
-            --temple-cream: hsl(50, 100%, 93%);
             --temple-brown: hsl(25, 47%, 15%);
+            --temple-cream: hsl(50, 100%, 93%);
+            --saffron-50: hsl(48, 100%, 97%);
+            --saffron-600: hsl(37, 100%, 50%);
+            --primary: hsl(33, 100%, 60%);
         }
 
         * {
@@ -50,24 +24,17 @@
         }
 
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: 'Inter', sans-serif;
             background: linear-gradient(135deg, var(--temple-cream) 0%, var(--saffron-50) 100%);
             color: var(--foreground);
             line-height: 1.6;
             min-height: 100vh;
         }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-
-        /* Navigation */
         .nav {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
-            border-bottom: 1px solid var(--border);
+            border-bottom: 1px solid #e5e5e5;
             position: sticky;
             top: 0;
             z-index: 100;
@@ -75,10 +42,12 @@
         }
 
         .nav-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem 20px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 1rem 0;
         }
 
         .nav-brand {
@@ -102,20 +71,19 @@
             text-decoration: none;
             font-weight: 500;
             padding: 0.5rem 1rem;
-            border-radius: var(--radius);
+            border-radius: 6px;
             transition: all 0.3s ease;
-            position: relative;
+            cursor: pointer;
         }
 
         .nav-link:hover, .nav-link.active {
             color: var(--primary);
-            background: var(--accent);
+            background: rgba(255, 204, 102, 0.2);
         }
 
-        /* Temple Selection Header */
         .temple-selector {
             background: white;
-            border-bottom: 1px solid var(--border);
+            border-bottom: 1px solid #e5e5e5;
             padding: 1rem 0;
             position: sticky;
             top: 60px;
@@ -123,41 +91,47 @@
         }
 
         .temple-selector-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 1rem;
         }
 
-        .select-wrapper {
-            min-width: 300px;
-        }
-
         .select {
-            width: 100%;
+            min-width: 300px;
             padding: 0.75rem 1rem;
             border: 2px solid var(--temple-gold);
-            border-radius: var(--radius);
+            border-radius: 6px;
             background: white;
             font-size: 1rem;
-            color: var(--foreground);
             cursor: pointer;
-            transition: all 0.3s ease;
         }
 
-        .select:focus {
-            outline: none;
-            box-shadow: 0 0 0 3px var(--temple-gold);
-        }
-
-        /* Main Content */
         .main-content {
-            padding: 2rem 0;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 20px;
         }
 
         .hero-section {
             text-align: center;
             margin-bottom: 3rem;
+        }
+
+        .hero-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 1rem;
+            background: var(--primary);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: white;
         }
 
         .hero-title {
@@ -175,32 +149,6 @@
             margin-bottom: 0.5rem;
         }
 
-        .hero-description {
-            font-size: 1.125rem;
-            color: var(--muted-foreground);
-            margin-bottom: 2rem;
-        }
-
-        /* Cards */
-        .card {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-            border: 1px solid var(--border);
-            overflow: hidden;
-            transition: all 0.3s ease;
-        }
-
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
-        }
-
-        .card-content {
-            padding: 2rem;
-        }
-
-        /* Statistics Grid */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -216,12 +164,35 @@
             cursor: pointer;
             transition: all 0.3s ease;
             border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
         }
 
         .stat-card:hover {
             transform: translateY(-3px);
             border-color: var(--temple-gold);
             box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .stat-card:hover::before {
+            left: 100%;
+        }
+
+        .stat-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: var(--primary);
         }
 
         .stat-number {
@@ -233,476 +204,566 @@
 
         .stat-label {
             font-size: 0.875rem;
-            color: var(--muted-foreground);
+            color: #666;
             font-weight: 500;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
 
-        .stat-hint {
-            font-size: 0.75rem;
-            color: var(--primary);
-            font-weight: 500;
-            margin-top: 0.5rem;
-        }
-
-        /* Temple Details */
-        .temple-details {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 2rem;
-            align-items: start;
-        }
-
-        .temple-image {
-            width: 100%;
-            height: 300px;
-            object-fit: cover;
+        .content-area {
+            background: white;
             border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            border: 1px solid #e5e5e5;
+            overflow: hidden;
+            min-height: 400px;
         }
 
-        .temple-image-placeholder {
-            width: 100%;
-            height: 300px;
-            background: linear-gradient(135deg, var(--saffron-100) 0%, var(--temple-cream) 100%);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            color: var(--temple-brown);
-            font-size: 1.125rem;
-            font-weight: 500;
+        .content-header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--saffron-600) 100%);
+            color: white;
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid #e5e5e5;
         }
 
-        .temple-info {
-            space-y: 1.5rem;
-        }
-
-        .temple-info h3 {
-            color: var(--temple-brown);
+        .content-header h2 {
             font-size: 1.5rem;
             font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .content-header p {
+            opacity: 0.9;
+        }
+
+        .content-body {
+            padding: 2rem;
+        }
+
+        .welcome-message {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: #666;
+        }
+
+        .welcome-message h3 {
+            font-size: 1.5rem;
+            color: var(--temple-brown);
             margin-bottom: 1rem;
         }
 
-        .temple-info p {
-            color: var(--muted-foreground);
-            line-height: 1.6;
-            margin-bottom: 1rem;
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
         }
 
-        .action-buttons {
-            display: flex;
-            gap: 1rem;
-            margin-top: 2rem;
+        .error {
+            text-align: center;
+            padding: 2rem;
+            color: #dc2626;
+            background: #fef2f2;
+            border-radius: 8px;
+            margin: 1rem 0;
         }
 
-        .btn {
-            padding: 0.75rem 1.5rem;
-            border-radius: var(--radius);
-            font-weight: 500;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            cursor: pointer;
-            border: none;
-            font-size: 1rem;
+        .member-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .member-card {
+            background: #f9fafb;
+            border-radius: 8px;
+            padding: 1.5rem;
+            border: 1px solid #e5e7eb;
             transition: all 0.3s ease;
         }
 
-        .btn-primary {
-            background: var(--primary);
-            color: var(--primary-foreground);
-        }
-
-        .btn-primary:hover {
-            background: var(--saffron-700);
+        .member-card:hover {
             transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
 
-        .btn-secondary {
-            background: var(--secondary);
-            color: var(--secondary-foreground);
-            border: 1px solid var(--border);
+        .member-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--temple-brown);
+            margin-bottom: 0.5rem;
         }
 
-        .btn-secondary:hover {
-            background: var(--accent);
+        .member-info {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .temple-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .temple-card {
+            background: #f9fafb;
+            border-radius: 8px;
+            padding: 1.5rem;
+            border: 1px solid #e5e7eb;
+            transition: all 0.3s ease;
+        }
+
+        .temple-card:hover {
             transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
 
-        /* Loading States */
-        .loading {
-            text-align: center;
-            padding: 3rem;
-            color: var(--muted-foreground);
+        .temple-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--temple-brown);
+            margin-bottom: 0.5rem;
         }
 
-        .spinner {
-            border: 3px solid var(--secondary);
-            border-top: 3px solid var(--primary);
+        .temple-info {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
             border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 1rem;
+            margin-right: 8px;
         }
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        .status-connected {
+            background: #10b981;
+            box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
         }
 
-        /* Responsive Design */
+        .status-disconnected {
+            background: #ef4444;
+            box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
+        }
+
         @media (max-width: 768px) {
             .nav-links {
-                display: none;
+                flex-wrap: wrap;
+                gap: 1rem;
             }
-
+            
             .hero-title {
                 font-size: 2rem;
             }
-
-            .temple-details {
-                grid-template-columns: 1fr;
-            }
-
+            
             .stats-grid {
                 grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            }
-
-            .temple-selector-content {
-                flex-direction: column;
-                gap: 0.75rem;
-            }
-
-            .select-wrapper {
-                min-width: 250px;
             }
         }
     </style>
 </head>
 <body>
-    <!-- Navigation -->
     <nav class="nav">
-        <div class="container">
-            <div class="nav-content">
-                <a href="#" class="nav-brand">
-                    <span style="font-size: 1.5rem;">🕉️</span>
-                    Nam Kovil
-                </a>
-                <ul class="nav-links">
-                    <li><a href="#" class="nav-link active">Home</a></li>
-                    <li><a href="#" class="nav-link">Members</a></li>
-                    <li><a href="#" class="nav-link">Temples</a></li>
-                    <li><a href="#" class="nav-link">Register</a></li>
-                    <li><a href="#" class="nav-link">WhatsApp</a></li>
-                </ul>
-            </div>
+        <div class="nav-content">
+            <a href="#" class="nav-brand">
+                <span style="font-size: 1.5rem;">🕉️</span>
+                Nam Kovil
+            </a>
+            <ul class="nav-links">
+                <li><a href="#" class="nav-link active" onclick="showPage('home')">Home</a></li>
+                <li><a href="#" class="nav-link" onclick="showPage('registry')">Registry</a></li>
+                <li><a href="#" class="nav-link" onclick="showPage('members')">Members</a></li>
+                <li><a href="#" class="nav-link" onclick="showPage('family')">Family Tree</a></li>
+                <li><a href="#" class="nav-link" onclick="showPage('temples')">Temples</a></li>
+                <li><a href="#" class="nav-link" onclick="showPage('temple-registry')">Temple Registry</a></li>
+                <li><a href="#" class="nav-link" onclick="showPage('nav-temple-members')">nav.temple/Members</a></li>
+                <li><a href="#" class="nav-link" onclick="showPage('whatsapp')">WhatsApp</a></li>
+                <li><a href="#" class="nav-link" onclick="showPage('english')">English</a></li>
+            </ul>
         </div>
     </nav>
 
-    <!-- Temple Selection -->
     <div class="temple-selector">
-        <div class="container">
-            <div class="temple-selector-content">
-                <span style="font-size: 1.5rem;">🏛️</span>
-                <strong>Select Temple:</strong>
-                <div class="select-wrapper">
-                    <select class="select" id="templeSelect">
-                        <option value="">Choose a temple...</option>
-                        <option value="all">All Temples</option>
-                    </select>
-                </div>
-            </div>
+        <div class="temple-selector-content">
+            <span style="font-size: 1.2rem;">🏛️</span>
+            <span style="font-weight: 600;">Select Temple</span>
+            <select class="select" id="templeSelect">
+                <option value="">All Temples</option>
+            </select>
         </div>
     </div>
 
-    <!-- Main Content -->
     <main class="main-content">
-        <div class="container">
-            <div id="content">
-                <!-- Loading State -->
-                <div class="loading" id="loadingState">
-                    <div class="spinner"></div>
-                    <h3>Loading Nam Kovil System...</h3>
-                    <p>Connecting to database and loading community data</p>
+        <div class="hero-section">
+            <div class="hero-icon">🕉️</div>
+            <h1 class="hero-title">Welcome to your temple</h1>
+            <p class="hero-subtitle">Temple Information Portal</p>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card" onclick="showPage('members')">
+                <div class="stat-icon">👥</div>
+                <div class="stat-number" id="memberCount">Loading...</div>
+                <div class="stat-label">Total Members</div>
+            </div>
+            <div class="stat-card" onclick="showPage('temples')">
+                <div class="stat-icon">❤️</div>
+                <div class="stat-number" id="templeCount">Loading...</div>
+                <div class="stat-label">Temples</div>
+            </div>
+            <div class="stat-card" onclick="showPage('family')">
+                <div class="stat-icon">📅</div>
+                <div class="stat-number" id="relationshipCount">Loading...</div>
+                <div class="stat-label">Relationships</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🔗</div>
+                <div class="stat-number">
+                    <span class="status-indicator" id="dbStatus"></span>
+                    <span id="dbStatusText">Checking...</span>
                 </div>
+                <div class="stat-label">Database Status</div>
+            </div>
+        </div>
 
-                <!-- Home Content -->
-                <div id="homeContent" style="display: none;">
-                    <div class="hero-section">
-                        <h1 class="hero-title" id="heroTitle">🕉️ Nam Kovil</h1>
-                        <p class="hero-subtitle" id="heroSubtitle">Devine Portal</p>
-                        <p class="hero-description" id="heroDescription">
-                            Welcome to our temple community management system
-                        </p>
-                    </div>
-
-                    <!-- Statistics Grid -->
-                    <div class="stats-grid">
-                        <div class="stat-card" onclick="showMembers()">
-                            <div class="stat-number" id="memberCount">0</div>
-                            <div class="stat-label">Registered Members</div>
-                            <div class="stat-hint">Click to view members</div>
-                        </div>
-                        <div class="stat-card" onclick="showFamilies()">
-                            <div class="stat-number" id="familyCount">0</div>
-                            <div class="stat-label">Families</div>
-                            <div class="stat-hint">Click to view families</div>
-                        </div>
-                        <div class="stat-card" onclick="showEvents()">
-                            <div class="stat-number" id="eventCount">48</div>
-                            <div class="stat-label">Annual Events</div>
-                            <div class="stat-hint">Click to view events</div>
-                        </div>
-                        <div class="stat-card" onclick="showVolunteers()">
-                            <div class="stat-number" id="volunteerCount">0</div>
-                            <div class="stat-label">Volunteers</div>
-                            <div class="stat-hint">Click to view volunteers</div>
-                        </div>
-                    </div>
-
-                    <!-- Temple Details Card -->
-                    <div class="card" id="templeDetailsCard" style="display: none;">
-                        <div class="card-content">
-                            <div class="temple-details">
-                                <div>
-                                    <img id="templeImage" class="temple-image" alt="Temple Image" style="display: none;">
-                                    <div id="templeImagePlaceholder" class="temple-image-placeholder">
-                                        <div style="font-size: 4rem; margin-bottom: 1rem;">🏛️</div>
-                                        <div>No Image Available</div>
-                                    </div>
-                                </div>
-                                <div class="temple-info">
-                                    <h3 id="templeDetailsTitle">Temple Information</h3>
-                                    <p id="templeDetailsDescription">Loading temple information...</p>
-                                    <div class="action-buttons">
-                                        <button class="btn btn-primary" onclick="editTemple()">
-                                            ✏️ Edit Temple
-                                        </button>
-                                        <button class="btn btn-secondary" onclick="viewMembers()">
-                                            👥 View Members
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+        <div class="content-area" id="contentArea">
+            <div class="welcome-message">
+                <h3>Welcome to Nam Kovil Community Portal</h3>
+                <p>Your comprehensive temple management and family connection system</p>
             </div>
         </div>
     </main>
 
     <script>
-        // Application State
-        const appState = {
-            members: [],
-            temples: [],
-            selectedTemple: null,
-            isLoading: true
-        };
+        let currentPage = 'home';
+        let membersData = [];
+        let templesData = [];
+        let relationshipsData = [];
 
-        // Initialize Application
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('Nam Kovil System Starting...');
-            loadData();
-        });
-
-        // Load Data from APIs
-        async function loadData() {
-            try {
-                // Load members
-                const membersResponse = await fetch('/api/members');
-                if (membersResponse.ok) {
-                    appState.members = await membersResponse.json();
-                    console.log(`Loaded ${appState.members.length} members`);
-                }
-
-                // Load temples
-                const templesResponse = await fetch('/api/temples');
-                if (templesResponse.ok) {
-                    appState.temples = await templesResponse.json();
-                    console.log(`Loaded ${appState.temples.length} temples`);
-                }
-
-                // Populate temple selector
-                populateTempleSelector();
-
-                // Calculate statistics
-                updateStatistics();
-
-                // Show home content
-                showHomeContent();
-
-                appState.isLoading = false;
-            } catch (error) {
-                console.error('Error loading data:', error);
-                showError('Unable to load data from database. Please check your connection.');
-            }
-        }
-
-        // Populate Temple Selector
-        function populateTempleSelector() {
-            const select = document.getElementById('templeSelect');
+        function showPage(page) {
+            currentPage = page;
+            const contentArea = document.getElementById('contentArea');
+            const navLinks = document.querySelectorAll('.nav-link');
             
-            // Clear existing options (except default)
-            while (select.children.length > 2) {
-                select.removeChild(select.lastChild);
-            }
+            // Update active nav link
+            navLinks.forEach(link => link.classList.remove('active'));
+            event.target.classList.add('active');
 
-            // Add temple options
-            appState.temples.forEach(temple => {
-                const option = document.createElement('option');
-                option.value = temple.id;
-                option.textContent = `${temple.templeName} - ${temple.village}, ${temple.state}`;
-                select.appendChild(option);
-            });
-
-            // Add event listener
-            select.addEventListener('change', handleTempleSelection);
-        }
-
-        // Handle Temple Selection
-        function handleTempleSelection(event) {
-            const templeId = event.target.value;
-            
-            if (templeId === 'all' || templeId === '') {
-                appState.selectedTemple = null;
-                updateHeroSection();
-                updateStatistics();
-                hideTempleDetails();
-            } else {
-                const temple = appState.temples.find(t => t.id.toString() === templeId);
-                appState.selectedTemple = temple;
-                updateHeroSection();
-                updateStatistics();
-                showTempleDetails(temple);
-            }
-        }
-
-        // Update Hero Section
-        function updateHeroSection() {
-            const title = document.getElementById('heroTitle');
-            const subtitle = document.getElementById('heroSubtitle');
-            const description = document.getElementById('heroDescription');
-
-            if (appState.selectedTemple) {
-                title.textContent = `🕉️ ${appState.selectedTemple.templeName}`;
-                subtitle.textContent = appState.selectedTemple.deity || 'Temple Information';
-                description.textContent = appState.selectedTemple.description || 'Welcome to our temple community';
-                document.title = `${appState.selectedTemple.templeName} - Our Temple`;
-            } else {
-                title.textContent = '🕉️ Nam Kovil';
-                subtitle.textContent = 'Devine Portal';
-                description.textContent = 'Welcome to our temple community management system';
-                document.title = 'Nam Kovil - Devine Portal';
+            switch(page) {
+                case 'home':
+                    showHome();
+                    break;
+                case 'members':
+                    showMembers();
+                    break;
+                case 'registry':
+                    showRegistry();
+                    break;
+                case 'temples':
+                    showTemples();
+                    break;
+                case 'family':
+                    showFamilyTree();
+                    break;
+                case 'temple-registry':
+                    showTempleRegistry();
+                    break;
+                case 'nav-temple-members':
+                    showTempleMembers();
+                    break;
+                case 'whatsapp':
+                    showWhatsApp();
+                    break;
+                case 'english':
+                    showLanguage();
+                    break;
             }
         }
 
-        // Update Statistics
-        function updateStatistics() {
-            const filteredMembers = getFilteredMembers();
-            
-            const memberCount = filteredMembers.length;
-            const familyCount = Math.ceil(memberCount / 3.6);
-            const volunteerCount = Math.ceil(memberCount * 0.125);
-
-            document.getElementById('memberCount').textContent = memberCount;
-            document.getElementById('familyCount').textContent = familyCount;
-            document.getElementById('volunteerCount').textContent = volunteerCount;
-        }
-
-        // Get Filtered Members
-        function getFilteredMembers() {
-            if (!appState.selectedTemple) {
-                return appState.members;
-            }
-            return appState.members.filter(member => member.templeId === appState.selectedTemple.id);
-        }
-
-        // Show Temple Details
-        function showTempleDetails(temple) {
-            const card = document.getElementById('templeDetailsCard');
-            const image = document.getElementById('templeImage');
-            const placeholder = document.getElementById('templeImagePlaceholder');
-            const title = document.getElementById('templeDetailsTitle');
-            const description = document.getElementById('templeDetailsDescription');
-
-            // Update content
-            title.textContent = temple.templeName;
-            description.innerHTML = `
-                <strong>Location:</strong> ${temple.village}, ${temple.nearestCity}, ${temple.state}, ${temple.country}<br>
-                <strong>Main Deity:</strong> ${temple.deity || 'Not specified'}<br>
-                <strong>Established:</strong> ${temple.establishedYear || 'Unknown'}<br>
-                <strong>Contact:</strong> ${temple.contactPhone || 'Not available'}<br>
-                <strong>Email:</strong> ${temple.contactEmail || 'Not available'}
-            `;
-
-            // Handle image
-            if (temple.templeImage) {
-                image.src = temple.templeImage;
-                image.style.display = 'block';
-                placeholder.style.display = 'none';
-            } else {
-                image.style.display = 'none';
-                placeholder.style.display = 'flex';
-            }
-
-            card.style.display = 'block';
-        }
-
-        // Hide Temple Details
-        function hideTempleDetails() {
-            document.getElementById('templeDetailsCard').style.display = 'none';
-        }
-
-        // Show Home Content
-        function showHomeContent() {
-            document.getElementById('loadingState').style.display = 'none';
-            document.getElementById('homeContent').style.display = 'block';
-        }
-
-        // Show Error
-        function showError(message) {
-            document.getElementById('loadingState').innerHTML = `
-                <div style="color: var(--destructive); text-align: center; padding: 2rem;">
-                    <h3>Error Loading Data</h3>
-                    <p>${message}</p>
-                    <button class="btn btn-primary" onclick="location.reload()" style="margin-top: 1rem;">
-                        Retry
-                    </button>
+        function showHome() {
+            const contentArea = document.getElementById('contentArea');
+            contentArea.innerHTML = `
+                <div class="welcome-message">
+                    <h3>Welcome to Nam Kovil Community Portal</h3>
+                    <p>Your comprehensive temple management and family connection system</p>
+                    <div style="margin-top: 2rem;">
+                        <p><strong>Database Status:</strong> <span id="homeDbStatus">Checking...</span></p>
+                        <p><strong>Total Members:</strong> ${membersData.length}</p>
+                        <p><strong>Total Temples:</strong> ${templesData.length}</p>
+                        <p><strong>Total Relationships:</strong> ${relationshipsData.length}</p>
+                    </div>
                 </div>
             `;
         }
 
-        // Click Handlers
         function showMembers() {
-            alert('Members view - This would show the members page in the full application');
+            const contentArea = document.getElementById('contentArea');
+            
+            if (membersData.length === 0) {
+                contentArea.innerHTML = `
+                    <div class="content-header">
+                        <h2>Members</h2>
+                        <p>Community member directory</p>
+                    </div>
+                    <div class="content-body">
+                        <div class="error">No members found or failed to load data</div>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = `
+                <div class="content-header">
+                    <h2>Members (${membersData.length})</h2>
+                    <p>Community member directory</p>
+                </div>
+                <div class="content-body">
+                    <div class="member-grid">
+            `;
+
+            membersData.forEach(member => {
+                html += `
+                    <div class="member-card">
+                        <div class="member-name">${member.fullName || member.full_name || 'Unknown'}</div>
+                        <div class="member-info">📧 ${member.email || 'No email'}</div>
+                        <div class="member-info">📱 ${member.phone || 'No phone'}</div>
+                        <div class="member-info">🏠 ${member.currentCity || member.current_city || 'No city'}, ${member.currentState || member.current_state || 'No state'}</div>
+                        ${member.gender ? `<div class="member-info">⚧ ${member.gender}</div>` : ''}
+                        ${member.maritalStatus || member.marital_status ? `<div class="member-info">💑 ${member.maritalStatus || member.marital_status}</div>` : ''}
+                    </div>
+                `;
+            });
+
+            html += `
+                    </div>
+                </div>
+            `;
+
+            contentArea.innerHTML = html;
         }
 
-        function showFamilies() {
-            alert('Families view - This would show families grouped by relationships');
+        function showTemples() {
+            const contentArea = document.getElementById('contentArea');
+            
+            if (templesData.length === 0) {
+                contentArea.innerHTML = `
+                    <div class="content-header">
+                        <h2>Temples</h2>
+                        <p>Sacred places directory</p>
+                    </div>
+                    <div class="content-body">
+                        <div class="error">No temples found or failed to load data</div>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = `
+                <div class="content-header">
+                    <h2>Temples (${templesData.length})</h2>
+                    <p>Sacred places directory</p>
+                </div>
+                <div class="content-body">
+                    <div class="temple-grid">
+            `;
+
+            templesData.forEach(temple => {
+                html += `
+                    <div class="temple-card">
+                        <div class="temple-name">${temple.templeName || temple.temple_name || 'Unknown Temple'}</div>
+                        <div class="temple-info">🕉️ ${temple.deity || 'No deity specified'}</div>
+                        <div class="temple-info">🏛️ ${temple.village || 'No village'}</div>
+                        <div class="temple-info">📍 ${temple.nearestCity || temple.nearest_city || 'No city'}, ${temple.state || 'No state'}</div>
+                        <div class="temple-info">🌍 ${temple.country || 'No country'}</div>
+                        ${temple.establishedYear || temple.established_year ? `<div class="temple-info">📅 Est. ${temple.establishedYear || temple.established_year}</div>` : ''}
+                        ${temple.contactPhone || temple.contact_phone ? `<div class="temple-info">📱 ${temple.contactPhone || temple.contact_phone}</div>` : ''}
+                    </div>
+                `;
+            });
+
+            html += `
+                    </div>
+                </div>
+            `;
+
+            contentArea.innerHTML = html;
         }
 
-        function showEvents() {
-            alert('Events view - This would show temple events and festivals');
+        function showRegistry() {
+            const contentArea = document.getElementById('contentArea');
+            contentArea.innerHTML = `
+                <div class="content-header">
+                    <h2>Member Registry</h2>
+                    <p>Register new community members</p>
+                </div>
+                <div class="content-body">
+                    <div style="text-align: center; padding: 2rem;">
+                        <h3>Member Registration Form</h3>
+                        <p>This feature will be implemented to match the development environment.</p>
+                    </div>
+                </div>
+            `;
         }
 
-        function showVolunteers() {
-            alert('Volunteers view - This would show active community volunteers');
+        function showFamilyTree() {
+            const contentArea = document.getElementById('contentArea');
+            contentArea.innerHTML = `
+                <div class="content-header">
+                    <h2>Family Tree</h2>
+                    <p>Explore family relationships and connections</p>
+                </div>
+                <div class="content-body">
+                    <div style="text-align: center; padding: 2rem;">
+                        <h3>Family Tree Visualization</h3>
+                        <p>Relationships: ${relationshipsData.length}</p>
+                        <p>This feature will show family connections and relationship mapping.</p>
+                    </div>
+                </div>
+            `;
         }
 
-        function editTemple() {
-            alert('Edit Temple - This would open the temple editing form');
+        function showTempleRegistry() {
+            const contentArea = document.getElementById('contentArea');
+            contentArea.innerHTML = `
+                <div class="content-header">
+                    <h2>Temple Registry</h2>
+                    <p>Register new temples and sacred places</p>
+                </div>
+                <div class="content-body">
+                    <div style="text-align: center; padding: 2rem;">
+                        <h3>Temple Registration Form</h3>
+                        <p>This feature will be implemented to match the development environment.</p>
+                    </div>
+                </div>
+            `;
         }
 
-        function viewMembers() {
-            alert('View Members - This would show members associated with this temple');
+        function showTempleMembers() {
+            const contentArea = document.getElementById('contentArea');
+            contentArea.innerHTML = `
+                <div class="content-header">
+                    <h2>Temple Members</h2>
+                    <p>Members organized by temple affiliation</p>
+                </div>
+                <div class="content-body">
+                    <div style="text-align: center; padding: 2rem;">
+                        <h3>Temple-based Member Directory</h3>
+                        <p>This feature will show members grouped by their temple associations.</p>
+                    </div>
+                </div>
+            `;
         }
+
+        function showWhatsApp() {
+            const contentArea = document.getElementById('contentArea');
+            contentArea.innerHTML = `
+                <div class="content-header">
+                    <h2>WhatsApp Integration</h2>
+                    <p>Community communication tools</p>
+                </div>
+                <div class="content-body">
+                    <div style="text-align: center; padding: 2rem;">
+                        <h3>WhatsApp Messaging</h3>
+                        <p>This feature will provide WhatsApp integration for community communications.</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function showLanguage() {
+            const contentArea = document.getElementById('contentArea');
+            contentArea.innerHTML = `
+                <div class="content-header">
+                    <h2>Language Settings</h2>
+                    <p>Choose your preferred language</p>
+                </div>
+                <div class="content-body">
+                    <div style="text-align: center; padding: 2rem;">
+                        <h3>Language Selection</h3>
+                        <p>English | தமிழ்</p>
+                        <p>This feature will provide language switching functionality.</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function loadData() {
+            try {
+                const [membersResponse, templesResponse, relationshipsResponse, healthResponse] = await Promise.all([
+                    fetch('/api/members'),
+                    fetch('/api/temples'),
+                    fetch('/api/relationships'),
+                    fetch('/api/health')
+                ]);
+
+                // Load members data
+                if (membersResponse.ok) {
+                    membersData = await membersResponse.json();
+                    document.getElementById('memberCount').textContent = membersData.length;
+                    
+                    // Populate temple selector
+                    const templeSelect = document.getElementById('templeSelect');
+                    const uniqueTemples = [...new Set(membersData.map(m => m.temple_name || m.templeName).filter(Boolean))];
+                    uniqueTemples.forEach(temple => {
+                        const option = document.createElement('option');
+                        option.value = temple;
+                        option.textContent = temple;
+                        templeSelect.appendChild(option);
+                    });
+                } else {
+                    console.error('Failed to load members');
+                    document.getElementById('memberCount').textContent = 'Error';
+                }
+
+                // Load temples data
+                if (templesResponse.ok) {
+                    templesData = await templesResponse.json();
+                    document.getElementById('templeCount').textContent = templesData.length;
+                } else {
+                    console.error('Failed to load temples');
+                    document.getElementById('templeCount').textContent = 'Error';
+                }
+
+                // Load relationships data
+                if (relationshipsResponse.ok) {
+                    relationshipsData = await relationshipsResponse.json();
+                    document.getElementById('relationshipCount').textContent = relationshipsData.length;
+                } else {
+                    console.error('Failed to load relationships');
+                    document.getElementById('relationshipCount').textContent = 'Error';
+                }
+
+                // Check database health
+                if (healthResponse.ok) {
+                    const health = await healthResponse.json();
+                    document.getElementById('dbStatus').className = 'status-indicator status-connected';
+                    document.getElementById('dbStatusText').textContent = 'Connected';
+                } else {
+                    document.getElementById('dbStatus').className = 'status-indicator status-disconnected';
+                    document.getElementById('dbStatusText').textContent = 'Disconnected';
+                }
+
+            } catch (error) {
+                console.error('Error loading data:', error);
+                document.getElementById('memberCount').textContent = 'Error';
+                document.getElementById('templeCount').textContent = 'Error';
+                document.getElementById('relationshipCount').textContent = 'Error';
+                document.getElementById('dbStatus').className = 'status-indicator status-disconnected';
+                document.getElementById('dbStatusText').textContent = 'Error';
+            }
+        }
+
+        // Load data when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            loadData();
+            // Refresh data every 30 seconds
+            setInterval(loadData, 30000);
+        });
     </script>
 </body>
 </html>

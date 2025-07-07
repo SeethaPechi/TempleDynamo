@@ -1,35 +1,18 @@
 {
-  "name": "temple-management-production",
+  "name": "nam-kovil-production",
   "version": "1.0.0",
-  "description": "Temple Community Management System - Production Build",
-  "main": "index.js",
+  "description": "Nam Kovil Temple Management System",
+  "main": "server-with-local-db.js",
   "scripts": {
-    "start": "node index.js",
-    "dev": "node index.js"
-  },
-  "engines": {
-    "node": ">=18.0.0"
+    "start": "node server-with-local-db.js",
+    "dev": "node server-with-local-db.js"
   },
   "dependencies": {
-    "@neondatabase/serverless": "^0.9.4",
     "express": "^4.18.2",
-    "express-session": "^1.17.3",
-    "connect-pg-simple": "^9.0.1",
-    "drizzle-orm": "^0.30.10",
     "pg": "^8.11.3",
-    "cors": "^2.8.5",
-    "helmet": "^7.1.0",
-    "compression": "^1.7.4",
-    "ws": "^8.14.2"
+    "cors": "^2.8.5"
   },
-  "keywords": [
-    "temple",
-    "management",
-    "community",
-    "nodejs",
-    "express",
-    "postgresql"
-  ],
-  "author": "Temple Management Team",
-  "license": "MIT"
+  "engines": {
+    "node": ">=16.0.0"
+  }
 }
