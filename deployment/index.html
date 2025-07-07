@@ -625,13 +625,29 @@ async function checkConnection() {
     });
     
     if (response.ok) {
+      const healthData = await response.json();
       appData.isOnline = true;
       updateConnectionStatus('online', 'Database Connected');
       document.getElementById('dbStatus').textContent = 'Connected and Operational';
+      console.log('Health check passed:', healthData);
     } else {
-      throw new Error('Health check failed');
+      throw new Error(`Health check failed: ${response.status}`);
     }
   } catch (error) {
+    // Try alternative check with direct API call
+    try {
+      const membersResponse = await fetch('/api/members');
+      if (membersResponse.ok) {
+        appData.isOnline = true;
+        updateConnectionStatus('online', 'Database Connected');
+        document.getElementById('dbStatus').textContent = 'Connected via API';
+        console.log('Database accessible via members API');
+        return;
+      }
+    } catch (apiError) {
+      console.warn('Direct API check also failed:', apiError);
+    }
+    
     appData.isOnline = false;
     updateConnectionStatus('offline', 'Database Offline');
     document.getElementById('dbStatus').textContent = 'Connection Error';

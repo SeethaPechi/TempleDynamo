@@ -6,6 +6,18 @@ import { whatsappService } from "./whatsapp";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Health check endpoint
+  app.get("/api/health", async (req, res) => {
+    try {
+      // Test database connection by trying to get members
+      await storage.getAllMembers();
+      res.json({ status: "healthy", database: "connected", timestamp: new Date().toISOString() });
+    } catch (error: any) {
+      console.error("Health check failed:", error);
+      res.status(500).json({ status: "unhealthy", database: "disconnected", error: error?.message || "Unknown error" });
+    }
+  });
+
   // Member routes
   app.post("/api/members", async (req, res) => {
     try {
