@@ -1,11 +1,11 @@
 {
-  "name": "nam-kovil-production",
+  "name": "nam-kovil-iis-production",
   "version": "1.0.0",
-  "description": "Nam Kovil Temple Management System",
-  "main": "server-with-local-db.js",
+  "description": "Nam Kovil Temple Management System - IIS Production",
+  "main": "server.js",
   "scripts": {
-    "start": "node server-with-local-db.js",
-    "dev": "node server-with-local-db.js"
+    "start": "node server.js",
+    "test": "node server.js"
   },
   "dependencies": {
     "express": "^4.18.2",
@@ -13,6 +13,9 @@
     "cors": "^2.8.5"
   },
   "engines": {
-    "node": ">=16.0.0"
-  }
+    "node": ">=18.0.0"
+  },
+  "keywords": ["temple", "management", "community", "iis", "production"],
+  "author": "Nam Kovil Development Team",
+  "license": "ISC"
 }
