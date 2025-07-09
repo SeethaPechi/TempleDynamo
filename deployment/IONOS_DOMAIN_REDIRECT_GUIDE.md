@@ -18,59 +18,76 @@ Your Nam Kovil application should be accessible at:
 
 ## Step 2: IONOS DNS Configuration
 
-### Method 1: CNAME Redirect (Recommended)
+### Method 1: Replit Official Domain Linking (Recommended)
 
-**Login to IONOS Control Panel:**
-1. Go to [ionos.com](https://www.ionos.com) and login
-2. Navigate to **Domains & SSL** → **Domains**
-3. Click on your domain name
-4. Go to **DNS** settings
+**Step 1: Deploy to Replit First**
+1. Click the **Deploy** button in your Replit interface
+2. Wait for deployment to complete
+3. Go to **Deployments** tab in your Replit dashboard
+4. Click on your deployment, then **Settings**
 
-**Configure DNS Records:**
+**Step 2: Link Your Domain in Replit**
+1. In deployment settings, click **"Link a domain"**
+2. Enter your domain: `tamilkovil.com`
+3. Replit will show you the exact DNS records to configure
+
+**Step 3: Configure IONOS DNS Records**
+Use the records provided by Replit (typically):
 ```
-Type    Name    Value                    TTL
-CNAME   @       tamilkovil.replit.app    3600
-CNAME   www     tamilkovil.replit.app    3600
+Type    Name    Value                         TTL
+A       @       34.132.134.162               3600
+CNAME   www     your-deployment.replit.app   3600
+TXT     @       replit-user=your-username    3600
 ```
 
 **Important Notes:**
-- Some registrars don't allow CNAME for root domain (@)
-- If CNAME @ fails, use Method 2 (A Record + Redirect)
+- Use Replit's official domain linking instead of manual redirects
+- The IP address `34.132.134.162` is Replit's apex domain proxy
+- TXT record is required for domain verification
 
-### Method 2: A Record + HTTP Redirect
+### Method 2: Manual DNS Configuration (If Replit linking fails)
 
-**If CNAME doesn't work for root domain:**
+**Use Replit's Static IP for Apex Domains:**
 
-1. **Get Replit's IP Address:**
-```bash
-# Run this command to get the IP
-nslookup tamilkovil.replit.app
-# or
-dig tamilkovil.replit.app
+1. **Configure IONOS DNS Records:**
+```
+Type    Name    Value                         TTL
+A       @       34.132.134.162               3600
+CNAME   www     your-deployment.replit.app   3600
+TXT     @       replit-user=your-username    3600
 ```
 
-2. **Configure DNS Records:**
-```
-Type    Name    Value                    TTL
-A       @       REPLIT_IP_ADDRESS       3600
-CNAME   www     tamilkovil.replit.app    3600
-```
+2. **Important Steps:**
+   - Replace `your-deployment.replit.app` with your actual deployment URL
+   - Replace `your-username` with your Replit username
+   - The IP `34.132.134.162` is Replit's official apex domain proxy
 
-3. **Set up HTTP Redirect in IONOS:**
-   - In IONOS control panel, find **Website Redirect** or **URL Forwarding**
-   - Redirect `yourdomain.com` → `https://tamilkovil.replit.app`
-   - Enable **301 Permanent Redirect**
+3. **Verify in Replit:**
+   - Return to Replit deployment settings
+   - Click "Verify domain" button
+   - Wait for DNS propagation (up to 48 hours)
 
-### Method 3: IONOS Web Redirect Service
+### Method 3: Troubleshooting Current 404 Error
 
-**Using IONOS Built-in Redirect:**
-1. In IONOS control panel, go to **Website & Shops**
-2. Select **Redirect Domain**
-3. Configure redirect:
-   - **Source**: `yourdomain.com`
-   - **Target**: `https://tamilkovil.replit.app`
-   - **Type**: 301 Permanent Redirect
-   - **Include Path**: Yes (recommended)
+**Your current issue: Getting redirected to `http://tamilkovil.com/defaultsite`**
+
+**Root Cause:** You're using an old redirect method that doesn't work with modern Replit deployments.
+
+**Solution:**
+1. **Remove all existing redirects** in IONOS control panel
+2. **Clear DNS cache:** Delete any A records pointing to wrong IPs
+3. **Use Method 1:** Official Replit domain linking
+4. **Key DNS Records needed:**
+   ```
+   A     @     34.132.134.162
+   CNAME www   your-actual-deployment.replit.app
+   TXT   @     replit-user=your-replit-username
+   ```
+
+**Common Mistakes to Avoid:**
+- Don't use `tamilkovil.replit.app` (this is an old format)
+- Don't set up IONOS website redirects for Replit domains
+- Make sure you're using your actual deployment URL from Replit dashboard
 
 ## Step 3: Advanced Redirect Options
 
