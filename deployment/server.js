@@ -6,8 +6,8 @@ const cors = require('cors');
 const app = express();
 const PORT = process.env.PORT || 8080;
 
-// Database configuration for your local PostgreSQL
-const DATABASE_URL = "postgresql://temple_app:TMS2024SecurePass!@localhost:5432/temple_management";
+// SECURITY: Use environment variables for production credentials
+const DATABASE_URL = process.env.DATABASE_URL || "postgresql://YOUR_DB_USER:YOUR_SECURE_PASSWORD@localhost:5432/temple_management";
 
 console.log(`Starting Nam Kovil Temple Management System`);
 console.log(`Database: ${DATABASE_URL.replace(/:[^:@]*@/, ':****@')}`);

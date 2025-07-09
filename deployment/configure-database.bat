@@ -10,12 +10,13 @@ echo Working directory: %CD%
 
 REM Set environment variables for database connection
 echo Setting database environment variables...
-setx DATABASE_URL "postgresql://temple_app:TMS2024SecurePass!@localhost:5432/temple_management" /M
+REM SECURITY: Replace with your actual secure credentials
+setx DATABASE_URL "postgresql://YOUR_DB_USER:YOUR_SECURE_PASSWORD@localhost:5432/temple_management" /M
 setx PGHOST "localhost" /M
 setx PGPORT "5432" /M
 setx PGDATABASE "temple_management" /M
-setx PGUSER "temple_app" /M
-setx PGPASSWORD "TMS2024SecurePass!" /M
+setx PGUSER "YOUR_DB_USER" /M
+setx PGPASSWORD "YOUR_SECURE_PASSWORD" /M
 
 REM Test database connection
 echo Testing database connection...
@@ -30,7 +31,7 @@ if %ERRORLEVEL% EQU 0 (
     echo • Port: 5432
     echo • Database: temple_management
     echo • User: temple_app
-    echo • Password: TMS2024SecurePass!
+    echo • Password: [Your secure password]
     echo.
     echo Make sure PostgreSQL service is running and the database exists.
 )

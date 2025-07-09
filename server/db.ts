@@ -4,8 +4,8 @@ import { eq, or, asc } from 'drizzle-orm';
 import * as schema from "@shared/schema";
 import { users, type User, type InsertUser, members, type Member, type InsertMember, relationships, type Relationship, type InsertRelationship, temples, type Temple, type InsertTemple } from "@shared/schema";
 
-// Use environment DATABASE_URL or fallback for development
-const DATABASE_URL = process.env.DATABASE_URL || "postgresql://temple_app:TMS2024SecurePass!@localhost:5432/temple_management";
+// SECURITY: Use environment variables for production credentials
+const DATABASE_URL = process.env.DATABASE_URL || "postgresql://YOUR_DB_USER:YOUR_SECURE_PASSWORD@localhost:5432/temple_management";
 
 if (!DATABASE_URL) {
   throw new Error(

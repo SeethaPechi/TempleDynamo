@@ -47,8 +47,8 @@ if %ERRORLEVEL% EQU 0 (
     echo ✅ Database connection successful
 ) else (
     echo ⚠️ Database connection test failed
-    echo Please ensure PostgreSQL is running with credentials:
-    echo postgresql://temple_app:TMS2024SecurePass!@localhost:5432/temple_management
+    echo Please ensure PostgreSQL is running with your secure credentials:
+    echo Check your DATABASE_URL environment variable
 )
 
 echo.

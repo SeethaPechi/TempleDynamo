@@ -66,7 +66,7 @@ if %ERRORLEVEL% EQU 0 (
 ) else (
     echo Database connection failed
     echo Please ensure PostgreSQL is running and accessible
-    echo Connection string: postgresql://temple_app:TMS2024SecurePass!@localhost:5432/temple_management
+    echo Check your DATABASE_URL environment variable configuration
 )
 
 echo.

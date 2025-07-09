@@ -13,7 +13,7 @@ set DB_HOST=localhost
 set DB_PORT=5432
 set DB_NAME=temple_management
 set DB_USER=temple_app
-set DB_PASSWORD=TMS2024SecurePass!
+set DB_PASSWORD=YOUR_SECURE_PASSWORD
 set POSTGRES_ADMIN=postgres
 set POSTGRES_ADMIN_PASSWORD=
 

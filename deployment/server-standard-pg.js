@@ -56,7 +56,7 @@ const dbConfig = {
   port: process.env.PGPORT || 5432,
   database: process.env.PGDATABASE || 'temple_management',
   user: process.env.PGUSER || 'temple_app',
-  password: process.env.PGPASSWORD || 'TMS2024SecurePass!',
+  password: process.env.PGPASSWORD || 'YOUR_SECURE_PASSWORD',
   ssl: false, // Local PostgreSQL doesn't need SSL
   max: 20,
   idleTimeoutMillis: 30000,
