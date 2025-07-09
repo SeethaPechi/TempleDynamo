@@ -452,8 +452,16 @@ const statesByCountry: Record<
 };
 
 export default function MemberDetails() {
-  const [, params] = useRoute("/member/:id");
-  const memberId = params?.id ? parseInt(params.id) : null;
+  // Handle both route patterns: /member/:id and /member-details/:id
+  const [, memberParams] = useRoute("/member/:id");
+  const [, memberDetailsParams] = useRoute("/member-details/:id");
+  
+  // Extract member ID from whichever route matches
+  const memberId = memberParams?.id 
+    ? parseInt(memberParams.id) 
+    : memberDetailsParams?.id 
+    ? parseInt(memberDetailsParams.id) 
+    : null;
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isAddRelativeOpen, setIsAddRelativeOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
