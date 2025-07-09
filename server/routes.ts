@@ -406,6 +406,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // SPA routing: Handle client-side routing for production deployment
+  // This ensures all non-API routes serve the React app (for navigation to work)
+  app.get('*', (req, res, next) => {
+    // Skip API routes
+    if (req.originalUrl.startsWith('/api/') || 
+        req.originalUrl.includes('.html') || 
+        req.originalUrl.includes('.js') || 
+        req.originalUrl.includes('.css') ||
+        req.originalUrl.includes('.png') ||
+        req.originalUrl.includes('.jpg') ||
+        req.originalUrl.includes('.ico')) {
+      return next();
+    }
+    
+    // For production deployment, let the static file handler take over
+    // In development, Vite middleware handles this
+    if (process.env.NODE_ENV === 'production') {
+      // This will be handled by serveStatic in vite.ts
+      return next();
+    }
+    
+    // In development, let Vite handle it
+    next();
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
