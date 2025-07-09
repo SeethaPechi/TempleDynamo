@@ -19,6 +19,8 @@ export const members = pgTable("members", {
   spouseName: text("spouse_name"),
   maritalStatus: text("marital_status").notNull().default("Single"),
   templeId: integer("temple_id").references(() => temples.id),
+  profilePicture: text("profile_picture"),
+  photos: text("photos").array().default([]),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -38,6 +40,8 @@ export const insertMemberSchema = createInsertSchema(members).omit({
   templeId: z.number().optional().nullable(),
   email: z.string().optional().nullable(),
   phone: z.string().optional().nullable(),
+  profilePicture: z.string().optional(),
+  photos: z.array(z.string()).default([]),
 });
 
 export const insertRelationshipSchema = createInsertSchema(relationships).omit({
@@ -79,6 +83,7 @@ export const temples = pgTable("temples", {
   contactEmail: text("contact_email"),
   description: text("description"),
   templeImage: text("temple_image"), // Base64 encoded image or image URL
+  templePhotos: text("temple_photos").array().default([]), // Array of up to 10 photos
   googleMapLink: text("google_map_link"),
   websiteLink: text("website_link"),
   wikiLink: text("wiki_link"),
@@ -96,6 +101,7 @@ export const insertTempleSchema = createInsertSchema(temples).omit({
   googleMapLink: z.string().url("Please enter a valid Google Maps URL").optional().or(z.literal("")),
   websiteLink: z.string().url("Please enter a valid website URL").optional().or(z.literal("")),
   wikiLink: z.string().url("Please enter a valid Wikipedia URL").optional().or(z.literal("")),
+  templePhotos: z.array(z.string()).max(10, "Maximum 10 photos allowed").default([]),
 });
 
 export type InsertTemple = z.infer<typeof insertTempleSchema>;

@@ -48,6 +48,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Upload, X } from "lucide-react";
 import { MemberListModal } from "@/components/member-list-modal";
+import { TemplePhotoCarousel } from "@/components/temple-photo-carousel";
 
 const templeEditSchema = z.object({
   templeName: z.string().min(2, "Temple name must be at least 2 characters"),
@@ -601,7 +602,10 @@ export default function Home() {
               <Card className="bg-white/80 backdrop-blur border border-temple-gold/20"></Card>
             </div>
           </div>
-          <div className="space-y-6"></div>
+          <div className="space-y-6">
+            {/* Temple Photo Carousel */}
+            <TemplePhotoCarousel className="w-full" />
+          </div>
         </div>
       </div>
 

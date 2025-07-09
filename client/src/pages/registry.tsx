@@ -44,6 +44,7 @@ import {
 import { useTranslation } from "react-i18next";
 import { insertMemberSchema } from "@shared/schema";
 import type { Member } from "@shared/schema";
+import { PhotoUpload } from "@/components/photo-upload";
 
 const registrationSchema = insertMemberSchema.extend({
   fullName: z.string().min(2, "Full name must be at least 2 characters"),
@@ -476,6 +477,8 @@ export default function Registry() {
   const [selectedBirthCountry, setSelectedBirthCountry] = useState("");
   const [selectedCurrentCountry, setSelectedCurrentCountry] = useState("");
   const [selectedTemple, setSelectedTemple] = useState("");
+  const [memberPhotos, setMemberPhotos] = useState<string[]>([]);
+  const [profilePicture, setProfilePicture] = useState<string>("");
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -520,13 +523,15 @@ export default function Registry() {
 
   const registrationMutation = useMutation({
     mutationFn: async (data: RegistrationData) => {
-      // Include temple selection
+      // Include temple selection and photos
       const memberData = {
         ...data,
         templeId:
           selectedTemple && selectedTemple !== "none"
             ? parseInt(selectedTemple)
             : null,
+        profilePicture: profilePicture || undefined,
+        photos: memberPhotos,
       };
       delete memberData.selectedTemple; // Remove from the payload
       const response = await apiRequest("POST", "/api/members", memberData);
@@ -577,6 +582,8 @@ export default function Registry() {
       setSelectedBirthCountry("");
       setSelectedCurrentCountry("");
       setSelectedTemple("");
+      setMemberPhotos([]);
+      setProfilePicture("");
       
       // Show success toast
       toast({
@@ -1145,6 +1152,20 @@ export default function Registry() {
                       )}
                     />
                   </div>
+                </div>
+
+                {/* Photo Upload Section */}
+                <div className="border-l-4 border-temple-gold pl-6">
+                  <PhotoUpload
+                    photos={memberPhotos}
+                    onPhotosChange={setMemberPhotos}
+                    allowProfilePicture={true}
+                    profilePicture={profilePicture}
+                    onProfilePictureChange={setProfilePicture}
+                    title="Member Photos"
+                    description="Upload profile picture and additional photos for this member"
+                    maxPhotos={5}
+                  />
                 </div>
 
                 {/* Family Relationships 

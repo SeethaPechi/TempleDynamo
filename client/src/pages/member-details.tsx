@@ -58,6 +58,7 @@ import {
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { FamilyTreeVisualization } from "@/components/family-tree-visualization";
+import { PhotoUpload } from "@/components/photo-upload";
 import type { Member, Relationship, InsertMember } from "@shared/schema";
 import { insertMemberSchema } from "@shared/schema";
 
@@ -472,6 +473,8 @@ export default function MemberDetails() {
   const [selectedMaritalStatus, setSelectedMaritalStatus] = useState("");
   const [isRelativesModalOpen, setIsRelativesModalOpen] = useState(false);
   const [editingRelationship, setEditingRelationship] = useState<any>(null);
+  const [memberPhotos, setMemberPhotos] = useState<string[]>([]);
+  const [profilePicture, setProfilePicture] = useState<string>("");
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
@@ -586,15 +589,22 @@ export default function MemberDetails() {
       setSelectedBirthCountry(memberData.birthCountry);
       setSelectedCurrentCountry(memberData.currentCountry);
       setSelectedMaritalStatus(memberData.maritalStatus);
+      setMemberPhotos(memberData.photos || []);
+      setProfilePicture(memberData.profilePicture || "");
     }
   }, [member, form]);
 
   const updateMutation = useMutation({
     mutationFn: async (data: InsertMember) => {
+      const memberData = {
+        ...data,
+        profilePicture: profilePicture || undefined,
+        photos: memberPhotos,
+      };
       const response = await apiRequest(
         "PATCH",
         `/api/members/${memberId}`,
-        data,
+        memberData,
       );
       return response;
     },
@@ -1622,6 +1632,23 @@ export default function MemberDetails() {
                                   )}
                                 />
                               </div>
+                            </div>
+
+                            {/* Photo Upload Section */}
+                            <div className="space-y-4">
+                              <h3 className="text-base sm:text-lg font-semibold text-temple-brown border-b pb-2">
+                                Member Photos
+                              </h3>
+                              <PhotoUpload
+                                photos={memberPhotos}
+                                onPhotosChange={setMemberPhotos}
+                                allowProfilePicture={true}
+                                profilePicture={profilePicture}
+                                onProfilePictureChange={setProfilePicture}
+                                title="Upload Photos"
+                                description="Add profile picture and member photos"
+                                maxPhotos={5}
+                              />
                             </div>
                           </form>
                         </Form>
