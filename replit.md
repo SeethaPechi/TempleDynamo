@@ -95,6 +95,14 @@ This is a full-stack temple community management system built with React, Expres
 
 ## Recent Changes
 
+✓ **Custom Domain URL Masking Fix** (January 9, 2025)
+  - Fixed domain redirect showing Replit URL instead of custom domain
+  - Issue: User seeing https://tamilkovil.replit.app/ instead of tamilkovil.com
+  - Solution: Use Replit's official domain linking with A records instead of redirects
+  - Proper setup: A records pointing to 34.132.134.162 with domain masking
+  - Alternative: Cloudflare proxy for better performance and SSL handling
+  - Goal: Users see only tamilkovil.com in URL bar for all pages
+
 ✓ **Emergency Domain Fix for IONOS Hosting Conflict** (January 9, 2025)
   - Identified IONOS hosting service interfering with DNS records
   - Domain showing /defaultsite error due to IONOS website redirect service
