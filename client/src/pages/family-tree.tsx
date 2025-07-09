@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
+import { useLocation } from "wouter";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -72,12 +73,27 @@ export default function FamilyTree() {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const [location] = useLocation();
   const [selectedMember, setSelectedMember] = useState<Member | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState<Member[]>([]);
   const [isAddRelationshipOpen, setIsAddRelationshipOpen] = useState(false);
   const [relationshipType, setRelationshipType] = useState("");
   const [relatedMemberId, setRelatedMemberId] = useState<number | null>(null);
+
+  // Handle URL parameters for direct member selection
+  useEffect(() => {
+    if (location && allMembers.length > 0) {
+      const urlParams = new URLSearchParams(location.split('?')[1]);
+      const memberId = urlParams.get('member');
+      if (memberId && !selectedMember) {
+        const member = (allMembers as Member[]).find(m => m.id === parseInt(memberId));
+        if (member) {
+          setSelectedMember(member);
+        }
+      }
+    }
+  }, [location, allMembers, selectedMember]);
 
   const { data: allMembers = [], isLoading } = useQuery({
     queryKey: ["/api/members"],

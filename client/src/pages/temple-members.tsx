@@ -482,11 +482,12 @@ export default function TempleMembers() {
                 {filteredMembers.map((member, index) => (
                   <Card
                     key={member.id}
-                    className="p-4 hover:shadow-lg transition-shadow"
+                    className="p-4 hover:shadow-lg transition-shadow cursor-pointer hover:border-saffron-300 border-2"
+                    onClick={() => window.open(`/member-details/${member.id}`, '_blank')}
                   >
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
-                        <h3 className="font-bold text-temple-brown text-lg">
+                        <h3 className="font-bold text-temple-brown text-lg hover:text-saffron-600 transition-colors">
                           {member.fullName}
                         </h3>
                         <Badge variant="outline" className="text-xs">
@@ -521,6 +522,31 @@ export default function TempleMembers() {
                               )}
                           </div>
                         )}
+                      </div>
+                      
+                      {/* Action Buttons */}
+                      <div className="flex space-x-2 pt-2">
+                        <Button
+                          size="sm"
+                          className="flex-1 bg-saffron-500 hover:bg-saffron-600 text-white text-xs"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            window.open(`/member-details/${member.id}`, '_blank');
+                          }}
+                        >
+                          View Profile
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="flex-1 text-xs border-saffron-500 text-saffron-600 hover:bg-saffron-50"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            window.open(`/family-tree?member=${member.id}`, '_blank');
+                          }}
+                        >
+                          Family Tree
+                        </Button>
                       </div>
                     </div>
                   </Card>
