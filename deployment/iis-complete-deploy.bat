@@ -72,12 +72,30 @@ echo Step 7: Creating IIS Application...
 
 echo.
 echo Step 8: Setting up URL bindings...
-%systemroot%\system32\inetsrv\appcmd set site "Default Web Site" /+bindings.[protocol='http',bindingInformation='*:8080:tamilkovil.com'] >nul 2>&1
+echo Please enter your domain name (e.g., yourdomain.com):
+set /p DOMAIN_NAME=Domain: 
+if not defined DOMAIN_NAME set DOMAIN_NAME=tamilkovil.com
+
+echo Setting up bindings for domain: %DOMAIN_NAME%
+
+REM Remove existing bindings
+%systemroot%\system32\inetsrv\appcmd set site "Default Web Site" /-bindings.[protocol='http',bindingInformation='*:8080:tamilkovil.com'] >nul 2>&1
+%systemroot%\system32\inetsrv\appcmd set site "Default Web Site" /-bindings.[protocol='http',bindingInformation='*:80:tamilkovil.com'] >nul 2>&1
+
+REM Add new bindings
+%systemroot%\system32\inetsrv\appcmd set site "Default Web Site" /+bindings.[protocol='http',bindingInformation='*:80:%DOMAIN_NAME%'] >nul 2>&1
+%systemroot%\system32\inetsrv\appcmd set site "Default Web Site" /+bindings.[protocol='http',bindingInformation='*:8080:%DOMAIN_NAME%'] >nul 2>&1
+%systemroot%\system32\inetsrv\appcmd set site "Default Web Site" /+bindings.[protocol='http',bindingInformation='*:80:www.%DOMAIN_NAME%'] >nul 2>&1
 %systemroot%\system32\inetsrv\appcmd set site "Default Web Site" /+bindings.[protocol='http',bindingInformation='*:8080:localhost'] >nul 2>&1
+
+echo Updating web.config with your domain...
+powershell -Command "(Get-Content '%DEPLOY_DIR%\web.config') -replace 'yourdomain\.com', '%DOMAIN_NAME%' | Set-Content '%DEPLOY_DIR%\web.config'"
 
 echo.
 echo Step 9: Configuring Windows Firewall...
+netsh advfirewall firewall delete rule name="Nam Kovil IIS Port 80" >nul 2>&1
 netsh advfirewall firewall delete rule name="Nam Kovil IIS Port 8080" >nul 2>&1
+netsh advfirewall firewall add rule name="Nam Kovil IIS Port 80" dir=in action=allow protocol=TCP localport=80
 netsh advfirewall firewall add rule name="Nam Kovil IIS Port 8080" dir=in action=allow protocol=TCP localport=8080
 
 echo.
@@ -113,13 +131,14 @@ echo Application Pool: %APP_POOL_NAME%
 echo Physical Path: %DEPLOY_DIR%
 echo.
 echo ACCESS YOUR APPLICATION:
+echo - Your Domain: http://%DOMAIN_NAME%/namkovil
+echo - With Port: http://%DOMAIN_NAME%:8080/namkovil
 echo - Local: http://localhost:8080/namkovil
-echo - Domain: http://tamilkovil.com:8080/namkovil
 echo.
 echo API ENDPOINTS:
-echo - Health Check: http://localhost:8080/namkovil/api/health
-echo - Members: http://localhost:8080/namkovil/api/members
-echo - Temples: http://localhost:8080/namkovil/api/temples
+echo - Health Check: http://%DOMAIN_NAME%/namkovil/api/health
+echo - Members: http://%DOMAIN_NAME%/namkovil/api/members
+echo - Temples: http://%DOMAIN_NAME%/namkovil/api/temples
 echo.
 echo ✅ Complete IIS integration with Node.js
 echo ✅ All navigation menu items functional

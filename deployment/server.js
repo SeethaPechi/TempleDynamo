@@ -36,10 +36,31 @@ pool.on('error', (err) => {
   console.error('Database pool error:', err);
 });
 
-// Middleware
+// Middleware - Dynamic CORS for any domain
 app.use(cors({
-  origin: ['http://localhost:8080', 'http://tamilkovil.com:8080', 'http://tamilkovil.com'],
-  credentials: true
+  origin: function(origin, callback) {
+    // Allow requests with no origin (mobile apps, etc.)
+    if (!origin) return callback(null, true);
+    
+    // Allow any origin that contains your app path
+    const allowedPatterns = [
+      /^https?:\/\/localhost(:\d+)?$/,
+      /^https?:\/\/.*\..*$/,  // Any domain
+      /^https?:\/\/\d+\.\d+\.\d+\.\d+(:\d+)?$/  // Any IP address
+    ];
+    
+    const isAllowed = allowedPatterns.some(pattern => pattern.test(origin));
+    
+    if (isAllowed) {
+      return callback(null, true);
+    }
+    
+    console.log('CORS blocked origin:', origin);
+    callback(null, false);
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 app.use(express.json({ limit: '50mb' }));
