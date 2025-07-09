@@ -28,6 +28,7 @@ function Router() {
       <Route path="/temple-members" component={TempleMembers} />
       <Route path="/family-tree" component={FamilyTree} />
       <Route path="/member/:id" component={MemberDetails} />
+      <Route path="/member-details/:id" component={MemberDetails} />
       <Route component={NotFound} />
     </Switch>
   );
