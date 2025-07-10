@@ -713,6 +713,7 @@ export default function MemberDetails() {
   }, [member, form, memberPhotos, updateMutation]);
 
   const handlePhotosChange = useCallback((newPhotos: string[]) => {
+    console.log("handlePhotosChange called with photos:", newPhotos.length, newPhotos.map((p, i) => `Photo ${i}: ${p.substring(0, 30)}...`));
     setMemberPhotos(newPhotos);
     
     // Auto-save photos immediately
@@ -723,8 +724,14 @@ export default function MemberDetails() {
         profilePicture: profilePicture,
         photos: newPhotos,
       };
-      console.log("Auto-saving member photos to database");
+      console.log("Auto-saving member photos to database. Count:", newPhotos.length);
+      console.log("Updated data for save:", {
+        ...updatedData,
+        photos: updatedData.photos?.map((p, i) => `Photo ${i}: ${p.substring(0, 30)}...`)
+      });
       updateMutation.mutate(updatedData);
+    } else {
+      console.log("Cannot auto-save photos:", { hasMember: !!member, isPending: updateMutation.isPending });
     }
   }, [member, form, profilePicture, updateMutation]);
 

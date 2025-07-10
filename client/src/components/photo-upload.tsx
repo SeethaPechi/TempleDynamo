@@ -146,7 +146,9 @@ export function PhotoUpload({
       }
 
       if (!isProfile && newPhotos.length > 0) {
-        onPhotosChange([...photos, ...newPhotos]);
+        const updatedPhotos = [...photos, ...newPhotos];
+        console.log("Photo upload complete. Calling onPhotosChange with:", updatedPhotos.length, "photos");
+        onPhotosChange(updatedPhotos);
         toast({
           title: "Success",
           description: `${newPhotos.length} photo(s) uploaded successfully`,
