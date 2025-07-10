@@ -1,0 +1,28 @@
+Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools
+ContentIsolatedWorld.js:1 Initializing CS WAX...
+member-details.tsx:595 Member data received: Object
+member-details.tsx:607 Loading member photos: Array(0)
+member-details.tsx:608 Loading profile picture: 
+ContentIsolatedWorld.js:1 WAX CS initialized
+chunk-KHSIZETK.js?v=06d7bd81:339 Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+(anonymous) @ chunk-KHSIZETK.js?v=06d7bd81:339Understand this warning
+ContentIsolatedWorld.js:1 response for event EMAIL_FIELD_FOUND: [object Object]
+member-details.tsx:620 Sending PATCH request with data: {fullName: 'Pechi Ammal', phone: '', email: '', gender: 'Female', birthCity: 'Muthuthevan Patti', …}
+queryClient.ts:16 API Request: PATCH /api/members/36 - Payload size: 380 bytes
+queryClient.ts:25 API Response: 200 OK
+queryClient.ts:50 API Success Response received
+member-details.tsx:633 PATCH response: {id: 36, fullName: 'Pechi Ammal', phone: '', email: '', gender: 'Female', …}
+member-details.tsx:643 Auto-save successful: {id: 36, fullName: 'Pechi Ammal', phone: '', email: '', gender: 'Female', …}
+photo-upload.tsx:79 Starting file upload - isProfile: false, files: 1
+photo-upload.tsx:130 Processing file: PechiAmmal.JPG, size: 9178 bytes
+photo-upload.tsx:132 Compressed image size: 36151 characters
+photo-upload.tsx:150 Photo upload complete. Calling onPhotosChange with: 1 photos
+member-details.tsx:716 handlePhotosChange called with photos: 1 ['Photo 0: data:image/jpeg;base64,/9j/4AA...']
+member-details.tsx:727 Auto-saving member photos to database. Count: 1
+member-details.tsx:728 Updated data for save: {fullName: 'Pechi Ammal', phone: '', email: '', gender: 'Female', birthCity: 'Muthuthevan Patti', …}
+member-details.tsx:620 Sending PATCH request with data: {fullName: 'Pechi Ammal', phone: '', email: '', gender: 'Female', birthCity: 'Muthuthevan Patti', …}
+queryClient.ts:16 API Request: PATCH /api/members/36 - Payload size: 380 bytes
+queryClient.ts:25 API Response: 200 OK
+queryClient.ts:50 API Success Response received
+member-details.tsx:633 PATCH response: {id: 36, fullName: 'Pechi Ammal', phone: '', email: '', gender: 'Female', …}
+member-details.tsx:643 Auto-save successful: {id: 36, fullName: 'Pechi Ammal', phone: '', email: '', gender: 'Female', …}

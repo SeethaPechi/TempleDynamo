@@ -611,10 +611,11 @@ export default function MemberDetails() {
 
   const updateMutation = useMutation({
     mutationFn: async (data: InsertMember) => {
+      // Always use the latest photos from the callback data or state
       const memberData = {
         ...data,
-        profilePicture: profilePicture || "",
-        photos: memberPhotos || [],
+        profilePicture: data.profilePicture || profilePicture || "",
+        photos: data.photos || memberPhotos || [],
       };
       
       console.log("Sending PATCH request with data:", {
@@ -716,7 +717,7 @@ export default function MemberDetails() {
     console.log("handlePhotosChange called with photos:", newPhotos.length, newPhotos.map((p, i) => `Photo ${i}: ${p.substring(0, 30)}...`));
     setMemberPhotos(newPhotos);
     
-    // Auto-save photos immediately
+    // Auto-save photos immediately using direct mutation call
     if (member && !updateMutation.isPending) {
       const currentData = form.getValues();
       const updatedData = {
@@ -729,7 +730,9 @@ export default function MemberDetails() {
         ...updatedData,
         photos: updatedData.photos?.map((p, i) => `Photo ${i}: ${p.substring(0, 30)}...`)
       });
-      updateMutation.mutate(updatedData);
+      
+      // Call mutation directly with exact data
+      updateMutation.mutateAsync(updatedData).catch(console.error);
     } else {
       console.log("Cannot auto-save photos:", { hasMember: !!member, isPending: updateMutation.isPending });
     }
