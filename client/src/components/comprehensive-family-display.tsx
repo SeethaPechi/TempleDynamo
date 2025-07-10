@@ -134,7 +134,7 @@ export function ComprehensiveFamilyDisplay({
                 <img
                   src={member.profilePicture}
                   alt={`${member.fullName} profile`}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover rounded-full"
                 />
               ) : (
                 <Users className={`${member.gender === 'Male' ? 'text-blue-600' : 

@@ -231,31 +231,36 @@ export default function FamilyTree() {
         <Tabs defaultValue="table" className="w-full">
           <div className="flex justify-center mb-8">
             <TabsList className="grid grid-cols-5 w-full max-w-4xl">
-              <TabsTrigger value="explorer" className="flex items-center gap-2">
-                <Search size={16} />
-                {t("familyTree.selectMember")}
+              <TabsTrigger value="explorer" className="flex items-center gap-1 text-xs sm:text-sm px-2 sm:px-4">
+                <Search size={14} className="hidden sm:block" />
+                <span className="hidden sm:inline">{t("familyTree.selectMember")}</span>
+                <span className="sm:hidden">Select</span>
               </TabsTrigger>
-              <TabsTrigger value="table" className="flex items-center gap-2">
-                <Users size={16} />
-                {t("familyTree.directRelationships")}
+              <TabsTrigger value="table" className="flex items-center gap-1 text-xs sm:text-sm px-2 sm:px-4">
+                <Users size={14} className="hidden sm:block" />
+                <span className="hidden sm:inline">{t("familyTree.directRelationships")}</span>
+                <span className="sm:hidden">Direct</span>
               </TabsTrigger>
               <TabsTrigger
                 value="comprehensive"
-                className="flex items-center gap-2"
+                className="flex items-center gap-1 text-xs sm:text-sm px-2 sm:px-4"
               >
-                <Heart size={16} />
-                {t("familyTree.allRelations")}
+                <Heart size={14} className="hidden sm:block" />
+                <span className="hidden sm:inline">{t("familyTree.allRelations")}</span>
+                <span className="sm:hidden">All</span>
               </TabsTrigger>
-              <TabsTrigger value="network" className="flex items-center gap-2">
-                <Network size={16} />
-                {t("familyTree.familyNetworkAnalysis")}
+              <TabsTrigger value="network" className="flex items-center gap-1 text-xs sm:text-sm px-2 sm:px-4">
+                <Network size={14} className="hidden sm:block" />
+                <span className="hidden sm:inline">{t("familyTree.familyNetworkAnalysis")}</span>
+                <span className="sm:hidden">Network</span>
               </TabsTrigger>
               <TabsTrigger
                 value="counters"
-                className="flex items-center gap-2"
+                className="flex items-center gap-1 text-xs sm:text-sm px-2 sm:px-4"
               >
-                <BarChart3 size={16} />
-                Relationship Counters
+                <BarChart3 size={14} className="hidden sm:block" />
+                <span className="hidden sm:inline">Relationship Counters</span>
+                <span className="sm:hidden">Counters</span>
               </TabsTrigger>
             </TabsList>
           </div>

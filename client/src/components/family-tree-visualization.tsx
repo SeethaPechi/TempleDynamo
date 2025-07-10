@@ -137,7 +137,7 @@ export function FamilyTreeVisualization({ member, relationships, onMemberClick }
                 <img
                   src={member.profilePicture}
                   alt={`${member.fullName} profile`}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover rounded-full"
                 />
               ) : (
                 <Users className="text-saffron-500" size={36} />
@@ -246,7 +246,7 @@ export function FamilyTreeVisualization({ member, relationships, onMemberClick }
                           <img
                             src={node.member.profilePicture}
                             alt={`${node.member.fullName} profile`}
-                            className="w-full h-full object-cover"
+                            className="w-full h-full object-cover rounded-full"
                           />
                         ) : (
                           <Users className="text-temple-brown" size={20} />

@@ -50,7 +50,7 @@ export function MemberCard({ member, index, startIndex }: MemberCardProps) {
             <img
               src={member.profilePicture}
               alt={`${memberName} profile`}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover rounded-full"
             />
           ) : (
             <User className={colors.iconColor} size={24} />

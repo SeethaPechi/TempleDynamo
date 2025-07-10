@@ -261,8 +261,16 @@ export default function Members() {
                       window.location.href = `/member/${member.id}`;
                     }}
                   >
-                    <div className={`w-12 h-12 ${colors.iconBg} rounded-full flex items-center justify-center`}>
-                      <Users className={colors.iconColor} size={20} />
+                    <div className={`w-12 h-12 ${colors.iconBg} rounded-full flex items-center justify-center overflow-hidden`}>
+                      {member.profilePicture ? (
+                        <img
+                          src={member.profilePicture}
+                          alt={`${member.fullName} profile`}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <Users className={colors.iconColor} size={20} />
+                      )}
                     </div>
                     <div className="flex-1">
                       <h3 className={`text-lg font-semibold hover:text-saffron-600 ${colors.text}`}>
