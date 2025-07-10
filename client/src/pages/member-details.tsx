@@ -475,39 +475,6 @@ export default function MemberDetails() {
   const [editingRelationship, setEditingRelationship] = useState<any>(null);
   const [memberPhotos, setMemberPhotos] = useState<string[]>([]);
   const [profilePicture, setProfilePicture] = useState<string>("");
-
-  // Auto-save wrappers for photos
-  const handleProfilePictureChange = useCallback((newProfilePicture: string) => {
-    setProfilePicture(newProfilePicture);
-    
-    // Auto-save profile picture
-    if (member && !updateMutation.isPending) {
-      const currentData = form.getValues();
-      const updatedData = {
-        ...currentData,
-        profilePicture: newProfilePicture,
-        photos: memberPhotos,
-      };
-      console.log("Auto-saving profile picture");
-      updateMutation.mutate(updatedData);
-    }
-  }, [member, form, memberPhotos, updateMutation]);
-
-  const handlePhotosChange = useCallback((newPhotos: string[]) => {
-    setMemberPhotos(newPhotos);
-    
-    // Auto-save photos
-    if (member && !updateMutation.isPending) {
-      const currentData = form.getValues();
-      const updatedData = {
-        ...currentData,
-        profilePicture: profilePicture,
-        photos: newPhotos,
-      };
-      console.log("Auto-saving member photos");
-      updateMutation.mutate(updatedData);
-    }
-  }, [member, form, profilePicture, updateMutation]);
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
@@ -693,6 +660,39 @@ export default function MemberDetails() {
     },
     [member, form, updateMutation],
   );
+
+  // Auto-save wrappers for photos
+  const handleProfilePictureChange = useCallback((newProfilePicture: string) => {
+    setProfilePicture(newProfilePicture);
+    
+    // Auto-save profile picture
+    if (member && !updateMutation.isPending) {
+      const currentData = form.getValues();
+      const updatedData = {
+        ...currentData,
+        profilePicture: newProfilePicture,
+        photos: memberPhotos,
+      };
+      console.log("Auto-saving profile picture");
+      updateMutation.mutate(updatedData);
+    }
+  }, [member, form, memberPhotos, updateMutation]);
+
+  const handlePhotosChange = useCallback((newPhotos: string[]) => {
+    setMemberPhotos(newPhotos);
+    
+    // Auto-save photos
+    if (member && !updateMutation.isPending) {
+      const currentData = form.getValues();
+      const updatedData = {
+        ...currentData,
+        profilePicture: profilePicture,
+        photos: newPhotos,
+      };
+      console.log("Auto-saving member photos");
+      updateMutation.mutate(updatedData);
+    }
+  }, [member, form, profilePicture, updateMutation]);
 
   const addRelationshipMutation = useMutation({
     mutationFn: async (data: {
