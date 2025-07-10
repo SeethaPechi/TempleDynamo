@@ -64,6 +64,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import type { Temple, Member } from "@shared/schema";
 import { MemberListModal } from "@/components/member-list-modal";
+import { PhotoUpload } from "@/components/photo-upload";
 
 const countries = [
   { value: "AF", label: "Afghanistan" },
@@ -464,6 +465,7 @@ const templeEditSchema = z.object({
     .or(z.literal("")),
   description: z.string().optional(),
   templeImage: z.string().optional(),
+  templePhotos: z.array(z.string()).max(10, "Maximum 10 photos allowed").default([]),
   googleMapLink: z
     .string()
     .url("Please enter a valid Google Maps URL")
@@ -493,6 +495,7 @@ export default function Temples() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedTemple, setSelectedTemple] = useState<Temple | null>(null);
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
+  const [templePhotos, setTemplePhotos] = useState<string[]>([]);
   const [isMemberListOpen, setIsMemberListOpen] = useState(false);
   const [memberListData, setMemberListData] = useState<{
     members: Member[];
@@ -545,6 +548,7 @@ export default function Temples() {
       contactEmail: "",
       description: "",
       templeImage: "",
+      templePhotos: [],
       googleMapLink: "",
       websiteLink: "",
       wikiLink: "",
@@ -655,6 +659,7 @@ export default function Temples() {
           const parsedData = JSON.parse(savedData);
           form.reset(parsedData);
           setUploadedImage(parsedData.templeImage || null);
+          setTemplePhotos(parsedData.templePhotos || []);
         } catch (error) {
           console.error("Error loading saved form data:", error);
         }
@@ -671,6 +676,7 @@ export default function Temples() {
           contactEmail: selectedTemple.contactEmail || "",
           description: selectedTemple.description || "",
           templeImage: selectedTemple.templeImage || "",
+          templePhotos: selectedTemple.templePhotos || [],
           googleMapLink: selectedTemple.googleMapLink || "",
           websiteLink: selectedTemple.websiteLink || "",
           wikiLink: selectedTemple.wikiLink || "",
@@ -701,11 +707,13 @@ export default function Temples() {
       contactEmail: temple.contactEmail || "",
       description: temple.description || "",
       templeImage: temple.templeImage || "",
+      templePhotos: temple.templePhotos || [],
       googleMapLink: temple.googleMapLink || "",
       websiteLink: temple.websiteLink || "",
       wikiLink: temple.wikiLink || "",
     });
     setUploadedImage(temple.templeImage || null);
+    setTemplePhotos(temple.templePhotos || []);
     setIsEditModalOpen(true);
   };
 
@@ -767,6 +775,19 @@ export default function Temples() {
       };
       reader.readAsDataURL(file);
     }
+  };
+
+  // Temple photo handlers
+  const handleTempleImageChange = (newImage: string) => {
+    setUploadedImage(newImage);
+    form.setValue("templeImage", newImage);
+    autoSaveFormData();
+  };
+
+  const handleTemplePhotosChange = (newPhotos: string[]) => {
+    setTemplePhotos(newPhotos);
+    form.setValue("templePhotos", newPhotos);
+    autoSaveFormData();
   };
 
   const onSubmit = (data: TempleEditData) => {
@@ -1490,43 +1511,21 @@ export default function Temples() {
                   />
                 </div>
 
-                {/* Image Upload */}
+                {/* Temple Photo Upload */}
                 <div className="space-y-4">
-                  <label className="text-sm font-medium">
-                    {t("temples.templeImage")}
-                  </label>
-                  <div className="flex items-center gap-4">
-                    <div className="flex-1">
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={handleImageUpload}
-                        className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-temple-gold file:text-white hover:file:bg-temple-gold/90"
-                      />
-                    </div>
-                    {uploadedImage && (
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          setUploadedImage(null);
-                          form.setValue("templeImage", "");
-                        }}
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
-                    )}
-                  </div>
-                  {uploadedImage && (
-                    <div className="mt-4">
-                      <img
-                        src={uploadedImage}
-                        alt="Temple preview"
-                        className="w-32 h-32 object-cover rounded-lg border-2 border-temple-gold/20"
-                      />
-                    </div>
-                  )}
+                  <h3 className="text-base font-semibold text-temple-brown border-b pb-2">
+                    Temple Photos
+                  </h3>
+                  <PhotoUpload
+                    photos={templePhotos}
+                    onPhotosChange={handleTemplePhotosChange}
+                    allowProfilePicture={true}
+                    profilePicture={uploadedImage || ""}
+                    onProfilePictureChange={handleTempleImageChange}
+                    title="Main Temple Image"
+                    description="Upload main temple image and additional photos"
+                    maxPhotos={10}
+                  />
                 </div>
 
                 <div className="flex justify-end space-x-4 pt-6">

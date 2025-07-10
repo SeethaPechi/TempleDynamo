@@ -54,6 +54,7 @@ import {
   Search,
   X,
   TreePine,
+  User,
 } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -819,13 +820,27 @@ export default function MemberDetails() {
           <Card className="mb-8 overflow-hidden">
             <div className="bg-gradient-to-r from-saffron-500 to-gold-500 p-4 sm:p-6 text-black">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div className="min-w-0 flex-1">
-                  <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-temple-brown">
-                    {(member as Member).fullName}
-                  </h2>
-                  <p className="text-saffron-100">
-                    Member #{(member as Member).id}
-                  </p>
+                <div className="flex items-center gap-4 min-w-0 flex-1">
+                  {/* Profile Picture */}
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-4 border-white/20 overflow-hidden bg-white/10 flex items-center justify-center flex-shrink-0">
+                    {profilePicture ? (
+                      <img
+                        src={profilePicture}
+                        alt={`${(member as Member).fullName} profile`}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <User className="text-white/60" size={32} />
+                    )}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-temple-brown">
+                      {(member as Member).fullName}
+                    </h2>
+                    <p className="text-saffron-100">
+                      Member #{(member as Member).id}
+                    </p>
+                  </div>
                 </div>
                 <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
                   {/*<Button
