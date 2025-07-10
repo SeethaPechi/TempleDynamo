@@ -115,8 +115,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Member not found" });
       }
       
+      console.log(`API returning member ${id}:`, {
+        id: member.id,
+        name: member.fullName,
+        hasProfilePicture: !!member.profilePicture,
+        profilePictureLength: member.profilePicture?.length || 0,
+        photosCount: member.photos?.length || 0,
+        photos: member.photos?.map((p, i) => `Photo ${i}: ${p.substring(0, 30)}...`)
+      });
+      
       res.json(member);
     } catch (error) {
+      console.error("Error fetching member:", error);
       res.status(500).json({ message: "Failed to fetch member" });
     }
   });

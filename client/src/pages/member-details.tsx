@@ -592,6 +592,16 @@ export default function MemberDetails() {
       setSelectedBirthCountry(memberData.birthCountry);
       setSelectedCurrentCountry(memberData.currentCountry);
       setSelectedMaritalStatus(memberData.maritalStatus);
+      console.log("Member data received:", {
+        id: memberData.id,
+        name: memberData.fullName,
+        hasProfilePicture: !!memberData.profilePicture,
+        profilePictureLength: memberData.profilePicture?.length || 0,
+        photosCount: memberData.photos?.length || 0,
+        photosArray: memberData.photos,
+        profilePicture: memberData.profilePicture?.substring(0, 50) + '...' || null
+      });
+      
       setMemberPhotos(memberData.photos || []);
       setProfilePicture(memberData.profilePicture || "");
       console.log("Loading member photos:", memberData.photos);

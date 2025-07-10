@@ -67,6 +67,13 @@ export class DatabaseStorage implements IStorage {
 
   async getMember(id: number): Promise<Member | undefined> {
     const [member] = await db.select().from(members).where(eq(members.id, id));
+    console.log(`getMember(${id}) - Found:`, {
+      id: member?.id,
+      name: member?.fullName,
+      hasProfilePicture: !!member?.profilePicture,
+      profilePictureLength: member?.profilePicture?.length || 0,
+      photosCount: member?.photos?.length || 0
+    });
     return member || undefined;
   }
 
