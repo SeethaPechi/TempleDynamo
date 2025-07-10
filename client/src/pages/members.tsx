@@ -252,6 +252,16 @@ export default function Members() {
             <div className="space-y-4">
               {paginatedMembers.map((member: Member, index: number) => {
                 const colors = getGenderColors(member.gender);
+                // Debug logging for profile pictures
+                if (member.id === 36) {
+                  console.log("Member 36 (Pechi Ammal) data:", {
+                    id: member.id,
+                    fullName: member.fullName,
+                    hasProfilePicture: !!member.profilePicture,
+                    profilePictureLength: member.profilePicture?.length || 0,
+                    profilePicturePrefix: member.profilePicture?.substring(0, 50) || 'none'
+                  });
+                }
                 return (
                   <div
                     key={member.id}
@@ -266,7 +276,13 @@ export default function Members() {
                         <img
                           src={member.profilePicture}
                           alt={`${member.fullName} profile`}
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-cover rounded-full"
+                          onError={(e) => {
+                            console.log(`Profile picture error for ${member.fullName} (ID: ${member.id}):`, e);
+                          }}
+                          onLoad={() => {
+                            console.log(`Profile picture loaded for ${member.fullName} (ID: ${member.id})`);
+                          }}
                         />
                       ) : (
                         <Users className={colors.iconColor} size={20} />
