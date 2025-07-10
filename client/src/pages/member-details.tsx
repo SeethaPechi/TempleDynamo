@@ -700,7 +700,7 @@ export default function MemberDetails() {
     console.log("Profile picture changed:", newProfilePicture?.substring(0, 50) + "...");
     setProfilePicture(newProfilePicture);
     
-    // Auto-save profile picture immediately
+    // Auto-save profile picture immediately with direct data
     if (member && !updateMutation.isPending) {
       const currentData = form.getValues();
       const updatedData = {
@@ -708,8 +708,16 @@ export default function MemberDetails() {
         profilePicture: newProfilePicture,
         photos: memberPhotos,
       };
-      console.log("Auto-saving profile picture to database", updatedData);
-      updateMutation.mutate(updatedData);
+      console.log("Auto-saving profile picture to database", {
+        ...updatedData,
+        profilePicture: updatedData.profilePicture ? `${updatedData.profilePicture.substring(0, 50)}...` : "empty",
+        photosCount: updatedData.photos?.length || 0
+      });
+      
+      // Call mutation directly with exact data
+      updateMutation.mutateAsync(updatedData).catch(console.error);
+    } else {
+      console.log("Cannot auto-save profile picture:", { hasMember: !!member, isPending: updateMutation.isPending });
     }
   }, [member, form, memberPhotos, updateMutation]);
 
