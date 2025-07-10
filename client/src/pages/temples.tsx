@@ -781,13 +781,25 @@ export default function Temples() {
   const handleTempleImageChange = (newImage: string) => {
     setUploadedImage(newImage);
     form.setValue("templeImage", newImage);
-    autoSaveFormData();
+    
+    // Auto-save to database immediately
+    if (selectedTemple) {
+      const formData = form.getValues();
+      const updatedData = { ...formData, templeImage: newImage };
+      updateTempleMutation.mutate(updatedData);
+    }
   };
 
   const handleTemplePhotosChange = (newPhotos: string[]) => {
     setTemplePhotos(newPhotos);
     form.setValue("templePhotos", newPhotos);
-    autoSaveFormData();
+    
+    // Auto-save to database immediately
+    if (selectedTemple) {
+      const formData = form.getValues();
+      const updatedData = { ...formData, templePhotos: newPhotos };
+      updateTempleMutation.mutate(updatedData);
+    }
   };
 
   const onSubmit = (data: TempleEditData) => {

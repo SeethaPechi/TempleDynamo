@@ -666,7 +666,7 @@ export default function MemberDetails() {
   const handleProfilePictureChange = useCallback((newProfilePicture: string) => {
     setProfilePicture(newProfilePicture);
     
-    // Auto-save profile picture
+    // Auto-save profile picture immediately
     if (member && !updateMutation.isPending) {
       const currentData = form.getValues();
       const updatedData = {
@@ -674,7 +674,7 @@ export default function MemberDetails() {
         profilePicture: newProfilePicture,
         photos: memberPhotos,
       };
-      console.log("Auto-saving profile picture");
+      console.log("Auto-saving profile picture to database");
       updateMutation.mutate(updatedData);
     }
   }, [member, form, memberPhotos, updateMutation]);
@@ -682,7 +682,7 @@ export default function MemberDetails() {
   const handlePhotosChange = useCallback((newPhotos: string[]) => {
     setMemberPhotos(newPhotos);
     
-    // Auto-save photos
+    // Auto-save photos immediately
     if (member && !updateMutation.isPending) {
       const currentData = form.getValues();
       const updatedData = {
@@ -690,7 +690,7 @@ export default function MemberDetails() {
         profilePicture: profilePicture,
         photos: newPhotos,
       };
-      console.log("Auto-saving member photos");
+      console.log("Auto-saving member photos to database");
       updateMutation.mutate(updatedData);
     }
   }, [member, form, profilePicture, updateMutation]);

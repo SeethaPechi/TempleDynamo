@@ -95,6 +95,16 @@ This is a full-stack temple community management system built with React, Expres
 
 ## Recent Changes
 
+✓ **Photo Upload System Fixes** (January 10, 2025)
+  - Fixed temple photo uploads to immediately save to database instead of localStorage only
+  - Fixed profile picture auto-save functionality to persist photos in database
+  - Enhanced temple photo carousel to display temple-specific images properly
+  - Updated PhotoUpload component handlers to trigger database mutations on photo changes
+  - Fixed temple photo array storage and retrieval from PostgreSQL database
+  - Profile picture and member photo uploads now work correctly with immediate database persistence
+  - Temple photo uploads support up to 10 photos with proper form validation
+  - All photo upload functionality now properly saves Base64 image data to database
+
 ✓ **Critical Security Vulnerability Fixes** (January 9, 2025)
   - Fixed all hardcoded database credentials across 15+ deployment files
   - Replaced production password `TMS2024SecurePass!` with secure environment variables
