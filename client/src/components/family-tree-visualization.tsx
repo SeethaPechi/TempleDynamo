@@ -132,8 +132,16 @@ export function FamilyTreeVisualization({ member, relationships, onMemberClick }
       <div className="flex justify-center mb-8">
         <Card className="p-6 bg-gradient-to-r from-saffron-500 to-gold-500 text-white max-w-lg">
           <div className="text-center">
-            <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-4">
-              <Users className="text-saffron-500" size={36} />
+            <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-4 overflow-hidden">
+              {member.profilePicture ? (
+                <img
+                  src={member.profilePicture}
+                  alt={`${member.fullName} profile`}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <Users className="text-saffron-500" size={36} />
+              )}
             </div>
             <h2 className="text-2xl font-bold mb-2">{member.fullName}</h2>
             <p className="text-saffron-100 text-sm mb-2">Member #{member.id}</p>
@@ -233,8 +241,16 @@ export function FamilyTreeVisualization({ member, relationships, onMemberClick }
                   <div className="space-y-3">
                     {/* Member Avatar */}
                     <div className="flex items-center space-x-3">
-                      <div className="w-12 h-12 bg-gradient-to-br from-saffron-200 to-gold-200 rounded-full flex items-center justify-center">
-                        <Users className="text-temple-brown" size={20} />
+                      <div className="w-12 h-12 bg-gradient-to-br from-saffron-200 to-gold-200 rounded-full flex items-center justify-center overflow-hidden">
+                        {node.member.profilePicture ? (
+                          <img
+                            src={node.member.profilePicture}
+                            alt={`${node.member.fullName} profile`}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <Users className="text-temple-brown" size={20} />
+                        )}
                       </div>
                       <div className="flex-1 min-w-0">
                         <h4 className="font-semibold text-temple-brown text-sm truncate">

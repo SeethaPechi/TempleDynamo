@@ -129,10 +129,18 @@ export function ComprehensiveFamilyDisplay({
           <div className="flex items-center space-x-4">
             <div className={`w-16 h-16 ${member.gender === 'Male' ? 'bg-blue-50' : 
                                           member.gender === 'Female' ? 'bg-pink-50' : 
-                                          'bg-white'} rounded-full flex items-center justify-center`}>
-              <Users className={`${member.gender === 'Male' ? 'text-blue-600' : 
-                                  member.gender === 'Female' ? 'text-pink-600' : 
-                                  'text-saffron-500'}`} size={32} />
+                                          'bg-white'} rounded-full flex items-center justify-center overflow-hidden`}>
+              {member.profilePicture ? (
+                <img
+                  src={member.profilePicture}
+                  alt={`${member.fullName} profile`}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <Users className={`${member.gender === 'Male' ? 'text-blue-600' : 
+                                    member.gender === 'Female' ? 'text-pink-600' : 
+                                    'text-saffron-500'}`} size={32} />
+              )}
             </div>
             <div>
               <h1 className="text-2xl font-bold">{member.fullName}</h1>

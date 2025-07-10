@@ -1,5 +1,5 @@
 import { Card } from "@/components/ui/card";
-import { Users } from "lucide-react";
+import { Users, User } from "lucide-react";
 import type { Member } from "@shared/schema";
 
 interface MemberCardProps {
@@ -45,8 +45,16 @@ export function MemberCard({ member, index, startIndex }: MemberCardProps) {
   return (
     <Card className="overflow-hidden hover:shadow-xl transition-shadow border border-temple-gold/20">
       <div className={`${colors.gradient} p-6 text-center`}>
-        <div className={`w-16 h-16 ${colors.iconBg} rounded-full flex items-center justify-center mx-auto mb-4`}>
-          <Users className={colors.iconColor} size={24} />
+        <div className={`w-16 h-16 ${colors.iconBg} rounded-full flex items-center justify-center mx-auto mb-4 overflow-hidden`}>
+          {member?.profilePicture ? (
+            <img
+              src={member.profilePicture}
+              alt={`${memberName} profile`}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <User className={colors.iconColor} size={24} />
+          )}
         </div>
         <div className="text-lg font-bold text-white mb-2" style={{ 
           color: 'white', 
