@@ -81,6 +81,10 @@ export default function FamilyTree() {
   const [relationshipType, setRelationshipType] = useState("");
   const [relatedMemberId, setRelatedMemberId] = useState<number | null>(null);
 
+  const { data: allMembers = [], isLoading } = useQuery({
+    queryKey: ["/api/members"],
+  });
+
   // Handle URL parameters for direct member selection
   useEffect(() => {
     if (location && allMembers.length > 0) {
@@ -94,10 +98,6 @@ export default function FamilyTree() {
       }
     }
   }, [location, allMembers, selectedMember]);
-
-  const { data: allMembers = [], isLoading } = useQuery({
-    queryKey: ["/api/members"],
-  });
 
   const { data: memberRelationships = [], isLoading: relationshipsLoading } =
     useQuery<Array<Relationship & { relatedMember: Member }>>({
