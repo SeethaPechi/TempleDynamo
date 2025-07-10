@@ -613,14 +613,15 @@ export default function MemberDetails() {
     mutationFn: async (data: InsertMember) => {
       const memberData = {
         ...data,
-        profilePicture: profilePicture || undefined,
-        photos: memberPhotos,
+        profilePicture: profilePicture || "",
+        photos: memberPhotos || [],
       };
       
       console.log("Sending PATCH request with data:", {
         ...memberData,
-        profilePicture: memberData.profilePicture ? `${memberData.profilePicture.substring(0, 50)}...` : null,
-        photos: memberData.photos?.map((p, i) => `Photo ${i}: ${p.substring(0, 50)}...`)
+        profilePicture: memberData.profilePicture ? `${memberData.profilePicture.substring(0, 50)}...` : "empty",
+        photosCount: memberData.photos?.length || 0,
+        photos: memberData.photos?.map((p, i) => `Photo ${i}: ${p.substring(0, 50)}...`) || []
       });
       
       try {

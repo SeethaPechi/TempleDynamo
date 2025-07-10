@@ -91,11 +91,25 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateMember(id: number, insertMember: InsertMember): Promise<Member> {
+    console.log(`updateMember(${id}) - Data:`, {
+      hasProfilePicture: !!insertMember.profilePicture,
+      profilePictureLength: insertMember.profilePicture?.length || 0,
+      photosCount: insertMember.photos?.length || 0,
+      photos: insertMember.photos?.map((p, i) => `Photo ${i}: ${p.substring(0, 30)}...`)
+    });
+    
     const [member] = await db
       .update(members)
       .set(insertMember)
       .where(eq(members.id, id))
       .returning();
+      
+    console.log(`updateMember(${id}) - Updated:`, {
+      hasProfilePicture: !!member.profilePicture,
+      profilePictureLength: member.profilePicture?.length || 0,
+      photosCount: member.photos?.length || 0
+    });
+    
     return member;
   }
 
