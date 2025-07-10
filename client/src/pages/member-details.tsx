@@ -606,12 +606,25 @@ export default function MemberDetails() {
         profilePicture: profilePicture || undefined,
         photos: memberPhotos,
       };
-      const response = await apiRequest(
-        "PATCH",
-        `/api/members/${memberId}`,
-        memberData,
-      );
-      return response;
+      
+      console.log("Sending PATCH request with data:", {
+        ...memberData,
+        profilePicture: memberData.profilePicture ? `${memberData.profilePicture.substring(0, 50)}...` : null,
+        photos: memberData.photos?.map((p, i) => `Photo ${i}: ${p.substring(0, 50)}...`)
+      });
+      
+      try {
+        const response = await apiRequest(
+          "PATCH",
+          `/api/members/${memberId}`,
+          memberData,
+        );
+        console.log("PATCH response:", response);
+        return response;
+      } catch (error) {
+        console.error("PATCH request failed:", error);
+        throw error;
+      }
     },
     onSuccess: (updatedMember) => {
       queryClient.invalidateQueries({ queryKey: [`/api/members/${memberId}`] });

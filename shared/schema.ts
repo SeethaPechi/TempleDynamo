@@ -40,8 +40,8 @@ export const insertMemberSchema = createInsertSchema(members).omit({
   templeId: z.number().optional().nullable(),
   email: z.string().optional().nullable(),
   phone: z.string().optional().nullable(),
-  profilePicture: z.string().optional(),
-  photos: z.array(z.string()).default([]),
+  profilePicture: z.string().optional().nullable(),
+  photos: z.array(z.string()).optional().default([]),
 });
 
 export const insertRelationshipSchema = createInsertSchema(relationships).omit({

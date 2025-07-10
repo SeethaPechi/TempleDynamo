@@ -156,12 +156,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Member not found" });
       }
 
+      // Log request size for debugging
+      const requestSize = JSON.stringify(req.body).length;
+      console.log(`PATCH /api/members/${id} - Request size: ${requestSize} bytes`);
+      
+      // Validate photos array if present
+      if (req.body.photos && Array.isArray(req.body.photos)) {
+        console.log(`Photos array length: ${req.body.photos.length}`);
+        req.body.photos.forEach((photo: string, index: number) => {
+          if (typeof photo === 'string' && photo.length > 0) {
+            console.log(`Photo ${index}: ${photo.substring(0, 50)}...`);
+          }
+        });
+      }
+      
+      // Validate profile picture if present
+      if (req.body.profilePicture) {
+        console.log(`Profile picture: ${req.body.profilePicture.substring(0, 50)}...`);
+      }
+
       const memberData = insertMemberSchema.parse(req.body);
       const updatedMember = await storage.updateMember(id, memberData);
+      console.log(`Member updated successfully - ID: ${id}`);
       res.json(updatedMember);
     } catch (error) {
       console.error("Error updating member:", error);
-      res.status(500).json({ message: "Failed to update member" });
+      if (error instanceof z.ZodError) {
+        console.error("Validation errors:", error.errors);
+        return res.status(400).json({ 
+          message: "Invalid data", 
+          errors: error.errors,
+          details: error.errors.map(e => `${e.path.join('.')}: ${e.message}`)
+        });
+      }
+      res.status(500).json({ message: "Failed to update member", error: error.message });
     }
   });
 

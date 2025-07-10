@@ -76,6 +76,8 @@ export function PhotoUpload({
   const handleFileUpload = async (files: FileList | null, isProfile = false) => {
     if (!files || files.length === 0) return;
 
+    console.log(`Starting file upload - isProfile: ${isProfile}, files: ${files.length}`);
+
     if (isProfile && files.length > 1) {
       toast({
         title: "Error",
@@ -125,9 +127,12 @@ export function PhotoUpload({
         }
 
         // Compress image
+        console.log(`Processing file: ${file.name}, size: ${file.size} bytes`);
         const compressedImage = await compressImage(file);
+        console.log(`Compressed image size: ${compressedImage.length} characters`);
         
         if (isProfile) {
+          console.log("Setting profile picture");
           onProfilePictureChange?.(compressedImage);
           toast({
             title: "Success",
@@ -148,9 +153,10 @@ export function PhotoUpload({
         });
       }
     } catch (error) {
+      console.error("Photo upload error:", error);
       toast({
         title: "Error",
-        description: "Failed to upload photos",
+        description: `Failed to upload photos: ${error.message || 'Unknown error'}`,
         variant: "destructive",
       });
     } finally {
