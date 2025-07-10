@@ -586,12 +586,16 @@ export default function MemberDetails() {
         spouseName: memberData.spouseName || "",
         maritalStatus: memberData.maritalStatus,
         templeId: memberData.templeId,
+        profilePicture: memberData.profilePicture || "",
+        photos: memberData.photos || [],
       });
       setSelectedBirthCountry(memberData.birthCountry);
       setSelectedCurrentCountry(memberData.currentCountry);
       setSelectedMaritalStatus(memberData.maritalStatus);
       setMemberPhotos(memberData.photos || []);
       setProfilePicture(memberData.profilePicture || "");
+      console.log("Loading member photos:", memberData.photos);
+      console.log("Loading profile picture:", memberData.profilePicture);
     }
   }, [member, form]);
 
@@ -609,14 +613,18 @@ export default function MemberDetails() {
       );
       return response;
     },
-    onSuccess: () => {
+    onSuccess: (updatedMember) => {
       queryClient.invalidateQueries({ queryKey: [`/api/members/${memberId}`] });
       queryClient.invalidateQueries({ queryKey: ["/api/members"] });
-      console.log("Auto-save successful");
-      // Clear the success indicator after 2 seconds
-      setTimeout(() => {
-        // This will trigger a re-render to hide the success message
-      }, 2000);
+      console.log("Auto-save successful:", updatedMember);
+      
+      // Update local state with the response from server
+      if (updatedMember.profilePicture !== undefined) {
+        setProfilePicture(updatedMember.profilePicture || "");
+      }
+      if (updatedMember.photos !== undefined) {
+        setMemberPhotos(updatedMember.photos || []);
+      }
     },
     onError: (error) => {
       console.error("Auto-save failed:", error);
@@ -664,6 +672,7 @@ export default function MemberDetails() {
 
   // Auto-save wrappers for photos
   const handleProfilePictureChange = useCallback((newProfilePicture: string) => {
+    console.log("Profile picture changed:", newProfilePicture?.substring(0, 50) + "...");
     setProfilePicture(newProfilePicture);
     
     // Auto-save profile picture immediately
@@ -674,7 +683,7 @@ export default function MemberDetails() {
         profilePicture: newProfilePicture,
         photos: memberPhotos,
       };
-      console.log("Auto-saving profile picture to database");
+      console.log("Auto-saving profile picture to database", updatedData);
       updateMutation.mutate(updatedData);
     }
   }, [member, form, memberPhotos, updateMutation]);
