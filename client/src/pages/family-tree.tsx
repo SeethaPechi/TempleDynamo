@@ -38,6 +38,7 @@ import { getGenderColors } from "@/lib/color-utils";
 import { ComprehensiveFamilyDisplay } from "@/components/comprehensive-family-display";
 import { FamilyRelationshipsTable } from "@/components/family-relationships-table";
 import { RelationshipCounters } from "@/components/relationship-counters";
+import { FamilyStoryExport } from "@/components/family-story-export";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { Member, Relationship } from "@shared/schema";
 
@@ -419,6 +420,16 @@ export default function FamilyTree() {
                         </DialogTrigger>
                       </Dialog>
                     </div>
+
+                    {/* Family Story Export */}
+                    {selectedMember && relationships && relationships.length > 0 && (
+                      <div className="flex justify-center">
+                        <FamilyStoryExport 
+                          member={selectedMember}
+                          relationships={filteredMemberRelationships}
+                        />
+                      </div>
+                    )}
                   </>
                 ) : (
                   <Card className="p-12 text-center">
@@ -434,6 +445,57 @@ export default function FamilyTree() {
                 )}
               </div>
             </div>
+          </TabsContent>
+
+          <TabsContent value="table" className="space-y-6">
+            {selectedMember ? (
+              <div className="space-y-6">
+                <Card className="p-6 bg-gradient-to-r from-saffron-500 to-gold-500 text-white">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-4">
+                      <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center">
+                        <Users className="text-saffron-500" size={24} />
+                      </div>
+                      <div>
+                        <h2 className="text-xl font-bold">
+                          {selectedMember.fullName}
+                        </h2>
+                        <p className="text-saffron-100 text-sm">
+                          Family Relationships
+                        </p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-2xl font-bold">
+                        {filteredMemberRelationships.length}
+                      </div>
+                      <div className="text-saffron-100 text-sm">
+                        Connections
+                      </div>
+                    </div>
+                  </div>
+                </Card>
+
+                {/* Family Story Export Button */}
+                <div className="flex justify-center">
+                  <FamilyStoryExport 
+                    member={selectedMember}
+                    relationships={filteredMemberRelationships}
+                  />
+                </div>
+              </div>
+            ) : (
+              <Card className="p-12 text-center">
+                <Users className="mx-auto mb-4 text-gray-400" size={64} />
+                <h3 className="text-xl font-semibold text-gray-600 mb-2">
+                  Select a Member
+                </h3>
+                <p className="text-gray-500">
+                  Choose a member from the search panel to view their family
+                  tree
+                </p>
+              </Card>
+            )}
           </TabsContent>
 
           <TabsContent value="table" className="space-y-6">

@@ -237,14 +237,9 @@ export function ElegantFamilyTree({ member, relationships, onMemberClick }: Eleg
             {/* Connection Lines */}
             {renderConnectionLines(groupIndex, group.members.length)}
 
-            {/* Members in Group */}
-            <div className="flex flex-wrap justify-center items-center gap-4">
-              {group.members.map((rel) => renderMemberCard(rel))}
-            </div>
-
             {/* Special layout for Spouse group with Self in center */}
-            {group.name === "Spouse" && group.members.length > 0 && (
-              <div className="flex justify-center items-center mt-4">
+            {group.name === "Spouse" && group.members.length > 0 ? (
+              <div className="flex justify-center items-center">
                 <div className="flex items-center">
                   {renderMemberCard(group.members[0])}
                   <Heart className="w-6 h-6 text-red-500 mx-4" />
@@ -272,6 +267,11 @@ export function ElegantFamilyTree({ member, relationships, onMemberClick }: Eleg
                     </div>
                   </div>
                 </div>
+              </div>
+            ) : (
+              /* Regular layout for all other groups */
+              <div className="flex flex-wrap justify-center items-center gap-4">
+                {group.members.map((rel) => renderMemberCard(rel))}
               </div>
             )}
           </Card>

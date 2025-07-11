@@ -93,16 +93,52 @@ export function FamilyTreeVisualization({ member, relationships, onMemberClick }
   const generations = organizeByGeneration(relationships);
   const generationKeys = Object.keys(generations).map(Number).sort((a, b) => a - b);
 
-  const getGenerationTitle = (generation: number) => {
-    switch (generation) {
-      case -2: return "Grandparents";
-      case -1: return "Parents & Aunts/Uncles";
-      case 0: return "Spouse & Siblings";
-      case 1: return "Children & Nephews/Nieces";
-      case 2: return "Grandchildren";
-      default: return "Extended Family";
+  const organizeByGroups = (relationships: Array<Relationship & { relatedMember: Member }>) => {
+    const relationshipGroups = [
+      { name: "Parents", types: ["Father", "Mother", "Step Father", "Step Mother"], color: "bg-blue-100 border-blue-300" },
+      { name: "Spouse", types: ["Wife", "Husband"], color: "bg-pink-100 border-pink-300" },
+      { name: "Children", types: ["Son", "Daughter", "Step-Son", "Step-Daughter"], color: "bg-green-100 border-green-300" },
+      { name: "Siblings", types: ["Elder Brother", "Elder Sister", "Younger Brother", "Younger Sister", "Step-Brother", "Step-Sister"], color: "bg-yellow-100 border-yellow-300" },
+      { name: "Grand Parents", types: ["Paternal Grandfather", "Paternal Grandmother", "Maternal Grandfather", "Maternal Grandmother"], color: "bg-purple-100 border-purple-300" },
+      { name: "Grand Children", types: ["Grand Daughter -Son Side", "Grand Son-Son Side", "Grand Daughter -Daughter Side", "Grand Son-Daughter Side"], color: "bg-teal-100 border-teal-300" },
+      { name: "In-Laws", types: ["Mother-in-Law", "Father-in-Law", "Brother-in-Law", "Sister-in-Law", "Son-in-Law", "Daughter-in-Law"], color: "bg-indigo-100 border-indigo-300" },
+      { name: "Cousins", types: ["Cousin Brother-Father Side", "Cousin Sister-Father Side", "Cousin Brother-Mother Side", "Cousin Sister-Mother Side"], color: "bg-red-100 border-red-300" },
+      { name: "Aunts & Uncles", types: ["Aunt-Father Side", "Uncle-Father Side", "Aunt-Mother Side", "Uncle-Mother Side"], color: "bg-orange-100 border-orange-300" },
+      { name: "Other Family Connections", types: ["Nephew", "Niece"], color: "bg-gray-100 border-gray-300" }
+    ];
+
+    const groups: { [key: string]: { members: Array<Relationship & { relatedMember: Member }>, color: string } } = {};
+    
+    relationshipGroups.forEach(group => {
+      const groupMembers = relationships.filter(rel => group.types.includes(rel.relationshipType));
+      if (groupMembers.length > 0) {
+        groups[group.name] = {
+          members: groupMembers,
+          color: group.color
+        };
+      }
+    });
+
+    // Add ungrouped relationships
+    const ungroupedRelationships = relationships.filter(rel => {
+      return !relationshipGroups.some(group => group.types.includes(rel.relationshipType));
+    });
+    
+    if (ungroupedRelationships.length > 0) {
+      if (!groups["Other Family Connections"]) {
+        groups["Other Family Connections"] = {
+          members: [],
+          color: "bg-gray-100 border-gray-300"
+        };
+      }
+      groups["Other Family Connections"].members.push(...ungroupedRelationships);
     }
+    
+    return groups;
   };
+
+  const groups = organizeByGroups(relationships);
+  const groupOrder = ["Parents", "Spouse", "Children", "Siblings", "Grand Parents", "Grand Children", "In-Laws", "Cousins", "Aunts & Uncles", "Other Family Connections"];
 
   const getRelationshipColor = (relationship: string) => {
     const type = relationship.toLowerCase();

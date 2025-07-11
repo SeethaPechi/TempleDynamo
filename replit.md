@@ -95,6 +95,25 @@ This is a full-stack temple community management system built with React, Expres
 
 ## Recent Changes
 
+✓ **One-Click Family Story Export Feature** (January 11, 2025)
+  - Implemented comprehensive family story export functionality
+  - Added FamilyStoryExport component with markdown-formatted story generation
+  - Integrated export button into Family Tree page for all tabs
+  - Features include: Copy to clipboard, Download as .md file, Native sharing
+  - Automatically generates structured family stories with member information
+  - Organizes relationships into the 10 hierarchical groups
+  - Includes family statistics, locations, and relationship overview
+  - Professional formatting with temple branding and generation dates
+  - Available in both "Explorer" and "Table" tabs for comprehensive access
+
+✓ **Family Tree Group Structure Fixed** (January 11, 2025)
+  - Resolved spouse duplication issue in elegant family tree layout
+  - Fixed old group names still displaying in relationship counters
+  - Updated family-tree-visualization component to use new 10-group structure
+  - All family tree components now consistently show: Parents, Spouse, Children, Siblings, Grand Parents, Grand Children, In-Laws, Cousins, Aunts & Uncles, Other Family Connections
+  - Fixed comprehensive family display component grouping
+  - Eliminated duplicate display issues across all family tree visualizations
+
 ✓ **Mobile Production Site Fix** (January 11, 2025)
   - Fixed "Not Found" error on mobile production site (tamilkovil.com)
   - Added mobile-specific CSS fixes for production deployment
