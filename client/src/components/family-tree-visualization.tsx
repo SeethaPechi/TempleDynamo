@@ -93,6 +93,18 @@ export function FamilyTreeVisualization({ member, relationships, onMemberClick }
   const generations = organizeByGeneration(relationships);
   const generationKeys = Object.keys(generations).map(Number).sort((a, b) => a - b);
 
+  // Helper function to get generation titles
+  const getGenerationTitle = (generation: number): string => {
+    switch (generation) {
+      case -2: return "Great Grandparents";
+      case -1: return "Grandparents & Aunts/Uncles";
+      case 0: return "Self, Siblings & Spouse";
+      case 1: return "Children & Nieces/Nephews";
+      case 2: return "Grandchildren";
+      default: return `Generation ${generation > 0 ? '+' : ''}${generation}`;
+    }
+  };
+
   const organizeByGroups = (relationships: Array<Relationship & { relatedMember: Member }>) => {
     const relationshipGroups = [
       { name: "Parents", types: ["Father", "Mother", "Step Father", "Step Mother"], color: "bg-blue-100 border-blue-300" },
