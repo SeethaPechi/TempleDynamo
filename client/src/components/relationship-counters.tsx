@@ -29,21 +29,51 @@ export function RelationshipCounters({ member, relationships, onMemberClick }: R
   // Transform relationships data for current language
   const localizedRelationships = transformRelationshipData(relationships || []);
 
-  // Group relationships by type and count them
-  const relationshipCounts = localizedRelationships.reduce((counts, rel) => {
-    const type = rel.relationshipType;
-    if (!counts[type]) {
-      counts[type] = {
-        type,
-        count: 0,
-        members: [],
-        color: getRelationshipColor(type)
+  // Define relationship groups with new hierarchy
+  const relationshipGroups = [
+    { name: "Parents", types: ["Father", "Mother", "Step Father", "Step Mother"], color: "bg-blue-600 text-white border-blue-700" },
+    { name: "Spouse", types: ["Wife", "Husband"], color: "bg-pink-600 text-white border-pink-700" },
+    { name: "Children", types: ["Son", "Daughter", "Step-Son", "Step-Daughter"], color: "bg-green-600 text-white border-green-700" },
+    { name: "Siblings", types: ["Elder Brother", "Elder Sister", "Younger Brother", "Younger Sister", "Step-Brother", "Step-Sister"], color: "bg-yellow-600 text-white border-yellow-700" },
+    { name: "Grand Parents", types: ["Paternal Grandfather", "Paternal Grandmother", "Maternal Grandfather", "Maternal Grandmother"], color: "bg-purple-600 text-white border-purple-700" },
+    { name: "Grand Children", types: ["Grand Daughter -Son Side", "Grand Son-Son Side", "Grand Daughter -Daughter Side", "Grand Son-Daughter Side"], color: "bg-teal-600 text-white border-teal-700" },
+    { name: "In-Laws", types: ["Mother-in-Law", "Father-in-Law", "Brother-in-Law", "Sister-in-Law", "Son-in-Law", "Daughter-in-Law"], color: "bg-indigo-600 text-white border-indigo-700" },
+    { name: "Cousins", types: ["Cousin Brother-Father Side", "Cousin Sister-Father Side", "Cousin Brother-Mother Side", "Cousin Sister-Mother Side"], color: "bg-red-600 text-white border-red-700" },
+    { name: "Aunts & Uncles", types: ["Aunt-Father Side", "Uncle-Father Side", "Aunt-Mother Side", "Uncle-Mother Side"], color: "bg-orange-600 text-white border-orange-700" },
+    { name: "Other Family Connections", types: ["Nephew", "Niece"], color: "bg-gray-600 text-white border-gray-700" }
+  ];
+
+  // Count relationships by new groups
+  const relationshipCounts = relationshipGroups.reduce((acc, group) => {
+    const groupMembers = localizedRelationships.filter(rel => group.types.includes(rel.relationshipType));
+    if (groupMembers.length > 0) {
+      acc[group.name] = {
+        type: group.name,
+        count: groupMembers.length,
+        members: groupMembers,
+        color: group.color
       };
     }
-    counts[type].count++;
-    counts[type].members.push(rel);
-    return counts;
+    return acc;
   }, {} as Record<string, RelationshipCount>);
+
+  // Add any ungrouped relationships to "Other Family Connections"
+  const ungroupedRelationships = localizedRelationships.filter(rel => {
+    return !relationshipGroups.some(group => group.types.includes(rel.relationshipType));
+  });
+  
+  if (ungroupedRelationships.length > 0) {
+    if (!relationshipCounts["Other Family Connections"]) {
+      relationshipCounts["Other Family Connections"] = {
+        type: "Other Family Connections",
+        count: 0,
+        members: [],
+        color: "bg-gray-600 text-white border-gray-700"
+      };
+    }
+    relationshipCounts["Other Family Connections"].count += ungroupedRelationships.length;
+    relationshipCounts["Other Family Connections"].members.push(...ungroupedRelationships);
+  }
 
   // Get unique color coding for each relationship type
   function getRelationshipColor(relationship: string): string {
