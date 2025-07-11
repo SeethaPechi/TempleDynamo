@@ -37,63 +37,22 @@ export function ComprehensiveFamilyDisplay({
   onMemberClick,
 }: ComprehensiveFamilyDisplayProps) {
   const { transformRelationshipType } = useFormDataTransformation();
-  // Get unique color coding for each relationship type
-  const getRelationshipColor = (relationship: string) => {
-    const type = relationship.toLowerCase().replace(/\s+/g, '');
-    
-    // Each relationship gets its own unique color
-    const relationshipColors: Record<string, string> = {
-      // Parents
-      'father': 'bg-blue-600 text-white border-blue-700',
-      'mother': 'bg-rose-500 text-white border-rose-600',
-      
-      // Grandparents
-      'paternalgrandfather': 'bg-slate-800 text-white border-slate-900', // Dark blue
-      'paternalgrandmother': 'bg-slate-600 text-white border-slate-700',
-      'maternalgrandfather': 'bg-purple-800 text-white border-purple-900', // Velvet
-      'maternalgrandmother': 'bg-purple-600 text-white border-purple-700',
-      
-      // Spouses
-      'husband': 'bg-emerald-600 text-white border-emerald-700',
-      'wife': 'bg-pink-600 text-white border-pink-700',
-      'spouse': 'bg-teal-600 text-white border-teal-700',
-      
-      // Children
-      'son': 'bg-indigo-600 text-white border-indigo-700',
-      'daughter': 'bg-pink-500 text-white border-pink-600',
-      'child': 'bg-purple-500 text-white border-purple-600',
-      
-      // Siblings
-      'brother': 'bg-green-600 text-white border-green-700',
-      'sister': 'bg-pink-400 text-white border-pink-500',
-      'elderbrother': 'bg-green-700 text-white border-green-800',
-      'eldersister': 'bg-pink-600 text-white border-pink-700',
-      'youngerbrother': 'bg-green-500 text-white border-green-600',
-      'youngersister': 'bg-pink-300 text-gray-800 border-pink-400',
-      
-      // Uncles and Aunts
-      'paternaluncle': 'bg-orange-600 text-white border-orange-700',
-      'paternalaunt': 'bg-orange-400 text-white border-orange-500',
-      'maternaluncle': 'bg-amber-600 text-white border-amber-700',
-      'maternalaunt': 'bg-amber-400 text-white border-amber-500',
-      'uncle': 'bg-yellow-600 text-white border-yellow-700',
-      'aunt': 'bg-yellow-400 text-gray-800 border-yellow-500',
-      
-      // Extended family
-      'cousin': 'bg-lime-600 text-white border-lime-700',
-      'nephew': 'bg-cyan-600 text-white border-cyan-700',
-      'niece': 'bg-cyan-400 text-white border-cyan-500',
-      'grandson': 'bg-violet-600 text-white border-violet-700',
-      'granddaughter': 'bg-violet-400 text-white border-violet-500',
-      
-      // In-laws
-      'fatherinlaw': 'bg-gray-700 text-white border-gray-800',
-      'motherinlaw': 'bg-gray-500 text-white border-gray-600',
-      'brotherinlaw': 'bg-stone-600 text-white border-stone-700',
-      'sisterinlaw': 'bg-stone-400 text-white border-stone-500',
+  // Get unique color coding for each relationship group
+  const getRelationshipColor = (groupName: string) => {
+    const groupColors: Record<string, string> = {
+      'Parents': 'bg-blue-600 text-white border-blue-700',
+      'Spouse': 'bg-pink-600 text-white border-pink-700',
+      'Children': 'bg-green-600 text-white border-green-700',
+      'Siblings': 'bg-yellow-600 text-white border-yellow-700',
+      'Grand Parents': 'bg-purple-600 text-white border-purple-700',
+      'Grand Children': 'bg-teal-600 text-white border-teal-700',
+      'In-Laws': 'bg-indigo-600 text-white border-indigo-700',
+      'Cousins': 'bg-red-600 text-white border-red-700',
+      'Aunts & Uncles': 'bg-orange-600 text-white border-orange-700',
+      'Other Family Connections': 'bg-gray-600 text-white border-gray-700',
     };
     
-    return relationshipColors[type] || 'bg-gray-400 text-white border-gray-500';
+    return groupColors[groupName] || 'bg-gray-400 text-white border-gray-500';
   };
 
   // Get gender-based colors for member cards
@@ -106,18 +65,40 @@ export function ComprehensiveFamilyDisplay({
   // Only show direct relationships - no extended connections to avoid circular issues
   const extendedConnections: ExtendedConnection[] = [];
 
-  // Group relationships by type
-  const groupedRelationships = relationships.reduce(
-    (groups, rel) => {
-      const type = rel.relationshipType;
-      if (!groups[type]) {
-        groups[type] = [];
-      }
-      groups[type].push(rel);
-      return groups;
-    },
-    {} as Record<string, Array<Relationship & { relatedMember: Member }>>,
-  );
+  // Define relationship groups with new hierarchy
+  const relationshipGroups = [
+    { name: "Parents", types: ["Father", "Mother", "Step Father", "Step Mother"] },
+    { name: "Spouse", types: ["Wife", "Husband"] },
+    { name: "Children", types: ["Son", "Daughter", "Step-Son", "Step-Daughter"] },
+    { name: "Siblings", types: ["Elder Brother", "Elder Sister", "Younger Brother", "Younger Sister", "Step-Brother", "Step-Sister"] },
+    { name: "Grand Parents", types: ["Paternal Grandfather", "Paternal Grandmother", "Maternal Grandfather", "Maternal Grandmother"] },
+    { name: "Grand Children", types: ["Grand Daughter -Son Side", "Grand Son-Son Side", "Grand Daughter -Daughter Side", "Grand Son-Daughter Side"] },
+    { name: "In-Laws", types: ["Mother-in-Law", "Father-in-Law", "Brother-in-Law", "Sister-in-Law", "Son-in-Law", "Daughter-in-Law"] },
+    { name: "Cousins", types: ["Cousin Brother-Father Side", "Cousin Sister-Father Side", "Cousin Brother-Mother Side", "Cousin Sister-Mother Side"] },
+    { name: "Aunts & Uncles", types: ["Aunt-Father Side", "Uncle-Father Side", "Aunt-Mother Side", "Uncle-Mother Side"] },
+    { name: "Other Family Connections", types: ["Nephew", "Niece"] }
+  ];
+
+  // Group relationships by the new structure
+  const groupedRelationships = relationshipGroups.reduce((acc, group) => {
+    const groupMembers = relationships.filter(rel => group.types.includes(rel.relationshipType));
+    if (groupMembers.length > 0) {
+      acc[group.name] = groupMembers;
+    }
+    return acc;
+  }, {} as Record<string, Array<Relationship & { relatedMember: Member }>>);
+
+  // Add any ungrouped relationships to "Other Family Connections"
+  const ungroupedRelationships = relationships.filter(rel => {
+    return !relationshipGroups.some(group => group.types.includes(rel.relationshipType));
+  });
+  
+  if (ungroupedRelationships.length > 0) {
+    if (!groupedRelationships["Other Family Connections"]) {
+      groupedRelationships["Other Family Connections"] = [];
+    }
+    groupedRelationships["Other Family Connections"].push(...ungroupedRelationships);
+  }
 
   return (
     <div className="space-y-6">
@@ -172,13 +153,13 @@ export function ComprehensiveFamilyDisplay({
             Direct Family Relationships
           </h2>
 
-          {/* Grouped by Relationship Type */}
+          {/* Grouped by New Relationship Categories */}
           <div className="space-y-6">
-            {Object.entries(groupedRelationships).map(([type, rels]) => (
-              <div key={type} className="border-l-4 border-saffron-500 pl-4">
+            {Object.entries(groupedRelationships).map(([groupName, rels]) => (
+              <div key={groupName} className="border-l-4 border-saffron-500 pl-4">
                 <h3 className="font-semibold text-temple-brown mb-3 flex items-center">
-                  <Badge className={`mr-2 ${getRelationshipColor(type)}`}>
-                    {transformRelationshipType(type)}
+                  <Badge className={`mr-2 ${getRelationshipColor(groupName)}`}>
+                    {groupName}
                   </Badge>
                   <span className="text-sm text-gray-600">({rels.length})</span>
                 </h3>
@@ -211,14 +192,19 @@ export function ComprehensiveFamilyDisplay({
                         <div className="flex items-center">
                           <Phone className="mr-2 text-saffron-500" size={14} />
                           <span className="font-medium">
-                            {rel.relatedMember.phone}
+                            {rel.relatedMember.phone || 'Not provided'}
                           </span>
                         </div>
                         <div className="flex items-center">
                           <Mail className="mr-2 text-saffron-500" size={14} />
                           <span className="truncate">
-                            {rel.relatedMember.email}
+                            {rel.relatedMember.email || 'Not provided'}
                           </span>
+                        </div>
+                        <div className="flex items-center">
+                          <Badge className="text-xs bg-saffron-500 text-white">
+                            {transformRelationshipType(rel.relationshipType)}
+                          </Badge>
                         </div>
                         <div className="flex items-center">
                           <MapPin className="mr-2 text-saffron-500" size={14} />

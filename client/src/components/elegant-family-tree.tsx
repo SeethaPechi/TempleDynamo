@@ -242,13 +242,35 @@ export function ElegantFamilyTree({ member, relationships, onMemberClick }: Eleg
               {group.members.map((rel) => renderMemberCard(rel))}
             </div>
 
-            {/* Add Self in center for Spouse group */}
+            {/* Special layout for Spouse group with Self in center */}
             {group.name === "Spouse" && group.members.length > 0 && (
               <div className="flex justify-center items-center mt-4">
                 <div className="flex items-center">
                   {renderMemberCard(group.members[0])}
                   <Heart className="w-6 h-6 text-red-500 mx-4" />
-                  {renderMemberCard(group.members[0], true)}
+                  <div className="flex flex-col items-center mx-2">
+                    <div className="relative w-20 h-20 mb-3">
+                      <div className="w-full h-full rounded-full border-4 border-saffron-500 bg-saffron-50 flex items-center justify-center overflow-hidden">
+                        {member.profilePicture ? (
+                          <img 
+                            src={member.profilePicture} 
+                            alt={member.fullName}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <Users className="w-10 h-10 text-temple-brown" />
+                        )}
+                      </div>
+                    </div>
+                    <div className="text-center max-w-32">
+                      <p className="text-base font-bold text-temple-brown leading-tight">
+                        {member.fullName}
+                      </p>
+                      <p className="text-sm text-saffron-600 font-medium mt-1">
+                        Self
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
