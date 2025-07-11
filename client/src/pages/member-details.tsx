@@ -457,13 +457,13 @@ export default function MemberDetails() {
   // Handle both route patterns: /member/:id and /member-details/:id
   const [, memberParams] = useRoute("/member/:id");
   const [, memberDetailsParams] = useRoute("/member-details/:id");
-  
+
   // Extract member ID from whichever route matches
-  const memberId = memberParams?.id 
-    ? parseInt(memberParams.id) 
-    : memberDetailsParams?.id 
-    ? parseInt(memberDetailsParams.id) 
-    : null;
+  const memberId = memberParams?.id
+    ? parseInt(memberParams.id)
+    : memberDetailsParams?.id
+      ? parseInt(memberDetailsParams.id)
+      : null;
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isAddRelativeOpen, setIsAddRelativeOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -494,13 +494,15 @@ export default function MemberDetails() {
     "Younger Sister",
     "Step-Brother",
     "Step-Sister",
+    "Step-Son",
+    "Step-Daughter",
     "Paternal Grandfather",
     "Paternal Grandmother",
     "Maternal Grandfather",
     "Maternal Grandmother",
-    "Grand Daugher-Son Side",
+    "Grand Daughter-Son Side",
     "Grand Son-Son Side",
-    "Grand Daugher-Daughter Side",
+    "Grand Daughter-Daughter Side",
     "Grand Son-Daughter Side",
     "Nephew",
     "Niece",
@@ -508,6 +510,8 @@ export default function MemberDetails() {
     "Father-in-Law",
     "Brother-in-Law",
     "Sister-in-Law",
+    "Son-in-Law",
+    "Daughter-in-Law",
     "Aunt",
     "Uncle",
     "Cousin Brother-Father Side",
@@ -599,9 +603,10 @@ export default function MemberDetails() {
         profilePictureLength: memberData.profilePicture?.length || 0,
         photosCount: memberData.photos?.length || 0,
         photosArray: memberData.photos,
-        profilePicture: memberData.profilePicture?.substring(0, 50) + '...' || null
+        profilePicture:
+          memberData.profilePicture?.substring(0, 50) + "..." || null,
       });
-      
+
       setMemberPhotos(memberData.photos || []);
       setProfilePicture(memberData.profilePicture || "");
       console.log("Loading member photos:", memberData.photos);
@@ -617,14 +622,19 @@ export default function MemberDetails() {
         profilePicture: data.profilePicture || profilePicture || "",
         photos: data.photos || memberPhotos || [],
       };
-      
+
       console.log("Sending PATCH request with data:", {
         ...memberData,
-        profilePicture: memberData.profilePicture ? `${memberData.profilePicture.substring(0, 50)}...` : "empty",
+        profilePicture: memberData.profilePicture
+          ? `${memberData.profilePicture.substring(0, 50)}...`
+          : "empty",
         photosCount: memberData.photos?.length || 0,
-        photos: memberData.photos?.map((p, i) => `Photo ${i}: ${p.substring(0, 50)}...`) || []
+        photos:
+          memberData.photos?.map(
+            (p, i) => `Photo ${i}: ${p.substring(0, 50)}...`,
+          ) || [],
       });
-      
+
       try {
         const response = await apiRequest(
           "PATCH",
@@ -642,7 +652,7 @@ export default function MemberDetails() {
       queryClient.invalidateQueries({ queryKey: [`/api/members/${memberId}`] });
       queryClient.invalidateQueries({ queryKey: ["/api/members"] });
       console.log("Auto-save successful:", updatedMember);
-      
+
       // Update local state with the response from server
       if (updatedMember.profilePicture !== undefined) {
         setProfilePicture(updatedMember.profilePicture || "");
@@ -696,55 +706,81 @@ export default function MemberDetails() {
   );
 
   // Auto-save wrappers for photos
-  const handleProfilePictureChange = useCallback((newProfilePicture: string) => {
-    console.log("Profile picture changed:", newProfilePicture?.substring(0, 50) + "...");
-    setProfilePicture(newProfilePicture);
-    
-    // Auto-save profile picture immediately with direct data
-    if (member && !updateMutation.isPending) {
-      const currentData = form.getValues();
-      const updatedData = {
-        ...currentData,
-        profilePicture: newProfilePicture,
-        photos: memberPhotos,
-      };
-      console.log("Auto-saving profile picture to database", {
-        ...updatedData,
-        profilePicture: updatedData.profilePicture ? `${updatedData.profilePicture.substring(0, 50)}...` : "empty",
-        photosCount: updatedData.photos?.length || 0
-      });
-      
-      // Call mutation directly with exact data
-      updateMutation.mutateAsync(updatedData).catch(console.error);
-    } else {
-      console.log("Cannot auto-save profile picture:", { hasMember: !!member, isPending: updateMutation.isPending });
-    }
-  }, [member, form, memberPhotos, updateMutation]);
+  const handleProfilePictureChange = useCallback(
+    (newProfilePicture: string) => {
+      console.log(
+        "Profile picture changed:",
+        newProfilePicture?.substring(0, 50) + "...",
+      );
+      setProfilePicture(newProfilePicture);
 
-  const handlePhotosChange = useCallback((newPhotos: string[]) => {
-    console.log("handlePhotosChange called with photos:", newPhotos.length, newPhotos.map((p, i) => `Photo ${i}: ${p.substring(0, 30)}...`));
-    setMemberPhotos(newPhotos);
-    
-    // Auto-save photos immediately using direct mutation call
-    if (member && !updateMutation.isPending) {
-      const currentData = form.getValues();
-      const updatedData = {
-        ...currentData,
-        profilePicture: profilePicture,
-        photos: newPhotos,
-      };
-      console.log("Auto-saving member photos to database. Count:", newPhotos.length);
-      console.log("Updated data for save:", {
-        ...updatedData,
-        photos: updatedData.photos?.map((p, i) => `Photo ${i}: ${p.substring(0, 30)}...`)
-      });
-      
-      // Call mutation directly with exact data
-      updateMutation.mutateAsync(updatedData).catch(console.error);
-    } else {
-      console.log("Cannot auto-save photos:", { hasMember: !!member, isPending: updateMutation.isPending });
-    }
-  }, [member, form, profilePicture, updateMutation]);
+      // Auto-save profile picture immediately with direct data
+      if (member && !updateMutation.isPending) {
+        const currentData = form.getValues();
+        const updatedData = {
+          ...currentData,
+          profilePicture: newProfilePicture,
+          photos: memberPhotos,
+        };
+        console.log("Auto-saving profile picture to database", {
+          ...updatedData,
+          profilePicture: updatedData.profilePicture
+            ? `${updatedData.profilePicture.substring(0, 50)}...`
+            : "empty",
+          photosCount: updatedData.photos?.length || 0,
+        });
+
+        // Call mutation directly with exact data
+        updateMutation.mutateAsync(updatedData).catch(console.error);
+      } else {
+        console.log("Cannot auto-save profile picture:", {
+          hasMember: !!member,
+          isPending: updateMutation.isPending,
+        });
+      }
+    },
+    [member, form, memberPhotos, updateMutation],
+  );
+
+  const handlePhotosChange = useCallback(
+    (newPhotos: string[]) => {
+      console.log(
+        "handlePhotosChange called with photos:",
+        newPhotos.length,
+        newPhotos.map((p, i) => `Photo ${i}: ${p.substring(0, 30)}...`),
+      );
+      setMemberPhotos(newPhotos);
+
+      // Auto-save photos immediately using direct mutation call
+      if (member && !updateMutation.isPending) {
+        const currentData = form.getValues();
+        const updatedData = {
+          ...currentData,
+          profilePicture: profilePicture,
+          photos: newPhotos,
+        };
+        console.log(
+          "Auto-saving member photos to database. Count:",
+          newPhotos.length,
+        );
+        console.log("Updated data for save:", {
+          ...updatedData,
+          photos: updatedData.photos?.map(
+            (p, i) => `Photo ${i}: ${p.substring(0, 30)}...`,
+          ),
+        });
+
+        // Call mutation directly with exact data
+        updateMutation.mutateAsync(updatedData).catch(console.error);
+      } else {
+        console.log("Cannot auto-save photos:", {
+          hasMember: !!member,
+          isPending: updateMutation.isPending,
+        });
+      }
+    },
+    [member, form, profilePicture, updateMutation],
+  );
 
   const addRelationshipMutation = useMutation({
     mutationFn: async (data: {
@@ -1743,7 +1779,9 @@ export default function MemberDetails() {
                                 onPhotosChange={handlePhotosChange}
                                 allowProfilePicture={true}
                                 profilePicture={profilePicture}
-                                onProfilePictureChange={handleProfilePictureChange}
+                                onProfilePictureChange={
+                                  handleProfilePictureChange
+                                }
                                 title="Upload Photos"
                                 description="Add profile picture and member photos"
                                 maxPhotos={5}
