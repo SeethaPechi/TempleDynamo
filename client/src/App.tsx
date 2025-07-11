@@ -44,7 +44,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <div className="min-h-screen bg-gradient-to-br from-temple-cream to-saffron-50">
+        <div className="min-h-screen bg-gradient-to-br from-temple-cream to-saffron-50 mobile-scroll-fix">
           <Navigation />
           <Router />
           <Toaster />

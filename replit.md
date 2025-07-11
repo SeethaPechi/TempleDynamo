@@ -95,6 +95,26 @@ This is a full-stack temple community management system built with React, Expres
 
 ## Recent Changes
 
+✓ **Mobile Production Site Fix** (January 11, 2025)
+  - Fixed "Not Found" error on mobile production site (tamilkovil.com)
+  - Added mobile-specific CSS fixes for production deployment
+  - Enhanced viewport meta tags for proper mobile display
+  - Improved navigation touch targets and mobile menu styling
+  - Added mobile scroll fixes and proper touch manipulation
+  - Fixed SPA routing issues that were causing production 404 errors
+  - Enhanced mobile responsiveness across all components
+  - Production site now loads correctly on mobile devices
+
+✓ **Elegant Family Tree Visualization** (January 11, 2025)
+  - Created new elegant family tree matching user's design reference
+  - Added circular profile pictures with golden borders and connecting lines
+  - Implemented hierarchical tree layout with proper generational spacing
+  - Added decorative background elements and serif typography
+  - Enhanced relationship mapping to show all 11 relationships for members
+  - Added debugging capabilities and comprehensive console logging
+  - Made layout responsive with proper SVG scaling for all screen sizes
+  - Added legend and interactive member selection functionality
+
 ✓ **Photo Upload Production Fixes** (January 10, 2025)
   - Fixed photo upload failures in production deployment by adding comprehensive error handling
   - Enhanced server-side PATCH route with detailed logging for debugging upload issues

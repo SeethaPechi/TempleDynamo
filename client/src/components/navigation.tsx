@@ -76,7 +76,8 @@ export function Navigation() {
           <div className="md:hidden">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="text-temple-brown"
+              className="text-temple-brown p-2 touch-manipulation"
+              aria-label="Toggle mobile menu"
             >
               {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
@@ -85,23 +86,23 @@ export function Navigation() {
 
         {/* Mobile Menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden pb-4">
+          <div className="md:hidden pb-4 bg-white shadow-lg">
             {navItems.map(({ path, label, icon: Icon }) => (
               <Link key={path} href={path}>
                 <button
                   onClick={() => setMobileMenuOpen(false)}
-                  className={`block w-full text-left px-4 py-2 flex items-center space-x-2 ${
+                  className={`block w-full text-left px-4 py-3 flex items-center space-x-2 touch-manipulation border-b border-gray-100 ${
                     isActive(path)
                       ? "text-saffron-600 bg-saffron-50"
-                      : "text-temple-brown hover:bg-saffron-50"
+                      : "text-temple-brown hover:bg-saffron-50 active:bg-saffron-100"
                   }`}
                 >
-                  <Icon size={16} />
-                  <span>{label}</span>
+                  <Icon size={18} />
+                  <span className="text-base">{label}</span>
                 </button>
               </Link>
             ))}
-            <div className="px-4 py-2">
+            <div className="px-4 py-3 border-t border-gray-200 bg-gray-50">
               <LanguageSwitcher />
             </div>
           </div>
