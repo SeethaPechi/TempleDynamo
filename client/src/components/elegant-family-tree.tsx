@@ -1,7 +1,7 @@
 import React from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Users } from "lucide-react";
+import { Users, Heart } from "lucide-react";
 import type { Member, Relationship } from "@shared/schema";
 
 interface ElegantFamilyTreeProps {
@@ -10,275 +10,316 @@ interface ElegantFamilyTreeProps {
   onMemberClick?: (memberId: number) => void;
 }
 
-interface TreeNode {
-  member: Member;
-  relationship: string;
-  generation: number;
-  position: number;
-  x: number;
-  y: number;
+interface RelationshipGroup {
+  name: string;
+  priority: number;
+  relationships: string[];
+  members: Array<Relationship & { relatedMember: Member }>;
+  color: string;
 }
 
 export function ElegantFamilyTree({ member, relationships, onMemberClick }: ElegantFamilyTreeProps) {
-  // Organize family members by generation and position
-  const organizeTree = () => {
-    const nodes: TreeNode[] = [];
-    const centerX = 500; // Center of the tree
-    const centerY = 300; // Center Y position for main member
-    const generationHeight = 180; // Vertical spacing between generations
-    const siblingSpacing = 180; // Horizontal spacing between siblings
+  console.log(`ElegantFamilyTree: Rendering for member ${member.fullName} with ${relationships.length} relationships`);
+  
+  // Define relationship groups with hierarchy and colors
+  const relationshipGroups: RelationshipGroup[] = [
+    {
+      name: "Grand Parents",
+      priority: 1,
+      relationships: ['Paternal Grandfather', 'Paternal Grandmother', 'Maternal Grandfather', 'Maternal Grandmother'],
+      members: [],
+      color: "bg-purple-100 border-purple-300"
+    },
+    {
+      name: "Parents",
+      priority: 2,
+      relationships: ['Father', 'Mother', 'Step Father', 'Step Mother'],
+      members: [],
+      color: "bg-blue-100 border-blue-300"
+    },
+    {
+      name: "Spouse",
+      priority: 3,
+      relationships: ['Wife', 'Husband'],
+      members: [],
+      color: "bg-pink-100 border-pink-300"
+    },
+    {
+      name: "Children",
+      priority: 4,
+      relationships: ['Son', 'Daughter', 'Step-Son', 'Step-Daughter'],
+      members: [],
+      color: "bg-green-100 border-green-300"
+    },
+    {
+      name: "Siblings",
+      priority: 5,
+      relationships: ['Elder Brother', 'Elder Sister', 'Younger Brother', 'Younger Sister', 'Step-Brother', 'Step-Sister'],
+      members: [],
+      color: "bg-yellow-100 border-yellow-300"
+    },
+    {
+      name: "Grand Children",
+      priority: 6,
+      relationships: ['Grand Daughter -Son Side', 'Grand Son-Son Side', 'Grand Daughter -Daughter Side', 'Grand Son-Daughter Side'],
+      members: [],
+      color: "bg-teal-100 border-teal-300"
+    },
+    {
+      name: "In-Laws",
+      priority: 7,
+      relationships: ['Mother-in-Law', 'Father-in-Law', 'Brother-in-Law', 'Sister-in-Law', 'Son-in-Law', 'Daughter-in-Law'],
+      members: [],
+      color: "bg-indigo-100 border-indigo-300"
+    },
+    {
+      name: "Aunts & Uncles",
+      priority: 8,
+      relationships: ['Aunt-Father Side', 'Uncle-Father Side', 'Aunt-Mother Side', 'Uncle-Mother Side'],
+      members: [],
+      color: "bg-orange-100 border-orange-300"
+    },
+    {
+      name: "Cousins",
+      priority: 9,
+      relationships: ['Cousin Brother-Father Side', 'Cousin Sister-Father Side', 'Cousin Brother-Mother Side', 'Cousin Sister-Mother Side'],
+      members: [],
+      color: "bg-red-100 border-red-300"
+    },
+    {
+      name: "Other Family Connections",
+      priority: 10,
+      relationships: ['Nephew', 'Niece'],
+      members: [],
+      color: "bg-gray-100 border-gray-300"
+    }
+  ];
 
-    // Debug: Log all relationships
-    console.log(`Organizing tree for ${member.fullName}:`, relationships);
-
-    // Add the main member at center
-    nodes.push({
-      member,
-      relationship: "Self",
-      generation: 0,
-      position: 0,
-      x: centerX,
-      y: centerY
+  // Organize relationships into groups
+  relationships.forEach(rel => {
+    let assigned = false;
+    relationshipGroups.forEach(group => {
+      if (group.relationships.includes(rel.relationshipType)) {
+        group.members.push(rel);
+        assigned = true;
+      }
     });
-
-    // Organize relationships by generation
-    const generations: { [key: number]: Array<Relationship & { relatedMember: Member }> } = {};
     
-    relationships.forEach((rel) => {
-      let generation = 0;
-      
-      const relType = rel.relationshipType.toLowerCase();
-      
-      // More comprehensive relationship mapping
-      if (relType.includes('grandfather') || relType.includes('grandmother')) {
-        generation = -2;
-      } else if (relType === 'father' || relType === 'mother') {
-        generation = -1;
-      } else if (relType.includes('uncle') || relType.includes('aunt')) {
-        generation = -1; // Same generation as parents
-      } else if (relType === 'son' || relType === 'daughter') {
-        generation = 1;
-      } else if (relType.includes('grand') && (relType.includes('son') || relType.includes('daughter'))) {
-        generation = 2;
-      } else if (relType.includes('brother') || relType.includes('sister') || 
-                 relType === 'wife' || relType === 'husband' || relType.includes('cousin')) {
-        generation = 0;
-      } else if (relType.includes('nephew') || relType.includes('niece')) {
-        generation = 1;
-      } else {
-        // For any unmatched relationships, put them at same generation
-        generation = 0;
-        console.log(`Unmatched relationship type: ${rel.relationshipType}, placing at generation 0`);
-      }
-      
-      if (!generations[generation]) {
-        generations[generation] = [];
-      }
-      generations[generation].push(rel);
-    });
+    // If relationship type not found in predefined groups, add to "Other Family Connections"
+    if (!assigned) {
+      console.log(`Unknown relationship type: ${rel.relationshipType}, adding to Other Family Connections`);
+      relationshipGroups[9].members.push(rel);
+    }
+  });
 
-    console.log('Organized by generations:', generations);
+  // Filter out empty groups and sort by priority
+  const activeGroups = relationshipGroups
+    .filter(group => group.members.length > 0)
+    .sort((a, b) => a.priority - b.priority);
+  
+  console.log('Organized relationship groups:', activeGroups.map(g => ({ name: g.name, count: g.members.length })));
 
-    // Position each generation
-    Object.entries(generations).forEach(([gen, rels]) => {
-      const generation = parseInt(gen);
-      const y = centerY - (generation * generationHeight);
-      
-      // Adjust spacing based on number of members
-      const spacing = rels.length > 4 ? 150 : siblingSpacing;
-      const totalWidth = (rels.length - 1) * spacing;
-      const startX = centerX - totalWidth / 2;
-
-      rels.forEach((rel, index) => {
-        nodes.push({
-          member: rel.relatedMember,
-          relationship: rel.relationshipType,
-          generation,
-          position: index,
-          x: startX + (index * spacing),
-          y
-        });
-      });
-    });
-
-    console.log(`Created ${nodes.length} nodes (including self):`);
-    console.log(nodes.map(n => `${n.member.fullName} - ${n.relationship} (Gen: ${n.generation})`));
-
-    return nodes;
+  const renderMemberCard = (rel: Relationship & { relatedMember: Member }, isCenter: boolean = false) => {
+    const memberToShow = isCenter ? member : rel.relatedMember;
+    const hasProfilePicture = memberToShow.profilePicture && memberToShow.profilePicture.length > 0;
+    
+    return (
+      <div 
+        key={isCenter ? `center-${memberToShow.id}` : `member-${rel.id}`}
+        className={`flex flex-col items-center ${isCenter ? 'mx-4' : 'mx-2'} ${onMemberClick ? 'cursor-pointer' : ''}`}
+        onClick={() => !isCenter && onMemberClick?.(rel.relatedMemberId)}
+      >
+        {/* Profile Picture Circle */}
+        <div className={`relative ${isCenter ? 'w-20 h-20 mb-3' : 'w-16 h-16 mb-2'}`}>
+          <div className={`w-full h-full rounded-full border-4 ${isCenter ? 'border-saffron-500 bg-saffron-50' : 'border-temple-gold bg-temple-cream'} flex items-center justify-center overflow-hidden`}>
+            {hasProfilePicture ? (
+              <img 
+                src={memberToShow.profilePicture} 
+                alt={memberToShow.fullName}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <Users className={`${isCenter ? 'w-10 h-10' : 'w-8 h-8'} text-temple-brown`} />
+            )}
+          </div>
+          
+          {/* Gender indicator for non-center members */}
+          {!isCenter && (
+            <div className={`absolute -top-1 -right-1 w-6 h-6 rounded-full border-2 border-white flex items-center justify-center text-xs font-bold ${
+              memberToShow.gender === 'Male' ? 'bg-blue-500 text-white' : 'bg-pink-500 text-white'
+            }`}>
+              {memberToShow.gender === 'Male' ? 'M' : 'F'}
+            </div>
+          )}
+        </div>
+        
+        {/* Name */}
+        <div className={`text-center ${isCenter ? 'max-w-32' : 'max-w-24'}`}>
+          <p className={`${isCenter ? 'text-base font-bold' : 'text-sm font-medium'} text-temple-brown leading-tight`}>
+            {memberToShow.fullName}
+          </p>
+          {!isCenter && (
+            <p className="text-xs text-temple-gold mt-1">
+              {rel.relationshipType}
+            </p>
+          )}
+          {isCenter && (
+            <p className="text-sm text-saffron-600 font-medium mt-1">
+              Self
+            </p>
+          )}
+        </div>
+      </div>
+    );
   };
 
-  const treeNodes = organizeTree();
-  const viewBoxWidth = 1200;
-  const viewBoxHeight = 900;
-
-  // Generate connecting lines
-  const generateConnections = () => {
-    const connections: JSX.Element[] = [];
-    const centerNode = treeNodes.find(n => n.relationship === "Self");
-    if (!centerNode) return connections;
-
-    treeNodes.forEach((node, index) => {
-      if (node.relationship === "Self") return;
-
-      // Connect to center member
-      const pathId = `connection-${index}`;
-      let path = "";
-
-      if (node.generation === -1) {
-        // Parents connect from above
-        path = `M ${centerNode.x} ${centerNode.y - 40} L ${centerNode.x} ${centerNode.y - 80} L ${node.x} ${node.y + 80} L ${node.x} ${node.y + 40}`;
-      } else if (node.generation === 0 && node.relationship.toLowerCase().includes('wife') || node.relationship.toLowerCase().includes('husband')) {
-        // Spouse connects horizontally
-        path = `M ${centerNode.x + 40} ${centerNode.y} L ${node.x - 40} ${node.y}`;
-      } else if (node.generation === 0) {
-        // Siblings connect at same level
-        path = `M ${centerNode.x} ${centerNode.y - 40} L ${centerNode.x} ${centerNode.y - 60} L ${node.x} ${node.y - 60} L ${node.x} ${node.y - 40}`;
-      } else if (node.generation === 1) {
-        // Children connect from below
-        path = `M ${centerNode.x} ${centerNode.y + 40} L ${centerNode.x} ${centerNode.y + 80} L ${node.x} ${node.y - 80} L ${node.x} ${node.y - 40}`;
-      }
-
-      if (path) {
-        connections.push(
-          <path
-            key={pathId}
-            d={path}
-            fill="none"
-            stroke="#D4AF37"
+  const renderConnectionLines = (groupIndex: number, memberCount: number) => {
+    if (memberCount <= 1) return null;
+    
+    return (
+      <div className="flex justify-center my-2">
+        <svg width="300" height="40" className="overflow-visible">
+          {/* Horizontal line connecting all members */}
+          <line 
+            x1="50" 
+            y1="20" 
+            x2="250" 
+            y2="20" 
+            stroke="#D4AF37" 
             strokeWidth="2"
-            strokeDasharray="5,5"
+            className="opacity-60"
           />
-        );
-      }
-    });
-
-    return connections;
+          {/* Individual connection points */}
+          {Array.from({ length: memberCount }).map((_, index) => (
+            <circle 
+              key={index}
+              cx={50 + (200 / Math.max(1, memberCount - 1)) * index}
+              cy="20"
+              r="4"
+              fill="#D4AF37"
+              className="opacity-80"
+            />
+          ))}
+        </svg>
+      </div>
+    );
   };
 
   return (
-    <div className="w-full h-full bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 relative overflow-hidden">
-      {/* Decorative Background Elements */}
-      <div className="absolute inset-0 opacity-10">
-        <div className="absolute top-10 left-10 w-32 h-32 border-2 border-amber-300 rounded-full"></div>
-        <div className="absolute top-20 right-20 w-24 h-24 border-2 border-orange-300 rounded-full"></div>
-        <div className="absolute bottom-20 left-20 w-28 h-28 border-2 border-yellow-300 rounded-full"></div>
-        <div className="absolute bottom-10 right-10 w-20 h-20 border-2 border-amber-400 rounded-full"></div>
+    <div className="w-full max-w-6xl mx-auto p-6 bg-gradient-to-br from-temple-cream to-saffron-50 rounded-lg">
+      {/* Header */}
+      <div className="text-center mb-8">
+        <h2 className="text-3xl font-bold text-temple-brown mb-2" style={{ fontFamily: 'serif' }}>
+          Family Tree
+        </h2>
+        <p className="text-lg text-temple-gold">
+          Centered on {member.fullName}
+        </p>
+        <div className="w-24 h-1 bg-saffron-500 mx-auto mt-4 rounded"></div>
       </div>
 
-      {/* Title */}
-      <div className="text-center py-8">
-        <h1 className="text-4xl font-serif text-amber-800 mb-2">Our Family Tree</h1>
-        <p className="text-lg text-amber-600">Generations Connected</p>
-      </div>
+      {/* Family Tree Structure */}
+      <div className="space-y-8">
+        {activeGroups.map((group, groupIndex) => (
+          <Card key={group.name} className={`p-6 ${group.color} shadow-md`}>
+            {/* Group Header */}
+            <div className="text-center mb-4">
+              <h3 className="text-xl font-bold text-temple-brown mb-2">
+                {group.name}
+              </h3>
+              <div className="flex items-center justify-center space-x-2">
+                <div className="w-8 h-0.5 bg-temple-gold rounded"></div>
+                <Heart className="w-4 h-4 text-temple-gold" />
+                <div className="w-8 h-0.5 bg-temple-gold rounded"></div>
+              </div>
+            </div>
 
-      {/* SVG Tree Container */}
-      <div className="flex justify-center px-4">
-        <svg 
-          width="100%" 
-          height={viewBoxHeight} 
-          viewBox={`0 0 ${viewBoxWidth} ${viewBoxHeight}`}
-          className="border border-amber-200 rounded-lg bg-white/20 backdrop-blur-sm max-w-6xl"
-        >
-          {/* Connection Lines */}
-          <g className="connections">
-            {generateConnections()}
-          </g>
+            {/* Connection Lines */}
+            {renderConnectionLines(groupIndex, group.members.length)}
 
-          {/* Family Members */}
-          <g className="members">
-            {treeNodes.map((node, index) => (
-              <g key={`node-${index}`} className="family-member">
-                {/* Profile Picture Circle */}
-                <circle
-                  cx={node.x}
-                  cy={node.y}
-                  r="40"
-                  fill="white"
-                  stroke={node.relationship === "Self" ? "#D4AF37" : "#E5C07B"}
-                  strokeWidth={node.relationship === "Self" ? "4" : "2"}
-                  className="cursor-pointer hover:stroke-amber-500 transition-colors"
-                  onClick={() => onMemberClick?.(node.member.id)}
-                />
-                
-                {/* Profile Picture */}
-                {node.member.profilePicture ? (
-                  <foreignObject
-                    x={node.x - 35}
-                    y={node.y - 35}
-                    width="70"
-                    height="70"
-                    className="cursor-pointer"
-                    onClick={() => onMemberClick?.(node.member.id)}
-                  >
-                    <img
-                      src={node.member.profilePicture}
-                      alt={node.member.fullName}
-                      className="w-full h-full object-cover rounded-full"
-                    />
-                  </foreignObject>
-                ) : (
-                  <foreignObject
-                    x={node.x - 20}
-                    y={node.y - 20}
-                    width="40"
-                    height="40"
-                    className="cursor-pointer"
-                    onClick={() => onMemberClick?.(node.member.id)}
-                  >
-                    <Users className="w-full h-full text-amber-600" />
-                  </foreignObject>
-                )}
+            {/* Members in Group */}
+            <div className="flex flex-wrap justify-center items-center gap-4">
+              {group.members.map((rel) => renderMemberCard(rel))}
+            </div>
 
-                {/* Name Label */}
-                <rect
-                  x={node.x - 80}
-                  y={node.y + 55}
-                  width="160"
-                  height="35"
-                  rx="17.5"
-                  fill="white"
-                  stroke="#E5C07B"
-                  strokeWidth="1"
-                />
-                <text
-                  x={node.x}
-                  y={node.y + 70}
-                  textAnchor="middle"
-                  className="text-sm font-medium"
-                  style={{ fill: '#92400e' }}
-                >
-                  {node.member.fullName}
-                </text>
-                <text
-                  x={node.x}
-                  y={node.y + 83}
-                  textAnchor="middle"
-                  className="text-xs"
-                  style={{ fill: '#d97706' }}
-                >
-                  {node.relationship}
-                </text>
-              </g>
-            ))}
-          </g>
-        </svg>
+            {/* Add Self in center for Spouse group */}
+            {group.name === "Spouse" && group.members.length > 0 && (
+              <div className="flex justify-center items-center mt-4">
+                <div className="flex items-center">
+                  {renderMemberCard(group.members[0])}
+                  <Heart className="w-6 h-6 text-red-500 mx-4" />
+                  {renderMemberCard(group.members[0], true)}
+                </div>
+              </div>
+            )}
+          </Card>
+        ))}
+
+        {/* Center Self Card if no relationships */}
+        {activeGroups.length === 0 && (
+          <Card className="p-8 bg-saffron-50 border-saffron-300 shadow-md">
+            <div className="text-center">
+              <h3 className="text-xl font-bold text-temple-brown mb-4">Family Tree</h3>
+              <div className="flex justify-center">
+                {renderMemberCard({ relatedMember: member } as any, true)}
+              </div>
+              <p className="text-temple-gold mt-4">
+                No family relationships recorded yet.
+              </p>
+            </div>
+          </Card>
+        )}
       </div>
 
       {/* Legend */}
-      <div className="absolute bottom-4 right-4 bg-white/80 backdrop-blur-sm rounded-lg p-4 border border-amber-200">
-        <h4 className="font-semibold text-amber-800 mb-2">Legend</h4>
-        <div className="space-y-1 text-sm">
+      <div className="mt-8 p-4 bg-white rounded-lg shadow-sm">
+        <h4 className="text-lg font-semibold text-temple-brown mb-3">Legend</h4>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 text-sm">
           <div className="flex items-center space-x-2">
-            <div className="w-4 h-4 rounded-full border-2 border-amber-500"></div>
+            <div className="w-4 h-4 rounded-full bg-blue-500"></div>
+            <span>Male</span>
+          </div>
+          <div className="flex items-center space-x-2">
+            <div className="w-4 h-4 rounded-full bg-pink-500"></div>
+            <span>Female</span>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Heart className="w-4 h-4 text-red-500" />
+            <span>Marriage</span>
+          </div>
+          <div className="flex items-center space-x-2">
+            <div className="w-4 h-0.5 bg-temple-gold"></div>
+            <span>Family Line</span>
+          </div>
+          <div className="flex items-center space-x-2">
+            <div className="w-4 h-4 border-2 border-saffron-500 rounded-full bg-saffron-50"></div>
             <span>Selected Member</span>
           </div>
-          <div className="flex items-center space-x-2">
-            <div className="w-4 h-4 rounded-full border border-amber-300"></div>
-            <span>Family Member</span>
+        </div>
+      </div>
+
+      {/* Family Statistics */}
+      <div className="mt-6 text-center">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="bg-white p-3 rounded-lg shadow-sm">
+            <div className="text-2xl font-bold text-saffron-600">{relationships.length}</div>
+            <div className="text-sm text-temple-brown">Total Connections</div>
           </div>
-          <div className="flex items-center space-x-2">
-            <div className="w-6 h-1 bg-amber-400" style={{ background: "repeating-linear-gradient(to right, #D4AF37 0, #D4AF37 5px, transparent 5px, transparent 10px)" }}></div>
-            <span>Family Connection</span>
+          <div className="bg-white p-3 rounded-lg shadow-sm">
+            <div className="text-2xl font-bold text-temple-gold">{activeGroups.length}</div>
+            <div className="text-sm text-temple-brown">Relationship Types</div>
+          </div>
+          <div className="bg-white p-3 rounded-lg shadow-sm">
+            <div className="text-2xl font-bold text-temple-red">
+              {relationships.filter(r => r.relatedMember.gender === 'Male').length}
+            </div>
+            <div className="text-sm text-temple-brown">Male Relatives</div>
+          </div>
+          <div className="bg-white p-3 rounded-lg shadow-sm">
+            <div className="text-2xl font-bold text-temple-crimson">
+              {relationships.filter(r => r.relatedMember.gender === 'Female').length}
+            </div>
+            <div className="text-sm text-temple-brown">Female Relatives</div>
           </div>
         </div>
       </div>
