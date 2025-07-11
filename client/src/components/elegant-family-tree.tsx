@@ -26,7 +26,10 @@ export function ElegantFamilyTree({ member, relationships, onMemberClick }: Eleg
     const centerX = 500; // Center of the tree
     const centerY = 300; // Center Y position for main member
     const generationHeight = 180; // Vertical spacing between generations
-    const siblingSpacing = 200; // Horizontal spacing between siblings
+    const siblingSpacing = 180; // Horizontal spacing between siblings
+
+    // Debug: Log all relationships
+    console.log(`Organizing tree for ${member.fullName}:`, relationships);
 
     // Add the main member at center
     nodes.push({
@@ -44,33 +47,28 @@ export function ElegantFamilyTree({ member, relationships, onMemberClick }: Eleg
     relationships.forEach((rel) => {
       let generation = 0;
       
-      switch (rel.relationshipType.toLowerCase()) {
-        case 'paternal grandfather':
-        case 'paternal grandmother':
-        case 'maternal grandfather':
-        case 'maternal grandmother':
-          generation = -2;
-          break;
-        case 'father':
-        case 'mother':
-          generation = -1;
-          break;
-        case 'brother':
-        case 'sister':
-        case 'wife':
-        case 'husband':
-          generation = 0;
-          break;
-        case 'son':
-        case 'daughter':
-          generation = 1;
-          break;
-        case 'grand son':
-        case 'grand daughter':
-          generation = 2;
-          break;
-        default:
-          generation = 0;
+      const relType = rel.relationshipType.toLowerCase();
+      
+      // More comprehensive relationship mapping
+      if (relType.includes('grandfather') || relType.includes('grandmother')) {
+        generation = -2;
+      } else if (relType === 'father' || relType === 'mother') {
+        generation = -1;
+      } else if (relType.includes('uncle') || relType.includes('aunt')) {
+        generation = -1; // Same generation as parents
+      } else if (relType === 'son' || relType === 'daughter') {
+        generation = 1;
+      } else if (relType.includes('grand') && (relType.includes('son') || relType.includes('daughter'))) {
+        generation = 2;
+      } else if (relType.includes('brother') || relType.includes('sister') || 
+                 relType === 'wife' || relType === 'husband' || relType.includes('cousin')) {
+        generation = 0;
+      } else if (relType.includes('nephew') || relType.includes('niece')) {
+        generation = 1;
+      } else {
+        // For any unmatched relationships, put them at same generation
+        generation = 0;
+        console.log(`Unmatched relationship type: ${rel.relationshipType}, placing at generation 0`);
       }
       
       if (!generations[generation]) {
@@ -79,11 +77,16 @@ export function ElegantFamilyTree({ member, relationships, onMemberClick }: Eleg
       generations[generation].push(rel);
     });
 
+    console.log('Organized by generations:', generations);
+
     // Position each generation
     Object.entries(generations).forEach(([gen, rels]) => {
       const generation = parseInt(gen);
       const y = centerY - (generation * generationHeight);
-      const totalWidth = (rels.length - 1) * siblingSpacing;
+      
+      // Adjust spacing based on number of members
+      const spacing = rels.length > 4 ? 150 : siblingSpacing;
+      const totalWidth = (rels.length - 1) * spacing;
       const startX = centerX - totalWidth / 2;
 
       rels.forEach((rel, index) => {
@@ -92,18 +95,21 @@ export function ElegantFamilyTree({ member, relationships, onMemberClick }: Eleg
           relationship: rel.relationshipType,
           generation,
           position: index,
-          x: startX + (index * siblingSpacing),
+          x: startX + (index * spacing),
           y
         });
       });
     });
 
+    console.log(`Created ${nodes.length} nodes (including self):`);
+    console.log(nodes.map(n => `${n.member.fullName} - ${n.relationship} (Gen: ${n.generation})`));
+
     return nodes;
   };
 
   const treeNodes = organizeTree();
-  const viewBoxWidth = 1000;
-  const viewBoxHeight = 800;
+  const viewBoxWidth = 1200;
+  const viewBoxHeight = 900;
 
   // Generate connecting lines
   const generateConnections = () => {
