@@ -160,10 +160,10 @@ export default function TempleMembers() {
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-temple-brown mb-4 flex items-center justify-center">
             <Building2 className="mr-3 text-saffron-500" size={40} />
-            {t("common.templeMembers") || "Temple Members"}
+            {t("Temple Members") || "Temple Members"}
           </h1>
           <p className="text-gray-600 text-lg">
-            {t("common.exploreMembersByTemple") ||
+            {t("Members grouped by their temple associations") ||
               "Explore community members grouped by their temple associations"}
           </p>
         </div>

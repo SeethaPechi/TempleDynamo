@@ -32,6 +32,7 @@ import {
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { FamilyTreeVisualization } from "@/components/family-tree-visualization";
+import { ElegantFamilyTree } from "@/components/elegant-family-tree";
 import { FamilyNetworkAnalysis } from "@/components/family-network-analysis";
 import { getGenderColors } from "@/lib/color-utils";
 import { ComprehensiveFamilyDisplay } from "@/components/comprehensive-family-display";
@@ -228,9 +229,14 @@ export default function FamilyTree() {
           </p>
         </div>
 
-        <Tabs defaultValue="table" className="w-full">
+        <Tabs defaultValue="elegant" className="w-full">
           <div className="flex justify-center mb-8">
-            <TabsList className="grid grid-cols-5 w-full max-w-4xl">
+            <TabsList className="grid grid-cols-6 w-full max-w-5xl">
+              <TabsTrigger value="elegant" className="flex items-center gap-1 text-xs sm:text-sm px-2 sm:px-4">
+                <TreePine size={14} className="hidden sm:block" />
+                <span className="hidden sm:inline">Elegant Tree</span>
+                <span className="sm:hidden">Tree</span>
+              </TabsTrigger>
               <TabsTrigger value="explorer" className="flex items-center gap-1 text-xs sm:text-sm px-2 sm:px-4">
                 <Search size={14} className="hidden sm:block" />
                 <span className="hidden sm:inline">{t("familyTree.selectMember")}</span>
@@ -264,6 +270,33 @@ export default function FamilyTree() {
               </TabsTrigger>
             </TabsList>
           </div>
+
+          <TabsContent value="elegant" className="space-y-8">
+            {selectedMember && filteredMemberRelationships ? (
+              <div className="min-h-screen">
+                <ElegantFamilyTree
+                  member={selectedMember}
+                  relationships={filteredMemberRelationships}
+                  onMemberClick={(memberId) => {
+                    const clickedMember = allMembers?.find((m: Member) => m.id === memberId);
+                    if (clickedMember) {
+                      setSelectedMember(clickedMember);
+                    }
+                  }}
+                />
+              </div>
+            ) : (
+              <Card className="p-12 text-center">
+                <TreePine className="mx-auto mb-4 text-gray-400" size={48} />
+                <h3 className="text-xl font-semibold text-gray-600 mb-2">
+                  Select a Member
+                </h3>
+                <p className="text-gray-500">
+                  Choose a family member to view their elegant family tree
+                </p>
+              </Card>
+            )}
+          </TabsContent>
 
           <TabsContent value="explorer" className="space-y-8">
             <div className="grid lg:grid-cols-3 gap-8">

@@ -26,8 +26,16 @@ export function Navigation() {
     { path: "/members", label: t("nav.members"), icon: Users },
     { path: "/family-tree", label: t("nav.familyTree"), icon: TreePine },
     { path: "/temples", label: t("nav.temples"), icon: Building },
-    { path: "/temple-registry", label: t("nav.templeRegistry"), icon: Building },
-    { path: "/temple-members", label: t("nav.templeMembers") || "Temple Members", icon: Building },
+    {
+      path: "/temple-registry",
+      label: t("nav.templeRegistry"),
+      icon: Building,
+    },
+    {
+      path: "/temple-members",
+      label: t("Temple Members") || "Temple Members",
+      icon: Building,
+    },
     { path: "/whatsapp", label: t("nav.whatsapp"), icon: MessageSquare },
   ];
 
