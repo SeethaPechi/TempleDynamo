@@ -422,7 +422,7 @@ export default function FamilyTree() {
                     </div>
 
                     {/* Family Story Export */}
-                    {selectedMember && relationships && relationships.length > 0 && (
+                    {selectedMember && filteredMemberRelationships && filteredMemberRelationships.length > 0 && (
                       <div className="flex justify-center">
                         <FamilyStoryExport 
                           member={selectedMember}
