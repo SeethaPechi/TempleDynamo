@@ -11,6 +11,7 @@ import {
   ArrowRight,
   Network,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import type { Member, Relationship } from "@shared/schema";
 import { useFormDataTransformation } from "@/lib/i18n-utils";
 
@@ -36,7 +37,8 @@ export function ComprehensiveFamilyDisplay({
   allRelationships,
   onMemberClick,
 }: ComprehensiveFamilyDisplayProps) {
-  const { transformRelationshipType } = useFormDataTransformation();
+  const { t } = useTranslation();
+  const { transformRelationshipType, transformMemberData } = useFormDataTransformation();
   // Get unique color coding for each relationship group
   const getRelationshipColor = (groupName: string) => {
     const groupColors: Record<string, string> = {
@@ -128,7 +130,7 @@ export function ComprehensiveFamilyDisplay({
               <p className={`${member.gender === 'Male' ? 'text-blue-100' : 
                              member.gender === 'Female' ? 'text-pink-100' : 
                              'text-saffron-100'}`}>
-                Member #{member.id} • {member.gender || 'Unspecified'}
+                {t('common.member', 'Member')} #{member.id} • {transformMemberData(member).gender || t('common.unspecified', 'Unspecified')}
               </p>
               <div className={`flex items-center mt-2 ${member.gender === 'Male' ? 'text-blue-100' : 
                                                          member.gender === 'Female' ? 'text-pink-100' : 
@@ -140,7 +142,7 @@ export function ComprehensiveFamilyDisplay({
           </div>
           <div className="text-right text-saffron-100">
             <div className="text-3xl font-bold">{relationships.length}</div>
-            <div className="text-sm">Family Connections</div>
+            <div className="text-sm">{t('familyTree.familyConnections', 'Family Connections')}</div>
           </div>
         </div>
       </Card>
@@ -150,7 +152,7 @@ export function ComprehensiveFamilyDisplay({
         <Card className="p-6">
           <h2 className="text-xl font-semibold text-temple-brown mb-6 flex items-center">
             <Heart className="mr-2" size={20} />
-            Direct Family Relationships
+            {t('familyTree.directRelationships', 'Direct Family Relationships')}
           </h2>
 
           {/* Grouped by New Relationship Categories */}

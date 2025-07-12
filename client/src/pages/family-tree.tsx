@@ -40,6 +40,7 @@ import { FamilyRelationshipsTable } from "@/components/family-relationships-tabl
 import { RelationshipCounters } from "@/components/relationship-counters";
 import { FamilyStoryExport } from "@/components/family-story-export";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useFormDataTransformation } from "@/lib/i18n-utils";
 import type { Member, Relationship } from "@shared/schema";
 
 const relationshipTypes = [
@@ -73,6 +74,7 @@ const relationshipTypes = [
 
 export default function FamilyTree() {
   const { t } = useTranslation();
+  const { transformMemberData } = useFormDataTransformation();
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const [location] = useLocation();
@@ -232,42 +234,36 @@ export default function FamilyTree() {
 
         <Tabs defaultValue="elegant" className="w-full">
           <div className="flex justify-center mb-8">
-            <TabsList className="grid grid-cols-6 w-full max-w-5xl">
-              <TabsTrigger value="elegant" className="flex items-center gap-1 text-xs sm:text-sm px-2 sm:px-4">
-                <TreePine size={14} className="hidden sm:block" />
-                <span className="hidden sm:inline">Elegant Tree</span>
-                <span className="sm:hidden">Tree</span>
+            <TabsList className="grid grid-cols-6 w-full max-w-6xl h-auto py-2">
+              <TabsTrigger value="elegant" className="flex flex-col items-center gap-1 text-xs px-1 py-2 min-h-[3rem]">
+                <TreePine size={14} />
+                <span className="text-center leading-tight">Elegant Tree</span>
               </TabsTrigger>
-              <TabsTrigger value="explorer" className="flex items-center gap-1 text-xs sm:text-sm px-2 sm:px-4">
-                <Search size={14} className="hidden sm:block" />
-                <span className="hidden sm:inline">{t("familyTree.selectMember")}</span>
-                <span className="sm:hidden">Select</span>
+              <TabsTrigger value="explorer" className="flex flex-col items-center gap-1 text-xs px-1 py-2 min-h-[3rem]">
+                <Search size={14} />
+                <span className="text-center leading-tight">{t("familyTree.selectMember")}</span>
               </TabsTrigger>
-              <TabsTrigger value="table" className="flex items-center gap-1 text-xs sm:text-sm px-2 sm:px-4">
-                <Users size={14} className="hidden sm:block" />
-                <span className="hidden sm:inline">{t("familyTree.directRelationships")}</span>
-                <span className="sm:hidden">Direct</span>
+              <TabsTrigger value="table" className="flex flex-col items-center gap-1 text-xs px-1 py-2 min-h-[3rem]">
+                <Users size={14} />
+                <span className="text-center leading-tight">{t("familyTree.directRelationships")}</span>
               </TabsTrigger>
               <TabsTrigger
                 value="comprehensive"
-                className="flex items-center gap-1 text-xs sm:text-sm px-2 sm:px-4"
+                className="flex flex-col items-center gap-1 text-xs px-1 py-2 min-h-[3rem]"
               >
-                <Heart size={14} className="hidden sm:block" />
-                <span className="hidden sm:inline">{t("familyTree.allRelations")}</span>
-                <span className="sm:hidden">All</span>
+                <Heart size={14} />
+                <span className="text-center leading-tight">{t("familyTree.allRelations")}</span>
               </TabsTrigger>
-              <TabsTrigger value="network" className="flex items-center gap-1 text-xs sm:text-sm px-2 sm:px-4">
-                <Network size={14} className="hidden sm:block" />
-                <span className="hidden sm:inline">{t("familyTree.familyNetworkAnalysis")}</span>
-                <span className="sm:hidden">Network</span>
+              <TabsTrigger value="network" className="flex flex-col items-center gap-1 text-xs px-1 py-2 min-h-[3rem]">
+                <Network size={14} />
+                <span className="text-center leading-tight">{t("familyTree.familyNetworkAnalysis")}</span>
               </TabsTrigger>
               <TabsTrigger
                 value="counters"
-                className="flex items-center gap-1 text-xs sm:text-sm px-2 sm:px-4"
+                className="flex flex-col items-center gap-1 text-xs px-1 py-2 min-h-[3rem]"
               >
-                <BarChart3 size={14} className="hidden sm:block" />
-                <span className="hidden sm:inline">Relationship Counters</span>
-                <span className="sm:hidden">Counters</span>
+                <BarChart3 size={14} />
+                <span className="text-center leading-tight">Relationship Counters</span>
               </TabsTrigger>
             </TabsList>
           </div>
@@ -325,6 +321,7 @@ export default function FamilyTree() {
                       <div className="space-y-2 max-h-64 overflow-y-auto">
                         {searchResults.map((member: Member) => {
                           const colors = getGenderColors(member.gender);
+                          const transformedMember = transformMemberData(member);
                           return (
                             <div
                               key={member.id}
@@ -336,7 +333,7 @@ export default function FamilyTree() {
                               }`}
                             >
                               <h4 className={`font-medium ${colors.text}`}>
-                                {member.fullName} {member.gender && `• ${member.gender}`}
+                                {member.fullName} {transformedMember.gender && `• ${transformedMember.gender}`}
                               </h4>
                               <p className="text-sm text-gray-600">
                                 {member.email}
@@ -352,17 +349,18 @@ export default function FamilyTree() {
 
                     {searchTerm && searchResults.length === 0 && (
                       <p className="text-sm text-gray-500 text-center py-4">
-                        No members found matching "{searchTerm}"
+                        {t("familyTree.memberNotFound")}
                       </p>
                     )}
 
                     {!searchTerm && (
                       <div className="space-y-2 max-h-64 overflow-y-auto">
                         <p className="text-sm text-gray-500 mb-3">
-                          All Members:
+                          {t("common.allMembers", "All Members")}:
                         </p>
                         {(allMembers as Member[]).map((member: Member) => {
                           const colors = getGenderColors(member.gender);
+                          const transformedMember = transformMemberData(member);
                           return (
                             <div
                               key={member.id}
@@ -374,7 +372,7 @@ export default function FamilyTree() {
                               }`}
                             >
                               <h4 className={`font-medium ${colors.text}`}>
-                                {member.fullName} {member.gender && `• ${member.gender}`}
+                                {member.fullName} {transformedMember.gender && `• ${transformedMember.gender}`}
                               </h4>
                               <p className="text-sm text-gray-600">
                                 {member.email}

@@ -2,6 +2,8 @@ import React from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Users, Heart } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { useFormDataTransformation } from "@/lib/i18n-utils";
 import type { Member, Relationship } from "@shared/schema";
 
 interface ElegantFamilyTreeProps {
@@ -20,6 +22,9 @@ interface RelationshipGroup {
 
 export function ElegantFamilyTree({ member, relationships, onMemberClick }: ElegantFamilyTreeProps) {
   console.log(`ElegantFamilyTree: Rendering for member ${member.fullName} with ${relationships.length} relationships`);
+  
+  const { t } = useTranslation();
+  const { transformMemberData, transformRelationshipType } = useFormDataTransformation();
   
   // Define relationship groups with hierarchy and colors
   const relationshipGroups: RelationshipGroup[] = [
@@ -121,6 +126,7 @@ export function ElegantFamilyTree({ member, relationships, onMemberClick }: Eleg
 
   const renderMemberCard = (rel: Relationship & { relatedMember: Member }, isCenter: boolean = false) => {
     const memberToShow = isCenter ? member : rel.relatedMember;
+    const transformedMember = transformMemberData(memberToShow);
     const hasProfilePicture = memberToShow.profilePicture && memberToShow.profilePicture.length > 0;
     
     return (
@@ -148,7 +154,7 @@ export function ElegantFamilyTree({ member, relationships, onMemberClick }: Eleg
             <div className={`absolute -top-1 -right-1 w-6 h-6 rounded-full border-2 border-white flex items-center justify-center text-xs font-bold ${
               memberToShow.gender === 'Male' ? 'bg-blue-500 text-white' : 'bg-pink-500 text-white'
             }`}>
-              {memberToShow.gender === 'Male' ? 'M' : 'F'}
+              {memberToShow.gender === 'Male' ? 'ஆ' : 'பெ'}
             </div>
           )}
         </div>
@@ -160,12 +166,12 @@ export function ElegantFamilyTree({ member, relationships, onMemberClick }: Eleg
           </p>
           {!isCenter && (
             <p className="text-xs text-temple-gold mt-1">
-              {rel.relationshipType}
+              {transformRelationshipType(rel.relationshipType)}
             </p>
           )}
           {isCenter && (
             <p className="text-sm text-saffron-600 font-medium mt-1">
-              Self
+              {t('common.self', 'Self')}
             </p>
           )}
         </div>
