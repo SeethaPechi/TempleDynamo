@@ -18,15 +18,6 @@ import { getGenderColors } from "@/lib/color-utils";
 import { SimpleMemberCard } from "@/components/simple-member-card";
 import { useFormDataTransformation } from "@/lib/i18n-utils";
 
-const states = [
-  { value: "AL", label: "Alabama" },
-  { value: "CA", label: "California" },
-  { value: "FL", label: "Florida" },
-  { value: "NY", label: "New York" },
-  { value: "TX", label: "Texas" },
-  { value: "WA", label: "Washington" },
-];
-
 export default function Members() {
   console.log("Members component rendered at:", new Date().toISOString());
   const { t } = useTranslation();
@@ -39,6 +30,14 @@ export default function Members() {
 
   const { data: allMembers = [], isLoading } = useQuery({
     queryKey: ["/api/members"],
+  });
+
+  const { data: uniqueCities = [] } = useQuery({
+    queryKey: ["/api/members/cities"],
+  });
+
+  const { data: uniqueStates = [] } = useQuery({
+    queryKey: ["/api/members/states"],
   });
 
   console.log("Query data:", allMembers);
@@ -60,9 +59,7 @@ export default function Members() {
           !selectedCity ||
           selectedCity === "" ||
           selectedCity === "all-cities" ||
-          member.currentCity
-            ?.toLowerCase()
-            .includes(selectedCity.toLowerCase());
+          member.currentCity === selectedCity;
 
         // State filter
         const matchesState =
@@ -85,16 +82,7 @@ export default function Members() {
 
   // Debug logging removed for cleaner console
 
-  // Get unique cities for filter
-  const uniqueCities = Array.isArray(allMembers)
-    ? Array.from(
-        new Set(
-          allMembers
-            .map((member: Member) => member.currentCity)
-            .filter(Boolean),
-        ),
-      )
-    : [];
+  // Unique cities are now fetched from API
 
   const handleSearch = () => {
     setCurrentPage(1);
@@ -186,7 +174,7 @@ export default function Members() {
                     {t("members.allCities")}
                   </SelectItem>
                   {uniqueCities.map((city: string) => (
-                    <SelectItem key={city} value={city.toLowerCase()}>
+                    <SelectItem key={city} value={city}>
                       {city}
                     </SelectItem>
                   ))}
@@ -206,9 +194,9 @@ export default function Members() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all-states">All States</SelectItem>
-                  {states.map((state) => (
-                    <SelectItem key={state.value} value={state.value}>
-                      {state.label}
+                  {uniqueStates.map((state: string) => (
+                    <SelectItem key={state} value={state}>
+                      {state}
                     </SelectItem>
                   ))}
                 </SelectContent>
