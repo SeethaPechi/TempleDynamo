@@ -95,6 +95,15 @@ This is a full-stack temple community management system built with React, Expres
 
 ## Recent Changes
 
+✓ **Multiple Spouse Display Fix and Data Cleanup** (January 12, 2025)
+  - Fixed multiple spouse display issue in elegant family tree - all spouses now show properly
+  - Enhanced spouse positioning with vertical spacing to prevent overlapping circles
+  - Fixed "Unknown" display issue caused by leading spaces in member names
+  - Cleaned database by removing leading spaces from member names (e.g., " AzhaguAayee Ammal")
+  - Added name trimming in component to handle any future whitespace issues
+  - Solaiya Pillai's 2 wives (Meenakshi Ammal & AzhaguAayee Ammal) now display correctly
+  - Each spouse gets individual circle with heart symbol connection and proper spacing
+
 ✓ **Enhanced Family Tree Navigation and Horizontal Legend** (January 12, 2025)
   - Fixed family tree navigation: clicking members now shows their individual trees instead of member details
   - Made "View Full Details" button the only way to access member detail pages for proper navigation flow

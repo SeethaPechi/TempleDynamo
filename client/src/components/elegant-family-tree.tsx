@@ -341,7 +341,7 @@ export function ElegantFamilyTree({
         .join("")
         .slice(0, 2) || "??";
     const radius = node.isCenter ? 45 : 35; // Larger circles for better text visibility
-    const firstName = node.member.fullName?.split(" ")[0] || "Unknown";
+    const firstName = node.member.fullName?.trim()?.split(" ")[0] || "Unknown";
 
     return (
       <g
