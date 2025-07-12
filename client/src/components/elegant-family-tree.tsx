@@ -158,17 +158,22 @@ export function ElegantFamilyTree({
       }
     });
 
-    // Position spouse directly to the right - with special connection
+    // Position spouses directly to the right - with proper spacing for multiple spouses
     const spouses = ["Wife", "Husband"];
+    let spouseIndex = 0;
     spouses.forEach((spouseType) => {
       if (groupedRelationships[spouseType]) {
         groupedRelationships[spouseType].forEach((rel) => {
           nodes.push({
             member: rel.relatedMember,
             relationshipType: spouseType,
-            position: { x: centerX + 180, y: centerY },
+            position: { 
+              x: centerX + 180, 
+              y: centerY - 40 + spouseIndex * 80  // Space multiple spouses vertically
+            },
             color: getRelationshipColor(spouseType),
           });
+          spouseIndex++;
         });
       }
     });
