@@ -190,7 +190,12 @@
     "noConnectionsDesc": "இன்னும் குடும்ப உறவுகள் சேர்க்கப்படவில்லை.",
     "addConnectionsDesc": "உறவுகள் அட்டவணையைக் காண குடும்ப இணைப்புகளைச் சேர்க்கவும்.",
     "familyRelationships": "குடும்ப உறவுகள்",
-    "totalConnections": "மொத்த இணைப்புகள்"
+    "totalConnections": "மொத்த இணைப்புகள்",
+    "familyClusters": "குடும்ப குழுக்கள்",
+    "avgConnections": "சராசரி இணைப்புகள்",
+    "relationshipTypes": "உறவு வகைகள்",
+    "mostConnectedMember": "அதிக இணைப்புகள் கொண்ட குடும்ப உறுப்பினர்",
+    "viewFamilyTree": "குடும்ப மரத்தைப் பார்க்கவும்"
   },
   "common": {
     "loading": "ஏற்றுகிறது...",
@@ -247,7 +252,9 @@
     "unspecified": "குறிப்பிடப்படவில்லை",
     "clickToViewDetails": "விவரங்களைப் பார்க்க கிளிக் செய்யவும்",
     "allMembers": "அனைத்து உறுப்பினர்கள்",
-    "self": "சுயம்"
+    "self": "சுயம்",
+    "totalMembers": "மொத்த உறுப்பினர்கள்",
+    "unknownMember": "அறியப்படாத உறுப்பினர்"
   },
   "familyTree": {
     "title": "குடும்ப மரம்",

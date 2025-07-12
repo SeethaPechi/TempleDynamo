@@ -17,6 +17,7 @@ import { useTranslation } from "react-i18next";
 import { Link } from "wouter";
 import type { Member } from "@shared/schema";
 import { getMemberBackgroundColor, getMemberNameColor } from "@/lib/color-utils";
+import { useFormDataTransformation } from "@/lib/i18n-utils";
 
 interface MemberListModalProps {
   isOpen: boolean;
@@ -34,6 +35,7 @@ export function MemberListModal({
   description 
 }: MemberListModalProps) {
   const { t } = useTranslation();
+  const { transformGender } = useFormDataTransformation();
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -64,7 +66,7 @@ export function MemberListModal({
                 {members.length}
               </div>
               <div className="text-xs text-gray-600">
-                Total Members
+                {t('common.totalMembers', 'Total Members')}
               </div>
             </div>
             <div className="text-center">
@@ -72,7 +74,7 @@ export function MemberListModal({
                 {members.filter(m => m.gender === "Male").length}
               </div>
               <div className="text-xs text-gray-600">
-                Male
+                {transformGender("Male")}
               </div>
             </div>
             <div className="text-center">
@@ -80,7 +82,7 @@ export function MemberListModal({
                 {members.filter(m => m.gender === "Female").length}
               </div>
               <div className="text-xs text-gray-600">
-                Female
+                {transformGender("Female")}
               </div>
             </div>
             <div className="text-center">
@@ -88,7 +90,7 @@ export function MemberListModal({
                 {members.filter(m => m.maritalStatus === "Married").length}
               </div>
               <div className="text-xs text-gray-600">
-                Married
+                {t('registry.form.maritalStatus.married', 'Married')}
               </div>
             </div>
           </div>
@@ -128,12 +130,12 @@ export function MemberListModal({
                             className={`text-xs ${getMemberBackgroundColor(member.gender)}`}
                           >
                             <User className="mr-1" size={10} />
-                            {member.gender || "Not specified"}
+                            {member.gender ? transformGender(member.gender) : t('common.unspecified', 'Not specified')}
                           </Badge>
                           {member.maritalStatus && (
                             <Badge variant="outline" className="text-xs">
                               <Heart className="mr-1" size={10} />
-                              {member.maritalStatus}
+                              {t(`registry.form.maritalStatus.${member.maritalStatus.toLowerCase()}`, member.maritalStatus)}
                             </Badge>
                           )}
                         </div>

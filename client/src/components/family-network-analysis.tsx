@@ -3,7 +3,9 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Users, Network, BarChart3, TrendingUp, MapPin, Phone } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import type { Member, Relationship } from "@shared/schema";
+import { useFormDataTransformation } from "@/lib/i18n-utils";
 
 interface NetworkAnalysisProps {
   allMembers: Member[];
@@ -20,6 +22,8 @@ interface FamilyCluster {
 }
 
 export function FamilyNetworkAnalysis({ allMembers, allRelationships, onMemberClick }: NetworkAnalysisProps) {
+  const { t } = useTranslation();
+  const { transformMemberData, transformRelationshipData } = useFormDataTransformation();
   // Analyze family clusters and networks
   const analyzeFamilyNetwork = () => {
     const memberConnections: { [memberId: number]: Set<number> } = {};
@@ -147,24 +151,24 @@ export function FamilyNetworkAnalysis({ allMembers, allRelationships, onMemberCl
         <Card className="p-4 text-center bg-gradient-to-br from-saffron-50 to-gold-50">
           <Network className="mx-auto mb-2 text-saffron-600" size={24} />
           <div className="text-2xl font-bold text-temple-brown">{clusters.length}</div>
-          <div className="text-sm text-gray-600">Family Clusters</div>
+          <div className="text-sm text-gray-600">{t('familyTree.familyClusters', 'Family Clusters')}</div>
         </Card>
         <Card className="p-4 text-center bg-gradient-to-br from-temple-light to-saffron-50">
           <Users className="mx-auto mb-2 text-temple-brown" size={24} />
           <div className="text-2xl font-bold text-temple-brown">{stats.total}</div>
-          <div className="text-sm text-gray-600">Total Connections</div>
+          <div className="text-sm text-gray-600">{t('familyTree.totalConnections', 'Total Connections')}</div>
         </Card>
         <Card className="p-4 text-center bg-gradient-to-br from-gold-50 to-yellow-50">
           <TrendingUp className="mx-auto mb-2 text-temple-gold" size={24} />
           <div className="text-2xl font-bold text-temple-brown">{stats.avgConnections.toFixed(1)}</div>
-          <div className="text-sm text-gray-600">Avg Connections</div>
+          <div className="text-sm text-gray-600">{t('familyTree.avgConnections', 'Avg Connections')}</div>
         </Card>
         <Card className="p-4 text-center bg-gradient-to-br from-temple-gold-50 to-saffron-50">
           <BarChart3 className="mx-auto mb-2 text-saffron-500" size={24} />
           <div className="text-2xl font-bold text-temple-brown">
             {Object.keys(stats.byType).length}
           </div>
-          <div className="text-sm text-gray-600">Relationship Types</div>
+          <div className="text-sm text-gray-600">{t('familyTree.relationshipTypes', 'Relationship Types')}</div>
         </Card>
       </div>
 
@@ -173,7 +177,7 @@ export function FamilyNetworkAnalysis({ allMembers, allRelationships, onMemberCl
         <Card className="p-6 bg-gradient-to-r from-saffron-500 to-gold-500 text-white">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-lg font-semibold mb-2">Most Connected Family Member</h3>
+              <h3 className="text-lg font-semibold mb-2">{t('familyTree.mostConnectedMember', 'Most Connected Family Member')}</h3>
               <p className="text-xl font-bold">{stats.mostConnected.fullName}</p>
               <p className="text-saffron-100 text-sm">
                 {Object.values(stats.byType).reduce((max, count) => Math.max(max, count), 0)} family connections

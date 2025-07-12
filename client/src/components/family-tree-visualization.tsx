@@ -3,8 +3,10 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Users, Heart, Phone, Mail, MapPin, TreePine } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import type { Member, Relationship } from "@shared/schema";
 import { getGenderColors, getRelationshipColor } from "@/lib/color-utils";
+import { useFormDataTransformation } from "@/lib/i18n-utils";
 
 interface FamilyTreeProps {
   member: Member;
@@ -13,6 +15,8 @@ interface FamilyTreeProps {
 }
 
 export function FamilyTreeVisualization({ member, relationships, onMemberClick }: FamilyTreeProps) {
+  const { t } = useTranslation();
+  const { transformRelationshipType, transformMemberData } = useFormDataTransformation();
   // Organize relationships by the 10 family groups
   const organizeByGroups = (relationships: Array<Relationship & { relatedMember: Member }>) => {
     const relationshipGroups = [
@@ -93,7 +97,7 @@ export function FamilyTreeVisualization({ member, relationships, onMemberClick }
               )}
             </div>
             <h2 className="text-2xl font-bold mb-2">{member.fullName}</h2>
-            <p className="text-saffron-100 text-sm mb-2">Member #{member.id}</p>
+            <p className="text-saffron-100 text-sm mb-2">{t('common.member', 'Member')} #{member.id}</p>
             <div className="flex items-center justify-center text-saffron-100 text-sm mb-4">
               <MapPin className="mr-1" size={14} />
               {member.currentCity}, {member.currentState}
@@ -147,7 +151,7 @@ export function FamilyTreeVisualization({ member, relationships, onMemberClick }
                           variant="secondary" 
                           className={`text-xs ${getRelationshipColor(relationship.relationshipType)}`}
                         >
-                          {relationship.relationshipType}
+                          {transformRelationshipType(relationship.relationshipType)}
                         </Badge>
                       </div>
                     </div>
@@ -184,7 +188,7 @@ export function FamilyTreeVisualization({ member, relationships, onMemberClick }
                         onMemberClick?.(relationship.relatedMember.id);
                       }}
                     >
-                      View Family Tree
+{t('familyTree.viewFamilyTree', 'View Family Tree')}
                     </Button>
                   </div>
                 </Card>
