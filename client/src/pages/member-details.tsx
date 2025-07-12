@@ -1127,7 +1127,7 @@ export default function MemberDetails() {
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                               <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                                  Relationship Type
+                                  {member.fullName} Will call selected member
                                 </label>
                                 <Select
                                   value={selectedRelationship}
