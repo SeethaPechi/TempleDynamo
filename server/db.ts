@@ -188,6 +188,20 @@ export class DatabaseStorage implements IStorage {
     return result as Array<Relationship & { relatedMember: Member }>;
   }
 
+  async updateRelationship(id: number, data: { relationshipType: string }): Promise<Relationship> {
+    const [relationship] = await db
+      .update(relationships)
+      .set({ relationshipType: data.relationshipType })
+      .where(eq(relationships.id, id))
+      .returning();
+    
+    if (!relationship) {
+      throw new Error("Relationship not found");
+    }
+    
+    return relationship;
+  }
+
   async deleteRelationship(id: number): Promise<void> {
     await db.delete(relationships).where(eq(relationships.id, id));
   }

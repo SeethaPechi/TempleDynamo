@@ -274,6 +274,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.patch("/api/relationships/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid relationship ID" });
+      }
+
+      const { relationshipType } = req.body;
+      if (!relationshipType) {
+        return res.status(400).json({ message: "Relationship type is required" });
+      }
+
+      await storage.updateRelationship(id, { relationshipType });
+      res.json({ message: "Relationship updated successfully" });
+    } catch (error) {
+      console.error("Error updating relationship:", error);
+      res.status(500).json({ message: "Failed to update relationship" });
+    }
+  });
+
   app.delete("/api/relationships/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);

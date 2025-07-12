@@ -19,6 +19,7 @@ export interface IStorage {
   createRelationship(relationship: InsertRelationship): Promise<Relationship>;
   getMemberRelationships(memberId: number): Promise<Array<Relationship & { relatedMember: Member }>>;
   getAllRelationships(): Promise<Array<Relationship & { relatedMember: Member }>>;
+  updateRelationship(id: number, data: { relationshipType: string }): Promise<Relationship>;
   deleteRelationship(id: number): Promise<void>;
   
   // Temple methods
@@ -163,6 +164,19 @@ export class MemStorage implements IStorage {
     }
     
     return results;
+  }
+
+  async updateRelationship(id: number, data: { relationshipType: string }): Promise<Relationship> {
+    const existingRelationship = this.relationships.get(id);
+    if (!existingRelationship) {
+      throw new Error("Relationship not found");
+    }
+    const updatedRelationship: Relationship = {
+      ...existingRelationship,
+      relationshipType: data.relationshipType,
+    };
+    this.relationships.set(id, updatedRelationship);
+    return updatedRelationship;
   }
 
   async deleteRelationship(id: number): Promise<void> {

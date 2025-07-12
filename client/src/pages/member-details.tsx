@@ -474,6 +474,7 @@ export default function MemberDetails() {
   const [selectedMaritalStatus, setSelectedMaritalStatus] = useState("");
   const [isRelativesModalOpen, setIsRelativesModalOpen] = useState(false);
   const [editingRelationship, setEditingRelationship] = useState<any>(null);
+  const [newRelationshipType, setNewRelationshipType] = useState("");
   const [memberPhotos, setMemberPhotos] = useState<string[]>([]);
   const [profilePicture, setProfilePicture] = useState<string>("");
   const queryClient = useQueryClient();
@@ -840,6 +841,34 @@ export default function MemberDetails() {
     },
   });
 
+  const editRelationshipMutation = useMutation({
+    mutationFn: async (data: { relationshipId: number; relationshipType: string }) => {
+      return apiRequest(
+        "PATCH",
+        `/api/relationships/${data.relationshipId}`,
+        { relationshipType: data.relationshipType }
+      );
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [`/api/relationships/${memberId}`],
+      });
+      setEditingRelationship(null);
+      setNewRelationshipType("");
+      toast({
+        title: "Relationship Updated",
+        description: "Family relationship has been updated successfully.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to update relationship. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
   const handleAddRelationship = () => {
     if (selectedRelative && selectedRelationship) {
       addRelationshipMutation.mutate({
@@ -848,6 +877,25 @@ export default function MemberDetails() {
         relationshipType: selectedRelationship,
       });
     }
+  };
+
+  const handleEditRelationship = (relationship: any) => {
+    setEditingRelationship(relationship);
+    setNewRelationshipType(relationship.relationshipType);
+  };
+
+  const handleSaveEditRelationship = () => {
+    if (editingRelationship && newRelationshipType) {
+      editRelationshipMutation.mutate({
+        relationshipId: editingRelationship.id,
+        relationshipType: newRelationshipType,
+      });
+    }
+  };
+
+  const handleCancelEditRelationship = () => {
+    setEditingRelationship(null);
+    setNewRelationshipType("");
   };
 
   if (memberLoading) {
@@ -1124,9 +1172,47 @@ export default function MemberDetails() {
                                     <p className="font-medium text-sm sm:text-base break-words">
                                       {relationship.relatedMember.fullName}
                                     </p>
-                                    <p className="text-xs sm:text-sm text-gray-600">
-                                      {relationship.relationshipType}
-                                    </p>
+                                    {editingRelationship?.id === relationship.id ? (
+                                      <div className="mt-2 space-y-2">
+                                        <Select
+                                          value={newRelationshipType}
+                                          onValueChange={setNewRelationshipType}
+                                        >
+                                          <SelectTrigger className="h-8">
+                                            <SelectValue placeholder="Select relationship" />
+                                          </SelectTrigger>
+                                          <SelectContent>
+                                            {relationshipTypes.map((type) => (
+                                              <SelectItem key={type} value={type}>
+                                                {type}
+                                              </SelectItem>
+                                            ))}
+                                          </SelectContent>
+                                        </Select>
+                                        <div className="flex gap-2">
+                                          <Button
+                                            size="sm"
+                                            onClick={handleSaveEditRelationship}
+                                            disabled={editRelationshipMutation.isPending}
+                                            className="h-7 text-xs"
+                                          >
+                                            {editRelationshipMutation.isPending ? "Saving..." : "Save"}
+                                          </Button>
+                                          <Button
+                                            size="sm"
+                                            variant="outline"
+                                            onClick={handleCancelEditRelationship}
+                                            className="h-7 text-xs"
+                                          >
+                                            Cancel
+                                          </Button>
+                                        </div>
+                                      </div>
+                                    ) : (
+                                      <p className="text-xs sm:text-sm text-gray-600">
+                                        {relationship.relationshipType}
+                                      </p>
+                                    )}
                                     <p className="text-xs text-gray-500 break-all">
                                       {relationship.relatedMember.email}
                                     </p>
@@ -1145,6 +1231,18 @@ export default function MemberDetails() {
                                       </span>
                                       <span className="sm:hidden">View</span>
                                     </Button>
+                                    {editingRelationship?.id !== relationship.id && (
+                                      <Button
+                                        variant="secondary"
+                                        size="sm"
+                                        onClick={() => handleEditRelationship(relationship)}
+                                        className="w-full sm:w-auto h-9"
+                                      >
+                                        <Edit className="mr-1" size={14} />
+                                        <span className="hidden sm:inline">Edit</span>
+                                        <span className="sm:hidden">Edit</span>
+                                      </Button>
+                                    )}
                                     <Button
                                       variant="destructive"
                                       size="sm"
