@@ -14,6 +14,8 @@ export interface IStorage {
   deleteMember(id: number): Promise<void>;
   getAllMembers(): Promise<Member[]>;
   searchMembers(searchTerm: string, city?: string, state?: string): Promise<Member[]>;
+  getUniqueCities(): Promise<string[]>;
+  getUniqueStates(): Promise<string[]>;
   
   // Relationship methods
   createRelationship(relationship: InsertRelationship): Promise<Relationship>;
@@ -105,6 +107,28 @@ export class MemStorage implements IStorage {
       
       return matchesSearch && matchesCity && matchesState;
     });
+  }
+
+  async getUniqueCities(): Promise<string[]> {
+    const allMembers = Array.from(this.members.values());
+    const cities = new Set<string>();
+    allMembers.forEach(member => {
+      if (member.currentCity) {
+        cities.add(member.currentCity);
+      }
+    });
+    return Array.from(cities).sort();
+  }
+
+  async getUniqueStates(): Promise<string[]> {
+    const allMembers = Array.from(this.members.values());
+    const states = new Set<string>();
+    allMembers.forEach(member => {
+      if (member.currentState) {
+        states.add(member.currentState);
+      }
+    });
+    return Array.from(states).sort();
   }
 
   // Relationship methods

@@ -334,6 +334,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get unique cities from members
+  app.get("/api/members/cities", async (req, res) => {
+    try {
+      const cities = await storage.getUniqueCities();
+      res.json(cities);
+    } catch (error) {
+      console.error("Error fetching cities:", error);
+      res.status(500).json({ message: "Failed to fetch cities" });
+    }
+  });
+
+  // Get unique states from members
+  app.get("/api/members/states", async (req, res) => {
+    try {
+      const states = await storage.getUniqueStates();
+      res.json(states);
+    } catch (error) {
+      console.error("Error fetching states:", error);
+      res.status(500).json({ message: "Failed to fetch states" });
+    }
+  });
+
   // WhatsApp routes
   app.post("/api/whatsapp/generate-url", (req, res) => {
     try {

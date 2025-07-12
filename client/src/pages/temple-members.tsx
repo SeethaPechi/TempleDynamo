@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   Search,
   Users,
@@ -22,6 +23,8 @@ import { MemberListModal } from "@/components/member-list-modal";
 export default function TempleMembers() {
   const { t } = useTranslation();
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCity, setSelectedCity] = useState("");
+  const [selectedState, setSelectedState] = useState("");
   const [selectedTemple, setSelectedTemple] = useState<Temple | null>(null);
   const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
   const [isMemberListOpen, setIsMemberListOpen] = useState(false);
@@ -37,6 +40,14 @@ export default function TempleMembers() {
 
   const { data: allTemples = [], isLoading: templesLoading } = useQuery({
     queryKey: ["/api/temples"],
+  });
+
+  const { data: uniqueCities = [] } = useQuery({
+    queryKey: ["/api/members/cities"],
+  });
+
+  const { data: uniqueStates = [] } = useQuery({
+    queryKey: ["/api/members/states"],
   });
 
   // Group members by temple
@@ -121,18 +132,24 @@ export default function TempleMembers() {
     setIsMemberListOpen(true);
   };
 
-  // Search functionality
+  // Search functionality with city and state filters
   const filteredMembers = selectedTemple
     ? getFilteredMembers(
         membersByTemple[String(selectedTemple.id)] || [],
       ).filter((member: Member) => {
-        if (!searchTerm.trim()) return true;
-        return (
+        // Search term filter
+        const matchesSearch = !searchTerm.trim() || 
           member.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          (member.email &&
-            member.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
-          member.phone?.includes(searchTerm)
-        );
+          (member.email && member.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
+          member.phone?.includes(searchTerm);
+        
+        // City filter
+        const matchesCity = !selectedCity || member.currentCity === selectedCity;
+        
+        // State filter
+        const matchesState = !selectedState || member.currentState === selectedState;
+        
+        return matchesSearch && matchesCity && matchesState;
       })
     : [];
 
@@ -449,30 +466,107 @@ export default function TempleMembers() {
               </Card>
             )}
 
-            {/* Search */}
+            {/* Search and Filters */}
             <Card className="p-4">
-              <div className="flex items-center space-x-4">
-                <div className="flex-1 relative">
-                  <Search
-                    className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-                    size={20}
-                  />
-                  <Input
-                    placeholder="Search members by name, email, or phone..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10"
-                  />
+              <div className="space-y-4">
+                {/* Search Bar */}
+                <div className="flex items-center space-x-4">
+                  <div className="flex-1 relative">
+                    <Search
+                      className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                      size={20}
+                    />
+                    <Input
+                      placeholder="Search members by name, email, or phone..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="pl-10"
+                    />
+                  </div>
+                  {selectedLocation && (
+                    <Button
+                      variant="outline"
+                      onClick={() => setSelectedLocation(null)}
+                      className="whitespace-nowrap"
+                    >
+                      Show All Locations
+                    </Button>
+                  )}
                 </div>
-                {selectedLocation && (
-                  <Button
-                    variant="outline"
-                    onClick={() => setSelectedLocation(null)}
-                    className="whitespace-nowrap"
-                  >
-                    Show All Locations
-                  </Button>
-                )}
+
+                {/* Dynamic City and State Filters */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {/* City Filter */}
+                  <div>
+                    <label className="text-sm font-medium text-gray-700 mb-1 block">
+                      Filter by City
+                    </label>
+                    <Select value={selectedCity} onValueChange={setSelectedCity}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="All Cities" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="">All Cities</SelectItem>
+                        {uniqueCities.map((city) => (
+                          <SelectItem key={city} value={city}>
+                            {city}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* State Filter */}
+                  <div>
+                    <label className="text-sm font-medium text-gray-700 mb-1 block">
+                      Filter by State
+                    </label>
+                    <Select value={selectedState} onValueChange={setSelectedState}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="All States" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="">All States</SelectItem>
+                        {uniqueStates.map((state) => (
+                          <SelectItem key={state} value={state}>
+                            {state}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Clear Filters Button */}
+                  <div className="flex items-end">
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setSelectedCity("");
+                        setSelectedState("");
+                        setSearchTerm("");
+                      }}
+                      className="w-full"
+                      disabled={!selectedCity && !selectedState && !searchTerm}
+                    >
+                      Clear Filters
+                    </Button>
+                  </div>
+
+                  {/* Active Filters Info */}
+                  <div className="flex items-end">
+                    <div className="text-sm text-gray-600 bg-gray-50 rounded p-2 w-full">
+                      <div className="font-medium">Active Filters:</div>
+                      <div className="text-xs mt-1">
+                        {selectedCity && <span className="block">City: {selectedCity}</span>}
+                        {selectedState && <span className="block">State: {selectedState}</span>}
+                        {searchTerm && <span className="block">Search: "{searchTerm}"</span>}
+                        {!selectedCity && !selectedState && !searchTerm && (
+                          <span className="text-gray-400">None</span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </Card>
 

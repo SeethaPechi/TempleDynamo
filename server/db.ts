@@ -1,6 +1,6 @@
 import { Pool } from 'pg';
 import { drizzle } from 'drizzle-orm/node-postgres';
-import { eq, or, asc } from 'drizzle-orm';
+import { eq, or, asc, sql } from 'drizzle-orm';
 import * as schema from "@shared/schema";
 import { users, type User, type InsertUser, members, type Member, type InsertMember, relationships, type Relationship, type InsertRelationship, temples, type Temple, type InsertTemple } from "@shared/schema";
 
@@ -257,5 +257,29 @@ export class DatabaseStorage implements IStorage {
       
       return matchesSearch && matchesState && matchesCountry;
     });
+  }
+
+  async getUniqueCities(): Promise<string[]> {
+    const result = await db
+      .selectDistinct({ currentCity: members.currentCity })
+      .from(members)
+      .where(sql`${members.currentCity} IS NOT NULL AND ${members.currentCity} != ''`);
+    
+    return result
+      .map(row => row.currentCity)
+      .filter(city => city)
+      .sort();
+  }
+
+  async getUniqueStates(): Promise<string[]> {
+    const result = await db
+      .selectDistinct({ currentState: members.currentState })
+      .from(members)
+      .where(sql`${members.currentState} IS NOT NULL AND ${members.currentState} != ''`);
+    
+    return result
+      .map(row => row.currentState)
+      .filter(state => state)
+      .sort();
   }
 }
