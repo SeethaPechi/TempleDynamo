@@ -45,11 +45,12 @@ export function ElegantFamilyTree({ member, relationships, onMemberClick }: Eleg
     return colors[relationshipType] || '#6B7280';
   };
 
-  // Arrange family members in a tree-like structure
+  // Arrange family members in a tree-like structure with better spacing
   const arrangeFamilyNodes = (): FamilyNode[] => {
     const nodes: FamilyNode[] = [];
-    const centerX = 400;
-    const centerY = 300;
+    const centerX = 500;
+    const centerY = 350;
+    const spacing = 180; // Increased spacing between nodes
 
     // Add the main member at the center
     nodes.push({
@@ -68,7 +69,7 @@ export function ElegantFamilyTree({ member, relationships, onMemberClick }: Eleg
       return acc;
     }, {} as Record<string, Array<Relationship & { relatedMember: Member }>>);
 
-    // Position grandparents at the top
+    // Position grandparents at the top with wider spacing
     const grandparents = ['Paternal Grandfather', 'Paternal Grandmother', 'Maternal Grandfather', 'Maternal Grandmother'];
     let gpIndex = 0;
     grandparents.forEach(gpType => {
@@ -77,7 +78,7 @@ export function ElegantFamilyTree({ member, relationships, onMemberClick }: Eleg
           nodes.push({
             member: rel.relatedMember,
             relationshipType: gpType,
-            position: { x: centerX - 150 + (gpIndex * 100), y: centerY - 200 },
+            position: { x: centerX - 270 + (gpIndex * spacing), y: centerY - 250 },
             color: getRelationshipColor(gpType)
           });
           gpIndex++;
@@ -85,7 +86,7 @@ export function ElegantFamilyTree({ member, relationships, onMemberClick }: Eleg
       }
     });
 
-    // Position parents above center
+    // Position parents above center with better spacing
     const parents = ['Father', 'Mother'];
     let parentIndex = 0;
     parents.forEach(parentType => {
@@ -94,7 +95,7 @@ export function ElegantFamilyTree({ member, relationships, onMemberClick }: Eleg
           nodes.push({
             member: rel.relatedMember,
             relationshipType: parentType,
-            position: { x: centerX - 100 + (parentIndex * 200), y: centerY - 120 },
+            position: { x: centerX - 120 + (parentIndex * 240), y: centerY - 150 },
             color: getRelationshipColor(parentType)
           });
           parentIndex++;
@@ -102,7 +103,7 @@ export function ElegantFamilyTree({ member, relationships, onMemberClick }: Eleg
       }
     });
 
-    // Position spouse next to center
+    // Position spouse next to center with more spacing
     const spouses = ['Wife', 'Husband'];
     spouses.forEach(spouseType => {
       if (groupedRelationships[spouseType]) {
@@ -110,26 +111,27 @@ export function ElegantFamilyTree({ member, relationships, onMemberClick }: Eleg
           nodes.push({
             member: rel.relatedMember,
             relationshipType: spouseType,
-            position: { x: centerX + 150, y: centerY },
+            position: { x: centerX + 200, y: centerY },
             color: getRelationshipColor(spouseType)
           });
         });
       }
     });
 
-    // Position siblings on the sides
+    // Position siblings on the sides with vertical spacing
     const siblings = ['Elder Brother', 'Elder Sister', 'Younger Brother', 'Younger Sister'];
     let siblingIndex = 0;
     siblings.forEach(siblingType => {
       if (groupedRelationships[siblingType]) {
         groupedRelationships[siblingType].forEach(rel => {
           const isLeft = siblingIndex % 2 === 0;
+          const verticalOffset = Math.floor(siblingIndex / 2) * 100;
           nodes.push({
             member: rel.relatedMember,
             relationshipType: siblingType,
             position: { 
-              x: centerX + (isLeft ? -200 : 200), 
-              y: centerY + (Math.floor(siblingIndex / 2) * 60) 
+              x: centerX + (isLeft ? -280 : 280), 
+              y: centerY - 50 + verticalOffset
             },
             color: getRelationshipColor(siblingType)
           });
@@ -138,7 +140,7 @@ export function ElegantFamilyTree({ member, relationships, onMemberClick }: Eleg
       }
     });
 
-    // Position children below center
+    // Position children below center with wider spacing
     const children = ['Son', 'Daughter'];
     let childIndex = 0;
     children.forEach(childType => {
@@ -147,7 +149,7 @@ export function ElegantFamilyTree({ member, relationships, onMemberClick }: Eleg
           nodes.push({
             member: rel.relatedMember,
             relationshipType: childType,
-            position: { x: centerX - 100 + (childIndex * 80), y: centerY + 120 },
+            position: { x: centerX - 150 + (childIndex * 150), y: centerY + 150 },
             color: getRelationshipColor(childType)
           });
           childIndex++;
@@ -199,60 +201,90 @@ export function ElegantFamilyTree({ member, relationships, onMemberClick }: Eleg
     return connections;
   };
 
-  // Render individual family member node
+  // Render individual family member node with better text visibility
   const renderMemberNode = (node: FamilyNode, index: number) => {
     const transformedMember = transformMemberData(node.member);
     const initials = node.member.fullName?.split(' ').map(n => n[0]).join('').slice(0, 2) || '??';
-    const radius = node.isCenter ? 40 : 30;
+    const radius = node.isCenter ? 45 : 35; // Increased radius for better visibility
+    const firstName = node.member.fullName?.split(' ')[0] || 'Unknown';
 
     return (
       <g key={`node-${index}`} className="cursor-pointer" onClick={() => onMemberClick?.(node.member.id)}>
-        {/* Member circle */}
+        {/* Member circle with enhanced styling */}
         <circle
           cx={node.position.x}
           cy={node.position.y}
           r={radius}
           fill={node.color}
           stroke="white"
-          strokeWidth="3"
-          className="drop-shadow-lg hover:stroke-yellow-400 transition-colors"
+          strokeWidth="4"
+          className="drop-shadow-lg hover:stroke-yellow-400 transition-all duration-300 hover:r-40"
+          filter="url(#dropshadow)"
         />
         
-        {/* Member initials */}
+        {/* Member initials with better contrast */}
         <text
           x={node.position.x}
-          y={node.position.y + 5}
+          y={node.position.y + 6}
           textAnchor="middle"
           fill="white"
-          fontSize={node.isCenter ? "16" : "12"}
+          fontSize={node.isCenter ? "18" : "14"}
           fontWeight="bold"
+          stroke="#000"
+          strokeWidth="0.5"
         >
           {initials}
         </text>
 
-        {/* Member name below circle */}
+        {/* White background for name text */}
+        <rect
+          x={node.position.x - firstName.length * 4}
+          y={node.position.y + radius + 10}
+          width={firstName.length * 8}
+          height="20"
+          fill="white"
+          fillOpacity="0.9"
+          rx="10"
+          stroke="#D1D5DB"
+          strokeWidth="1"
+        />
+
+        {/* Member name with better visibility */}
         <text
           x={node.position.x}
-          y={node.position.y + radius + 20}
+          y={node.position.y + radius + 25}
           textAnchor="middle"
-          fill="#374151"
-          fontSize="12"
-          fontWeight="500"
+          fill="#1F2937"
+          fontSize="13"
+          fontWeight="600"
         >
-          {node.member.fullName?.split(' ')[0] || 'Unknown'}
+          {firstName}
         </text>
 
-        {/* Relationship type */}
+        {/* Relationship type with background */}
         {!node.isCenter && (
-          <text
-            x={node.position.x}
-            y={node.position.y + radius + 35}
-            textAnchor="middle"
-            fill="#6B7280"
-            fontSize="10"
-          >
-            {transformRelationshipType(node.relationshipType)}
-          </text>
+          <>
+            <rect
+              x={node.position.x - transformRelationshipType(node.relationshipType).length * 3}
+              y={node.position.y + radius + 35}
+              width={transformRelationshipType(node.relationshipType).length * 6}
+              height="16"
+              fill="rgba(107, 114, 128, 0.1)"
+              rx="8"
+              stroke="#D1D5DB"
+              strokeWidth="0.5"
+            />
+            <text
+              x={node.position.x}
+              y={node.position.y + radius + 47}
+              textAnchor="middle"
+              fill="#4B5563"
+              fontSize="11"
+              fontWeight="500"
+            >
+              {transformRelationshipType(node.relationshipType)}
+            </text>
+          </>
         )}
       </g>
     );
@@ -280,12 +312,21 @@ export function ElegantFamilyTree({ member, relationships, onMemberClick }: Eleg
       </div>
 
       <div className="w-full overflow-auto">
-        <svg width="800" height="600" className="mx-auto border rounded-lg bg-gradient-to-br from-blue-50 to-indigo-100">
-          {/* Background pattern */}
+        <svg 
+          width="1000" 
+          height="700" 
+          viewBox="0 0 1000 700"
+          className="mx-auto border rounded-lg bg-gradient-to-br from-blue-50 to-indigo-100 max-w-full h-auto"
+          preserveAspectRatio="xMidYMid meet"
+        >
+          {/* Enhanced background and filters */}
           <defs>
-            <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
-              <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#E5E7EB" strokeWidth="1" opacity="0.3"/>
+            <pattern id="grid" width="30" height="30" patternUnits="userSpaceOnUse">
+              <path d="M 30 0 L 0 0 0 30" fill="none" stroke="#E5E7EB" strokeWidth="1" opacity="0.2"/>
             </pattern>
+            <filter id="dropshadow" x="-50%" y="-50%" width="200%" height="200%">
+              <feDropShadow dx="2" dy="2" stdDeviation="3" floodOpacity="0.3"/>
+            </filter>
           </defs>
           <rect width="100%" height="100%" fill="url(#grid)" />
 
@@ -295,18 +336,18 @@ export function ElegantFamilyTree({ member, relationships, onMemberClick }: Eleg
           {/* Family member nodes */}
           {familyNodes.map((node, index) => renderMemberNode(node, index))}
 
-          {/* Legend */}
-          <g transform="translate(20, 20)">
-            <rect x="0" y="0" width="180" height="120" fill="white" fillOpacity="0.9" stroke="#D1D5DB" rx="8" />
-            <text x="10" y="20" fill="#374151" fontSize="14" fontWeight="bold">Legend</text>
-            <circle cx="20" cy="40" r="8" fill="#DC2626" />
-            <text x="35" y="45" fill="#374151" fontSize="12">Self</text>
-            <circle cx="20" cy="60" r="8" fill="#4F46E5" />
-            <text x="35" y="65" fill="#374151" fontSize="12">Parents</text>
-            <circle cx="20" cy="80" r="8" fill="#EF4444" />
-            <text x="35" y="85" fill="#374151" fontSize="12">Spouse</text>
-            <circle cx="20" cy="100" r="8" fill="#10B981" />
-            <text x="35" y="105" fill="#374151" fontSize="12">Children</text>
+          {/* Enhanced Legend */}
+          <g transform="translate(30, 30)">
+            <rect x="0" y="0" width="200" height="140" fill="white" fillOpacity="0.95" stroke="#D1D5DB" rx="12" strokeWidth="2" filter="url(#dropshadow)" />
+            <text x="15" y="25" fill="#374151" fontSize="16" fontWeight="bold">Legend</text>
+            <circle cx="25" cy="45" r="10" fill="#DC2626" stroke="white" strokeWidth="2" />
+            <text x="45" y="50" fill="#374151" fontSize="13" fontWeight="500">Self</text>
+            <circle cx="25" cy="70" r="10" fill="#4F46E5" stroke="white" strokeWidth="2" />
+            <text x="45" y="75" fill="#374151" fontSize="13" fontWeight="500">Parents</text>
+            <circle cx="25" cy="95" r="10" fill="#EF4444" stroke="white" strokeWidth="2" />
+            <text x="45" y="100" fill="#374151" fontSize="13" fontWeight="500">Spouse</text>
+            <circle cx="25" cy="120" r="10" fill="#10B981" stroke="white" strokeWidth="2" />
+            <text x="45" y="125" fill="#374151" fontSize="13" fontWeight="500">Children</text>
           </g>
         </svg>
       </div>

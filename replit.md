@@ -95,6 +95,25 @@ This is a full-stack temple community management system built with React, Expres
 
 ## Recent Changes
 
+✓ **Enhanced Elegant Family Tree with Circular Design** (January 12, 2025)
+  - Completely redesigned family tree visualization with circular nodes instead of rectangles
+  - Implemented proper spacing to prevent node overlap and intersection issues
+  - Added enhanced text visibility with white background rectangles for names and relationship labels
+  - Increased circle sizes and improved color contrast for better mobile and desktop visibility
+  - Added SVG filters for drop shadows and professional visual effects
+  - Made layout responsive with viewBox and preserveAspectRatio for mobile compatibility
+  - Enhanced legend with larger circles and better visual hierarchy
+  - Positioned family members in hierarchical tree structure: grandparents → parents → self → spouse → children
+  - Added heart symbols for spouse connections and dotted lines for family relationships
+  - Improved hover effects and interactive elements for better user experience
+
+✓ **Dynamic City and State Filtering Implementation** (January 12, 2025)
+  - Fixed Members page to use dynamic dropdowns pulling real city and state data from member database
+  - Removed hardcoded state lists and replaced with API-driven /api/members/cities and /api/members/states endpoints
+  - Updated filtering logic to use exact matches for consistent behavior across all pages
+  - Resolved variable naming conflicts and compilation errors in members.tsx
+  - Both Members and Temple Members pages now use identical dynamic filtering with live member data
+
 ✓ **One-Click Family Story Export Feature** (January 11, 2025)
   - Implemented comprehensive family story export functionality
   - Added FamilyStoryExport component with markdown-formatted story generation
