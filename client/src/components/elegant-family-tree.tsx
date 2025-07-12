@@ -342,7 +342,7 @@ export function ElegantFamilyTree({
       <g
         key={`node-${index}`}
         className="cursor-pointer group"
-        onClick={() => window.location.href = `/member-details/${node.member.id}`}
+        onClick={() => onMemberClick?.(node.member.id)}
       >
         {/* Member circle with enhanced styling */}
         <circle
@@ -490,67 +490,55 @@ export function ElegantFamilyTree({
           {/* Family member nodes */}
           {familyNodes.map((node, index) => renderMemberNode(node, index))}
 
-          {/* Enhanced Legend */}
-          <g transform="translate(30, 30)">
+          {/* Horizontal Legend at bottom */}
+          <g transform="translate(150, 550)">
             <rect
               x="0"
               y="0"
-              width="200"
-              height="140"
+              width="700"
+              height="40"
               fill="white"
               fillOpacity="0.95"
               stroke="#D1D5DB"
-              rx="12"
+              rx="8"
               strokeWidth="2"
               filter="url(#dropshadow)"
             />
-            <text x="15" y="25" fill="#374151" fontSize="16" fontWeight="bold">
-              Legend
+            <text x="15" y="20" fill="#374151" fontSize="14" fontWeight="bold">
+              Legend:
             </text>
-            <circle
-              cx="25"
-              cy="45"
-              r="10"
-              fill="#DC2626"
-              stroke="white"
-              strokeWidth="2"
-            />
-            <text x="45" y="50" fill="#374151" fontSize="13" fontWeight="500">
-              Self
-            </text>
-            <circle
-              cx="25"
-              cy="70"
-              r="10"
-              fill="#4F46E5"
-              stroke="white"
-              strokeWidth="2"
-            />
-            <text x="45" y="75" fill="#374151" fontSize="13" fontWeight="500">
-              Parents
-            </text>
-            <circle
-              cx="25"
-              cy="95"
-              r="10"
-              fill="#EF4444"
-              stroke="white"
-              strokeWidth="2"
-            />
-            <text x="45" y="100" fill="#374151" fontSize="13" fontWeight="500">
-              Spouse
-            </text>
-            <circle
-              cx="25"
-              cy="120"
-              r="10"
-              fill="#10B981"
-              stroke="white"
-              strokeWidth="2"
-            />
-            <text x="45" y="125" fill="#374151" fontSize="13" fontWeight="500">
-              Children
-            </text>
+            
+            {/* Self */}
+            <circle cx="80" cy="15" r="8" fill="#DC2626" stroke="white" strokeWidth="2" />
+            <text x="95" y="20" fill="#374151" fontSize="12" fontWeight="500">Self</text>
+            
+            {/* Parents */}
+            <circle cx="140" cy="15" r="8" fill="#4F46E5" stroke="white" strokeWidth="2" />
+            <text x="155" y="20" fill="#374151" fontSize="12" fontWeight="500">Parents</text>
+            
+            {/* Spouse */}
+            <circle cx="220" cy="15" r="8" fill="#EF4444" stroke="white" strokeWidth="2" />
+            <text x="235" y="20" fill="#374151" fontSize="12" fontWeight="500">Spouse</text>
+            
+            {/* Children */}
+            <circle cx="290" cy="15" r="8" fill="#10B981" stroke="white" strokeWidth="2" />
+            <text x="305" y="20" fill="#374151" fontSize="12" fontWeight="500">Children</text>
+            
+            {/* Siblings */}
+            <circle cx="370" cy="15" r="8" fill="#F59E0B" stroke="white" strokeWidth="2" />
+            <text x="385" y="20" fill="#374151" fontSize="12" fontWeight="500">Siblings</text>
+            
+            {/* Extended */}
+            <circle cx="450" cy="15" r="8" fill="#7C3AED" stroke="white" strokeWidth="2" />
+            <text x="465" y="20" fill="#374151" fontSize="12" fontWeight="500">Extended</text>
+            
+            {/* In-Laws */}
+            <circle cx="530" cy="15" r="8" fill="#92400E" stroke="white" strokeWidth="2" />
+            <text x="545" y="20" fill="#374151" fontSize="12" fontWeight="500">In-Laws</text>
+            
+            {/* Grandparents */}
+            <circle cx="600" cy="15" r="8" fill="#6366F1" stroke="white" strokeWidth="2" />
+            <text x="615" y="20" fill="#374151" fontSize="12" fontWeight="500">Grandparents</text>
           </g>
         </svg>
       </div>

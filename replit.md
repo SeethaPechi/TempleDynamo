@@ -95,6 +95,17 @@ This is a full-stack temple community management system built with React, Expres
 
 ## Recent Changes
 
+✓ **Enhanced Family Tree Navigation and Horizontal Legend** (January 12, 2025)
+  - Fixed family tree navigation: clicking members now shows their individual trees instead of member details
+  - Made "View Full Details" button the only way to access member detail pages for proper navigation flow
+  - Redesigned legend as horizontal layout at bottom to prevent blocking the tree view
+  - Improved text positioning by moving names and relationships inside circles for cleaner appearance
+  - Enhanced circle sizes (45px center, 35px others) for better text visibility and readability
+  - Added bold red spouse connection lines with enhanced heart symbols for clear relationship visualization
+  - Organized relationship groups: siblings on left, children below, in-laws on right, extended family at bottom
+  - Improved spacing between circles to prevent overlap and ensure all members fit within viewable area
+  - Navigation flow: member clicks show family trees, "View Full Details" opens member detail pages
+
 ✓ **Enhanced Elegant Family Tree with Circular Design and Member Detail Links** (January 12, 2025)
   - Completely redesigned family tree visualization with circular nodes instead of rectangles
   - Implemented compact layout optimization to fit all family members within viewable area
