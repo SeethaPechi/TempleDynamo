@@ -235,18 +235,30 @@ export function ElegantFamilyTree({
       "Mother-in-Law",
       "Brother-in-Law",
       "Sister-in-Law",
+      "Son-in-Law",
+      "Daughter-in-Law",
     ];
     let inLawIndex = 0;
     inLaws.forEach((inLawType) => {
       if (groupedRelationships[inLawType]) {
         groupedRelationships[inLawType].forEach((rel) => {
+          // Position in-laws with better spacing and in structured layout
+          let xPos, yPos;
+          
+          if (inLawType === "Son-in-Law" || inLawType === "Daughter-in-Law") {
+            // Position child-in-laws near the children area
+            xPos = 750 + (inLawIndex % 3) * 90;
+            yPos = centerY + 80 + Math.floor(inLawIndex / 3) * 90;
+          } else {
+            // Position other in-laws on the right side
+            xPos = 750 + (inLawIndex % 2) * 100;
+            yPos = 200 + Math.floor(inLawIndex / 2) * 80;
+          }
+          
           nodes.push({
             member: rel.relatedMember,
             relationshipType: inLawType,
-            position: {
-              x: 750 + (inLawIndex % 2) * 100,
-              y: 200 + Math.floor(inLawIndex / 2) * 80,
-            },
+            position: { x: xPos, y: yPos },
             color: getRelationshipColor(inLawType),
           });
           inLawIndex++;
@@ -343,6 +355,114 @@ export function ElegantFamilyTree({
             opacity="0.6"
           />,
         );
+      }
+    });
+
+    // Add secondary connections for in-laws to show family tree structure
+    // For example: Daughter-in-Law connected to Son, Son-in-Law connected to Daughter
+    familyNodes.forEach((node, index) => {
+      if (node.relationshipType === "Daughter-in-Law") {
+        // Find the son this daughter-in-law is married to by checking spouse names
+        const sonNode = familyNodes.find(n => 
+          n.relationshipType === "Son" && 
+          (n.member.spouseName === node.member.fullName || 
+           node.member.spouseName === n.member.fullName)
+        );
+        
+        if (sonNode) {
+          connections.push(
+            <line
+              key={`dil-connection-${index}`}
+              x1={sonNode.position.x}
+              y1={sonNode.position.y}
+              x2={node.position.x}
+              y2={node.position.y}
+              stroke="#10B981"
+              strokeWidth="3"
+              strokeDasharray="8,4"
+              opacity="0.7"
+            />
+          );
+          // Add small marriage symbol
+          const midX = (sonNode.position.x + node.position.x) / 2;
+          const midY = (sonNode.position.y + node.position.y) / 2;
+          connections.push(
+            <circle
+              key={`dil-marriage-${index}`}
+              cx={midX}
+              cy={midY}
+              r="8"
+              fill="#10B981"
+              stroke="white"
+              strokeWidth="2"
+            />
+          );
+          connections.push(
+            <text
+              key={`dil-marriage-text-${index}`}
+              x={midX}
+              y={midY + 3}
+              textAnchor="middle"
+              fill="white"
+              fontSize="8"
+              fontWeight="bold"
+            >
+              ♥
+            </text>
+          );
+        }
+      }
+      
+      if (node.relationshipType === "Son-in-Law") {
+        // Find the daughter this son-in-law is married to by checking spouse names
+        const daughterNode = familyNodes.find(n => 
+          n.relationshipType === "Daughter" && 
+          (n.member.spouseName === node.member.fullName || 
+           node.member.spouseName === n.member.fullName)
+        );
+        
+        if (daughterNode) {
+          connections.push(
+            <line
+              key={`sil-connection-${index}`}
+              x1={daughterNode.position.x}
+              y1={daughterNode.position.y}
+              x2={node.position.x}
+              y2={node.position.y}
+              stroke="#F59E0B"
+              strokeWidth="3"
+              strokeDasharray="8,4"
+              opacity="0.7"
+            />
+          );
+          // Add small marriage symbol
+          const midX = (daughterNode.position.x + node.position.x) / 2;
+          const midY = (daughterNode.position.y + node.position.y) / 2;
+          connections.push(
+            <circle
+              key={`sil-marriage-${index}`}
+              cx={midX}
+              cy={midY}
+              r="8"
+              fill="#F59E0B"
+              stroke="white"
+              strokeWidth="2"
+            />
+          );
+          connections.push(
+            <text
+              key={`sil-marriage-text-${index}`}
+              x={midX}
+              y={midY + 3}
+              textAnchor="middle"
+              fill="white"
+              fontSize="8"
+              fontWeight="bold"
+            >
+              ♥
+            </text>
+          );
+        }
       }
     });
 
