@@ -535,7 +535,7 @@ export default function Registry() {
       };
       delete memberData.selectedTemple; // Remove from the payload
       const response = await apiRequest("POST", "/api/members", memberData);
-      return response.json();
+      return response;
     },
     onSuccess: async (newMember) => {
       // Create relationships
