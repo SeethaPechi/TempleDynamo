@@ -74,12 +74,13 @@ const relationshipTypes = [
 
 // Helper function to check if member profile is incomplete
 const isProfileIncomplete = (member: Member, relationships: Array<Relationship & { relatedMember: Member }>) => {
-  // Check for missing critical information
-  const hasEmptyFields = !member.email || !member.phone || !member.currentCity || !member.currentState;
+  // Check for missing critical information - be more selective
+  const hasNoEmail = !member.email;
   const hasNoRelationships = relationships.length === 0;
-  const hasMinimalInfo = !member.fatherName && !member.motherName && !member.spouseName;
+  const hasNoFamilyInfo = !member.fatherName && !member.motherName && !member.spouseName;
   
-  return hasEmptyFields || hasNoRelationships || hasMinimalInfo;
+  // Only redirect if member has NO email AND NO relationships AND NO family info
+  return hasNoEmail && hasNoRelationships && hasNoFamilyInfo;
 };
 
 export default function FamilyTree() {
@@ -375,7 +376,9 @@ export default function FamilyTree() {
 
                     {searchResults.length > 0 && (
                       <div className="space-y-2 max-h-64 overflow-y-auto">
-                        {searchResults.map((member: Member) => {
+                        {searchResults
+                          .sort((a, b) => a.fullName.localeCompare(b.fullName))
+                          .map((member: Member) => {
                           const colors = getGenderColors(member.gender);
                           const transformedMember = transformMemberData(member);
                           return (
@@ -416,7 +419,9 @@ export default function FamilyTree() {
                         <p className="text-sm text-gray-500 mb-3">
                           {t("common.allMembers", "All Members")}:
                         </p>
-                        {(allMembers as Member[]).map((member: Member) => {
+                        {(allMembers as Member[])
+                          .sort((a, b) => a.fullName.localeCompare(b.fullName))
+                          .map((member: Member) => {
                           const colors = getGenderColors(member.gender);
                           const transformedMember = transformMemberData(member);
                           return (

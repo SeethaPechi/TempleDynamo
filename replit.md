@@ -95,6 +95,14 @@ This is a full-stack temple community management system built with React, Expres
 
 ## Recent Changes
 
+✓ **Smart Incomplete Profile Detection and Alphabetical Sorting** (January 12, 2025)
+  - Implemented intelligent incomplete profile detection that only redirects members with NO email AND NO relationships AND NO family info
+  - Added automatic redirection from family tree to member details page with helpful orange alert banner
+  - Fixed family tree navigation - members with complete profiles now show their family trees properly
+  - Added alphabetical sorting for all member lists in family tree (both search results and full member list)
+  - Alert banner guides users through completing missing profile information step-by-step
+  - Improved user experience with selective redirection criteria to avoid interrupting normal navigation
+
 ✓ **Multiple Spouse Display Fix and Data Cleanup** (January 12, 2025)
   - Fixed multiple spouse display issue in elegant family tree - all spouses now show properly
   - Enhanced spouse positioning with vertical spacing to prevent overlapping circles
