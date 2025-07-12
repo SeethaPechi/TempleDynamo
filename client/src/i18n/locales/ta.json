@@ -233,7 +233,10 @@
     "chooseTemplate": "ஒரு டெம்ப்ளேட்டைத் தேர்ந்தெடுக்கவும்",
     "customMessage": "தனிப்பயன் செய்தி",
     "templateVariables": "டெம்ப்ளேட் மாறிகள்",
-    "processTemplate": "டெம்ப்ளேட்டை செயலாக்கவும்"
+    "processTemplate": "டெம்ப்ளேட்டை செயலாக்கவும்",
+    "member": "உறுப்பினர்",
+    "unspecified": "குறிப்பிடப்படவில்லை",
+    "clickToViewDetails": "விவரங்களைப் பார்க்க கிளிக் செய்யவும்"
   },
   "familyTree": {
     "title": "குடும்ப மரம்",

@@ -1,6 +1,8 @@
 import { Card } from "@/components/ui/card";
 import { Users, User } from "lucide-react";
 import type { Member } from "@shared/schema";
+import { useFormDataTransformation } from "@/lib/i18n-utils";
+import { useTranslation } from "react-i18next";
 
 interface MemberCardProps {
   member: Member;
@@ -9,9 +11,13 @@ interface MemberCardProps {
 }
 
 export function MemberCard({ member, index, startIndex }: MemberCardProps) {
+  const { t } = useTranslation();
+  const { transformGender } = useFormDataTransformation();
+  
   // Force re-render with explicit member data extraction
   const memberName = String(member?.fullName || '');
   const memberNumber = startIndex + index + 1;
+  const translatedGender = member?.gender ? transformGender(member.gender) : t('common.unspecified', 'Unspecified');
   
   // Get gender-based colors
   const getGenderColors = (gender: string | null) => {
@@ -66,7 +72,7 @@ export function MemberCard({ member, index, startIndex }: MemberCardProps) {
           {memberName || 'Unknown Member'}
         </div>
         <p className={`${colors.textLight} text-sm`}>
-          Member #{memberNumber} • {member?.gender || 'Unspecified'}
+          {t('common.member', 'Member')} #{memberNumber} • {translatedGender}
         </p>
       </div>
     </Card>

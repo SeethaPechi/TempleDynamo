@@ -16,6 +16,7 @@ import { useTranslation } from "react-i18next";
 import type { Member } from "@shared/schema";
 import { getGenderColors } from "@/lib/color-utils";
 import { SimpleMemberCard } from "@/components/simple-member-card";
+import { useFormDataTransformation } from "@/lib/i18n-utils";
 
 const states = [
   { value: "AL", label: "Alabama" },
@@ -29,6 +30,7 @@ const states = [
 export default function Members() {
   console.log("Members component rendered at:", new Date().toISOString());
   const { t } = useTranslation();
+  const { transformMemberData } = useFormDataTransformation();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCity, setSelectedCity] = useState("");
   const [selectedState, setSelectedState] = useState("");
@@ -159,7 +161,7 @@ export default function Members() {
           <div className="grid md:grid-cols-5 gap-4">
             <div className="col-span-2">
               <Input
-                placeholder="Search by name, email, phone..."
+                placeholder={t('members.searchPlaceholder')}
                 value={searchTerm}
                 onChange={(e) => {
                   setSearchTerm(e.target.value);
@@ -218,7 +220,7 @@ export default function Members() {
                 variant="outline"
                 className="w-full border-saffron-200 text-saffron-700 hover:bg-saffron-50"
               >
-                Clear Filters
+                {t('common.clear')}
               </Button>
             </div>
             <div>
@@ -227,7 +229,7 @@ export default function Members() {
                 className="w-full bg-saffron-500 hover:bg-saffron-600 text-white font-medium"
               >
                 <Search className="mr-2" size={16} />
-                Search
+                {t('common.search')}
               </Button>
             </div>
           </div>
@@ -252,6 +254,8 @@ export default function Members() {
             <div className="space-y-4">
               {paginatedMembers.map((member: Member, index: number) => {
                 const colors = getGenderColors(member.gender);
+                const transformedMember = transformMemberData(member);
+                
                 // Debug logging for profile pictures
                 if (member.id === 36) {
                   console.log("Member 36 (Pechi Ammal) data:", {
@@ -290,10 +294,10 @@ export default function Members() {
                     </div>
                     <div className="flex-1">
                       <h3 className={`text-lg font-semibold hover:text-saffron-600 ${colors.text}`}>
-                        {member.fullName} : Father Name is : {(member as Member).fatherName}
+                        {member.fullName} : {t('registry.form.fatherName', 'Father Name')} : {(member as Member).fatherName}
                       </h3>
                       <p className="text-sm text-gray-500">
-                        Member #{member.id} • {member.gender || 'Unspecified'}
+                        {t('common.member', 'Member')} #{member.id} • {transformedMember.gender || t('common.unspecified', 'Unspecified')}
                       </p>
                       <p className="text-sm text-gray-500">{member.email}</p>
                       <p className="text-sm text-gray-500">
@@ -301,7 +305,7 @@ export default function Members() {
                       </p>
                     </div>
                     <div className="text-gray-400">
-                      <span className="text-xs">Click to view details</span>
+                      <span className="text-xs">{t('common.clickToViewDetails', 'Click to view details')}</span>
                     </div>
                   </div>
                 );
