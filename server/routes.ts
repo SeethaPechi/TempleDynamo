@@ -106,6 +106,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get unique cities from members - MUST come before /:id route
+  app.get("/api/members/cities", async (req, res) => {
+    try {
+      const cities = await storage.getUniqueCities();
+      res.json(cities);
+    } catch (error) {
+      console.error("Error fetching cities:", error);
+      res.status(500).json({ message: "Failed to fetch cities" });
+    }
+  });
+
+  // Get unique states from members - MUST come before /:id route
+  app.get("/api/members/states", async (req, res) => {
+    try {
+      const states = await storage.getUniqueStates();
+      res.json(states);
+    } catch (error) {
+      console.error("Error fetching states:", error);
+      res.status(500).json({ message: "Failed to fetch states" });
+    }
+  });
+
   app.get("/api/members/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
@@ -331,28 +353,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(members);
     } catch (error) {
       res.status(500).json({ message: "Failed to search members" });
-    }
-  });
-
-  // Get unique cities from members
-  app.get("/api/members/cities", async (req, res) => {
-    try {
-      const cities = await storage.getUniqueCities();
-      res.json(cities);
-    } catch (error) {
-      console.error("Error fetching cities:", error);
-      res.status(500).json({ message: "Failed to fetch cities" });
-    }
-  });
-
-  // Get unique states from members
-  app.get("/api/members/states", async (req, res) => {
-    try {
-      const states = await storage.getUniqueStates();
-      res.json(states);
-    } catch (error) {
-      console.error("Error fetching states:", error);
-      res.status(500).json({ message: "Failed to fetch states" });
     }
   });
 
