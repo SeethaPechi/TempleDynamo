@@ -971,25 +971,26 @@ export default function MemberDetails() {
                   </div>
                   <div className="ml-3">
                     <h3 className="text-sm font-medium text-orange-800">
-                      Add Family Relationships
+                      Complete Your Profile
                     </h3>
                     <div className="mt-2 text-sm text-orange-700">
                       <p>
-                        This member has no family relationships added yet. To show a complete family tree, please add family connections.
+                        This profile needs more information to show a complete family tree. Please:
                       </p>
                       <ul className="mt-2 list-disc list-inside space-y-1">
-                        <li>Use "Manage Relatives" to add family members</li>
-                        <li>Connect parents, spouse, children, and siblings</li>
-                        <li>Build the family tree by adding relationships</li>
+                        <li>Fill in missing contact details (email, phone)</li>
+                        <li>Add location information (city, state)</li>
+                        <li>Include family details (parents, spouse)</li>
+                        <li>Add family relationships using "Manage Relatives"</li>
                       </ul>
                     </div>
                     <div className="mt-3">
                       <Button
                         size="sm"
-                        onClick={() => setIsRelativesModalOpen(true)}
+                        onClick={() => setIsEditModalOpen(true)}
                         className="bg-orange-600 hover:bg-orange-700 text-white"
                       >
-                        Add Family Relationships
+                        Start Editing Profile
                       </Button>
                     </div>
                   </div>

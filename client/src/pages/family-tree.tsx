@@ -74,11 +74,13 @@ const relationshipTypes = [
 
 // Helper function to check if member profile is incomplete
 const isProfileIncomplete = (member: Member, relationships: Array<Relationship & { relatedMember: Member }>) => {
-  // Check for missing critical information
+  // Check for missing critical information - be more selective
+  const hasNoEmail = !member.email;
   const hasNoRelationships = relationships.length === 0;
+  const hasNoFamilyInfo = !member.fatherName && !member.motherName && !member.spouseName;
   
-  // Redirect if member has no relationships - they need to add family connections
-  return hasNoRelationships;
+  // Only redirect if member has NO email AND NO relationships AND NO family info
+  return hasNoEmail && hasNoRelationships && hasNoFamilyInfo;
 };
 
 export default function FamilyTree() {
@@ -147,8 +149,8 @@ export default function FamilyTree() {
       if (isIncomplete) {
         // Show toast with helpful message
         toast({
-          title: "No Family Relationships",
-          description: `${selectedMember.fullName} has no family relationships added. Redirecting to add family connections...`,
+          title: "Profile Incomplete",
+          description: `${selectedMember.fullName}'s profile needs more information. Redirecting to complete details...`,
           duration: 3000,
         });
         
