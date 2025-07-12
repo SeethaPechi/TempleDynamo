@@ -95,8 +95,8 @@ export function ElegantFamilyTree({
   // Arrange family members in organized groups that fit within viewBox
   const arrangeFamilyNodes = (): FamilyNode[] => {
     const nodes: FamilyNode[] = [];
-    const centerX = 500;
-    const centerY = 350; // Move center down to allow more space for grandparents
+    const centerX = 600; // Center the tree horizontally in the 1200px width
+    const centerY = 300; // Center vertically with space for legend at bottom
     const spacing = 140; // Increased spacing between circles
 
     // Add the main member at the center
@@ -119,7 +119,7 @@ export function ElegantFamilyTree({
       {} as Record<string, Array<Relationship & { relatedMember: Member }>>,
     );
 
-    // Position grandparents at the top - grouped together
+    // Position grandparents at the top - centered
     const grandparents = [
       "Paternal Grandfather",
       "Paternal Grandmother",
@@ -130,10 +130,15 @@ export function ElegantFamilyTree({
     grandparents.forEach((gpType) => {
       if (groupedRelationships[gpType]) {
         groupedRelationships[gpType].forEach((rel) => {
+          const totalGrandparents = grandparents.reduce(
+            (sum, type) => sum + (groupedRelationships[type] || []).length,
+            0,
+          );
+          const startX = centerX - ((totalGrandparents - 1) * spacing) / 2;
           nodes.push({
             member: rel.relatedMember,
             relationshipType: gpType,
-            position: { x: 200 + gpIndex * spacing, y: 80 },
+            position: { x: startX + gpIndex * spacing, y: 80 },
             color: getRelationshipColor(gpType),
           });
           gpIndex++;
@@ -141,16 +146,21 @@ export function ElegantFamilyTree({
       }
     });
 
-    // Position parents above center - grouped together
+    // Position parents above center - centered
     const parents = ["Father", "Mother", "Step Father", "Step Mother"];
     let parentIndex = 0;
     parents.forEach((parentType) => {
       if (groupedRelationships[parentType]) {
         groupedRelationships[parentType].forEach((rel) => {
+          const totalParents = parents.reduce(
+            (sum, type) => sum + (groupedRelationships[type] || []).length,
+            0,
+          );
+          const startX = centerX - ((totalParents - 1) * spacing) / 2;
           nodes.push({
             member: rel.relatedMember,
             relationshipType: parentType,
-            position: { x: 350 + parentIndex * spacing, y: 200 },
+            position: { x: startX + parentIndex * spacing, y: 170 },
             color: getRelationshipColor(parentType),
           });
           parentIndex++;
@@ -197,7 +207,7 @@ export function ElegantFamilyTree({
             member: rel.relatedMember,
             relationshipType: siblingType,
             position: {
-              x: 150 - col * 120,
+              x: 250 - col * 120,
               y: centerY - 80 + row * 100,
             },
             color: getRelationshipColor(siblingType),
@@ -634,8 +644,8 @@ export function ElegantFamilyTree({
       <div className="w-full overflow-auto">
         <svg
           width="1200"
-          height="800"
-          viewBox="0 0 1200 800"
+          height="850"
+          viewBox="0 0 1200 850"
           className="mx-auto border rounded-lg bg-gradient-to-br from-blue-50 to-indigo-100 max-w-full h-auto"
           preserveAspectRatio="xMidYMid meet"
         >
@@ -673,13 +683,13 @@ export function ElegantFamilyTree({
           {/* Family member nodes */}
           {familyNodes.map((node, index) => renderMemberNode(node, index))}
 
-          {/* Horizontal Legend at bottom */}
-          <g transform="translate(150, 550)">
+          {/* Horizontal Legend at bottom - moved down to avoid overlap */}
+          <g transform="translate(150, 720)">
             <rect
               x="0"
               y="0"
-              width="700"
-              height="40"
+              width="900"
+              height="50"
               fill="white"
               fillOpacity="0.95"
               stroke="#D1D5DB"
@@ -687,33 +697,33 @@ export function ElegantFamilyTree({
               strokeWidth="2"
               filter="url(#dropshadow)"
             />
-            <text x="15" y="20" fill="#374151" fontSize="14" fontWeight="bold">
+            <text x="15" y="25" fill="#374151" fontSize="14" fontWeight="bold">
               Legend:
             </text>
 
             {/* Self */}
             <circle
               cx="80"
-              cy="15"
+              cy="25"
               r="8"
               fill="#DC2626"
               stroke="white"
               strokeWidth="2"
             />
-            <text x="95" y="20" fill="#374151" fontSize="12" fontWeight="500">
+            <text x="95" y="30" fill="#374151" fontSize="12" fontWeight="500">
               Self
             </text>
 
             {/* Parents */}
             <circle
               cx="140"
-              cy="15"
+              cy="25"
               r="8"
               fill="#4F46E5"
               stroke="white"
               strokeWidth="2"
             />
-            <text x="155" y="20" fill="#374151" fontSize="12" fontWeight="500">
+            <text x="155" y="30" fill="#374151" fontSize="12" fontWeight="500">
               Parents
             </text>
 
