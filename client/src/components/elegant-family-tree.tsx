@@ -631,22 +631,22 @@ export function ElegantFamilyTree({
   }
 
   return (
-    <Card className="p-6">
-      <div className="mb-6">
-        <h2 className="text-2xl font-bold text-center mb-2">
+    <Card className="p-3 sm:p-6">
+      <div className="mb-4 sm:mb-6">
+        <h2 className="text-xl sm:text-2xl font-bold text-center mb-2">
           {transformMemberData(member).fullName}'s Family Tree
         </h2>
-        <p className="text-center text-gray-600">
+        <p className="text-center text-gray-600 text-sm sm:text-base">
           {relationships.length} family connections
         </p>
       </div>
 
       <div className="w-full overflow-auto">
         <svg
-          width="1400"
-          height="900"
+          width="100%"
+          height="600"
           viewBox="0 0 1400 900"
-          className="mx-auto border rounded-lg bg-gradient-to-br from-blue-50 to-indigo-100 max-w-full h-auto"
+          className="mx-auto border rounded-lg bg-gradient-to-br from-blue-50 to-indigo-100 w-full h-auto min-h-[400px] sm:min-h-[600px]"
           preserveAspectRatio="xMidYMid meet"
         >
           {/* Enhanced background and filters */}

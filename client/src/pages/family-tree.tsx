@@ -253,72 +253,80 @@ export default function FamilyTree() {
     <div className="min-h-screen bg-gradient-to-br from-saffron-50 to-temple-gold-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="text-center mb-12">
-          <div className="flex items-center justify-center mb-6">
-            <TreePine className="text-temple-brown mr-4" size={48} />
-            <h1 className="text-4xl font-bold text-temple-brown">
+        <div className="text-center mb-6 sm:mb-12">
+          <div className="flex items-center justify-center mb-4 sm:mb-6">
+            <TreePine className="text-temple-brown mr-3 sm:mr-4" size={36} />
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-temple-brown">
               {t("familyTree.title")}
             </h1>
           </div>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+          <p className="text-sm sm:text-base lg:text-lg text-gray-600 max-w-2xl mx-auto px-4">
             {t("familyTree.subtitle")}
           </p>
         </div>
 
         <Tabs defaultValue="elegant" className="w-full">
           <div className="flex justify-center mb-8">
-            <TabsList className="grid grid-cols-6 w-full max-w-6xl h-auto py-2">
+            <TabsList className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 w-full max-w-6xl h-auto py-2 gap-1">
               <TabsTrigger
                 value="explorer"
-                className="flex flex-col items-center gap-1 text-xs px-1 py-2 min-h-[3rem]"
+                className="flex flex-col items-center gap-1 text-xs sm:text-sm px-1 py-2 min-h-[3rem]"
               >
-                <Search size={14} />
-                <span className="text-center leading-tight">
+                <Search size={16} />
+                <span className="text-center leading-tight hidden sm:block">
                   {t("familyTree.selectMember")}
+                </span>
+                <span className="text-center leading-tight sm:hidden text-[10px]">
+                  Select
                 </span>
               </TabsTrigger>
               <TabsTrigger
                 value="elegant"
-                className="flex flex-col items-center gap-1 text-xs px-1 py-2 min-h-[3rem]"
+                className="flex flex-col items-center gap-1 text-xs sm:text-sm px-1 py-2 min-h-[3rem]"
               >
-                <TreePine size={14} />
-                <span className="text-center leading-tight">Family Branch</span>
+                <TreePine size={16} />
+                <span className="text-center leading-tight hidden sm:block">Family Branch</span>
+                <span className="text-center leading-tight sm:hidden text-[10px]">Tree</span>
               </TabsTrigger>
               <TabsTrigger
                 value="table"
-                className="flex flex-col items-center gap-1 text-xs px-1 py-2 min-h-[3rem]"
+                className="flex flex-col items-center gap-1 text-xs sm:text-sm px-1 py-2 min-h-[3rem]"
               >
-                <Users size={14} />
-                <span className="text-center leading-tight">
+                <Users size={16} />
+                <span className="text-center leading-tight hidden sm:block">
                   {t("familyTree.directRelationships")}
                 </span>
+                <span className="text-center leading-tight sm:hidden text-[10px]">Table</span>
               </TabsTrigger>
               <TabsTrigger
                 value="comprehensive"
-                className="flex flex-col items-center gap-1 text-xs px-1 py-2 min-h-[3rem]"
+                className="flex flex-col items-center gap-1 text-xs sm:text-sm px-1 py-2 min-h-[3rem]"
               >
-                <Heart size={14} />
-                <span className="text-center leading-tight">
+                <Heart size={16} />
+                <span className="text-center leading-tight hidden lg:block">
                   {t("familyTree.allRelations")}
                 </span>
+                <span className="text-center leading-tight lg:hidden text-[10px]">All</span>
               </TabsTrigger>
               <TabsTrigger
                 value="network"
-                className="flex flex-col items-center gap-1 text-xs px-1 py-2 min-h-[3rem]"
+                className="flex flex-col items-center gap-1 text-xs sm:text-sm px-1 py-2 min-h-[3rem]"
               >
-                <Network size={14} />
-                <span className="text-center leading-tight">
+                <Network size={16} />
+                <span className="text-center leading-tight hidden lg:block">
                   {t("familyTree.familyNetworkAnalysis")}
                 </span>
+                <span className="text-center leading-tight lg:hidden text-[10px]">Network</span>
               </TabsTrigger>
               <TabsTrigger
                 value="counters"
-                className="flex flex-col items-center gap-1 text-xs px-1 py-2 min-h-[3rem]"
+                className="flex flex-col items-center gap-1 text-xs sm:text-sm px-1 py-2 min-h-[3rem]"
               >
-                <BarChart3 size={14} />
-                <span className="text-center leading-tight">
+                <BarChart3 size={16} />
+                <span className="text-center leading-tight hidden lg:block">
                   Relationship Counters
                 </span>
+                <span className="text-center leading-tight lg:hidden text-[10px]">Count</span>
               </TabsTrigger>
             </TabsList>
           </div>
@@ -340,23 +348,23 @@ export default function FamilyTree() {
                 />
               </div>
             ) : (
-              <Card className="p-12 text-center">
-                <TreePine className="mx-auto mb-4 text-gray-400" size={48} />
-                <h3 className="text-xl font-semibold text-gray-600 mb-2">
+              <Card className="p-6 sm:p-12 text-center">
+                <TreePine className="mx-auto mb-4 text-gray-400" size={36} />
+                <h3 className="text-lg sm:text-xl font-semibold text-gray-600 mb-2">
                   Select a Member
                 </h3>
-                <p className="text-gray-500">
+                <p className="text-gray-500 text-sm sm:text-base">
                   Choose a family member to view their elegant family tree
                 </p>
               </Card>
             )}
           </TabsContent>
 
-          <TabsContent value="explorer" className="space-y-8">
-            <div className="grid lg:grid-cols-3 gap-8">
+          <TabsContent value="explorer" className="space-y-4 sm:space-y-8">
+            <div className="grid lg:grid-cols-3 gap-4 sm:gap-8">
               {/* Search Panel */}
               <div className="lg:col-span-1">
-                <Card className="p-6 sticky top-8">
+                <Card className="p-4 sm:p-6 sticky top-8">
                   <h3 className="text-lg font-semibold text-temple-brown mb-4">
                     {t("familyTree.searchMember")}
                   </h3>
