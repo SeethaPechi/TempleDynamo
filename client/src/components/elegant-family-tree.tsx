@@ -37,17 +37,17 @@ export function ElegantFamilyTree({
       Mother: "#EC4899", // Pink
       "Step Father": "#5B21B6", // Purple
       "Step Mother": "#DB2777", // Dark Pink
-      
+
       // Spouse
       Wife: "#EF4444", // Red
       Husband: "#3B82F6", // Blue
-      
+
       // Children
       Son: "#10B981", // Green
       Daughter: "#F59E0B", // Amber
       "Step-Son": "#059669", // Dark Green
       "Step-Daughter": "#D97706", // Dark Amber
-      
+
       // Siblings
       "Elder Brother": "#8B5CF6", // Purple
       "Elder Sister": "#F97316", // Orange
@@ -55,19 +55,19 @@ export function ElegantFamilyTree({
       "Younger Sister": "#84CC16", // Lime
       "Step-Brother": "#7C3AED", // Dark Purple
       "Step-Sister": "#EA580C", // Dark Orange
-      
+
       // Grandparents
       "Paternal Grandfather": "#1F2937", // Dark Gray
       "Paternal Grandmother": "#6B7280", // Gray
       "Maternal Grandfather": "#374151", // Medium Gray
       "Maternal Grandmother": "#9CA3AF", // Light Gray
-      
+
       // Grandchildren
       "Grand Daughter -Son Side": "#14B8A6", // Teal
       "Grand Son-Son Side": "#0891B2", // Sky
       "Grand Daughter -Daughter Side": "#0D9488", // Dark Teal
       "Grand Son-Daughter Side": "#0E7490", // Dark Sky
-      
+
       // In-Laws
       "Father-in-Law": "#7C2D12", // Brown
       "Mother-in-Law": "#92400E", // Light Brown
@@ -75,14 +75,14 @@ export function ElegantFamilyTree({
       "Sister-in-Law": "#B45309", // Orange Brown
       "Son-in-Law": "#C2410C", // Red Brown
       "Daughter-in-Law": "#DC2626", // Red
-      
+
       // Extended Family
       Uncle: "#7E22CE", // Purple
       Aunt: "#A21CAF", // Magenta
       Nephew: "#BE185D", // Pink
       Niece: "#C2185B", // Dark Pink
       Cousin: "#1565C0", // Blue
-      
+
       // Other Family Connections
       "Family Friend": "#6B7280", // Gray
       Godfather: "#4B5563", // Dark Gray
@@ -122,7 +122,7 @@ export function ElegantFamilyTree({
     // Position grandparents at the top - grouped together
     const grandparents = [
       "Paternal Grandfather",
-      "Paternal Grandmother", 
+      "Paternal Grandmother",
       "Maternal Grandfather",
       "Maternal Grandmother",
     ];
@@ -167,9 +167,9 @@ export function ElegantFamilyTree({
           nodes.push({
             member: rel.relatedMember,
             relationshipType: spouseType,
-            position: { 
-              x: centerX + 180, 
-              y: centerY - 40 + spouseIndex * 80  // Space multiple spouses vertically
+            position: {
+              x: centerX + 180,
+              y: centerY - 40 + spouseIndex * 80, // Space multiple spouses vertically
             },
             color: getRelationshipColor(spouseType),
           });
@@ -181,7 +181,7 @@ export function ElegantFamilyTree({
     // Position siblings on the left side - grouped together
     const siblings = [
       "Elder Brother",
-      "Elder Sister", 
+      "Elder Sister",
       "Younger Brother",
       "Younger Sister",
       "Step-Brother",
@@ -213,7 +213,10 @@ export function ElegantFamilyTree({
     children.forEach((childType) => {
       if (groupedRelationships[childType]) {
         groupedRelationships[childType].forEach((rel) => {
-          const totalChildren = children.reduce((sum, type) => sum + (groupedRelationships[type] || []).length, 0);
+          const totalChildren = children.reduce(
+            (sum, type) => sum + (groupedRelationships[type] || []).length,
+            0,
+          );
           const startX = centerX - ((totalChildren - 1) * 100) / 2;
           nodes.push({
             member: rel.relatedMember,
@@ -227,7 +230,12 @@ export function ElegantFamilyTree({
     });
 
     // Position in-laws on the right side - grouped together
-    const inLaws = ["Father-in-Law", "Mother-in-Law", "Brother-in-Law", "Sister-in-Law"];
+    const inLaws = [
+      "Father-in-Law",
+      "Mother-in-Law",
+      "Brother-in-Law",
+      "Sister-in-Law",
+    ];
     let inLawIndex = 0;
     inLaws.forEach((inLawType) => {
       if (groupedRelationships[inLawType]) {
@@ -235,9 +243,9 @@ export function ElegantFamilyTree({
           nodes.push({
             member: rel.relatedMember,
             relationshipType: inLawType,
-            position: { 
-              x: 750 + (inLawIndex % 2) * 100, 
-              y: 200 + Math.floor(inLawIndex / 2) * 80 
+            position: {
+              x: 750 + (inLawIndex % 2) * 100,
+              y: 200 + Math.floor(inLawIndex / 2) * 80,
             },
             color: getRelationshipColor(inLawType),
           });
@@ -278,7 +286,10 @@ export function ElegantFamilyTree({
       if (node.isCenter) return;
 
       // Special bold line for spouse connections
-      if (node.relationshipType === "Wife" || node.relationshipType === "Husband") {
+      if (
+        node.relationshipType === "Wife" ||
+        node.relationshipType === "Husband"
+      ) {
         connections.push(
           <line
             key={`spouse-line-${index}`}
@@ -297,7 +308,14 @@ export function ElegantFamilyTree({
         const midY = (centerNode.position.y + node.position.y) / 2;
         connections.push(
           <g key={`heart-${index}`}>
-            <circle cx={midX} cy={midY} r="15" fill="#EF4444" stroke="white" strokeWidth="2" />
+            <circle
+              cx={midX}
+              cy={midY}
+              r="15"
+              fill="#EF4444"
+              stroke="white"
+              strokeWidth="2"
+            />
             <text
               x={midX}
               y={midY + 5}
@@ -384,7 +402,9 @@ export function ElegantFamilyTree({
           stroke="#000"
           strokeWidth="0.2"
         >
-          {firstName.length > 10 ? firstName.substring(0, 10) + '..' : firstName}
+          {firstName.length > 10
+            ? firstName.substring(0, 10) + ".."
+            : firstName}
         </text>
 
         {/* Relationship type - inside circle, lower half */}
@@ -399,8 +419,11 @@ export function ElegantFamilyTree({
             stroke="#000"
             strokeWidth="0.1"
           >
-            {transformRelationshipType(node.relationshipType).length > 12 
-              ? transformRelationshipType(node.relationshipType).substring(0, 12) + '..'
+            {transformRelationshipType(node.relationshipType).length > 12
+              ? transformRelationshipType(node.relationshipType).substring(
+                  0,
+                  12,
+                ) + ".."
               : transformRelationshipType(node.relationshipType)}
           </text>
         )}
@@ -435,9 +458,14 @@ export function ElegantFamilyTree({
       <Card className="p-8 text-center">
         <Users className="h-12 w-12 mx-auto mb-4 text-gray-400" />
         <h3 className="text-lg font-semibold mb-2">
+          {t("For ")} {transformMemberData(member).fullName}{" "}
           {t("familyTree.noRelationships")}
         </h3>
-        <p className="text-gray-600">{t("familyTree.addRelationships")}</p>
+        <p className="text-gray-600">
+          {t(
+            "Select member menu option and add relationship by clicking Manage Relative button",
+          )}
+        </p>
       </Card>
     );
   }
@@ -512,38 +540,110 @@ export function ElegantFamilyTree({
             <text x="15" y="20" fill="#374151" fontSize="14" fontWeight="bold">
               Legend:
             </text>
-            
+
             {/* Self */}
-            <circle cx="80" cy="15" r="8" fill="#DC2626" stroke="white" strokeWidth="2" />
-            <text x="95" y="20" fill="#374151" fontSize="12" fontWeight="500">Self</text>
-            
+            <circle
+              cx="80"
+              cy="15"
+              r="8"
+              fill="#DC2626"
+              stroke="white"
+              strokeWidth="2"
+            />
+            <text x="95" y="20" fill="#374151" fontSize="12" fontWeight="500">
+              Self
+            </text>
+
             {/* Parents */}
-            <circle cx="140" cy="15" r="8" fill="#4F46E5" stroke="white" strokeWidth="2" />
-            <text x="155" y="20" fill="#374151" fontSize="12" fontWeight="500">Parents</text>
-            
+            <circle
+              cx="140"
+              cy="15"
+              r="8"
+              fill="#4F46E5"
+              stroke="white"
+              strokeWidth="2"
+            />
+            <text x="155" y="20" fill="#374151" fontSize="12" fontWeight="500">
+              Parents
+            </text>
+
             {/* Spouse */}
-            <circle cx="220" cy="15" r="8" fill="#EF4444" stroke="white" strokeWidth="2" />
-            <text x="235" y="20" fill="#374151" fontSize="12" fontWeight="500">Spouse</text>
-            
+            <circle
+              cx="220"
+              cy="15"
+              r="8"
+              fill="#EF4444"
+              stroke="white"
+              strokeWidth="2"
+            />
+            <text x="235" y="20" fill="#374151" fontSize="12" fontWeight="500">
+              Spouse
+            </text>
+
             {/* Children */}
-            <circle cx="290" cy="15" r="8" fill="#10B981" stroke="white" strokeWidth="2" />
-            <text x="305" y="20" fill="#374151" fontSize="12" fontWeight="500">Children</text>
-            
+            <circle
+              cx="290"
+              cy="15"
+              r="8"
+              fill="#10B981"
+              stroke="white"
+              strokeWidth="2"
+            />
+            <text x="305" y="20" fill="#374151" fontSize="12" fontWeight="500">
+              Children
+            </text>
+
             {/* Siblings */}
-            <circle cx="370" cy="15" r="8" fill="#F59E0B" stroke="white" strokeWidth="2" />
-            <text x="385" y="20" fill="#374151" fontSize="12" fontWeight="500">Siblings</text>
-            
+            <circle
+              cx="370"
+              cy="15"
+              r="8"
+              fill="#F59E0B"
+              stroke="white"
+              strokeWidth="2"
+            />
+            <text x="385" y="20" fill="#374151" fontSize="12" fontWeight="500">
+              Siblings
+            </text>
+
             {/* Extended */}
-            <circle cx="450" cy="15" r="8" fill="#7C3AED" stroke="white" strokeWidth="2" />
-            <text x="465" y="20" fill="#374151" fontSize="12" fontWeight="500">Extended</text>
-            
+            <circle
+              cx="450"
+              cy="15"
+              r="8"
+              fill="#7C3AED"
+              stroke="white"
+              strokeWidth="2"
+            />
+            <text x="465" y="20" fill="#374151" fontSize="12" fontWeight="500">
+              Extended
+            </text>
+
             {/* In-Laws */}
-            <circle cx="530" cy="15" r="8" fill="#92400E" stroke="white" strokeWidth="2" />
-            <text x="545" y="20" fill="#374151" fontSize="12" fontWeight="500">In-Laws</text>
-            
+            <circle
+              cx="530"
+              cy="15"
+              r="8"
+              fill="#92400E"
+              stroke="white"
+              strokeWidth="2"
+            />
+            <text x="545" y="20" fill="#374151" fontSize="12" fontWeight="500">
+              In-Laws
+            </text>
+
             {/* Grandparents */}
-            <circle cx="600" cy="15" r="8" fill="#6366F1" stroke="white" strokeWidth="2" />
-            <text x="615" y="20" fill="#374151" fontSize="12" fontWeight="500">Grandparents</text>
+            <circle
+              cx="600"
+              cy="15"
+              r="8"
+              fill="#6366F1"
+              stroke="white"
+              strokeWidth="2"
+            />
+            <text x="615" y="20" fill="#374151" fontSize="12" fontWeight="500">
+              Grandparents
+            </text>
           </g>
         </svg>
       </div>
