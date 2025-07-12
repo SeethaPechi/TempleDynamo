@@ -138,8 +138,8 @@ export default function Home() {
     const filteredMembers = getFilteredMembers();
     setMemberListData({
       members: filteredMembers,
-      title: selectedTemple 
-        ? `${selectedTemple.templeName} - All Members` 
+      title: selectedTemple
+        ? `${selectedTemple.templeName} - All Members`
         : "All Registered Members",
       description: `Complete list of ${filteredMembers.length} registered community members`,
     });
@@ -148,12 +148,12 @@ export default function Home() {
 
   const showMarriedMembers = () => {
     const filteredMembers = getFilteredMembers().filter(
-      (member) => member.maritalStatus === "Married"
+      (member) => member.maritalStatus === "Married",
     );
     setMemberListData({
       members: filteredMembers,
-      title: selectedTemple 
-        ? `${selectedTemple.templeName} - Married Members` 
+      title: selectedTemple
+        ? `${selectedTemple.templeName} - Married Members`
         : "Married Members",
       description: `${filteredMembers.length} married community members and their families`,
     });
@@ -161,11 +161,14 @@ export default function Home() {
   };
 
   const showActiveVolunteers = () => {
-    const filteredMembers = getFilteredMembers().slice(0, Math.ceil(totalMembers * 0.125));
+    const filteredMembers = getFilteredMembers().slice(
+      0,
+      Math.ceil(totalMembers * 0.125),
+    );
     setMemberListData({
       members: filteredMembers,
-      title: selectedTemple 
-        ? `${selectedTemple.templeName} - Active Volunteers` 
+      title: selectedTemple
+        ? `${selectedTemple.templeName} - Active Volunteers`
         : "Active Volunteers",
       description: `Community volunteers contributing to temple activities and events`,
     });
@@ -401,7 +404,7 @@ export default function Home() {
                   {/* Temple Details */}
                   <div className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div 
+                      <div
                         className="bg-gradient-to-r from-saffron-50 to-gold-50 p-4 rounded-lg cursor-pointer hover:shadow-md transition-all hover:scale-105"
                         onClick={showAllMembers}
                       >
@@ -410,14 +413,14 @@ export default function Home() {
                             {totalMembers}
                           </div>
                           <div className="text-sm text-gray-600">
-                            {t("home.registeredMembers")}
+                            {t("Registered Members")}
                           </div>
                           <div className="text-xs text-blue-600 mt-1 font-medium">
                             Click to view members
                           </div>
                         </div>
                       </div>
-                      <div 
+                      <div
                         className="bg-gradient-to-r from-temple-cream to-saffron-50 p-4 rounded-lg cursor-pointer hover:shadow-md transition-all hover:scale-105"
                         onClick={showMarriedMembers}
                       >
@@ -426,7 +429,7 @@ export default function Home() {
                             {totalFamilies}
                           </div>
                           <div className="text-sm text-gray-600">
-                            {t("home.families")}
+                            {t("Families")}
                           </div>
                           <div className="text-xs text-blue-600 mt-1 font-medium">
                             Click to view families
@@ -503,7 +506,7 @@ export default function Home() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-4xl mx-auto">
-              <Card 
+              <Card
                 className="bg-white shadow-lg hover:shadow-xl transition-all cursor-pointer hover:scale-105"
                 onClick={showAllMembers}
               >
@@ -513,14 +516,14 @@ export default function Home() {
                     {totalMembers}
                   </div>
                   <div className="text-sm text-gray-600">
-                    {t("home.totalMembers")}
+                    {t("Community Members")}
                   </div>
                   <div className="text-xs text-blue-600 mt-2 font-medium">
                     Click to view members
                   </div>
                 </CardContent>
               </Card>
-              <Card 
+              <Card
                 className="bg-white shadow-lg hover:shadow-xl transition-all cursor-pointer hover:scale-105"
                 onClick={showMarriedMembers}
               >
@@ -529,9 +532,7 @@ export default function Home() {
                   <div className="text-3xl font-bold text-temple-brown">
                     {totalFamilies}
                   </div>
-                  <div className="text-sm text-gray-600">
-                    {t("home.families")}
-                  </div>
+                  <div className="text-sm text-gray-600">{t("Families")}</div>
                   <div className="text-xs text-blue-600 mt-2 font-medium">
                     Click to view families
                   </div>
@@ -547,11 +548,11 @@ export default function Home() {
                     {annualEvents}
                   </div>
                   <div className="text-sm text-gray-600">
-                    {t("home.annualEvents")}
+                    {t("Active Temple Events(comming Soon)")}
                   </div>
                 </CardContent>
               </Card>
-              <Card 
+              {/* <Card
                 className="bg-white shadow-lg hover:shadow-xl transition-all cursor-pointer hover:scale-105"
                 onClick={showActiveVolunteers}
               >
@@ -559,18 +560,18 @@ export default function Home() {
                   <HandHeart
                     className="mx-auto text-temple-gold mb-4"
                     size={48}
-                  />
-                  <div className="text-3xl font-bold text-temple-brown">
+                  /> */}
+                  {/* <div className="text-3xl font-bold text-temple-brown">
                     {volunteers}
                   </div>
                   <div className="text-sm text-gray-600">
-                    {t("home.volunteers")}
+                    {t("Volunteers")}
                   </div>
                   <div className="text-xs text-blue-600 mt-2 font-medium">
                     Click to view volunteers
-                  </div>
+                  </div> 
                 </CardContent>
-              </Card>
+              </Card>*/}
             </div>
 
             <div className="pt-8">
@@ -606,9 +607,9 @@ export default function Home() {
           <div className="space-y-6">
             {/* Temple Photo Carousel */}
             {selectedTemple ? (
-              <TempleSpecificPhotoCarousel 
-                temple={selectedTemple} 
-                className="w-full" 
+              <TempleSpecificPhotoCarousel
+                temple={selectedTemple}
+                className="w-full"
               />
             ) : (
               <TemplePhotoCarousel className="w-full" />

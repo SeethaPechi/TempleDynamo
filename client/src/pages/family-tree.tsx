@@ -92,10 +92,12 @@ export default function FamilyTree() {
   // Handle URL parameters for direct member selection
   useEffect(() => {
     if (location && allMembers.length > 0) {
-      const urlParams = new URLSearchParams(location.split('?')[1]);
-      const memberId = urlParams.get('member');
+      const urlParams = new URLSearchParams(location.split("?")[1]);
+      const memberId = urlParams.get("member");
       if (memberId && !selectedMember) {
-        const member = (allMembers as Member[]).find(m => m.id === parseInt(memberId));
+        const member = (allMembers as Member[]).find(
+          (m) => m.id === parseInt(memberId),
+        );
         if (member) {
           setSelectedMember(member);
         }
@@ -235,35 +237,57 @@ export default function FamilyTree() {
         <Tabs defaultValue="elegant" className="w-full">
           <div className="flex justify-center mb-8">
             <TabsList className="grid grid-cols-6 w-full max-w-6xl h-auto py-2">
-              <TabsTrigger value="elegant" className="flex flex-col items-center gap-1 text-xs px-1 py-2 min-h-[3rem]">
-                <TreePine size={14} />
-                <span className="text-center leading-tight">Elegant Tree</span>
-              </TabsTrigger>
-              <TabsTrigger value="explorer" className="flex flex-col items-center gap-1 text-xs px-1 py-2 min-h-[3rem]">
+              <TabsTrigger
+                value="explorer"
+                className="flex flex-col items-center gap-1 text-xs px-1 py-2 min-h-[3rem]"
+              >
                 <Search size={14} />
-                <span className="text-center leading-tight">{t("familyTree.selectMember")}</span>
+                <span className="text-center leading-tight">
+                  {t("familyTree.selectMember")}
+                </span>
               </TabsTrigger>
-              <TabsTrigger value="table" className="flex flex-col items-center gap-1 text-xs px-1 py-2 min-h-[3rem]">
+              <TabsTrigger
+                value="elegant"
+                className="flex flex-col items-center gap-1 text-xs px-1 py-2 min-h-[3rem]"
+              >
+                <TreePine size={14} />
+                <span className="text-center leading-tight">Family Branch</span>
+              </TabsTrigger>
+              <TabsTrigger
+                value="table"
+                className="flex flex-col items-center gap-1 text-xs px-1 py-2 min-h-[3rem]"
+              >
                 <Users size={14} />
-                <span className="text-center leading-tight">{t("familyTree.directRelationships")}</span>
+                <span className="text-center leading-tight">
+                  {t("familyTree.directRelationships")}
+                </span>
               </TabsTrigger>
               <TabsTrigger
                 value="comprehensive"
                 className="flex flex-col items-center gap-1 text-xs px-1 py-2 min-h-[3rem]"
               >
                 <Heart size={14} />
-                <span className="text-center leading-tight">{t("familyTree.allRelations")}</span>
+                <span className="text-center leading-tight">
+                  {t("familyTree.allRelations")}
+                </span>
               </TabsTrigger>
-              <TabsTrigger value="network" className="flex flex-col items-center gap-1 text-xs px-1 py-2 min-h-[3rem]">
+              <TabsTrigger
+                value="network"
+                className="flex flex-col items-center gap-1 text-xs px-1 py-2 min-h-[3rem]"
+              >
                 <Network size={14} />
-                <span className="text-center leading-tight">{t("familyTree.familyNetworkAnalysis")}</span>
+                <span className="text-center leading-tight">
+                  {t("familyTree.familyNetworkAnalysis")}
+                </span>
               </TabsTrigger>
               <TabsTrigger
                 value="counters"
                 className="flex flex-col items-center gap-1 text-xs px-1 py-2 min-h-[3rem]"
               >
                 <BarChart3 size={14} />
-                <span className="text-center leading-tight">Relationship Counters</span>
+                <span className="text-center leading-tight">
+                  Relationship Counters
+                </span>
               </TabsTrigger>
             </TabsList>
           </div>
@@ -275,7 +299,9 @@ export default function FamilyTree() {
                   member={selectedMember}
                   relationships={filteredMemberRelationships}
                   onMemberClick={(memberId) => {
-                    const clickedMember = allMembers?.find((m: Member) => m.id === memberId);
+                    const clickedMember = allMembers?.find(
+                      (m: Member) => m.id === memberId,
+                    );
                     if (clickedMember) {
                       setSelectedMember(clickedMember);
                     }
@@ -333,7 +359,9 @@ export default function FamilyTree() {
                               }`}
                             >
                               <h4 className={`font-medium ${colors.text}`}>
-                                {member.fullName} {transformedMember.gender && `• ${transformedMember.gender}`}
+                                {member.fullName}{" "}
+                                {transformedMember.gender &&
+                                  `• ${transformedMember.gender}`}
                               </h4>
                               <p className="text-sm text-gray-600">
                                 {member.email}
@@ -372,7 +400,9 @@ export default function FamilyTree() {
                               }`}
                             >
                               <h4 className={`font-medium ${colors.text}`}>
-                                {member.fullName} {transformedMember.gender && `• ${transformedMember.gender}`}
+                                {member.fullName}{" "}
+                                {transformedMember.gender &&
+                                  `• ${transformedMember.gender}`}
                               </h4>
                               <p className="text-sm text-gray-600">
                                 {member.email}
@@ -420,14 +450,16 @@ export default function FamilyTree() {
                     </div>
 
                     {/* Family Story Export */}
-                    {selectedMember && filteredMemberRelationships && filteredMemberRelationships.length > 0 && (
-                      <div className="flex justify-center">
-                        <FamilyStoryExport 
-                          member={selectedMember}
-                          relationships={filteredMemberRelationships}
-                        />
-                      </div>
-                    )}
+                    {selectedMember &&
+                      filteredMemberRelationships &&
+                      filteredMemberRelationships.length > 0 && (
+                        <div className="flex justify-center">
+                          <FamilyStoryExport
+                            member={selectedMember}
+                            relationships={filteredMemberRelationships}
+                          />
+                        </div>
+                      )}
                   </>
                 ) : (
                   <Card className="p-12 text-center">
@@ -476,7 +508,7 @@ export default function FamilyTree() {
 
                 {/* Family Story Export Button */}
                 <div className="flex justify-center">
-                  <FamilyStoryExport 
+                  <FamilyStoryExport
                     member={selectedMember}
                     relationships={filteredMemberRelationships}
                   />
@@ -787,7 +819,8 @@ export default function FamilyTree() {
                   Select a Member
                 </h3>
                 <p className="text-gray-500">
-                  Choose a member to view their relationship statistics and counters
+                  Choose a member to view their relationship statistics and
+                  counters
                 </p>
               </Card>
             )}
