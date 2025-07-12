@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { useLocation } from "wouter";
+import { useLocation, useRoute } from "wouter";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -72,12 +72,22 @@ const relationshipTypes = [
   "Other",
 ];
 
+// Helper function to check if member profile is incomplete
+const isProfileIncomplete = (member: Member, relationships: Array<Relationship & { relatedMember: Member }>) => {
+  // Check for missing critical information
+  const hasEmptyFields = !member.email || !member.phone || !member.currentCity || !member.currentState;
+  const hasNoRelationships = relationships.length === 0;
+  const hasMinimalInfo = !member.fatherName && !member.motherName && !member.spouseName;
+  
+  return hasEmptyFields || hasNoRelationships || hasMinimalInfo;
+};
+
 export default function FamilyTree() {
   const { t } = useTranslation();
   const { transformMemberData } = useFormDataTransformation();
   const queryClient = useQueryClient();
   const { toast } = useToast();
-  const [location] = useLocation();
+  const [location, navigate] = useLocation();
   const [selectedMember, setSelectedMember] = useState<Member | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState<Member[]>([]);
@@ -130,6 +140,26 @@ export default function FamilyTree() {
   console.log("Selected member:", selectedMember?.fullName);
   console.log("All relationships for member:", memberRelationships);
   console.log("Filtered relationships:", filteredMemberRelationships);
+
+  // Check for incomplete profiles and redirect to member details
+  useEffect(() => {
+    if (selectedMember && filteredMemberRelationships) {
+      const isIncomplete = isProfileIncomplete(selectedMember, filteredMemberRelationships);
+      if (isIncomplete) {
+        // Show toast with helpful message
+        toast({
+          title: "Profile Incomplete",
+          description: `${selectedMember.fullName}'s profile needs more information. Redirecting to complete details...`,
+          duration: 3000,
+        });
+        
+        // Redirect to member details page after a short delay
+        setTimeout(() => {
+          navigate(`/member-details/${selectedMember.id}?from=family-tree&incomplete=true`);
+        }, 2000);
+      }
+    }
+  }, [selectedMember, filteredMemberRelationships, navigate, toast]);
 
   // Search for members
   const searchMembers = async (term: string) => {

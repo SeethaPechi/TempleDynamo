@@ -457,6 +457,7 @@ export default function MemberDetails() {
   // Handle both route patterns: /member/:id and /member-details/:id
   const [, memberParams] = useRoute("/member/:id");
   const [, memberDetailsParams] = useRoute("/member-details/:id");
+  const [location] = useLocation();
 
   // Extract member ID from whichever route matches
   const memberId = memberParams?.id
@@ -464,6 +465,11 @@ export default function MemberDetails() {
     : memberDetailsParams?.id
       ? parseInt(memberDetailsParams.id)
       : null;
+      
+  // Check if redirected from family tree due to incomplete profile
+  const urlParams = new URLSearchParams(location.split("?")[1] || "");
+  const isIncompleteRedirect = urlParams.get("incomplete") === "true";
+  const fromFamilyTree = urlParams.get("from") === "family-tree";
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isAddRelativeOpen, setIsAddRelativeOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -952,6 +958,46 @@ export default function MemberDetails() {
               </h1>
             </div>
           </div>
+
+          {/* Incomplete Profile Alert */}
+          {isIncompleteRedirect && fromFamilyTree && (
+            <Card className="mb-6 border-l-4 border-l-orange-500 bg-orange-50">
+              <div className="p-4">
+                <div className="flex items-start">
+                  <div className="flex-shrink-0">
+                    <svg className="h-5 w-5 text-orange-400" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <div className="ml-3">
+                    <h3 className="text-sm font-medium text-orange-800">
+                      Complete Your Profile
+                    </h3>
+                    <div className="mt-2 text-sm text-orange-700">
+                      <p>
+                        This profile needs more information to show a complete family tree. Please:
+                      </p>
+                      <ul className="mt-2 list-disc list-inside space-y-1">
+                        <li>Fill in missing contact details (email, phone)</li>
+                        <li>Add location information (city, state)</li>
+                        <li>Include family details (parents, spouse)</li>
+                        <li>Add family relationships using "Manage Relatives"</li>
+                      </ul>
+                    </div>
+                    <div className="mt-3">
+                      <Button
+                        size="sm"
+                        onClick={() => setIsEditModalOpen(true)}
+                        className="bg-orange-600 hover:bg-orange-700 text-white"
+                      >
+                        Start Editing Profile
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </Card>
+          )}
 
           {/* Member Profile Card */}
           <Card className="mb-8 overflow-hidden">
