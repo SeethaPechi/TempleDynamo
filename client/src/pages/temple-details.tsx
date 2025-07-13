@@ -21,9 +21,12 @@ import {
   MapIcon,
   Eye,
   Edit,
-  Building
+  Building,
+  ChevronLeft,
+  ChevronRight
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useCallback, useEffect } from "react";
+import useEmblaCarousel from "embla-carousel-react";
 import type { Temple, Member } from "@shared/schema";
 
 export default function TempleDetails() {
@@ -32,6 +35,26 @@ export default function TempleDetails() {
   const [selectedMembers, setSelectedMembers] = useState<Member[]>([]);
   const [isShowingMembers, setIsShowingMembers] = useState(false);
   const [previewImage, setPreviewImage] = useState<string>("");
+  
+  // Carousel setup
+  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true });
+  const [canScrollPrev, setCanScrollPrev] = useState(false);
+  const [canScrollNext, setCanScrollNext] = useState(false);
+  
+  const scrollPrev = useCallback(() => emblaApi && emblaApi.scrollPrev(), [emblaApi]);
+  const scrollNext = useCallback(() => emblaApi && emblaApi.scrollNext(), [emblaApi]);
+  
+  const onSelect = useCallback(() => {
+    if (!emblaApi) return;
+    setCanScrollPrev(emblaApi.canScrollPrev());
+    setCanScrollNext(emblaApi.canScrollNext());
+  }, [emblaApi]);
+  
+  useEffect(() => {
+    if (!emblaApi) return;
+    onSelect();
+    emblaApi.on("select", onSelect);
+  }, [emblaApi, onSelect]);
 
   // Fetch temple details
   const { data: temple, isLoading: isLoadingTemple } = useQuery<Temple>({
@@ -426,27 +449,75 @@ export default function TempleDetails() {
                   <p>{t("temples.noPhotos")}</p>
                 </div>
               ) : (
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                  {temple.templePhotos.map((photo, index) => (
-                    <div key={index} className="relative group cursor-pointer">
-                      <div 
-                        className="aspect-square rounded-lg overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow"
-                        onClick={() => setPreviewImage(photo)}
-                      >
-                        <img
-                          src={photo}
-                          alt={`Temple photo ${index + 1}`}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                        />
-                      </div>
-                      <Badge 
-                        variant="secondary" 
-                        className="absolute top-2 left-2 text-xs"
-                      >
-                        {index + 1}
-                      </Badge>
+                <div className="relative">
+                  {/* Photo Carousel */}
+                  <div className="overflow-hidden rounded-lg" ref={emblaRef}>
+                    <div className="flex">
+                      {temple.templePhotos.map((photo, index) => (
+                        <div key={index} className="flex-[0_0_100%] min-w-0 relative">
+                          <div 
+                            className="aspect-video cursor-pointer bg-gray-100"
+                            onClick={() => setPreviewImage(photo)}
+                          >
+                            <img
+                              src={photo}
+                              alt={`Temple photo ${index + 1}`}
+                              className="w-full h-full object-contain hover:scale-105 transition-transform duration-300"
+                            />
+                          </div>
+                          <Badge 
+                            variant="secondary" 
+                            className="absolute top-4 left-4 text-sm"
+                          >
+                            {index + 1} / {temple.templePhotos.length}
+                          </Badge>
+                        </div>
+                      ))}
                     </div>
-                  ))}
+                  </div>
+                  
+                  {/* Navigation Buttons */}
+                  {temple.templePhotos.length > 1 && (
+                    <>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white"
+                        onClick={scrollPrev}
+                        disabled={!canScrollPrev}
+                      >
+                        <ChevronLeft className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white"
+                        onClick={scrollNext}
+                        disabled={!canScrollNext}
+                      >
+                        <ChevronRight className="h-4 w-4" />
+                      </Button>
+                    </>
+                  )}
+                  
+                  {/* Thumbnail Navigation */}
+                  {temple.templePhotos.length > 1 && (
+                    <div className="flex justify-center mt-4 space-x-2">
+                      {temple.templePhotos.map((photo, index) => (
+                        <button
+                          key={index}
+                          className="w-16 h-12 rounded-md overflow-hidden border-2 border-transparent hover:border-saffron-500 transition-colors"
+                          onClick={() => emblaApi?.scrollTo(index)}
+                        >
+                          <img
+                            src={photo}
+                            alt={`Thumbnail ${index + 1}`}
+                            className="w-full h-full object-cover"
+                          />
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
             </CardContent>

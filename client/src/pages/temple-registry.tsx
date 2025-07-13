@@ -14,9 +14,10 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { Building, MapPin, Home, Calendar, Phone, Mail, Link as LinkIcon, Upload, X } from "lucide-react";
+import { Building, MapPin, Home, Calendar, Phone, Mail, Link as LinkIcon, Upload, X, Globe, Map } from "lucide-react";
 import { useTranslation } from 'react-i18next';
 import type { Temple } from "@shared/schema";
+import { PhotoUpload } from "@/components/photo-upload";
 
 
 const templeRegistrationSchema = z.object({
@@ -32,6 +33,22 @@ const templeRegistrationSchema = z.object({
   contactEmail: z.string().email("Please enter a valid email address").optional().or(z.literal("")),
   description: z.string().optional(),
   templeImage: z.string().optional(),
+  templePhotos: z.array(z.string()).max(10, "Maximum 10 photos allowed").default([]),
+  googleMapLink: z
+    .string()
+    .url("Please enter a valid Google Maps URL")
+    .optional()
+    .or(z.literal("")),
+  websiteLink: z
+    .string()
+    .url("Please enter a valid website URL")
+    .optional()
+    .or(z.literal("")),
+  wikiLink: z
+    .string()
+    .url("Please enter a valid Wikipedia URL")
+    .optional()
+    .or(z.literal("")),
 });
 
 type TempleRegistrationData = z.infer<typeof templeRegistrationSchema>;
@@ -376,63 +393,11 @@ export default function TempleRegistry() {
   const [selectedLinkedTemples, setSelectedLinkedTemples] = useState<string[]>([]);
   const [selectedCountry, setSelectedCountry] = useState("");
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
+  const [templePhotos, setTemplePhotos] = useState<string[]>([]);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const handleImageUpload = (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      // Check file size (limit to 5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        toast({
-          title: "Error",
-          description: "Image size must be less than 5MB",
-          variant: "destructive",
-        });
-        return;
-      }
 
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const imageData = e.target?.result as string;
-        
-        // Create canvas to resize image
-        const img = new Image();
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          const ctx = canvas.getContext('2d');
-          
-          // Calculate new dimensions (max 800px width/height)
-          const maxSize = 800;
-          let { width, height } = img;
-          
-          if (width > height) {
-            if (width > maxSize) {
-              height = (height * maxSize) / width;
-              width = maxSize;
-            }
-          } else {
-            if (height > maxSize) {
-              width = (width * maxSize) / height;
-              height = maxSize;
-            }
-          }
-          
-          canvas.width = width;
-          canvas.height = height;
-          
-          // Draw and compress
-          ctx?.drawImage(img, 0, 0, width, height);
-          const compressedImage = canvas.toDataURL('image/jpeg', 0.8);
-          
-          setUploadedImage(compressedImage);
-          form.setValue("templeImage", compressedImage);
-        };
-        img.src = imageData;
-      };
-      reader.readAsDataURL(file);
-    }
-  };
 
   const form = useForm<TempleRegistrationData>({
     resolver: zodResolver(templeRegistrationSchema),
@@ -449,6 +414,10 @@ export default function TempleRegistry() {
       contactEmail: "",
       description: "",
       templeImage: "",
+      templePhotos: [],
+      googleMapLink: "",
+      websiteLink: "",
+      wikiLink: "",
     },
   });
 
@@ -483,6 +452,17 @@ export default function TempleRegistry() {
     },
   });
 
+  // Photo handlers
+  const handleTempleImageChange = (newImage: string) => {
+    setUploadedImage(newImage);
+    form.setValue("templeImage", newImage);
+  };
+
+  const handleTemplePhotosChange = (newPhotos: string[]) => {
+    setTemplePhotos(newPhotos);
+    form.setValue("templePhotos", newPhotos);
+  };
+
   const handleLinkedTempleChange = (templeId: string, checked: boolean) => {
     if (checked) {
       setSelectedLinkedTemples([...selectedLinkedTemples, templeId]);
@@ -496,14 +476,18 @@ export default function TempleRegistry() {
       ...data,
       linkedTemples: selectedLinkedTemples,
       templeImage: uploadedImage || "",
+      templePhotos: templePhotos,
     };
     registrationMutation.mutate(transformedData);
   };
 
-
-
   const handleCloseModal = () => {
     setShowSuccessModal(false);
+    // Clear form and navigate to temples page
+    form.reset();
+    setUploadedImage(null);
+    setTemplePhotos([]);
+    setSelectedLinkedTemples([]);
     setLocation("/temples");
   };
 
@@ -609,59 +593,7 @@ export default function TempleRegistry() {
                       )}
                     />
 
-                    {/* Temple Image Upload */}
-                    <div className="md:col-span-2">
-                      <FormLabel className="text-base font-medium">Temple Image</FormLabel>
-                      <div className="mt-2 space-y-4">
-                        {uploadedImage ? (
-                          <div className="relative">
-                            <img
-                              src={uploadedImage}
-                              alt="Temple"
-                              className="w-full h-48 object-cover rounded-lg border"
-                            />
-                            <Button
-                              type="button"
-                              variant="destructive"
-                              size="sm"
-                              className="absolute top-2 right-2"
-                              onClick={() => {
-                                setUploadedImage(null);
-                                form.setValue("templeImage", "");
-                              }}
-                            >
-                              <X className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        ) : (
-                          <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
-                            <Upload className="mx-auto h-12 w-12 text-gray-400" />
-                            <div className="mt-4">
-                              <label className="cursor-pointer">
-                                <Button
-                                  type="button"
-                                  className="bg-saffron-500 hover:bg-saffron-600"
-                                  onClick={() => document.getElementById('temple-image-upload')?.click()}
-                                >
-                                  <Upload className="mr-2 h-4 w-4" />
-                                  Upload Image
-                                </Button>
-                                <input
-                                  id="temple-image-upload"
-                                  type="file"
-                                  accept="image/*"
-                                  onChange={handleImageUpload}
-                                  className="hidden"
-                                />
-                              </label>
-                            </div>
-                            <p className="mt-2 text-sm text-gray-500">
-                              Choose an image file for the temple
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                    </div>
+
                   </div>
                 </div>
 
@@ -826,6 +758,84 @@ export default function TempleRegistry() {
                     </div>
                   </div>
                 )}
+
+                {/* External Links */}
+                <div className="border-l-4 border-temple-gold pl-6">
+                  <h3 className="text-xl font-semibold text-temple-brown mb-6 flex items-center">
+                    <Globe className="text-temple-gold mr-3" size={24} />
+                    {t('temples.externalLinks')}
+                  </h3>
+                  <div className="grid md:grid-cols-1 gap-6">
+                    <FormField
+                      control={form.control}
+                      name="googleMapLink"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>{t('temples.googleMapLink')}</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder={t('temples.googleMapPlaceholder')}
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="websiteLink"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>{t('temples.websiteLink')}</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder={t('temples.websitePlaceholder')}
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="wikiLink"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>{t('temples.wikiLink')}</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder={t('temples.wikiPlaceholder')}
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
+
+                {/* Temple Photos */}
+                <div className="border-l-4 border-temple-gold pl-6">
+                  <h3 className="text-xl font-semibold text-temple-brown mb-6 flex items-center">
+                    <Upload className="text-temple-gold mr-3" size={24} />
+                    Temple Photos
+                  </h3>
+                  <PhotoUpload
+                    photos={templePhotos}
+                    onPhotosChange={handleTemplePhotosChange}
+                    allowProfilePicture={true}
+                    profilePicture={uploadedImage || ""}
+                    onProfilePictureChange={handleTempleImageChange}
+                    title="Main Temple Image"
+                    description="Upload main temple image and additional photos"
+                    maxPhotos={10}
+                  />
+                </div>
 
                 <div className="flex justify-end space-x-4">
                   <Button

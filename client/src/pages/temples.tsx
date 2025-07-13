@@ -1035,7 +1035,8 @@ export default function Temples() {
             {paginatedTemples.map((temple: Temple, index: number) => (
               <Card
                 key={temple.id}
-                className="overflow-hidden hover:shadow-xl transition-shadow border border-temple-gold/20"
+                className="overflow-hidden hover:shadow-xl transition-shadow border border-temple-gold/20 cursor-pointer"
+                onClick={() => window.open(`/temple/${temple.id}`, "_blank")}
               >
                 <div
                   className={`bg-gradient-to-r ${getGradientColor(index)} p-4`}
@@ -1176,18 +1177,12 @@ export default function Temples() {
                   )}
 
                   {/* Action Buttons */}
-                  <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-2">
+                  <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-2">
                     <Button
-                      onClick={() => window.open(`/temple/${temple.id}`, "_blank")}
-                      variant="outline"
-                      size="sm"
-                      className="border-saffron-300 text-saffron-600 hover:bg-saffron-50"
-                    >
-                      <Eye className="mr-2" size={14} />
-                      {t("temples.viewDetails")}
-                    </Button>
-                    <Button
-                      onClick={() => handleEditTemple(temple)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleEditTemple(temple);
+                      }}
                       variant="outline"
                       size="sm"
                       className="border-temple-gold text-temple-brown hover:bg-temple-gold/10"
@@ -1196,7 +1191,10 @@ export default function Temples() {
                       {t("common.edit")}
                     </Button>
                     <Button
-                      onClick={() => handleDeleteTemple(temple)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteTemple(temple);
+                      }}
                       variant="outline"
                       size="sm"
                       className="border-red-300 text-red-600 hover:bg-red-50"
