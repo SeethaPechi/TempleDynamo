@@ -1,4 +1,5 @@
 import { useState, useEffect, ChangeEvent } from "react";
+import { useLocation } from "wouter";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -488,6 +489,7 @@ type TempleEditData = z.infer<typeof templeEditSchema>;
 
 export default function Temples() {
   const { t } = useTranslation();
+  const [, setLocation] = useLocation();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedState, setSelectedState] = useState("");
   const [selectedCountry, setSelectedCountry] = useState("");
@@ -1036,7 +1038,7 @@ export default function Temples() {
               <Card
                 key={temple.id}
                 className="overflow-hidden hover:shadow-xl transition-shadow border border-temple-gold/20 cursor-pointer"
-                onClick={() => window.open(`/temple/${temple.id}`, "_blank")}
+                onClick={() => setLocation(`/temple/${temple.id}`)}
               >
                 <div
                   className={`bg-gradient-to-r ${getGradientColor(index)} p-4`}
