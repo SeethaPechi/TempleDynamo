@@ -578,6 +578,25 @@ export default function Temples() {
     },
   });
 
+  // Silent update mutation for photo uploads (doesn't close modal)
+  const silentUpdateMutation = useMutation({
+    mutationFn: async (data: TempleEditData) => {
+      if (!selectedTemple) throw new Error("No temple selected");
+      return await apiRequest("PUT", `/api/temples/${selectedTemple.id}`, data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/temples"] });
+      // Don't show toast or close modal for silent updates
+    },
+    onError: (error: any) => {
+      toast({
+        title: t("temples.updateError"),
+        description: error.message || t("temples.updateErrorDesc"),
+        variant: "destructive",
+      });
+    },
+  });
+
   // Temple delete mutation
   const deleteTempleMutation = useMutation({
     mutationFn: async (templeId: number) => {
@@ -782,11 +801,11 @@ export default function Temples() {
     setUploadedImage(newImage);
     form.setValue("templeImage", newImage);
     
-    // Auto-save to database immediately
+    // Auto-save to database immediately using silent mutation
     if (selectedTemple) {
       const formData = form.getValues();
       const updatedData = { ...formData, templeImage: newImage };
-      updateTempleMutation.mutate(updatedData);
+      silentUpdateMutation.mutate(updatedData);
     }
   };
 
@@ -794,11 +813,11 @@ export default function Temples() {
     setTemplePhotos(newPhotos);
     form.setValue("templePhotos", newPhotos);
     
-    // Auto-save to database immediately
+    // Auto-save to database immediately using silent mutation
     if (selectedTemple) {
       const formData = form.getValues();
       const updatedData = { ...formData, templePhotos: newPhotos };
-      updateTempleMutation.mutate(updatedData);
+      silentUpdateMutation.mutate(updatedData);
     }
   };
 
