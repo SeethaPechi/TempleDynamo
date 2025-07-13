@@ -20,7 +20,8 @@ import {
   Heart,
   MapIcon,
   Eye,
-  Edit
+  Edit,
+  Building
 } from "lucide-react";
 import { useState } from "react";
 import type { Temple, Member } from "@shared/schema";
@@ -126,100 +127,170 @@ export default function TempleDetails() {
 
         {/* Temple Information */}
         <TabsContent value="info" className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Basic Information */}
+          <div className="grid grid-cols-1 gap-6">
+            {/* Temple Information Section */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Building className="text-saffron-600" size={20} />
+                  <span>{t("temples.templeInformation")}</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <div>
+                      <label className="text-sm font-medium text-gray-500">{t("templeRegistry.form.templeName")}</label>
+                      <p className="text-lg font-medium text-gray-900">{temple.templeName}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-500">{t("templeRegistry.form.deity")}</label>
+                      <p className="text-gray-900">{temple.deity || "Not specified"}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-500">{t("temples.established")}</label>
+                      <p className="text-gray-900">{temple.establishedYear || "Not specified"}</p>
+                    </div>
+                  </div>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="text-sm font-medium text-gray-500">{t("temples.description")}</label>
+                      <p className="text-gray-900">{temple.description || "No description available"}</p>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Temple Image */}
+                {temple.templeImage && (
+                  <div className="mt-6">
+                    <label className="text-sm font-medium text-gray-500 block mb-2">Temple Image</label>
+                    <div className="relative w-full max-w-md mx-auto">
+                      <img
+                        src={temple.templeImage}
+                        alt={temple.templeName}
+                        className="w-full h-64 object-cover rounded-lg border-2 border-saffron-200 shadow-md"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.style.display = 'none';
+                        }}
+                      />
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Location Information Section */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
                   <MapPin className="text-saffron-600" size={20} />
-                  <span>{t("temples.templeInformation")}</span>
+                  <span>{t("templeRegistry.locationInformation")}</span>
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <label className="font-semibold text-gray-700">{t("temples.deity")}:</label>
-                  <p className="text-gray-600">{temple.deity || "Not specified"}</p>
-                </div>
-                <div>
-                  <label className="font-semibold text-gray-700">{t("temples.description")}:</label>
-                  <p className="text-gray-600">{temple.description || "No description available"}</p>
-                </div>
-                <div>
-                  <label className="font-semibold text-gray-700">{t("registry.address")}:</label>
-                  <p className="text-gray-600">
-                    {temple.address && `${temple.address}, `}
-                    {temple.city}, {temple.state}
-                    {temple.country && `, ${temple.country}`}
-                    {temple.zipCode && ` ${temple.zipCode}`}
-                  </p>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <div>
+                      <label className="text-sm font-medium text-gray-500">{t("templeRegistry.form.country")}</label>
+                      <p className="text-gray-900">{temple.country || "Not specified"}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-500">{t("templeRegistry.form.state")}</label>
+                      <p className="text-gray-900">{temple.state}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-500">{t("templeRegistry.form.village")}</label>
+                      <p className="text-gray-900">{temple.village}</p>
+                    </div>
+                  </div>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="text-sm font-medium text-gray-500">{t("templeRegistry.form.nearestCity")}</label>
+                      <p className="text-gray-900">{temple.nearestCity}</p>
+                    </div>
+                    {temple.address && (
+                      <div>
+                        <label className="text-sm font-medium text-gray-500">Full Address</label>
+                        <p className="text-gray-900">
+                          {temple.address}
+                          {temple.zipCode && `, ${temple.zipCode}`}
+                        </p>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </CardContent>
             </Card>
 
-            {/* Contact Information */}
+            {/* Contact Information Section */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
                   <Phone className="text-saffron-600" size={20} />
-                  <span>{t("registry.contactInfo")}</span>
+                  <span>{t("templeRegistry.contactInformation")}</span>
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                {temple.contactNumber && (
-                  <div>
-                    <label className="font-semibold text-gray-700">{t("registry.phone")}:</label>
-                    <p className="text-gray-600">{temple.contactNumber}</p>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    {temple.contactPhone && (
+                      <div>
+                        <label className="text-sm font-medium text-gray-500">{t("templeRegistry.form.contactPhone")}</label>
+                        <p className="text-gray-900">{temple.contactPhone}</p>
+                      </div>
+                    )}
+                    {temple.contactEmail && (
+                      <div>
+                        <label className="text-sm font-medium text-gray-500">{t("templeRegistry.form.contactEmail")}</label>
+                        <p className="text-gray-900">{temple.contactEmail}</p>
+                      </div>
+                    )}
                   </div>
-                )}
-                {temple.email && (
-                  <div>
-                    <label className="font-semibold text-gray-700">{t("registry.email")}:</label>
-                    <p className="text-gray-600">{temple.email}</p>
+                  <div className="space-y-2">
+                    {temple.websiteLink && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => window.open(formatUrl(temple.websiteLink), "_blank")}
+                        className="w-full justify-start"
+                      >
+                        <Globe className="mr-2" size={14} />
+                        {t("temples.visitWebsite")}
+                        <ExternalLink className="ml-auto" size={14} />
+                      </Button>
+                    )}
+                    {temple.googleMapLink && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => window.open(formatUrl(temple.googleMapLink), "_blank")}
+                        className="w-full justify-start"
+                      >
+                        <MapIcon className="mr-2" size={14} />
+                        {t("temples.viewOnMaps")}
+                        <ExternalLink className="ml-auto" size={14} />
+                      </Button>
+                    )}
+                    {temple.wikiLink && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => window.open(formatUrl(temple.wikiLink), "_blank")}
+                        className="w-full justify-start"
+                      >
+                        <Globe className="mr-2" size={14} />
+                        {t("temples.viewWikipedia")}
+                        <ExternalLink className="ml-auto" size={14} />
+                      </Button>
+                    )}
                   </div>
-                )}
-                <div className="space-y-2">
-                  {temple.website && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => window.open(formatUrl(temple.website), "_blank")}
-                      className="w-full justify-start"
-                    >
-                      <Globe className="mr-2" size={14} />
-                      {t("temples.visitWebsite")}
-                      <ExternalLink className="ml-auto" size={14} />
-                    </Button>
-                  )}
-                  {temple.googleMapsLink && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => window.open(formatUrl(temple.googleMapsLink), "_blank")}
-                      className="w-full justify-start"
-                    >
-                      <MapIcon className="mr-2" size={14} />
-                      {t("temples.viewOnMaps")}
-                      <ExternalLink className="ml-auto" size={14} />
-                    </Button>
-                  )}
-                  {temple.wikipediaLink && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => window.open(formatUrl(temple.wikipediaLink), "_blank")}
-                      className="w-full justify-start"
-                    >
-                      <Globe className="mr-2" size={14} />
-                      {t("temples.viewWikipedia")}
-                      <ExternalLink className="ml-auto" size={14} />
-                    </Button>
-                  )}
                 </div>
               </CardContent>
             </Card>
 
             {/* Additional Details */}
-            <Card className="lg:col-span-2">
+            <Card>
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
                   <Calendar className="text-saffron-600" size={20} />
@@ -349,14 +420,14 @@ export default function TempleDetails() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {(!temple.photos || temple.photos.length === 0) ? (
+              {(!temple.templePhotos || temple.templePhotos.length === 0) ? (
                 <div className="text-center py-8 text-gray-500">
                   <Camera size={48} className="mx-auto mb-4 text-gray-300" />
                   <p>{t("temples.noPhotos")}</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                  {temple.photos.map((photo, index) => (
+                  {temple.templePhotos.map((photo, index) => (
                     <div key={index} className="relative group cursor-pointer">
                       <div 
                         className="aspect-square rounded-lg overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow"
