@@ -53,6 +53,7 @@ import {
   ExternalLink,
   Globe,
   Map,
+  Eye,
   Users,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -1175,12 +1176,21 @@ export default function Temples() {
                   )}
 
                   {/* Action Buttons */}
-                  <div className="mt-6 flex space-x-2">
+                  <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    <Button
+                      onClick={() => window.open(`/temple/${temple.id}`, "_blank")}
+                      variant="outline"
+                      size="sm"
+                      className="border-saffron-300 text-saffron-600 hover:bg-saffron-50"
+                    >
+                      <Eye className="mr-2" size={14} />
+                      {t("temples.viewDetails")}
+                    </Button>
                     <Button
                       onClick={() => handleEditTemple(temple)}
                       variant="outline"
                       size="sm"
-                      className="flex-1 border-temple-gold text-temple-brown hover:bg-temple-gold/10"
+                      className="border-temple-gold text-temple-brown hover:bg-temple-gold/10"
                     >
                       <Edit className="mr-2" size={14} />
                       {t("common.edit")}

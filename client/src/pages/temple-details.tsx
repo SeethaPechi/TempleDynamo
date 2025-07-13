@@ -1,0 +1,469 @@
+import { useParams } from "wouter";
+import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { 
+  MapPin, 
+  Phone, 
+  Globe, 
+  Calendar, 
+  Users, 
+  Camera,
+  ExternalLink,
+  User,
+  Mail,
+  Heart,
+  MapIcon,
+  Eye,
+  Edit
+} from "lucide-react";
+import { useState } from "react";
+import type { Temple, Member } from "@shared/schema";
+
+export default function TempleDetails() {
+  const { id } = useParams();
+  const { t } = useTranslation();
+  const [selectedMembers, setSelectedMembers] = useState<Member[]>([]);
+  const [isShowingMembers, setIsShowingMembers] = useState(false);
+  const [previewImage, setPreviewImage] = useState<string>("");
+
+  // Fetch temple details
+  const { data: temple, isLoading: isLoadingTemple } = useQuery<Temple>({
+    queryKey: ["/api/temples", id],
+    queryFn: async () => {
+      const response = await fetch(`/api/temples/${id}`);
+      if (!response.ok) throw new Error("Failed to fetch temple");
+      return response.json();
+    },
+    enabled: !!id,
+  });
+
+  // Fetch all members to filter by temple
+  const { data: allMembers = [] } = useQuery<Member[]>({
+    queryKey: ["/api/members"],
+  });
+
+  // Filter members associated with this temple
+  const templeMembers = allMembers.filter(member => 
+    member.templeId === parseInt(id || "0")
+  );
+
+  if (isLoadingTemple) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="animate-pulse space-y-6">
+          <div className="h-8 bg-gray-200 rounded w-1/3"></div>
+          <div className="h-64 bg-gray-200 rounded"></div>
+          <div className="h-32 bg-gray-200 rounded"></div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!temple) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <Card className="text-center py-8">
+          <CardContent>
+            <h2 className="text-xl font-semibold text-gray-600 mb-2">
+              {t("temples.templeNotFound")}
+            </h2>
+            <p className="text-gray-500">
+              The temple you are looking for does not exist.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  const handleMembersClick = () => {
+    setSelectedMembers(templeMembers);
+    setIsShowingMembers(true);
+  };
+
+  const formatUrl = (url: string) => {
+    if (!url) return "";
+    return url.startsWith("http") ? url : `https://${url}`;
+  };
+
+  return (
+    <div className="container mx-auto px-4 py-8 space-y-8">
+      {/* Header */}
+      <div className="text-center space-y-4">
+        <h1 className="text-3xl font-bold text-temple-brown">
+          {temple.templeName}
+        </h1>
+        <div className="flex items-center justify-center space-x-4 text-gray-600">
+          <div className="flex items-center space-x-1">
+            <MapPin size={16} />
+            <span>{temple.city}, {temple.state}</span>
+          </div>
+          <div className="flex items-center space-x-1">
+            <Users size={16} />
+            <Button
+              variant="link"
+              onClick={handleMembersClick}
+              className="p-0 h-auto text-saffron-600 hover:text-saffron-700 underline"
+            >
+              {templeMembers.length} {t("common.members")}
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      <Tabs defaultValue="info" className="w-full">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="info">{t("temples.information")}</TabsTrigger>
+          <TabsTrigger value="members">{t("common.members")}</TabsTrigger>
+          <TabsTrigger value="photos">{t("common.photos")}</TabsTrigger>
+        </TabsList>
+
+        {/* Temple Information */}
+        <TabsContent value="info" className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Basic Information */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <MapPin className="text-saffron-600" size={20} />
+                  <span>{t("temples.templeInformation")}</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <label className="font-semibold text-gray-700">{t("temples.deity")}:</label>
+                  <p className="text-gray-600">{temple.deity || "Not specified"}</p>
+                </div>
+                <div>
+                  <label className="font-semibold text-gray-700">{t("temples.description")}:</label>
+                  <p className="text-gray-600">{temple.description || "No description available"}</p>
+                </div>
+                <div>
+                  <label className="font-semibold text-gray-700">{t("registry.address")}:</label>
+                  <p className="text-gray-600">
+                    {temple.address && `${temple.address}, `}
+                    {temple.city}, {temple.state}
+                    {temple.country && `, ${temple.country}`}
+                    {temple.zipCode && ` ${temple.zipCode}`}
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Contact Information */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Phone className="text-saffron-600" size={20} />
+                  <span>{t("registry.contactInfo")}</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {temple.contactNumber && (
+                  <div>
+                    <label className="font-semibold text-gray-700">{t("registry.phone")}:</label>
+                    <p className="text-gray-600">{temple.contactNumber}</p>
+                  </div>
+                )}
+                {temple.email && (
+                  <div>
+                    <label className="font-semibold text-gray-700">{t("registry.email")}:</label>
+                    <p className="text-gray-600">{temple.email}</p>
+                  </div>
+                )}
+                <div className="space-y-2">
+                  {temple.website && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => window.open(formatUrl(temple.website), "_blank")}
+                      className="w-full justify-start"
+                    >
+                      <Globe className="mr-2" size={14} />
+                      {t("temples.visitWebsite")}
+                      <ExternalLink className="ml-auto" size={14} />
+                    </Button>
+                  )}
+                  {temple.googleMapsLink && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => window.open(formatUrl(temple.googleMapsLink), "_blank")}
+                      className="w-full justify-start"
+                    >
+                      <MapIcon className="mr-2" size={14} />
+                      {t("temples.viewOnMaps")}
+                      <ExternalLink className="ml-auto" size={14} />
+                    </Button>
+                  )}
+                  {temple.wikipediaLink && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => window.open(formatUrl(temple.wikipediaLink), "_blank")}
+                      className="w-full justify-start"
+                    >
+                      <Globe className="mr-2" size={14} />
+                      {t("temples.viewWikipedia")}
+                      <ExternalLink className="ml-auto" size={14} />
+                    </Button>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Additional Details */}
+            <Card className="lg:col-span-2">
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Calendar className="text-saffron-600" size={20} />
+                  <span>{t("temples.additionalDetails")}</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {temple.establishedYear && (
+                    <div>
+                      <label className="font-semibold text-gray-700">{t("temples.established")}:</label>
+                      <p className="text-gray-600">{temple.establishedYear}</p>
+                    </div>
+                  )}
+                  {temple.festivals && (
+                    <div>
+                      <label className="font-semibold text-gray-700">{t("temples.festivals")}:</label>
+                      <p className="text-gray-600">{temple.festivals}</p>
+                    </div>
+                  )}
+                  {temple.architecture && (
+                    <div>
+                      <label className="font-semibold text-gray-700">{t("temples.architecture")}:</label>
+                      <p className="text-gray-600">{temple.architecture}</p>
+                    </div>
+                  )}
+                  {temple.significance && (
+                    <div>
+                      <label className="font-semibold text-gray-700">{t("temples.significance")}:</label>
+                      <p className="text-gray-600">{temple.significance}</p>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        {/* Temple Members */}
+        <TabsContent value="members" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <Users className="text-saffron-600" size={20} />
+                  <span>{t("temples.templeMembers")}</span>
+                </div>
+                <Badge variant="outline">
+                  {templeMembers.length} {t("common.members")}
+                </Badge>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {templeMembers.length === 0 ? (
+                <div className="text-center py-8 text-gray-500">
+                  <Users size={48} className="mx-auto mb-4 text-gray-300" />
+                  <p>{t("temples.noMembers")}</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {templeMembers.map((member) => (
+                    <Card key={member.id} className="hover:shadow-md transition-shadow">
+                      <CardContent className="p-4">
+                        <div className="flex items-start space-x-3">
+                          <div className="w-12 h-12 bg-saffron-100 rounded-full flex items-center justify-center">
+                            {member.profilePicture ? (
+                              <img
+                                src={member.profilePicture}
+                                alt={member.fullName}
+                                className="w-12 h-12 rounded-full object-cover"
+                              />
+                            ) : (
+                              <User className="text-saffron-600" size={24} />
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h4 className="font-semibold text-gray-900 truncate">
+                              {member.fullName}
+                            </h4>
+                            {member.email && (
+                              <div className="flex items-center space-x-1 text-sm text-gray-600">
+                                <Mail size={12} />
+                                <span className="truncate">{member.email}</span>
+                              </div>
+                            )}
+                            {member.phone && (
+                              <div className="flex items-center space-x-1 text-sm text-gray-600">
+                                <Phone size={12} />
+                                <span>{member.phone}</span>
+                              </div>
+                            )}
+                            {member.maritalStatus && (
+                              <div className="flex items-center space-x-1 text-sm text-gray-600">
+                                <Heart size={12} />
+                                <span>{member.maritalStatus}</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                        <div className="mt-3 flex space-x-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => window.open(`/member-details/${member.id}`, "_blank")}
+                            className="flex-1"
+                          >
+                            <Eye className="mr-1" size={12} />
+                            {t("common.view")}
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Temple Photos */}
+        <TabsContent value="photos" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <Camera className="text-saffron-600" size={20} />
+                <span>{t("temples.templePhotos")}</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {(!temple.photos || temple.photos.length === 0) ? (
+                <div className="text-center py-8 text-gray-500">
+                  <Camera size={48} className="mx-auto mb-4 text-gray-300" />
+                  <p>{t("temples.noPhotos")}</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  {temple.photos.map((photo, index) => (
+                    <div key={index} className="relative group cursor-pointer">
+                      <div 
+                        className="aspect-square rounded-lg overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow"
+                        onClick={() => setPreviewImage(photo)}
+                      >
+                        <img
+                          src={photo}
+                          alt={`Temple photo ${index + 1}`}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                        />
+                      </div>
+                      <Badge 
+                        variant="secondary" 
+                        className="absolute top-2 left-2 text-xs"
+                      >
+                        {index + 1}
+                      </Badge>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+
+      {/* Members Modal */}
+      <Dialog open={isShowingMembers} onOpenChange={setIsShowingMembers}>
+        <DialogContent className="max-w-4xl max-h-[80vh]">
+          <DialogHeader>
+            <DialogTitle>
+              {temple.templeName} {t("common.members")} ({selectedMembers.length})
+            </DialogTitle>
+          </DialogHeader>
+          <ScrollArea className="max-h-[60vh]">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
+              {selectedMembers.map((member) => (
+                <Card key={member.id} className="hover:shadow-md transition-shadow">
+                  <CardContent className="p-4">
+                    <div className="flex items-start space-x-3">
+                      <div className="w-12 h-12 bg-saffron-100 rounded-full flex items-center justify-center">
+                        {member.profilePicture ? (
+                          <img
+                            src={member.profilePicture}
+                            alt={member.fullName}
+                            className="w-12 h-12 rounded-full object-cover"
+                          />
+                        ) : (
+                          <User className="text-saffron-600" size={24} />
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-semibold text-gray-900 truncate">
+                          {member.fullName}
+                        </h4>
+                        {member.email && (
+                          <div className="flex items-center space-x-1 text-sm text-gray-600">
+                            <Mail size={12} />
+                            <span className="truncate">{member.email}</span>
+                          </div>
+                        )}
+                        {member.phone && (
+                          <div className="flex items-center space-x-1 text-sm text-gray-600">
+                            <Phone size={12} />
+                            <span>{member.phone}</span>
+                          </div>
+                        )}
+                        <div className="flex items-center space-x-1 text-sm text-gray-600">
+                          <MapPin size={12} />
+                          <span>{member.currentCity}, {member.currentState}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="mt-3">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => window.open(`/member-details/${member.id}`, "_blank")}
+                        className="w-full"
+                      >
+                        <Eye className="mr-1" size={12} />
+                        {t("members.viewProfile")}
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </ScrollArea>
+        </DialogContent>
+      </Dialog>
+
+      {/* Photo Preview Modal */}
+      <Dialog open={!!previewImage} onOpenChange={() => setPreviewImage("")}>
+        <DialogContent className="max-w-4xl">
+          <DialogHeader>
+            <DialogTitle>{t("temples.photoPreview")}</DialogTitle>
+          </DialogHeader>
+          <div className="flex justify-center">
+            <img
+              src={previewImage}
+              alt="Temple photo preview"
+              className="max-w-full max-h-96 object-contain rounded-lg"
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}

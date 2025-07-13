@@ -19,6 +19,7 @@ import {
   Edit,
   Phone,
   Mail,
+  Eye,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useState, useEffect, ChangeEvent } from "react";
@@ -481,7 +482,14 @@ export default function Home() {
                       )}
                     </div>
 
-                    <div className="pt-4">
+                    <div className="pt-4 space-y-3">
+                      <Button 
+                        onClick={() => window.open(`/temple/${selectedTemple.id}`, "_blank")}
+                        className="w-full bg-saffron-500 hover:bg-saffron-600 text-white font-semibold py-3 rounded-lg transition-all transform hover:scale-105 shadow-lg"
+                      >
+                        <Eye className="mr-2" size={20} />
+                        {t("temples.viewDetails")}
+                      </Button>
                       <Link href="/registry">
                         <Button className="w-full bg-temple-gold hover:bg-yellow-500 text-temple-brown font-semibold py-3 rounded-lg transition-all transform hover:scale-105 shadow-lg">
                           {t("home.joinCommunity")}
