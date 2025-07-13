@@ -142,12 +142,12 @@ export default function Members() {
     <div className="min-h-screen bg-gradient-to-br from-temple-cream to-saffron-50 py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Search and Filter */}
-        <Card className="shadow-lg border border-temple-gold/20 p-6 mb-8">
-          <h2 className="text-2xl font-bold text-temple-brown mb-6">
+        <Card className="shadow-lg border border-temple-gold/20 p-4 sm:p-6 mb-6 sm:mb-8">
+          <h2 className="text-xl sm:text-2xl font-bold text-temple-brown mb-4 sm:mb-6">
             {t("members.title")}
           </h2>
-          <div className="grid md:grid-cols-5 gap-4">
-            <div className="col-span-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
+            <div className="sm:col-span-2 lg:col-span-2">
               <Input
                 placeholder={t('members.searchPlaceholder')}
                 value={searchTerm}
@@ -155,7 +155,7 @@ export default function Members() {
                   setSearchTerm(e.target.value);
                   setCurrentPage(1);
                 }}
-                className="w-full"
+                className="w-full h-12 text-base"
               />
             </div>
             <div>
@@ -166,7 +166,7 @@ export default function Members() {
                   setCurrentPage(1);
                 }}
               >
-                <SelectTrigger>
+                <SelectTrigger className="h-12 text-base">
                   <SelectValue placeholder={t("members.allCities")} />
                 </SelectTrigger>
                 <SelectContent>
@@ -189,7 +189,7 @@ export default function Members() {
                   setCurrentPage(1);
                 }}
               >
-                <SelectTrigger>
+                <SelectTrigger className="h-12 text-base">
                   <SelectValue placeholder="All States" />
                 </SelectTrigger>
                 <SelectContent>
@@ -202,19 +202,17 @@ export default function Members() {
                 </SelectContent>
               </Select>
             </div>
-            <div>
+            <div className="sm:col-span-2 lg:col-span-1 grid grid-cols-2 gap-2">
               <Button
                 onClick={clearFilters}
                 variant="outline"
-                className="w-full border-saffron-200 text-saffron-700 hover:bg-saffron-50"
+                className="h-12 text-base border-saffron-200 text-saffron-700 hover:bg-saffron-50"
               >
                 {t('common.clear')}
               </Button>
-            </div>
-            <div>
               <Button
                 onClick={handleSearch}
-                className="w-full bg-saffron-500 hover:bg-saffron-600 text-white font-medium"
+                className="h-12 text-base bg-saffron-500 hover:bg-saffron-600 text-white font-medium"
               >
                 <Search className="mr-2" size={16} />
                 {t('common.search')}
@@ -302,48 +300,21 @@ export default function Members() {
 
             {/* Pagination */}
             {totalPages > 1 && (
-              <div className="flex justify-center mt-12">
-                <div className="flex space-x-2">
+              <div className="flex flex-col sm:flex-row justify-center items-center mt-8 space-y-2 sm:space-y-0">
+                <div className="flex space-x-2 w-full sm:w-auto justify-center">
                   <Button
                     variant="outline"
                     onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
                     disabled={currentPage === 1}
-                    className="px-4 py-2"
+                    className="h-12 px-4 text-base"
                   >
-                    <ChevronLeft size={16} />
+                    <ChevronLeft size={16} className="mr-1" />
+                    <span className="hidden sm:inline">Previous</span>
                   </Button>
 
-                  {[...Array(totalPages)].map((_, i) => {
-                    const page = i + 1;
-                    const isCurrentPage = page === currentPage;
-                    const isVisible =
-                      page === 1 ||
-                      page === totalPages ||
-                      (page >= currentPage - 1 && page <= currentPage + 1);
-
-                    if (!isVisible) {
-                      return page === 2 || page === totalPages - 1 ? (
-                        <span key={page} className="px-2 py-1 text-gray-400">
-                          ...
-                        </span>
-                      ) : null;
-                    }
-
-                    return (
-                      <Button
-                        key={page}
-                        variant={isCurrentPage ? "default" : "outline"}
-                        onClick={() => setCurrentPage(page)}
-                        className={`px-4 py-2 ${
-                          isCurrentPage
-                            ? "bg-saffron-500 hover:bg-saffron-600 text-white"
-                            : "text-temple-brown border-temple-gold/30 hover:bg-temple-gold/10"
-                        }`}
-                      >
-                        {page}
-                      </Button>
-                    );
-                  })}
+                  <div className="flex items-center px-4 py-2 text-sm sm:text-base text-gray-600">
+                    Page {currentPage} of {totalPages}
+                  </div>
 
                   <Button
                     variant="outline"
@@ -351,9 +322,10 @@ export default function Members() {
                       setCurrentPage(Math.min(totalPages, currentPage + 1))
                     }
                     disabled={currentPage === totalPages}
-                    className="px-4 py-2"
+                    className="h-12 px-4 text-base"
                   >
-                    <ChevronRight size={16} />
+                    <span className="hidden sm:inline">Next</span>
+                    <ChevronRight size={16} className="ml-1" />
                   </Button>
                 </div>
               </div>
@@ -361,67 +333,7 @@ export default function Members() {
           </>
         )}
 
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="flex justify-center mt-12">
-            <div className="flex space-x-2">
-              <Button
-                variant="outline"
-                onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                disabled={currentPage === 1}
-                className="px-4 py-2"
-              >
-                <ChevronLeft size={16} />
-              </Button>
 
-              {[...Array(totalPages)].map((_, i) => {
-                const page = i + 1;
-                const isCurrentPage = page === currentPage;
-                const isVisible =
-                  page === 1 ||
-                  page === totalPages ||
-                  (page >= currentPage - 1 && page <= currentPage + 1);
-
-                if (!isVisible) {
-                  if (page === currentPage - 2 || page === currentPage + 2) {
-                    return (
-                      <span key={page} className="px-2 py-2 text-gray-400">
-                        ...
-                      </span>
-                    );
-                  }
-                  return null;
-                }
-
-                return (
-                  <Button
-                    key={page}
-                    variant={isCurrentPage ? "default" : "outline"}
-                    onClick={() => setCurrentPage(page)}
-                    className={`px-4 py-2 ${
-                      isCurrentPage
-                        ? "bg-saffron-500 text-white hover:bg-saffron-600"
-                        : "text-gray-700 hover:bg-gray-50"
-                    }`}
-                  >
-                    {page}
-                  </Button>
-                );
-              })}
-
-              <Button
-                variant="outline"
-                onClick={() =>
-                  setCurrentPage(Math.min(totalPages, currentPage + 1))
-                }
-                disabled={currentPage === totalPages}
-                className="px-4 py-2"
-              >
-                <ChevronRight size={16} />
-              </Button>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

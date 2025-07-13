@@ -117,23 +117,23 @@ export default function TempleDetails() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 space-y-8">
+    <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6 sm:space-y-8">
       {/* Header */}
-      <div className="text-center space-y-4">
-        <h1 className="text-3xl font-bold text-temple-brown">
+      <div className="text-center space-y-3 sm:space-y-4">
+        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-temple-brown px-2">
           {temple.templeName}
         </h1>
-        <div className="flex items-center justify-center space-x-4 text-gray-600">
-          <div className="flex items-center space-x-1">
+        <div className="flex flex-col sm:flex-row items-center justify-center space-y-2 sm:space-y-0 sm:space-x-6 text-gray-600">
+          <div className="flex items-center space-x-2">
             <MapPin size={16} />
-            <span>{temple.city}, {temple.state}</span>
+            <span className="text-sm sm:text-base">{temple.city}, {temple.state}</span>
           </div>
-          <div className="flex items-center space-x-1">
+          <div className="flex items-center space-x-2">
             <Users size={16} />
             <Button
               variant="link"
               onClick={handleMembersClick}
-              className="p-0 h-auto text-saffron-600 hover:text-saffron-700 underline"
+              className="p-0 h-auto text-saffron-600 hover:text-saffron-700 underline text-sm sm:text-base"
             >
               {templeMembers.length} {t("common.members")}
             </Button>
@@ -142,10 +142,22 @@ export default function TempleDetails() {
       </div>
 
       <Tabs defaultValue="info" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="info">{t("temples.information")}</TabsTrigger>
-          <TabsTrigger value="members">{t("common.members")}</TabsTrigger>
-          <TabsTrigger value="photos">{t("common.photos")}</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-3 h-12 sm:h-auto">
+          <TabsTrigger value="info" className="text-xs sm:text-sm px-2 py-2">
+            <Building className="mr-1 sm:mr-2" size={14} />
+            <span className="hidden sm:inline">{t("temples.information")}</span>
+            <span className="sm:hidden">Info</span>
+          </TabsTrigger>
+          <TabsTrigger value="members" className="text-xs sm:text-sm px-2 py-2">
+            <Users className="mr-1 sm:mr-2" size={14} />
+            <span className="hidden sm:inline">{t("common.members")}</span>
+            <span className="sm:hidden">Members</span>
+          </TabsTrigger>
+          <TabsTrigger value="photos" className="text-xs sm:text-sm px-2 py-2">
+            <Camera className="mr-1 sm:mr-2" size={14} />
+            <span className="hidden sm:inline">{t("common.photos")}</span>
+            <span className="sm:hidden">Photos</span>
+          </TabsTrigger>
         </TabsList>
 
         {/* Temple Information */}
@@ -153,14 +165,14 @@ export default function TempleDetails() {
           <div className="grid grid-cols-1 gap-6">
             {/* Temple Information Section */}
             <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
+              <CardHeader className="p-4 sm:p-6">
+                <CardTitle className="flex items-center space-x-2 text-lg sm:text-xl">
                   <Building className="text-saffron-600" size={20} />
                   <span>{t("temples.templeInformation")}</span>
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <CardContent className="p-4 sm:p-6">
+                <div className="grid grid-cols-1 gap-4 sm:gap-6">
                   <div className="space-y-4">
                     <div>
                       <label className="text-sm font-medium text-gray-500">{t("templeRegistry.form.templeName")}</label>
@@ -205,14 +217,14 @@ export default function TempleDetails() {
 
             {/* Location Information Section */}
             <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
+              <CardHeader className="p-4 sm:p-6">
+                <CardTitle className="flex items-center space-x-2 text-lg sm:text-xl">
                   <MapPin className="text-saffron-600" size={20} />
                   <span>{t("templeRegistry.locationInformation")}</span>
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <CardContent className="p-4 sm:p-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                   <div className="space-y-4">
                     <div>
                       <label className="text-sm font-medium text-gray-500">{t("templeRegistry.form.country")}</label>

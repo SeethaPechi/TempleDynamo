@@ -935,15 +935,15 @@ export default function Temples() {
     <div className="min-h-screen bg-gradient-to-br from-temple-cream to-saffron-50 py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 sm:mb-8 gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-temple-brown">
+            <h1 className="text-2xl sm:text-3xl font-bold text-temple-brown">
               {t("temples.title")}
             </h1>
-            <p className="text-gray-600 mt-2">{t("temples.subtitle")}</p>
+            <p className="text-gray-600 mt-1 sm:mt-2 text-sm sm:text-base">{t("temples.subtitle")}</p>
           </div>
           <Link href="/temple-registry">
-            <Button className="bg-gradient-to-r from-saffron-500 to-temple-gold hover:from-saffron-600 hover:to-temple-gold/90">
+            <Button className="w-full sm:w-auto h-12 text-base bg-gradient-to-r from-saffron-500 to-temple-gold hover:from-saffron-600 hover:to-temple-gold/90">
               <Plus className="mr-2" size={16} />
               {t("temples.addTemple")}
             </Button>
@@ -951,22 +951,22 @@ export default function Temples() {
         </div>
 
         {/* Search and Filter */}
-        <Card className="shadow-lg border border-temple-gold/20 p-6 mb-8">
-          <h2 className="text-2xl font-bold text-temple-brown mb-6">
+        <Card className="shadow-lg border border-temple-gold/20 p-4 sm:p-6 mb-6 sm:mb-8">
+          <h2 className="text-xl sm:text-2xl font-bold text-temple-brown mb-4 sm:mb-6">
             {t("temples.searchAndFilter")}
           </h2>
-          <div className="grid md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             <div>
               <Input
                 placeholder={t("temples.searchPlaceholder")}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full"
+                className="w-full h-12 text-base"
               />
             </div>
             <div>
               <Select value={selectedState} onValueChange={setSelectedState}>
-                <SelectTrigger>
+                <SelectTrigger className="h-12 text-base">
                   <SelectValue placeholder={t("temples.allStates")} />
                 </SelectTrigger>
                 <SelectContent>
@@ -986,7 +986,7 @@ export default function Temples() {
                 value={selectedCountry}
                 onValueChange={setSelectedCountry}
               >
-                <SelectTrigger>
+                <SelectTrigger className="h-12 text-base">
                   <SelectValue placeholder={t("temples.allCountries")} />
                 </SelectTrigger>
                 <SelectContent>
@@ -1004,7 +1004,7 @@ export default function Temples() {
             <div>
               <Button
                 onClick={handleSearch}
-                className="w-full bg-saffron-500 hover:bg-saffron-600 text-white font-medium"
+                className="w-full h-12 text-base bg-saffron-500 hover:bg-saffron-600 text-white font-medium"
               >
                 <Search className="mr-2" size={16} />
                 {t("common.search")}
@@ -1033,7 +1033,7 @@ export default function Temples() {
             </Link>
           </Card>
         ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {paginatedTemples.map((temple: Temple, index: number) => (
               <Card
                 key={temple.id}
@@ -1213,15 +1213,17 @@ export default function Temples() {
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="flex justify-center items-center space-x-4 mt-8">
+          <div className="flex flex-col sm:flex-row justify-center items-center space-y-2 sm:space-y-0 sm:space-x-4 mt-6 sm:mt-8">
             <Button
               variant="outline"
               onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
               disabled={currentPage === 1}
+              className="w-full sm:w-auto h-12 text-base"
             >
+              <ChevronLeft className="mr-2" size={16} />
               {t("common.previous")}
             </Button>
-            <span className="text-sm text-gray-600">
+            <span className="text-sm sm:text-base text-gray-600 px-4">
               {t("common.page")} {currentPage} {t("common.of")} {totalPages}
             </span>
             <Button
@@ -1230,8 +1232,10 @@ export default function Temples() {
                 setCurrentPage(Math.min(totalPages, currentPage + 1))
               }
               disabled={currentPage === totalPages}
+              className="w-full sm:w-auto h-12 text-base"
             >
               {t("common.next")}
+              <ChevronRight className="ml-2" size={16} />
             </Button>
           </div>
         )}
