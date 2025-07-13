@@ -23,8 +23,8 @@ import { MemberListModal } from "@/components/member-list-modal";
 export default function TempleMembers() {
   const { t } = useTranslation();
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCity, setSelectedCity] = useState("");
-  const [selectedState, setSelectedState] = useState("");
+  const [selectedCity, setSelectedCity] = useState("all");
+  const [selectedState, setSelectedState] = useState("all");
   const [selectedTemple, setSelectedTemple] = useState<Temple | null>(null);
   const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
   const [isMemberListOpen, setIsMemberListOpen] = useState(false);
@@ -144,10 +144,10 @@ export default function TempleMembers() {
           member.phone?.includes(searchTerm);
         
         // City filter
-        const matchesCity = !selectedCity || member.currentCity === selectedCity;
+        const matchesCity = selectedCity === "all" || !selectedCity || member.currentCity === selectedCity;
         
         // State filter
-        const matchesState = !selectedState || member.currentState === selectedState;
+        const matchesState = selectedState === "all" || !selectedState || member.currentState === selectedState;
         
         return matchesSearch && matchesCity && matchesState;
       })
@@ -506,7 +506,7 @@ export default function TempleMembers() {
                         <SelectValue placeholder="All Cities" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">All Cities</SelectItem>
+                        <SelectItem value="all">All Cities</SelectItem>
                         {uniqueCities.map((city) => (
                           <SelectItem key={city} value={city}>
                             {city}
@@ -526,7 +526,7 @@ export default function TempleMembers() {
                         <SelectValue placeholder="All States" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">All States</SelectItem>
+                        <SelectItem value="all">All States</SelectItem>
                         {uniqueStates.map((state) => (
                           <SelectItem key={state} value={state}>
                             {state}
@@ -541,12 +541,12 @@ export default function TempleMembers() {
                     <Button
                       variant="outline"
                       onClick={() => {
-                        setSelectedCity("");
-                        setSelectedState("");
+                        setSelectedCity("all");
+                        setSelectedState("all");
                         setSearchTerm("");
                       }}
                       className="w-full"
-                      disabled={!selectedCity && !selectedState && !searchTerm}
+                      disabled={selectedCity === "all" && selectedState === "all" && !searchTerm}
                     >
                       Clear Filters
                     </Button>
@@ -557,10 +557,10 @@ export default function TempleMembers() {
                     <div className="text-sm text-gray-600 bg-gray-50 rounded p-2 w-full">
                       <div className="font-medium">Active Filters:</div>
                       <div className="text-xs mt-1">
-                        {selectedCity && <span className="block">City: {selectedCity}</span>}
-                        {selectedState && <span className="block">State: {selectedState}</span>}
+                        {selectedCity && selectedCity !== "all" && <span className="block">City: {selectedCity}</span>}
+                        {selectedState && selectedState !== "all" && <span className="block">State: {selectedState}</span>}
                         {searchTerm && <span className="block">Search: "{searchTerm}"</span>}
-                        {!selectedCity && !selectedState && !searchTerm && (
+                        {selectedCity === "all" && selectedState === "all" && !searchTerm && (
                           <span className="text-gray-400">None</span>
                         )}
                       </div>
