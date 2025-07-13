@@ -73,12 +73,16 @@ const relationshipTypes = [
 ];
 
 // Helper function to check if member profile is incomplete
-const isProfileIncomplete = (member: Member, relationships: Array<Relationship & { relatedMember: Member }>) => {
+const isProfileIncomplete = (
+  member: Member,
+  relationships: Array<Relationship & { relatedMember: Member }>,
+) => {
   // Check for missing critical information - be more selective
   const hasNoEmail = !member.email;
   const hasNoRelationships = relationships.length === 0;
-  const hasNoFamilyInfo = !member.fatherName && !member.motherName && !member.spouseName;
-  
+  const hasNoFamilyInfo =
+    !member.fatherName && !member.motherName && !member.spouseName;
+
   // Only redirect if member has NO email AND NO relationships AND NO family info
   return hasNoEmail && hasNoRelationships && hasNoFamilyInfo;
 };
@@ -142,10 +146,21 @@ export default function FamilyTree() {
   console.log("All relationships for member:", memberRelationships);
   console.log("Filtered relationships:", filteredMemberRelationships);
 
+  // Helper function to get relationship count for a member
+  const getMemberRelationshipCount = (memberId: number): number => {
+    if (!allRelationships) return 0;
+    return allRelationships.filter(
+      (rel) => rel.memberId === memberId || rel.relatedMemberId === memberId
+    ).length;
+  };
+
   // Check for incomplete profiles and redirect to member details
   useEffect(() => {
     if (selectedMember && filteredMemberRelationships) {
-      const isIncomplete = isProfileIncomplete(selectedMember, filteredMemberRelationships);
+      const isIncomplete = isProfileIncomplete(
+        selectedMember,
+        filteredMemberRelationships,
+      );
       if (isIncomplete) {
         // Show toast with helpful message
         toast({
@@ -153,10 +168,12 @@ export default function FamilyTree() {
           description: `${selectedMember.fullName}'s profile needs more information. Redirecting to complete details...`,
           duration: 3000,
         });
-        
+
         // Redirect to member details page after a short delay
         setTimeout(() => {
-          navigate(`/member-details/${selectedMember.id}?from=family-tree&incomplete=true`);
+          navigate(
+            `/member-details/${selectedMember.id}?from=family-tree&incomplete=true`,
+          );
         }, 2000);
       }
     }
@@ -285,8 +302,12 @@ export default function FamilyTree() {
                 className="flex flex-col items-center gap-1 text-xs sm:text-sm px-1 py-2 min-h-[3rem]"
               >
                 <TreePine size={16} />
-                <span className="text-center leading-tight hidden sm:block">Family Branch</span>
-                <span className="text-center leading-tight sm:hidden text-[10px]">Tree</span>
+                <span className="text-center leading-tight hidden sm:block">
+                  Family Branch
+                </span>
+                <span className="text-center leading-tight sm:hidden text-[10px]">
+                  Tree
+                </span>
               </TabsTrigger>
               <TabsTrigger
                 value="table"
@@ -296,7 +317,9 @@ export default function FamilyTree() {
                 <span className="text-center leading-tight hidden sm:block">
                   {t("familyTree.directRelationships")}
                 </span>
-                <span className="text-center leading-tight sm:hidden text-[10px]">Table</span>
+                <span className="text-center leading-tight sm:hidden text-[10px]">
+                  Table
+                </span>
               </TabsTrigger>
               <TabsTrigger
                 value="comprehensive"
@@ -306,7 +329,9 @@ export default function FamilyTree() {
                 <span className="text-center leading-tight hidden lg:block">
                   {t("familyTree.allRelations")}
                 </span>
-                <span className="text-center leading-tight lg:hidden text-[10px]">All</span>
+                <span className="text-center leading-tight lg:hidden text-[10px]">
+                  All
+                </span>
               </TabsTrigger>
               <TabsTrigger
                 value="network"
@@ -316,7 +341,9 @@ export default function FamilyTree() {
                 <span className="text-center leading-tight hidden lg:block">
                   {t("familyTree.familyNetworkAnalysis")}
                 </span>
-                <span className="text-center leading-tight lg:hidden text-[10px]">Network</span>
+                <span className="text-center leading-tight lg:hidden text-[10px]">
+                  Network
+                </span>
               </TabsTrigger>
               <TabsTrigger
                 value="counters"
@@ -326,7 +353,9 @@ export default function FamilyTree() {
                 <span className="text-center leading-tight hidden lg:block">
                   Relationship Counters
                 </span>
-                <span className="text-center leading-tight lg:hidden text-[10px]">Count</span>
+                <span className="text-center leading-tight lg:hidden text-[10px]">
+                  Count
+                </span>
               </TabsTrigger>
             </TabsList>
           </div>
@@ -387,32 +416,36 @@ export default function FamilyTree() {
                         {searchResults
                           .sort((a, b) => a.fullName.localeCompare(b.fullName))
                           .map((member: Member) => {
-                          const colors = getGenderColors(member.gender);
-                          const transformedMember = transformMemberData(member);
-                          return (
-                            <div
-                              key={member.id}
-                              onClick={() => setSelectedMember(member)}
-                              className={`p-3 rounded-lg cursor-pointer transition-colors ${colors.background} ${colors.border} border ${
-                                selectedMember?.id === member.id
-                                  ? "ring-2 ring-saffron-400"
-                                  : "hover:shadow-md"
-                              }`}
-                            >
-                              <h4 className={`font-medium ${colors.text}`}>
-                                {member.fullName}{" "}
-                                {transformedMember.gender &&
-                                  `• ${transformedMember.gender}`}
-                              </h4>
-                              <p className="text-sm text-gray-600">
-                                {member.email}
-                              </p>
-                              <p className="text-xs text-gray-500">
-                                {member.currentCity}, {member.currentState}
-                              </p>
-                            </div>
-                          );
-                        })}
+                            const colors = getGenderColors(member.gender);
+                            const transformedMember =
+                              transformMemberData(member);
+                            return (
+                              <div
+                                key={member.id}
+                                onClick={() => setSelectedMember(member)}
+                                className={`p-3 rounded-lg cursor-pointer transition-colors ${colors.background} ${colors.border} border ${
+                                  selectedMember?.id === member.id
+                                    ? "ring-2 ring-saffron-400"
+                                    : "hover:shadow-md"
+                                }`}
+                              >
+                                <h4 className={`font-medium ${colors.text}`}>
+                                  {member.fullName}{" "}
+                                  {transformedMember.gender &&
+                                    `• ${transformedMember.gender}`}
+                                </h4>
+                                <p className="text-sm text-gray-600">
+                                  {member.email}
+                                </p>
+                                <p className="text-xs text-red-600 font-semibold">
+                                  Relationship Count: {getMemberRelationshipCount(member.id)}
+                                </p>
+                                <p className="text-xs text-gray-500">
+                                  {member.currentCity}, {member.currentState}
+                                </p>
+                              </div>
+                            );
+                          })}
                       </div>
                     )}
 
@@ -430,32 +463,37 @@ export default function FamilyTree() {
                         {(allMembers as Member[])
                           .sort((a, b) => a.fullName.localeCompare(b.fullName))
                           .map((member: Member) => {
-                          const colors = getGenderColors(member.gender);
-                          const transformedMember = transformMemberData(member);
-                          return (
-                            <div
-                              key={member.id}
-                              onClick={() => setSelectedMember(member)}
-                              className={`p-3 rounded-lg cursor-pointer transition-colors ${colors.background} ${colors.border} border ${
-                                selectedMember?.id === member.id
-                                  ? "ring-2 ring-saffron-400"
-                                  : "hover:shadow-md"
-                              }`}
-                            >
-                              <h4 className={`font-medium ${colors.text}`}>
-                                {member.fullName}{" "}
-                                {transformedMember.gender &&
-                                  `• ${transformedMember.gender}`}
-                              </h4>
-                              <p className="text-sm text-gray-600">
-                                {member.email}
-                              </p>
-                              <p className="text-xs text-gray-500">
-                                {member.currentCity}, {member.currentState}
-                              </p>
-                            </div>
-                          );
-                        })}
+                            const colors = getGenderColors(member.gender);
+                            const transformedMember =
+                              transformMemberData(member);
+                            return (
+                              <div
+                                key={member.id}
+                                onClick={() => setSelectedMember(member)}
+                                className={`p-3 rounded-lg cursor-pointer transition-colors ${colors.background} ${colors.border} border ${
+                                  selectedMember?.id === member.id
+                                    ? "ring-2 ring-saffron-400"
+                                    : "hover:shadow-md"
+                                }`}
+                              >
+                                <h4 className={`font-medium ${colors.text}`}>
+                                  {member.fullName}{" "}
+                                  {transformedMember.gender &&
+                                    `• ${transformedMember.gender}`}
+                                </h4>
+                                <p className="text-sm text-gray-600">
+                                  {member.email}
+                                </p>
+                                <p className="text-xs text-red-600 font-semibold">
+                                  Relationship Count: {getMemberRelationshipCount(member.id)}
+                                </p>
+                                <p className="text-xs text-gray-500">
+                                  {member.currentCity}, {member.currentState},
+                                  {member.currentCountry}
+                                </p>
+                              </div>
+                            );
+                          })}
                       </div>
                     )}
                   </div>
