@@ -230,6 +230,7 @@ export function PhotoUpload({
                 
                 <div className="flex space-x-2">
                   <Button
+                    type="button"
                     size="sm"
                     onClick={() => profileInputRef.current?.click()}
                     className="bg-saffron-500 hover:bg-saffron-600"
@@ -241,6 +242,7 @@ export function PhotoUpload({
                   
                   {profilePicture && (
                     <Button
+                      type="button"
                       size="sm"
                       variant="outline"
                       onClick={removeProfilePicture}
@@ -283,6 +285,7 @@ export function PhotoUpload({
               
               <div>
                 <Button
+                  type="button"
                   onClick={() => fileInputRef.current?.click()}
                   disabled={isUploading || photos.length >= maxPhotos}
                   className="bg-saffron-500 hover:bg-saffron-600"
@@ -326,6 +329,7 @@ export function PhotoUpload({
                     <Dialog>
                       <DialogTrigger asChild>
                         <Button
+                          type="button"
                           size="sm"
                           variant="secondary"
                           onClick={() => setPreviewImage(photo)}
@@ -348,6 +352,7 @@ export function PhotoUpload({
                     </Dialog>
                     
                     <Button
+                      type="button"
                       size="sm"
                       variant="destructive"
                       onClick={() => removePhoto(index)}

@@ -638,6 +638,14 @@ export default function Temples() {
 
   // Auto-submit when modal closes
   const handleModalClose = (open: boolean) => {
+    console.log("handleModalClose called with open:", open, "isUploading:", silentUpdateMutation.isPending);
+    
+    // Prevent modal from closing if we're uploading photos
+    if (!open && silentUpdateMutation.isPending) {
+      console.log("Preventing modal close due to ongoing photo upload");
+      return;
+    }
+    
     if (!open && selectedTemple && isEditModalOpen) {
       const formData = form.getValues();
       const savedData = localStorage.getItem(
@@ -798,25 +806,43 @@ export default function Temples() {
 
   // Temple photo handlers
   const handleTempleImageChange = (newImage: string) => {
+    console.log("handleTempleImageChange called, keeping modal open");
     setUploadedImage(newImage);
     form.setValue("templeImage", newImage);
     
-    // Auto-save to database immediately using silent mutation
+    // Auto-save to localStorage and database immediately using silent mutation
     if (selectedTemple) {
       const formData = form.getValues();
       const updatedData = { ...formData, templeImage: newImage };
+      
+      // Save to localStorage first
+      localStorage.setItem(
+        `temple_edit_${selectedTemple.id}`,
+        JSON.stringify(updatedData),
+      );
+      
+      // Then silently update database without closing modal
       silentUpdateMutation.mutate(updatedData);
     }
   };
 
   const handleTemplePhotosChange = (newPhotos: string[]) => {
+    console.log("handleTemplePhotosChange called, keeping modal open");
     setTemplePhotos(newPhotos);
     form.setValue("templePhotos", newPhotos);
     
-    // Auto-save to database immediately using silent mutation
+    // Auto-save to localStorage and database immediately using silent mutation
     if (selectedTemple) {
       const formData = form.getValues();
       const updatedData = { ...formData, templePhotos: newPhotos };
+      
+      // Save to localStorage first
+      localStorage.setItem(
+        `temple_edit_${selectedTemple.id}`,
+        JSON.stringify(updatedData),
+      );
+      
+      // Then silently update database without closing modal
       silentUpdateMutation.mutate(updatedData);
     }
   };
