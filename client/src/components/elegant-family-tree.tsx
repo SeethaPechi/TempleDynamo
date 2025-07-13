@@ -92,12 +92,13 @@ export function ElegantFamilyTree({
     return colors[relationshipType] || "#6B7280";
   };
 
-  // Arrange family members in organized groups that fit within viewBox
+  // Arrange family members in organized groups with guaranteed no overlapping
   const arrangeFamilyNodes = (): FamilyNode[] => {
     const nodes: FamilyNode[] = [];
-    const centerX = 700; // Center the tree horizontally in the 1400px width
-    const centerY = 400; // Center vertically with space for legend at top
-    const spacing = 200; // Maximum spacing to prevent overlapping
+    const centerX = 700; // Center the tree horizontally
+    const centerY = 400; // Center vertically
+    const minSpacing = 220; // Increased spacing to guarantee no overlapping
+    const circleRadius = 45; // Account for circle size
 
     // Add the main member at the center
     nodes.push({
@@ -119,36 +120,46 @@ export function ElegantFamilyTree({
       {} as Record<string, Array<Relationship & { relatedMember: Member }>>,
     );
 
-    // Position grandparents at the top - centered
+    // Define positioning zones to avoid overlaps
+    const zones = {
+      top: { y: 150, startX: centerX, spacing: minSpacing },
+      upperLevel: { y: 240, startX: centerX, spacing: minSpacing },
+      leftSide: { x: 180, startY: centerY - 150, spacing: 150 },
+      rightSide: { x: centerX + 300, startY: centerY - 150, spacing: 180 },
+      bottomLevel: { y: centerY + 150, startX: centerX, spacing: minSpacing },
+      lowerLevel: { y: centerY + 280, startX: centerX, spacing: minSpacing },
+    };
+
+    // Position grandparents at the top - properly spaced
     const grandparents = [
       "Paternal Grandfather",
-      "Paternal Grandmother",
+      "Paternal Grandmother", 
       "Maternal Grandfather",
       "Maternal Grandmother",
     ];
-    let gpIndex = 0;
+    let gpCount = 0;
     grandparents.forEach((gpType) => {
       if (groupedRelationships[gpType]) {
         groupedRelationships[gpType].forEach((rel) => {
-          const totalGrandparents = grandparents.reduce(
+          const totalGP = grandparents.reduce(
             (sum, type) => sum + (groupedRelationships[type] || []).length,
             0,
           );
-          const startX = centerX - ((totalGrandparents - 1) * spacing) / 2;
+          const startX = centerX - ((totalGP - 1) * minSpacing) / 2;
           nodes.push({
             member: rel.relatedMember,
             relationshipType: gpType,
-            position: { x: startX + gpIndex * spacing, y: 150 },
+            position: { x: startX + gpCount * minSpacing, y: zones.top.y },
             color: getRelationshipColor(gpType),
           });
-          gpIndex++;
+          gpCount++;
         });
       }
     });
 
-    // Position parents above center - centered
+    // Position parents above center - properly spaced
     const parents = ["Father", "Mother", "Step Father", "Step Mother"];
-    let parentIndex = 0;
+    let parentCount = 0;
     parents.forEach((parentType) => {
       if (groupedRelationships[parentType]) {
         groupedRelationships[parentType].forEach((rel) => {
@@ -156,21 +167,21 @@ export function ElegantFamilyTree({
             (sum, type) => sum + (groupedRelationships[type] || []).length,
             0,
           );
-          const startX = centerX - ((totalParents - 1) * spacing) / 2;
+          const startX = centerX - ((totalParents - 1) * minSpacing) / 2;
           nodes.push({
             member: rel.relatedMember,
             relationshipType: parentType,
-            position: { x: startX + parentIndex * spacing, y: 240 },
+            position: { x: startX + parentCount * minSpacing, y: zones.upperLevel.y },
             color: getRelationshipColor(parentType),
           });
-          parentIndex++;
+          parentCount++;
         });
       }
     });
 
-    // Position spouses directly to the right - with proper spacing for multiple spouses
+    // Position spouses on right side with vertical spacing
     const spouses = ["Wife", "Husband"];
-    let spouseIndex = 0;
+    let spouseCount = 0;
     spouses.forEach((spouseType) => {
       if (groupedRelationships[spouseType]) {
         groupedRelationships[spouseType].forEach((rel) => {
@@ -178,48 +189,46 @@ export function ElegantFamilyTree({
             member: rel.relatedMember,
             relationshipType: spouseType,
             position: {
-              x: centerX + 220,
-              y: centerY - 60 + spouseIndex * 120, // Increased spacing for multiple spouses
+              x: zones.rightSide.x,
+              y: zones.rightSide.startY + spouseCount * zones.rightSide.spacing,
             },
             color: getRelationshipColor(spouseType),
           });
-          spouseIndex++;
+          spouseCount++;
         });
       }
     });
 
-    // Position siblings on the left side - grouped together
+    // Position siblings on left side with vertical spacing
     const siblings = [
       "Elder Brother",
-      "Elder Sister",
+      "Elder Sister", 
       "Younger Brother",
       "Younger Sister",
       "Step-Brother",
       "Step-Sister",
     ];
-    let siblingIndex = 0;
+    let siblingCount = 0;
     siblings.forEach((siblingType) => {
       if (groupedRelationships[siblingType]) {
         groupedRelationships[siblingType].forEach((rel) => {
-          const row = Math.floor(siblingIndex / 2);
-          const col = siblingIndex % 2;
           nodes.push({
             member: rel.relatedMember,
             relationshipType: siblingType,
             position: {
-              x: 200 - col * 160,
-              y: centerY - 100 + row * 130,
+              x: zones.leftSide.x,
+              y: zones.leftSide.startY + siblingCount * zones.leftSide.spacing,
             },
             color: getRelationshipColor(siblingType),
           });
-          siblingIndex++;
+          siblingCount++;
         });
       }
     });
 
-    // Position children below center - grouped together
+    // Position children below center - properly spaced
     const children = ["Son", "Daughter", "Step-Son", "Step-Daughter"];
-    let childIndex = 0;
+    let childCount = 0;
     children.forEach((childType) => {
       if (groupedRelationships[childType]) {
         groupedRelationships[childType].forEach((rel) => {
@@ -227,14 +236,14 @@ export function ElegantFamilyTree({
             (sum, type) => sum + (groupedRelationships[type] || []).length,
             0,
           );
-          const startX = centerX - ((totalChildren - 1) * 180) / 2;
+          const startX = centerX - ((totalChildren - 1) * minSpacing) / 2;
           nodes.push({
             member: rel.relatedMember,
             relationshipType: childType,
-            position: { x: startX + childIndex * 180, y: centerY + 180 },
+            position: { x: startX + childCount * minSpacing, y: zones.bottomLevel.y },
             color: getRelationshipColor(childType),
           });
-          childIndex++;
+          childCount++;
         });
       }
     });
@@ -253,8 +262,8 @@ export function ElegantFamilyTree({
             member: rel.relatedMember,
             relationshipType: inLawType,
             position: { 
-              x: 900 + (parentInLawIndex % 2) * 140,
-              y: 200 + Math.floor(parentInLawIndex / 2) * 120
+              x: 1050 + (parentInLawIndex % 2) * 160,
+              y: 200 + Math.floor(parentInLawIndex / 2) * 140
             },
             color: getRelationshipColor(inLawType),
           });
@@ -272,8 +281,8 @@ export function ElegantFamilyTree({
             member: rel.relatedMember,
             relationshipType: inLawType,
             position: { 
-              x: 900 + (siblingInLawIndex % 2) * 140,
-              y: centerY - 40 + Math.floor(siblingInLawIndex / 2) * 120
+              x: 1050 + (siblingInLawIndex % 2) * 160,
+              y: centerY - 40 + Math.floor(siblingInLawIndex / 2) * 140
             },
             color: getRelationshipColor(inLawType),
           });
@@ -291,8 +300,8 @@ export function ElegantFamilyTree({
             member: rel.relatedMember,
             relationshipType: inLawType,
             position: { 
-              x: 750 + (childInLawIndex % 3) * 120,
-              y: centerY + 250 + Math.floor(childInLawIndex / 3) * 100
+              x: 850 + (childInLawIndex % 3) * 140,
+              y: centerY + 250 + Math.floor(childInLawIndex / 3) * 120
             },
             color: getRelationshipColor(inLawType),
           });
@@ -645,7 +654,7 @@ export function ElegantFamilyTree({
         <svg
           width="100%"
           height="600"
-          viewBox="0 0 1400 900"
+          viewBox="0 0 1600 900"
           className="mx-auto border rounded-lg bg-gradient-to-br from-blue-50 to-indigo-100 w-full h-auto min-h-[400px] sm:min-h-[600px]"
           preserveAspectRatio="xMidYMid meet"
         >
