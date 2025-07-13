@@ -150,7 +150,7 @@ export default function FamilyTree() {
   const getMemberRelationshipCount = (memberId: number): number => {
     if (!allRelationships) return 0;
     return allRelationships.filter(
-      (rel) => rel.memberId === memberId || rel.relatedMemberId === memberId
+      (rel) => rel.memberId === memberId || rel.relatedMemberId === memberId,
     ).length;
   };
 
@@ -434,11 +434,25 @@ export default function FamilyTree() {
                                   {transformedMember.gender &&
                                     `• ${transformedMember.gender}`}
                                 </h4>
-                                <p className="text-sm text-gray-600">
-                                  {member.email}
+                                <p className="text-xs text-blue-600 font-semibold">
+                                  {t("Father")}
+                                  {t("-")}
+
+                                  {member.fatherName}
+                                </p>
+                                <p className="text-xs text-blue-600 font-semibold">
+                                  {t("Mother")}
+                                  {t("-")}
+                                  {member.motherName}
+                                </p>
+                                <p className="text-xs text-blue-600 font-semibold">
+                                  {t("Spouse")}
+                                  {t("-")}
+                                  {member.spouseName}
                                 </p>
                                 <p className="text-xs text-red-600 font-semibold">
-                                  Relationship Count: {getMemberRelationshipCount(member.id)}
+                                  Relationship Count:{" "}
+                                  {getMemberRelationshipCount(member.id)}
                                 </p>
                                 <p className="text-xs text-gray-500">
                                   {member.currentCity}, {member.currentState}
@@ -481,11 +495,25 @@ export default function FamilyTree() {
                                   {transformedMember.gender &&
                                     `• ${transformedMember.gender}`}
                                 </h4>
-                                <p className="text-sm text-gray-600">
-                                  {member.email}
+                                <p className="text-xs text-blue-600 font-semibold">
+                                  {t("Father")}
+                                  {t("-")}
+
+                                  {member.fatherName}
                                 </p>
-                                <p className="text-xs text-red-600 font-semibold">
-                                  Relationship Count: {getMemberRelationshipCount(member.id)}
+                                <p className="text-xs text-blue-600 font-semibold">
+                                  {t("Mother")}
+                                  {t("-")}
+                                  {member.motherName}
+                                </p>
+                                <p className="text-xs text-blue-600 font-semibold">
+                                  {t("Spouse")}
+                                  {t("-")}
+                                  {member.spouseName}
+                                </p>
+                                <p className="text-xs text-blue-600 font-semibold">
+                                  Relationship Count:{" "}
+                                  {getMemberRelationshipCount(member.id)}
                                 </p>
                                 <p className="text-xs text-gray-500">
                                   {member.currentCity}, {member.currentState},
