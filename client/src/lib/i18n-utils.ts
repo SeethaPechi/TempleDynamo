@@ -2,49 +2,35 @@ import { useTranslation } from 'react-i18next';
 import { format, parseISO } from 'date-fns';
 import { enUS } from 'date-fns/locale';
 
-// Locale mapping for date-fns (using English as fallback for Tamil)
-const localeMap = {
-  en: enUS,
-  ta: enUS, // Using English locale as fallback for Tamil
+// Using English locale for date formatting
+export const getDateLocale = () => {
+  return enUS;
 };
 
-// Utility function to get the current locale for date-fns
-export const getDateLocale = (language: string) => {
-  return localeMap[language as keyof typeof localeMap] || enUS;
-};
-
-// Format date based on current language
-export const formatDate = (date: string | Date, formatStr: string = 'PPP', language: string = 'en') => {
+// Format date in English
+export const formatDate = (date: string | Date, formatStr: string = 'PPP') => {
   try {
     const dateObj = typeof date === 'string' ? parseISO(date) : date;
-    return format(dateObj, formatStr, { locale: getDateLocale(language) });
+    return format(dateObj, formatStr, { locale: getDateLocale() });
   } catch (error) {
     console.error('Date formatting error:', error);
     return date.toString();
   }
 };
 
-// Format relative time (e.g., "2 days ago")
-export const formatRelativeDate = (date: string | Date, language: string = 'en') => {
+// Format relative time in English (e.g., "2 days ago")
+export const formatRelativeDate = (date: string | Date) => {
   try {
     const dateObj = typeof date === 'string' ? parseISO(date) : date;
     const now = new Date();
     const diffMs = now.getTime() - dateObj.getTime();
     const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
     
-    if (language === 'ta') {
-      if (diffDays === 0) return 'இன்று';
-      if (diffDays === 1) return '1 நாள் முன்பு';
-      if (diffDays < 30) return `${diffDays} நாட்கள் முன்பு`;
-      if (diffDays < 365) return `${Math.floor(diffDays / 30)} மாதங்கள் முன்பு`;
-      return `${Math.floor(diffDays / 365)} ஆண்டுகள் முன்பு`;
-    } else {
-      if (diffDays === 0) return 'Today';
-      if (diffDays === 1) return '1 day ago';
-      if (diffDays < 30) return `${diffDays} days ago`;
-      if (diffDays < 365) return `${Math.floor(diffDays / 30)} months ago`;
-      return `${Math.floor(diffDays / 365)} years ago`;
-    }
+    if (diffDays === 0) return 'Today';
+    if (diffDays === 1) return '1 day ago';
+    if (diffDays < 30) return `${diffDays} days ago`;
+    if (diffDays < 365) return `${Math.floor(diffDays / 30)} months ago`;
+    return `${Math.floor(diffDays / 365)} years ago`;
   } catch (error) {
     console.error('Relative date formatting error:', error);
     return date.toString();
@@ -94,11 +80,11 @@ export const useFormDataTransformation = () => {
     
     // Transform dates
     if (transformed.createdAt) {
-      transformed.createdAt = formatDate(transformed.createdAt, 'PPP', currentLang);
+      transformed.createdAt = formatDate(transformed.createdAt, 'PPP');
     }
     
     if (transformed.birthDate) {
-      transformed.birthDate = formatDate(transformed.birthDate, 'PPP', currentLang);
+      transformed.birthDate = formatDate(transformed.birthDate, 'PPP');
     }
     
     return transformed;
@@ -111,7 +97,7 @@ export const useFormDataTransformation = () => {
       ...member,
       gender: member.gender ? t(`registry.form.genders.${member.gender.toLowerCase()}`) : '',
       maritalStatus: member.maritalStatus ? t(`registry.form.maritalStatus.${member.maritalStatus.toLowerCase()}`) : '',
-      createdAt: member.createdAt ? formatDate(member.createdAt, 'PPP', i18n.language) : '',
+      createdAt: member.createdAt ? formatDate(member.createdAt, 'PPP') : '',
     };
   };
   
@@ -121,7 +107,7 @@ export const useFormDataTransformation = () => {
     return relationships.map(rel => ({
       ...rel,
       relationshipType: transformRelationshipType(rel.relationshipType),
-      createdAt: rel.createdAt ? formatDate(rel.createdAt, 'PPP', i18n.language) : '',
+      createdAt: rel.createdAt ? formatDate(rel.createdAt, 'PPP') : '',
       relatedMember: transformMemberData(rel.relatedMember)
     }));
   };
@@ -133,8 +119,8 @@ export const useFormDataTransformation = () => {
     transformRelationshipType,
     transformGender,
     transformMaritalStatus,
-    formatDate: (date: string | Date, formatStr?: string) => formatDate(date, formatStr, i18n.language),
-    formatRelativeDate: (date: string | Date) => formatRelativeDate(date, i18n.language)
+    formatDate: (date: string | Date, formatStr?: string) => formatDate(date, formatStr),
+    formatRelativeDate: (date: string | Date) => formatRelativeDate(date)
   };
 };
 

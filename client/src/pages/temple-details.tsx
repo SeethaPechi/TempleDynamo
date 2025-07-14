@@ -5,14 +5,20 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { 
-  MapPin, 
-  Phone, 
-  Globe, 
-  Calendar, 
-  Users, 
+import {
+  MapPin,
+  Phone,
+  Globe,
+  Calendar,
+  Users,
   Camera,
   ExternalLink,
   User,
@@ -23,7 +29,7 @@ import {
   Edit,
   Building,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
 } from "lucide-react";
 import { useState, useCallback, useEffect } from "react";
 import useEmblaCarousel from "embla-carousel-react";
@@ -35,21 +41,27 @@ export default function TempleDetails() {
   const [selectedMembers, setSelectedMembers] = useState<Member[]>([]);
   const [isShowingMembers, setIsShowingMembers] = useState(false);
   const [previewImage, setPreviewImage] = useState<string>("");
-  
+
   // Carousel setup
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true });
   const [canScrollPrev, setCanScrollPrev] = useState(false);
   const [canScrollNext, setCanScrollNext] = useState(false);
-  
-  const scrollPrev = useCallback(() => emblaApi && emblaApi.scrollPrev(), [emblaApi]);
-  const scrollNext = useCallback(() => emblaApi && emblaApi.scrollNext(), [emblaApi]);
-  
+
+  const scrollPrev = useCallback(
+    () => emblaApi && emblaApi.scrollPrev(),
+    [emblaApi],
+  );
+  const scrollNext = useCallback(
+    () => emblaApi && emblaApi.scrollNext(),
+    [emblaApi],
+  );
+
   const onSelect = useCallback(() => {
     if (!emblaApi) return;
     setCanScrollPrev(emblaApi.canScrollPrev());
     setCanScrollNext(emblaApi.canScrollNext());
   }, [emblaApi]);
-  
+
   useEffect(() => {
     if (!emblaApi) return;
     onSelect();
@@ -73,8 +85,8 @@ export default function TempleDetails() {
   });
 
   // Filter members associated with this temple
-  const templeMembers = allMembers.filter(member => 
-    member.templeId === parseInt(id || "0")
+  const templeMembers = allMembers.filter(
+    (member) => member.templeId === parseInt(id || "0"),
   );
 
   if (isLoadingTemple) {
@@ -126,7 +138,9 @@ export default function TempleDetails() {
         <div className="flex flex-col sm:flex-row items-center justify-center space-y-2 sm:space-y-0 sm:space-x-6 text-gray-600">
           <div className="flex items-center space-x-2">
             <MapPin size={16} />
-            <span className="text-sm sm:text-base">{temple.city}, {temple.state}</span>
+            <span className="text-sm sm:text-base">
+              {temple.city}, {temple.state}
+            </span>
           </div>
           <div className="flex items-center space-x-2">
             <Users size={16} />
@@ -135,7 +149,7 @@ export default function TempleDetails() {
               onClick={handleMembersClick}
               className="p-0 h-auto text-saffron-600 hover:text-saffron-700 underline text-sm sm:text-base"
             >
-              {templeMembers.length} {t("common.members")}
+              {templeMembers.length} {t("Temple Member Count")}
             </Button>
           </div>
         </div>
@@ -145,17 +159,17 @@ export default function TempleDetails() {
         <TabsList className="grid w-full grid-cols-3 h-12 sm:h-auto">
           <TabsTrigger value="info" className="text-xs sm:text-sm px-2 py-2">
             <Building className="mr-1 sm:mr-2" size={14} />
-            <span className="hidden sm:inline">{t("temples.information")}</span>
+            <span className="hidden sm:inline">{t("Information")}</span>
             <span className="sm:hidden">Info</span>
           </TabsTrigger>
           <TabsTrigger value="members" className="text-xs sm:text-sm px-2 py-2">
             <Users className="mr-1 sm:mr-2" size={14} />
-            <span className="hidden sm:inline">{t("common.members")}</span>
+            <span className="hidden sm:inline">{t("Members")}</span>
             <span className="sm:hidden">Members</span>
           </TabsTrigger>
           <TabsTrigger value="photos" className="text-xs sm:text-sm px-2 py-2">
             <Camera className="mr-1 sm:mr-2" size={14} />
-            <span className="hidden sm:inline">{t("common.photos")}</span>
+            <span className="hidden sm:inline">{t("Photos")}</span>
             <span className="sm:hidden">Photos</span>
           </TabsTrigger>
         </TabsList>
@@ -175,30 +189,48 @@ export default function TempleDetails() {
                 <div className="grid grid-cols-1 gap-4 sm:gap-6">
                   <div className="space-y-4">
                     <div>
-                      <label className="text-sm font-medium text-gray-500">{t("templeRegistry.form.templeName")}</label>
-                      <p className="text-lg font-medium text-gray-900">{temple.templeName}</p>
+                      <label className="text-sm font-medium text-gray-500">
+                        {t("templeRegistry.form.templeName")}
+                      </label>
+                      <p className="text-lg font-medium text-gray-900">
+                        {temple.templeName}
+                      </p>
                     </div>
                     <div>
-                      <label className="text-sm font-medium text-gray-500">{t("templeRegistry.form.deity")}</label>
-                      <p className="text-gray-900">{temple.deity || "Not specified"}</p>
+                      <label className="text-sm font-medium text-gray-500">
+                        {t("templeRegistry.form.deity")}
+                      </label>
+                      <p className="text-gray-900">
+                        {temple.deity || "Not specified"}
+                      </p>
                     </div>
                     <div>
-                      <label className="text-sm font-medium text-gray-500">{t("temples.established")}</label>
-                      <p className="text-gray-900">{temple.establishedYear || "Not specified"}</p>
+                      <label className="text-sm font-medium text-gray-500">
+                        {t("temples.established")}
+                      </label>
+                      <p className="text-gray-900">
+                        {temple.establishedYear || "Not specified"}
+                      </p>
                     </div>
                   </div>
                   <div className="space-y-4">
                     <div>
-                      <label className="text-sm font-medium text-gray-500">{t("temples.description")}</label>
-                      <p className="text-gray-900">{temple.description || "No description available"}</p>
+                      <label className="text-sm font-medium text-gray-500">
+                        {t("temples.description")}
+                      </label>
+                      <p className="text-gray-900">
+                        {temple.description || "No description available"}
+                      </p>
                     </div>
                   </div>
                 </div>
-                
+
                 {/* Temple Image */}
                 {temple.templeImage && (
                   <div className="mt-6">
-                    <label className="text-sm font-medium text-gray-500 block mb-2">Temple Image</label>
+                    <label className="text-sm font-medium text-gray-500 block mb-2">
+                      Temple Image
+                    </label>
                     <div className="relative w-full max-w-md mx-auto">
                       <img
                         src={temple.templeImage}
@@ -206,7 +238,7 @@ export default function TempleDetails() {
                         className="w-full h-64 object-cover rounded-lg border-2 border-saffron-200 shadow-md"
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
-                          target.style.display = 'none';
+                          target.style.display = "none";
                         }}
                       />
                     </div>
@@ -227,26 +259,38 @@ export default function TempleDetails() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                   <div className="space-y-4">
                     <div>
-                      <label className="text-sm font-medium text-gray-500">{t("templeRegistry.form.country")}</label>
-                      <p className="text-gray-900">{temple.country || "Not specified"}</p>
+                      <label className="text-sm font-medium text-gray-500">
+                        {t("templeRegistry.form.country")}
+                      </label>
+                      <p className="text-gray-900">
+                        {temple.country || "Not specified"}
+                      </p>
                     </div>
                     <div>
-                      <label className="text-sm font-medium text-gray-500">{t("templeRegistry.form.state")}</label>
+                      <label className="text-sm font-medium text-gray-500">
+                        {t("templeRegistry.form.state")}
+                      </label>
                       <p className="text-gray-900">{temple.state}</p>
                     </div>
                     <div>
-                      <label className="text-sm font-medium text-gray-500">{t("templeRegistry.form.village")}</label>
+                      <label className="text-sm font-medium text-gray-500">
+                        {t("templeRegistry.form.village")}
+                      </label>
                       <p className="text-gray-900">{temple.village}</p>
                     </div>
                   </div>
                   <div className="space-y-4">
                     <div>
-                      <label className="text-sm font-medium text-gray-500">{t("templeRegistry.form.nearestCity")}</label>
+                      <label className="text-sm font-medium text-gray-500">
+                        {t("templeRegistry.form.nearestCity")}
+                      </label>
                       <p className="text-gray-900">{temple.nearestCity}</p>
                     </div>
                     {temple.address && (
                       <div>
-                        <label className="text-sm font-medium text-gray-500">Full Address</label>
+                        <label className="text-sm font-medium text-gray-500">
+                          Full Address
+                        </label>
                         <p className="text-gray-900">
                           {temple.address}
                           {temple.zipCode && `, ${temple.zipCode}`}
@@ -271,13 +315,17 @@ export default function TempleDetails() {
                   <div className="space-y-4">
                     {temple.contactPhone && (
                       <div>
-                        <label className="text-sm font-medium text-gray-500">{t("templeRegistry.form.contactPhone")}</label>
+                        <label className="text-sm font-medium text-gray-500">
+                          {t("templeRegistry.form.contactPhone")}
+                        </label>
                         <p className="text-gray-900">{temple.contactPhone}</p>
                       </div>
                     )}
                     {temple.contactEmail && (
                       <div>
-                        <label className="text-sm font-medium text-gray-500">{t("templeRegistry.form.contactEmail")}</label>
+                        <label className="text-sm font-medium text-gray-500">
+                          {t("templeRegistry.form.contactEmail")}
+                        </label>
                         <p className="text-gray-900">{temple.contactEmail}</p>
                       </div>
                     )}
@@ -287,7 +335,9 @@ export default function TempleDetails() {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => window.open(formatUrl(temple.websiteLink), "_blank")}
+                        onClick={() =>
+                          window.open(formatUrl(temple.websiteLink), "_blank")
+                        }
                         className="w-full justify-start"
                       >
                         <Globe className="mr-2" size={14} />
@@ -299,7 +349,9 @@ export default function TempleDetails() {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => window.open(formatUrl(temple.googleMapLink), "_blank")}
+                        onClick={() =>
+                          window.open(formatUrl(temple.googleMapLink), "_blank")
+                        }
                         className="w-full justify-start"
                       >
                         <MapIcon className="mr-2" size={14} />
@@ -311,7 +363,9 @@ export default function TempleDetails() {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => window.open(formatUrl(temple.wikiLink), "_blank")}
+                        onClick={() =>
+                          window.open(formatUrl(temple.wikiLink), "_blank")
+                        }
                         className="w-full justify-start"
                       >
                         <Globe className="mr-2" size={14} />
@@ -336,25 +390,33 @@ export default function TempleDetails() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {temple.establishedYear && (
                     <div>
-                      <label className="font-semibold text-gray-700">{t("temples.established")}:</label>
+                      <label className="font-semibold text-gray-700">
+                        {t("temples.established")}:
+                      </label>
                       <p className="text-gray-600">{temple.establishedYear}</p>
                     </div>
                   )}
                   {temple.festivals && (
                     <div>
-                      <label className="font-semibold text-gray-700">{t("temples.festivals")}:</label>
+                      <label className="font-semibold text-gray-700">
+                        {t("temples.festivals")}:
+                      </label>
                       <p className="text-gray-600">{temple.festivals}</p>
                     </div>
                   )}
                   {temple.architecture && (
                     <div>
-                      <label className="font-semibold text-gray-700">{t("temples.architecture")}:</label>
+                      <label className="font-semibold text-gray-700">
+                        {t("temples.architecture")}:
+                      </label>
                       <p className="text-gray-600">{temple.architecture}</p>
                     </div>
                   )}
                   {temple.significance && (
                     <div>
-                      <label className="font-semibold text-gray-700">{t("temples.significance")}:</label>
+                      <label className="font-semibold text-gray-700">
+                        {t("temples.significance")}:
+                      </label>
                       <p className="text-gray-600">{temple.significance}</p>
                     </div>
                   )}
@@ -387,7 +449,10 @@ export default function TempleDetails() {
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {templeMembers.map((member) => (
-                    <Card key={member.id} className="hover:shadow-md transition-shadow">
+                    <Card
+                      key={member.id}
+                      className="hover:shadow-md transition-shadow"
+                    >
                       <CardContent className="p-4">
                         <div className="flex items-start space-x-3">
                           <div className="w-12 h-12 bg-saffron-100 rounded-full flex items-center justify-center">
@@ -429,7 +494,12 @@ export default function TempleDetails() {
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => window.open(`/member-details/${member.id}`, "_blank")}
+                            onClick={() =>
+                              window.open(
+                                `/member-details/${member.id}`,
+                                "_blank",
+                              )
+                            }
                             className="flex-1"
                           >
                             <Eye className="mr-1" size={12} />
@@ -455,7 +525,7 @@ export default function TempleDetails() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {(!temple.templePhotos || temple.templePhotos.length === 0) ? (
+              {!temple.templePhotos || temple.templePhotos.length === 0 ? (
                 <div className="text-center py-8 text-gray-500">
                   <Camera size={48} className="mx-auto mb-4 text-gray-300" />
                   <p>{t("temples.noPhotos")}</p>
@@ -466,8 +536,11 @@ export default function TempleDetails() {
                   <div className="overflow-hidden rounded-lg" ref={emblaRef}>
                     <div className="flex">
                       {temple.templePhotos.map((photo, index) => (
-                        <div key={index} className="flex-[0_0_100%] min-w-0 relative">
-                          <div 
+                        <div
+                          key={index}
+                          className="flex-[0_0_100%] min-w-0 relative"
+                        >
+                          <div
                             className="aspect-video cursor-pointer bg-gray-100"
                             onClick={() => setPreviewImage(photo)}
                           >
@@ -477,8 +550,8 @@ export default function TempleDetails() {
                               className="w-full h-full object-contain hover:scale-105 transition-transform duration-300"
                             />
                           </div>
-                          <Badge 
-                            variant="secondary" 
+                          <Badge
+                            variant="secondary"
                             className="absolute top-4 left-4 text-sm"
                           >
                             {index + 1} / {temple.templePhotos.length}
@@ -487,7 +560,7 @@ export default function TempleDetails() {
                       ))}
                     </div>
                   </div>
-                  
+
                   {/* Navigation Buttons */}
                   {temple.templePhotos.length > 1 && (
                     <>
@@ -511,7 +584,7 @@ export default function TempleDetails() {
                       </Button>
                     </>
                   )}
-                  
+
                   {/* Thumbnail Navigation */}
                   {temple.templePhotos.length > 1 && (
                     <div className="flex justify-center mt-4 space-x-2">
@@ -542,13 +615,17 @@ export default function TempleDetails() {
         <DialogContent className="max-w-4xl max-h-[80vh]">
           <DialogHeader>
             <DialogTitle>
-              {temple.templeName} {t("common.members")} ({selectedMembers.length})
+              {temple.templeName} {t("common.members")} (
+              {selectedMembers.length})
             </DialogTitle>
           </DialogHeader>
           <ScrollArea className="max-h-[60vh]">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
               {selectedMembers.map((member) => (
-                <Card key={member.id} className="hover:shadow-md transition-shadow">
+                <Card
+                  key={member.id}
+                  className="hover:shadow-md transition-shadow"
+                >
                   <CardContent className="p-4">
                     <div className="flex items-start space-x-3">
                       <div className="w-12 h-12 bg-saffron-100 rounded-full flex items-center justify-center">
@@ -580,7 +657,9 @@ export default function TempleDetails() {
                         )}
                         <div className="flex items-center space-x-1 text-sm text-gray-600">
                           <MapPin size={12} />
-                          <span>{member.currentCity}, {member.currentState}</span>
+                          <span>
+                            {member.currentCity}, {member.currentState}
+                          </span>
                         </div>
                       </div>
                     </div>
@@ -588,7 +667,9 @@ export default function TempleDetails() {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => window.open(`/member-details/${member.id}`, "_blank")}
+                        onClick={() =>
+                          window.open(`/member-details/${member.id}`, "_blank")
+                        }
                         className="w-full"
                       >
                         <Eye className="mr-1" size={12} />

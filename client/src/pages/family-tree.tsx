@@ -303,7 +303,7 @@ export default function FamilyTree() {
               >
                 <TreePine size={16} />
                 <span className="text-center leading-tight hidden sm:block">
-                  Family Branch
+                  Branch
                 </span>
                 <span className="text-center leading-tight sm:hidden text-[10px]">
                   Tree
@@ -315,7 +315,7 @@ export default function FamilyTree() {
               >
                 <Users size={16} />
                 <span className="text-center leading-tight hidden sm:block">
-                  {t("familyTree.directRelationships")}
+                  {t("Relation")}
                 </span>
                 <span className="text-center leading-tight sm:hidden text-[10px]">
                   Table
@@ -327,7 +327,7 @@ export default function FamilyTree() {
               >
                 <Heart size={16} />
                 <span className="text-center leading-tight hidden lg:block">
-                  {t("familyTree.allRelations")}
+                  {t("All Relation")}
                 </span>
                 <span className="text-center leading-tight lg:hidden text-[10px]">
                   All
@@ -339,7 +339,7 @@ export default function FamilyTree() {
               >
                 <Network size={16} />
                 <span className="text-center leading-tight hidden lg:block">
-                  {t("familyTree.familyNetworkAnalysis")}
+                  {t("Family Network")}
                 </span>
                 <span className="text-center leading-tight lg:hidden text-[10px]">
                   Network
@@ -351,7 +351,7 @@ export default function FamilyTree() {
               >
                 <BarChart3 size={16} />
                 <span className="text-center leading-tight hidden lg:block">
-                  Relationship Counters
+                  Counters
                 </span>
                 <span className="text-center leading-tight lg:hidden text-[10px]">
                   Count
