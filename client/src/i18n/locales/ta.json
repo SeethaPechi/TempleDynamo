@@ -1,0 +1,147 @@
+{
+  "nav": {
+    "home": "முகப்பு",
+    "registry": "பதிவு",
+    "members": "உறுப்பினர்கள்",
+    "familyTree": "குடும்ப மரம்",
+    "temples": "கோவில்கள்",
+    "templeRegistry": "கோவில் பதிவு",
+    "whatsapp": "வாட்ஸ்அப்"
+  },
+  "common": {
+    "save": "சேமி",
+    "cancel": "ரத்து",
+    "edit": "திருத்து",
+    "delete": "நீக்கு",
+    "search": "தேடு",
+    "loading": "ஏற்றுகிறது...",
+    "submit": "சமர்ப்பி",
+    "clear": "அழி",
+    "next": "அடுத்து",
+    "previous": "முந்தைய",
+    "page": "பக்கம்",
+    "of": "இல்",
+    "member": "உறுப்பினர்",
+    "members": "உறுப்பினர்கள்",
+    "photos": "புகைப்படங்கள்",
+    "unspecified": "குறிப்பிடப்படவில்லை",
+    "clickToViewDetails": "விவரங்களைக் காண கிளிக் செய்யவும்"
+  },
+  "home": {
+    "title": "ஸ்ரீ லக்ஷ்மி கோவில்",
+    "subtitle": "சமூக உறுப்பினர் பதிவேடு",
+    "description": "எங்கள் கோவில் சமூகத்தின் உறுப்பினர்களை பதிவு செய்யுங்கள், தேடுங்கள் மற்றும் இணைக்கவும்",
+    "registerButton": "புதிய உறுப்பினரை பதிவு செய்யவும்",
+    "viewMembersButton": "உறுப்பினர்களைப் பார்க்கவும்",
+    "searchPlaceholder": "உறுப்பினர்களைத் தேடுங்கள்...",
+    "totalMembers": "மொத்த உறுப்பினர்கள்",
+    "activeMembers": "செயலில் உள்ள உறுப்பினர்கள்",
+    "newThisMonth": "இந்த மாதம் புதியவை"
+  },
+  "registry": {
+    "title": "உறுப்பினர் பதிவு",
+    "subtitle": "புதிய உறுப்பினரை சமூகத்தில் சேர்க்கவும்",
+    "form": {
+      "personalInfo": "தனிப்பட்ட தகவல்",
+      "fullName": "முழு பெயர்",
+      "fatherName": "தந்தையின் பெயர்",
+      "motherName": "தாயின் பெயர்",
+      "email": "மின்னஞ்சல்",
+      "phone": "தொலைபேசி எண்",
+      "gender": "பாலினம்",
+      "maritalStatus": "திருமண நிலை",
+      "spouseName": "மனைவி/கணவர் பெயர்",
+      "birthDate": "பிறந்த தேதி",
+      "locationInfo": "இடத் தகவல்",
+      "birthCountry": "பிறந்த நாடு",
+      "birthState": "பிறந்த மாநிலம்",
+      "birthCity": "பிறந்த நகரம்",
+      "currentCountry": "தற்போதைய நாடு",
+      "currentState": "தற்போதைய மாநிலம்",
+      "currentCity": "தற்போதைய நகரம்",
+      "templeAffiliation": "கோவில் தொடர்பு",
+      "selectTemple": "கோவிலைத் தேர்ந்தெடுக்கவும்",
+      "genders": {
+        "male": "ஆண்",
+        "female": "பெண்"
+      },
+      "maritalStatus": {
+        "single": "திருமணமாகாத",
+        "married": "திருமணமான",
+        "divorced": "விவாகரத்தான",
+        "widowed": "விதவை"
+      },
+      "relationships": {
+        "father": "தந்தை",
+        "mother": "தாய்",
+        "son": "மகன்",
+        "daughter": "மகள்",
+        "husband": "கணவர்",
+        "wife": "மனைவி",
+        "brother": "சகோதரன்",
+        "sister": "சகோதரி",
+        "grandfather": "தாத்தா",
+        "grandmother": "பாட்டி",
+        "uncle": "மாமா",
+        "aunt": "அத்தை"
+      }
+    },
+    "success": "உறுப்பினர் வெற்றிகரமாக பதிவு செய்யப்பட்டுள்ளார்!",
+    "error": "பதிவு செய்வதில் பிழை. மீண்டும் முயற்சிக்கவும்."
+  },
+  "members": {
+    "title": "உறுப்பினர்கள் பட்டியல்",
+    "subtitle": "சமூக உறுப்பினர்களைத் தேடுங்கள் மற்றும் காண்க",
+    "searchPlaceholder": "பெயர், மின்னஞ்சல் அல்லது தொலைபேசி மூலம் தேடுங்கள்...",
+    "filterByCity": "நகரத்தின் அடிப்படையில் வடிகட்டு",
+    "filterByState": "மாநிலத்தின் அடிப்படையில் வடிகட்டு",
+    "clearFilters": "வடிகட்டிகளை அழிக்கவும்",
+    "noMembers": "உறுப்பினர்கள் இல்லை",
+    "noMembersFound": "உறுப்பினர்கள் கிடைக்கவில்லை",
+    "memberDetails": "உறுப்பினர் விவரங்கள்"
+  },
+  "familyTree": {
+    "title": "குடும்ப மரம்",
+    "subtitle": "குடும்ப உறவுகளை ஆராயுங்கள்",
+    "selectMember": "உறுப்பினரைத் தேர்ந்தெடுக்கவும்",
+    "searchMembers": "உறுப்பினர்களைத் தேடுங்கள்...",
+    "relationships": "உறவுகள்",
+    "noRelationships": "உறவுகள் இல்லை",
+    "addRelationship": "உறவைச் சேர்க்கவும்"
+  },
+  "temples": {
+    "title": "கோவில்கள்",
+    "subtitle": "சமூக கோவில்களைக் காண்க",
+    "templeInformation": "கோவில் தகவல்",
+    "information": "தகவல்",
+    "established": "நிறுவப்பட்டது",
+    "description": "விவரணை",
+    "templeNotFound": "கோவில் கிடைக்கவில்லை"
+  },
+  "templeRegistry": {
+    "title": "கோவில் பதிவு",
+    "subtitle": "புதிய கோவிலைப் பதிவு செய்யவும்",
+    "form": {
+      "templeName": "கோவில் பெயர்",
+      "deity": "தெய்வம்",
+      "description": "விவரணை",
+      "country": "நாடு",
+      "state": "மாநிலம்",
+      "village": "கிராமம்",
+      "nearestCity": "அருகிலுள்ள நகரம்"
+    },
+    "templeInformation": "கோவில் தகவல்",
+    "locationInformation": "இட தகவல்",
+    "contactInformation": "தொடர்பு தகவல்",
+    "success": "கோவில் வெற்றிகரமாக பதிவு செய்யப்பட்டுள்ளது!",
+    "error": "கோவில் பதிவு செய்வதில் பிழை. மீண்டும் முயற்சிக்கவும்."
+  },
+  "whatsapp": {
+    "title": "வாட்ஸ்அப் செய்திகள்",
+    "subtitle": "சமூக உறுப்பினர்களுக்கு செய்திகள் அனுப்புங்கள்",
+    "templates": "வார்ப்புருக்கள்",
+    "selectTemplate": "வார்ப்புருவைத் தேர்ந்தெடுக்கவும்",
+    "message": "செய்தி",
+    "sendMessage": "செய்தி அனுப்பவும்"
+  }
+}

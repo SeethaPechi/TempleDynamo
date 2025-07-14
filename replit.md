@@ -95,13 +95,13 @@ This is a full-stack temple community management system built with React, Expres
 
 ## Recent Changes
 
-✓ **Tamil Translation Removal** (January 14, 2025)
-  - Removed Tamil language support from the application as requested
-  - Simplified language switcher to display only English
-  - Updated i18n configuration to use only English locale
-  - Removed Tamil translation files and language-specific functionality
-  - Streamlined date formatting and utility functions to use English only
-  - Simplified internationalization system while maintaining translation structure for future extensions
+✓ **Tamil Translation Restoration** (January 14, 2025)
+  - Restored Tamil language support to the application as requested
+  - Recreated comprehensive Tamil translation file with all UI elements
+  - Updated language switcher to display both English and Tamil (தமிழ்)
+  - Restored i18n configuration to support both languages
+  - Implemented Tamil-specific date formatting and relative time display
+  - Full bilingual functionality restored with proper language switching
 
 ✓ **Comprehensive Mobile Experience Enhancement** (January 13, 2025)
   - Enhanced mobile responsiveness across Members, Family Tree, and Temple pages with touch-friendly interfaces
@@ -482,12 +482,12 @@ This is a full-stack temple community management system built with React, Expres
   - Implemented search and filter functionality for temple discovery
   - Added temple navigation menu with full Tamil translation support
 
-✓ **Tamil Language Support Added** (June 19, 2025) - **REMOVED January 14, 2025**
-  - ~~Integrated React i18next for internationalization~~
-  - ~~Added comprehensive Tamil translations for all UI elements~~
-  - ~~Created language switcher component with temple-themed styling~~
-  - ~~Updated all pages (Home, Members, Registry, WhatsApp, Temples) with translation support~~
-  - ~~Language preference persists in localStorage~~
+✓ **Tamil Language Support Added** (June 19, 2025) - **RESTORED January 14, 2025**
+  - Integrated React i18next for internationalization
+  - Added comprehensive Tamil translations for all UI elements
+  - Created language switcher component with temple-themed styling
+  - Updated all pages (Home, Members, Registry, WhatsApp, Temples) with translation support
+  - Language preference persists in localStorage
 
 ✓ **Security Update** (June 19, 2025)
   - Upgraded Vite from 5.4.14 to 5.4.15 to fix CVE-2025-30208
