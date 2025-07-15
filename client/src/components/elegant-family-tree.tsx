@@ -29,67 +29,70 @@ export function ElegantFamilyTree({
   const { transformMemberData, transformRelationshipType } =
     useFormDataTransformation();
 
-  // Color scheme for different relationships
-  const getRelationshipColor = (relationshipType: string): string => {
-    const colors: Record<string, string> = {
-      // Parents
-      Father: "#4F46E5", // Blue
-      Mother: "#EC4899", // Pink
-      "Step Father": "#5B21B6", // Purple
-      "Step Mother": "#DB2777", // Dark Pink
+  // Get gender-based color scheme for relationships
+  const getRelationshipColor = (relationshipType: string, member: Member): string => {
+    const gender = member.gender?.toLowerCase();
+    
+    // Colors based on user requirements
+    const maleColor = "#3B82F6"; // Blue
+    const femaleColor = "#EC4899"; // Pink
+    
+    // Father and Mother - Square shape
+    if (relationshipType === "Father") return maleColor;
+    if (relationshipType === "Mother") return femaleColor;
+    if (relationshipType === "Step Father") return maleColor;
+    if (relationshipType === "Step Mother") return femaleColor;
 
-      // Spouse
-      Wife: "#EF4444", // Red
-      Husband: "#3B82F6", // Blue
+    // Spouse - Heart shape
+    if (relationshipType === "Wife") return femaleColor;
+    if (relationshipType === "Husband") return maleColor;
 
-      // Children
-      Son: "#10B981", // Green
-      Daughter: "#F59E0B", // Amber
-      "Step-Son": "#059669", // Dark Green
-      "Step-Daughter": "#D97706", // Dark Amber
+    // Sons and Daughters - Diamond shape
+    if (relationshipType === "Son") return maleColor;
+    if (relationshipType === "Daughter") return femaleColor;
+    if (relationshipType === "Step-Son") return maleColor;
+    if (relationshipType === "Step-Daughter") return femaleColor;
 
-      // Siblings
-      "Elder Brother": "#8B5CF6", // Purple
-      "Elder Sister": "#F97316", // Orange
-      "Younger Brother": "#06B6D4", // Cyan
-      "Younger Sister": "#84CC16", // Lime
-      "Step-Brother": "#7C3AED", // Dark Purple
-      "Step-Sister": "#EA580C", // Dark Orange
+    // Brothers and Sisters - Pentagon shape
+    if (relationshipType === "Elder Brother") return maleColor;
+    if (relationshipType === "Elder Sister") return femaleColor;
+    if (relationshipType === "Younger Brother") return maleColor;
+    if (relationshipType === "Younger Sister") return femaleColor;
+    if (relationshipType === "Step-Brother") return maleColor;
+    if (relationshipType === "Step-Sister") return femaleColor;
 
-      // Grandparents
-      "Paternal Grandfather": "#1F2937", // Dark Gray
-      "Paternal Grandmother": "#6B7280", // Gray
-      "Maternal Grandfather": "#374151", // Medium Gray
-      "Maternal Grandmother": "#9CA3AF", // Light Gray
+    // Other relationships - use gender-based colors or fallback
+    if (gender === "male") return maleColor;
+    if (gender === "female") return femaleColor;
+    
+    // Fallback colors for relationships without gender info
+    return "#6B7280"; // Gray
+  };
 
-      // Grandchildren
-      "Grand Daughter -Son Side": "#14B8A6", // Teal
-      "Grand Son-Son Side": "#0891B2", // Sky
-      "Grand Daughter -Daughter Side": "#0D9488", // Dark Teal
-      "Grand Son-Daughter Side": "#0E7490", // Dark Sky
-
-      // In-Laws
-      "Father-in-Law": "#7C2D12", // Brown
-      "Mother-in-Law": "#92400E", // Light Brown
-      "Brother-in-Law": "#A16207", // Yellow Brown
-      "Sister-in-Law": "#B45309", // Orange Brown
-      "Son-in-Law": "#C2410C", // Red Brown
-      "Daughter-in-Law": "#DC2626", // Red
-
-      // Extended Family
-      Uncle: "#7E22CE", // Purple
-      Aunt: "#A21CAF", // Magenta
-      Nephew: "#BE185D", // Pink
-      Niece: "#C2185B", // Dark Pink
-      Cousin: "#1565C0", // Blue
-
-      // Other Family Connections
-      "Family Friend": "#6B7280", // Gray
-      Godfather: "#4B5563", // Dark Gray
-      Godmother: "#6B7280", // Gray
-      Guardian: "#374151", // Medium Gray
-    };
-    return colors[relationshipType] || "#6B7280";
+  // Get shape type for relationship
+  const getRelationshipShape = (relationshipType: string): string => {
+    // Father and Mother - Square
+    if (["Father", "Mother", "Step Father", "Step Mother"].includes(relationshipType)) {
+      return "square";
+    }
+    
+    // Spouse - Heart
+    if (["Wife", "Husband"].includes(relationshipType)) {
+      return "heart";
+    }
+    
+    // Sons and Daughters - Diamond
+    if (["Son", "Daughter", "Step-Son", "Step-Daughter"].includes(relationshipType)) {
+      return "diamond";
+    }
+    
+    // Brothers and Sisters - Pentagon
+    if (["Elder Brother", "Elder Sister", "Younger Brother", "Younger Sister", "Step-Brother", "Step-Sister"].includes(relationshipType)) {
+      return "pentagon";
+    }
+    
+    // Default circle for other relationships
+    return "circle";
   };
 
   // Arrange family members in organized groups with guaranteed no overlapping
@@ -100,12 +103,12 @@ export function ElegantFamilyTree({
     const minSpacing = 220; // Increased spacing to guarantee no overlapping
     const circleRadius = 45; // Account for circle size
 
-    // Add the main member at the center
+    // Add the main member at the center with gender-based color
     nodes.push({
       member,
       relationshipType: "Self",
       position: { x: centerX, y: centerY },
-      color: "#DC2626", // Red for self
+      color: member.gender?.toLowerCase() === "male" ? "#3B82F6" : "#EC4899", // Blue for male, Pink for female
       isCenter: true,
     });
 
@@ -150,7 +153,7 @@ export function ElegantFamilyTree({
             member: rel.relatedMember,
             relationshipType: gpType,
             position: { x: startX + gpCount * minSpacing, y: zones.top.y },
-            color: getRelationshipColor(gpType),
+            color: getRelationshipColor(gpType, rel.relatedMember),
           });
           gpCount++;
         });
@@ -172,7 +175,7 @@ export function ElegantFamilyTree({
             member: rel.relatedMember,
             relationshipType: parentType,
             position: { x: startX + parentCount * minSpacing, y: zones.upperLevel.y },
-            color: getRelationshipColor(parentType),
+            color: getRelationshipColor(parentType, rel.relatedMember),
           });
           parentCount++;
         });
@@ -192,7 +195,7 @@ export function ElegantFamilyTree({
               x: zones.rightSide.x,
               y: zones.rightSide.startY + spouseCount * zones.rightSide.spacing,
             },
-            color: getRelationshipColor(spouseType),
+            color: getRelationshipColor(spouseType, rel.relatedMember),
           });
           spouseCount++;
         });
@@ -219,7 +222,7 @@ export function ElegantFamilyTree({
               x: zones.leftSide.x,
               y: zones.leftSide.startY + siblingCount * zones.leftSide.spacing,
             },
-            color: getRelationshipColor(siblingType),
+            color: getRelationshipColor(siblingType, rel.relatedMember),
           });
           siblingCount++;
         });
@@ -241,7 +244,7 @@ export function ElegantFamilyTree({
             member: rel.relatedMember,
             relationshipType: childType,
             position: { x: startX + childCount * minSpacing, y: zones.bottomLevel.y },
-            color: getRelationshipColor(childType),
+            color: getRelationshipColor(childType, rel.relatedMember),
           });
           childCount++;
         });
@@ -265,7 +268,7 @@ export function ElegantFamilyTree({
               x: 1050 + (parentInLawIndex % 2) * 160,
               y: 200 + Math.floor(parentInLawIndex / 2) * 140
             },
-            color: getRelationshipColor(inLawType),
+            color: getRelationshipColor(inLawType, rel.relatedMember),
           });
           parentInLawIndex++;
         });
@@ -284,7 +287,7 @@ export function ElegantFamilyTree({
               x: 1050 + (siblingInLawIndex % 2) * 160,
               y: centerY - 40 + Math.floor(siblingInLawIndex / 2) * 140
             },
-            color: getRelationshipColor(inLawType),
+            color: getRelationshipColor(inLawType, rel.relatedMember),
           });
           siblingInLawIndex++;
         });
@@ -303,7 +306,7 @@ export function ElegantFamilyTree({
               x: 850 + (childInLawIndex % 3) * 140,
               y: centerY + 250 + Math.floor(childInLawIndex / 3) * 120
             },
-            color: getRelationshipColor(inLawType),
+            color: getRelationshipColor(inLawType, rel.relatedMember),
           });
           childInLawIndex++;
         });
@@ -325,7 +328,7 @@ export function ElegantFamilyTree({
               x: 200 + col * 140, 
               y: centerY + 380 + row * 100 
             },
-            color: getRelationshipColor(extType),
+            color: getRelationshipColor(extType, rel.relatedMember),
           });
           extIndex++;
         });
@@ -518,6 +521,94 @@ export function ElegantFamilyTree({
     return connections;
   };
 
+  // Render shape based on relationship type
+  const renderShape = (node: FamilyNode, radius: number) => {
+    const shape = getRelationshipShape(node.relationshipType);
+    const { x, y } = node.position;
+
+    switch (shape) {
+      case "heart":
+        // Heart shape for spouses
+        return (
+          <path
+            d={`M${x},${y + 5} 
+                C${x},${y - 5} ${x - radius * 0.8},${y - radius * 0.6} ${x - radius * 0.4},${y - radius * 0.3}
+                C${x - radius * 0.2},${y - radius * 0.6} ${x},${y - radius * 0.6} ${x},${y - radius * 0.3}
+                C${x},${y - radius * 0.6} ${x + radius * 0.2},${y - radius * 0.6} ${x + radius * 0.4},${y - radius * 0.3}
+                C${x + radius * 0.8},${y - radius * 0.6} ${x},${y - 5} ${x},${y + 5} Z`}
+            fill={node.color}
+            stroke="white"
+            strokeWidth="3"
+            className="drop-shadow-lg hover:stroke-yellow-400 transition-all duration-300"
+          />
+        );
+      
+      case "square":
+        // Square shape for parents
+        const squareSize = radius * 1.4;
+        return (
+          <rect
+            x={x - squareSize / 2}
+            y={y - squareSize / 2}
+            width={squareSize}
+            height={squareSize}
+            fill={node.color}
+            stroke="white"
+            strokeWidth="3"
+            className="drop-shadow-lg hover:stroke-yellow-400 transition-all duration-300"
+          />
+        );
+      
+      case "diamond":
+        // Diamond shape for children
+        const diamondSize = radius * 1.2;
+        return (
+          <path
+            d={`M${x},${y - diamondSize} 
+                L${x + diamondSize},${y} 
+                L${x},${y + diamondSize} 
+                L${x - diamondSize},${y} Z`}
+            fill={node.color}
+            stroke="white"
+            strokeWidth="3"
+            className="drop-shadow-lg hover:stroke-yellow-400 transition-all duration-300"
+          />
+        );
+      
+      case "pentagon":
+        // Pentagon shape for siblings
+        const pentagonRadius = radius * 1.1;
+        const points = [];
+        for (let i = 0; i < 5; i++) {
+          const angle = (i * 2 * Math.PI) / 5 - Math.PI / 2;
+          points.push(`${x + pentagonRadius * Math.cos(angle)},${y + pentagonRadius * Math.sin(angle)}`);
+        }
+        return (
+          <polygon
+            points={points.join(' ')}
+            fill={node.color}
+            stroke="white"
+            strokeWidth="3"
+            className="drop-shadow-lg hover:stroke-yellow-400 transition-all duration-300"
+          />
+        );
+      
+      default:
+        // Default circle for other relationships
+        return (
+          <circle
+            cx={x}
+            cy={y}
+            r={radius}
+            fill={node.color}
+            stroke="white"
+            strokeWidth="3"
+            className="drop-shadow-lg hover:stroke-yellow-400 transition-all duration-300"
+          />
+        );
+    }
+  };
+
   // Render individual family member node with click to member details
   const renderMemberNode = (node: FamilyNode, index: number) => {
     const transformedMember = transformMemberData(node.member);
@@ -536,17 +627,8 @@ export function ElegantFamilyTree({
         className="cursor-pointer group"
         onClick={() => onMemberClick?.(node.member.id)}
       >
-        {/* Member circle with enhanced styling */}
-        <circle
-          cx={node.position.x}
-          cy={node.position.y}
-          r={radius}
-          fill={node.color}
-          stroke="white"
-          strokeWidth="3"
-          className="drop-shadow-lg hover:stroke-yellow-400 transition-all duration-300"
-          filter="url(#dropshadow)"
-        />
+        {/* Member shape with enhanced styling */}
+        {renderShape(node, radius)}
 
         {/* Hover ring effect */}
         <circle
