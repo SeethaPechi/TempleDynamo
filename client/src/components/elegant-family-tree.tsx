@@ -643,12 +643,12 @@ export function ElegantFamilyTree({
           strokeDasharray="5,5"
         />
 
-        {/* Member name - inside shape, upper half with red text */}
+        {/* Member name - inside shape, upper half with black text */}
         <text
           x={node.position.x}
           y={node.position.y - 5}
           textAnchor="middle"
-          fill="#DC2626"
+          fill="#000000"
           fontSize={node.isCenter ? "14" : "12"}
           fontWeight="bold"
           stroke="white"
@@ -659,13 +659,13 @@ export function ElegantFamilyTree({
             : firstName}
         </text>
 
-        {/* Relationship type - inside shape, lower half with red text */}
+        {/* Relationship type - inside shape, lower half with black text */}
         {!node.isCenter && (
           <text
             x={node.position.x}
             y={node.position.y + 12}
             textAnchor="middle"
-            fill="#DC2626"
+            fill="#000000"
             fontSize="10"
             fontWeight="600"
             stroke="white"
