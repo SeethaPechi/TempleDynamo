@@ -95,6 +95,14 @@ This is a full-stack temple community management system built with React, Expres
 
 ## Recent Changes
 
+✓ **Family Tree Typography Enhancement** (January 15, 2025)
+  - Enhanced family tree text styling with clean bold black fonts throughout
+  - Moved member names outside shapes positioned below each shape for better readability
+  - Kept relationship types inside shapes with centered text and automatic wrapping
+  - Removed all white outlines from fonts for cleaner, professional appearance
+  - Implemented smart text wrapping for both names (12 chars/line) and relationships (8 chars/line)
+  - All text now uses pure black color (#000000) with bold font weight for optimal contrast
+
 ✓ **Tamil Translation Restoration** (January 14, 2025)
   - Restored Tamil language support to the application as requested
   - Recreated comprehensive Tamil translation file with all UI elements

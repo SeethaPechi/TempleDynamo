@@ -673,7 +673,7 @@ export function ElegantFamilyTree({
           strokeDasharray="5,5"
         />
 
-        {/* Member name - positioned outside/below the shape */}
+        {/* Member name - positioned outside/below the shape in bold black */}
         {(() => {
           const words = firstName.split(' ');
           const maxCharsPerLine = 12;
@@ -702,15 +702,13 @@ export function ElegantFamilyTree({
               fill="#000000"
               fontSize={node.isCenter ? "14" : "12"}
               fontWeight="bold"
-              stroke="white"
-              strokeWidth="0.5"
             >
               {line}
             </text>
           ));
         })()}
 
-        {/* Relationship type - centered inside the shape in black */}
+        {/* Relationship type - centered inside the shape in bold black */}
         {!node.isCenter && (() => {
           const relText = transformRelationshipType(node.relationshipType);
           const words = relText.split(' ');
@@ -739,9 +737,7 @@ export function ElegantFamilyTree({
               dominantBaseline="central"
               fill="#000000"
               fontSize="10"
-              fontWeight="600"
-              stroke="white"
-              strokeWidth="0.3"
+              fontWeight="bold"
             >
               {line}
             </text>
