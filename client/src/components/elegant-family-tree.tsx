@@ -118,9 +118,9 @@ export function ElegantFamilyTree({
   // Arrange family members in organized groups with guaranteed no overlapping
   const arrangeFamilyNodes = (): FamilyNode[] => {
     const nodes: FamilyNode[] = [];
-    const centerX = 800; // Center the tree horizontally
-    const centerY = 450; // Center vertically
-    const minSpacing = 280; // Further increased spacing to prevent overlapping
+    const centerX = 900; // Center the tree horizontally
+    const centerY = 500; // Center vertically
+    const minSpacing = 350; // Significantly increased spacing to prevent overlapping
     const circleRadius = 45; // Account for circle size
 
     // Add the main member at the center with gender-based color
@@ -145,12 +145,12 @@ export function ElegantFamilyTree({
 
     // Define positioning zones to avoid overlaps with increased spacing
     const zones = {
-      top: { y: 120, startX: centerX, spacing: minSpacing },
-      upperLevel: { y: 250, startX: centerX, spacing: minSpacing },
-      leftSide: { x: 250, startY: centerY - 200, spacing: 200 },
-      rightSide: { x: centerX + 350, startY: centerY - 200, spacing: 220 },
-      bottomLevel: { y: centerY + 200, startX: centerX, spacing: minSpacing },
-      lowerLevel: { y: centerY + 350, startX: centerX, spacing: minSpacing },
+      top: { y: 150, startX: centerX, spacing: minSpacing },
+      upperLevel: { y: 300, startX: centerX, spacing: minSpacing },
+      leftSide: { x: 200, startY: centerY - 300, spacing: 350 },
+      rightSide: { x: centerX + 500, startY: centerY - 300, spacing: 350 },
+      bottomLevel: { y: centerY + 250, startX: centerX, spacing: minSpacing },
+      lowerLevel: { y: centerY + 400, startX: centerX, spacing: minSpacing },
     };
 
     // Position grandparents at the top - properly spaced
@@ -690,7 +690,7 @@ export function ElegantFamilyTree({
           });
           if (currentLine) lines.push(currentLine);
           
-          const startY = node.position.y + radius + 15; // Position below the shape
+          const startY = node.position.y + radius + 25; // Position further below the shape
           
           return lines.map((line, i) => (
             <text
@@ -801,7 +801,7 @@ export function ElegantFamilyTree({
         <svg
           width="100%"
           height="700"
-          viewBox="0 0 1800 1000"
+          viewBox="0 0 2200 1200"
           className="mx-auto border rounded-lg bg-gradient-to-br from-blue-50 to-indigo-100 w-full h-auto min-h-[500px] sm:min-h-[700px]"
           preserveAspectRatio="xMidYMid meet"
         >
