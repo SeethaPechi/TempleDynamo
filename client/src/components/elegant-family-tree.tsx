@@ -30,13 +30,16 @@ export function ElegantFamilyTree({
     useFormDataTransformation();
 
   // Get gender-based color scheme for relationships
-  const getRelationshipColor = (relationshipType: string, member: Member): string => {
+  const getRelationshipColor = (
+    relationshipType: string,
+    member: Member,
+  ): string => {
     const gender = member.gender?.toLowerCase();
-    
+
     // Colors based on user requirements
     const maleColor = "#3B82F6"; // Blue
     const femaleColor = "#EC4899"; // Pink
-    
+
     // Father and Mother - Square shape
     if (relationshipType === "Father") return maleColor;
     if (relationshipType === "Mother") return femaleColor;
@@ -64,7 +67,7 @@ export function ElegantFamilyTree({
     // Other relationships - use gender-based colors or fallback
     if (gender === "male") return maleColor;
     if (gender === "female") return femaleColor;
-    
+
     // Fallback colors for relationships without gender info
     return "#6B7280"; // Gray
   };
@@ -72,25 +75,42 @@ export function ElegantFamilyTree({
   // Get shape type for relationship
   const getRelationshipShape = (relationshipType: string): string => {
     // Father and Mother - Square
-    if (["Father", "Mother", "Step Father", "Step Mother"].includes(relationshipType)) {
+    if (
+      ["Father", "Mother", "Step Father", "Step Mother"].includes(
+        relationshipType,
+      )
+    ) {
       return "square";
     }
-    
+
     // Spouse - Heart
     if (["Wife", "Husband"].includes(relationshipType)) {
       return "heart";
     }
-    
+
     // Sons and Daughters - Diamond
-    if (["Son", "Daughter", "Step-Son", "Step-Daughter"].includes(relationshipType)) {
+    if (
+      ["Son", "Daughter", "Step-Son", "Step-Daughter"].includes(
+        relationshipType,
+      )
+    ) {
       return "diamond";
     }
-    
+
     // Brothers and Sisters - Pentagon
-    if (["Elder Brother", "Elder Sister", "Younger Brother", "Younger Sister", "Step-Brother", "Step-Sister"].includes(relationshipType)) {
+    if (
+      [
+        "Elder Brother",
+        "Elder Sister",
+        "Younger Brother",
+        "Younger Sister",
+        "Step-Brother",
+        "Step-Sister",
+      ].includes(relationshipType)
+    ) {
       return "pentagon";
     }
-    
+
     // Default circle for other relationships
     return "circle";
   };
@@ -98,7 +118,7 @@ export function ElegantFamilyTree({
   // Arrange family members in organized groups with guaranteed no overlapping
   const arrangeFamilyNodes = (): FamilyNode[] => {
     const nodes: FamilyNode[] = [];
-    const centerX = 800; // Center the tree horizontally  
+    const centerX = 800; // Center the tree horizontally
     const centerY = 450; // Center vertically
     const minSpacing = 280; // Further increased spacing to prevent overlapping
     const circleRadius = 45; // Account for circle size
@@ -136,7 +156,7 @@ export function ElegantFamilyTree({
     // Position grandparents at the top - properly spaced
     const grandparents = [
       "Paternal Grandfather",
-      "Paternal Grandmother", 
+      "Paternal Grandmother",
       "Maternal Grandfather",
       "Maternal Grandmother",
     ];
@@ -174,7 +194,10 @@ export function ElegantFamilyTree({
           nodes.push({
             member: rel.relatedMember,
             relationshipType: parentType,
-            position: { x: startX + parentCount * minSpacing, y: zones.upperLevel.y },
+            position: {
+              x: startX + parentCount * minSpacing,
+              y: zones.upperLevel.y,
+            },
             color: getRelationshipColor(parentType, rel.relatedMember),
           });
           parentCount++;
@@ -205,7 +228,7 @@ export function ElegantFamilyTree({
     // Position siblings on left side with vertical spacing
     const siblings = [
       "Elder Brother",
-      "Elder Sister", 
+      "Elder Sister",
       "Younger Brother",
       "Younger Sister",
       "Step-Brother",
@@ -243,7 +266,10 @@ export function ElegantFamilyTree({
           nodes.push({
             member: rel.relatedMember,
             relationshipType: childType,
-            position: { x: startX + childCount * minSpacing, y: zones.bottomLevel.y },
+            position: {
+              x: startX + childCount * minSpacing,
+              y: zones.bottomLevel.y,
+            },
             color: getRelationshipColor(childType, rel.relatedMember),
           });
           childCount++;
@@ -255,7 +281,7 @@ export function ElegantFamilyTree({
     const parentInLaws = ["Father-in-Law", "Mother-in-Law"];
     const siblingInLaws = ["Brother-in-Law", "Sister-in-Law"];
     const childInLaws = ["Son-in-Law", "Daughter-in-Law"];
-    
+
     // Position parent in-laws on the upper right with better spacing
     let parentInLawIndex = 0;
     parentInLaws.forEach((inLawType) => {
@@ -264,9 +290,9 @@ export function ElegantFamilyTree({
           nodes.push({
             member: rel.relatedMember,
             relationshipType: inLawType,
-            position: { 
+            position: {
               x: 1200 + (parentInLawIndex % 2) * 180,
-              y: 180 + Math.floor(parentInLawIndex / 2) * 160
+              y: 180 + Math.floor(parentInLawIndex / 2) * 160,
             },
             color: getRelationshipColor(inLawType, rel.relatedMember),
           });
@@ -274,7 +300,7 @@ export function ElegantFamilyTree({
         });
       }
     });
-    
+
     // Position sibling in-laws on the middle right with better spacing
     let siblingInLawIndex = 0;
     siblingInLaws.forEach((inLawType) => {
@@ -283,9 +309,9 @@ export function ElegantFamilyTree({
           nodes.push({
             member: rel.relatedMember,
             relationshipType: inLawType,
-            position: { 
+            position: {
               x: 1200 + (siblingInLawIndex % 2) * 180,
-              y: centerY - 50 + Math.floor(siblingInLawIndex / 2) * 160
+              y: centerY - 50 + Math.floor(siblingInLawIndex / 2) * 160,
             },
             color: getRelationshipColor(inLawType, rel.relatedMember),
           });
@@ -293,7 +319,7 @@ export function ElegantFamilyTree({
         });
       }
     });
-    
+
     // Position child in-laws near the children area with better spacing
     let childInLawIndex = 0;
     childInLaws.forEach((inLawType) => {
@@ -302,9 +328,9 @@ export function ElegantFamilyTree({
           nodes.push({
             member: rel.relatedMember,
             relationshipType: inLawType,
-            position: { 
+            position: {
               x: 950 + (childInLawIndex % 3) * 160,
-              y: centerY + 300 + Math.floor(childInLawIndex / 3) * 140
+              y: centerY + 300 + Math.floor(childInLawIndex / 3) * 140,
             },
             color: getRelationshipColor(inLawType, rel.relatedMember),
           });
@@ -324,9 +350,9 @@ export function ElegantFamilyTree({
           nodes.push({
             member: rel.relatedMember,
             relationshipType: extType,
-            position: { 
-              x: 250 + col * 180, 
-              y: centerY + 450 + row * 120 
+            position: {
+              x: 250 + col * 180,
+              y: centerY + 450 + row * 120,
             },
             color: getRelationshipColor(extType, rel.relatedMember),
           });
@@ -415,12 +441,13 @@ export function ElegantFamilyTree({
     familyNodes.forEach((node, index) => {
       if (node.relationshipType === "Daughter-in-Law") {
         // Find the son this daughter-in-law is married to by checking spouse names
-        const sonNode = familyNodes.find(n => 
-          n.relationshipType === "Son" && 
-          (n.member.spouseName === node.member.fullName || 
-           node.member.spouseName === n.member.fullName)
+        const sonNode = familyNodes.find(
+          (n) =>
+            n.relationshipType === "Son" &&
+            (n.member.spouseName === node.member.fullName ||
+              node.member.spouseName === n.member.fullName),
         );
-        
+
         if (sonNode) {
           connections.push(
             <line
@@ -433,7 +460,7 @@ export function ElegantFamilyTree({
               strokeWidth="3"
               strokeDasharray="8,4"
               opacity="0.7"
-            />
+            />,
           );
           // Add small marriage symbol
           const midX = (sonNode.position.x + node.position.x) / 2;
@@ -447,7 +474,7 @@ export function ElegantFamilyTree({
               fill="#10B981"
               stroke="white"
               strokeWidth="2"
-            />
+            />,
           );
           connections.push(
             <text
@@ -460,19 +487,20 @@ export function ElegantFamilyTree({
               fontWeight="bold"
             >
               ♥
-            </text>
+            </text>,
           );
         }
       }
-      
+
       if (node.relationshipType === "Son-in-Law") {
         // Find the daughter this son-in-law is married to by checking spouse names
-        const daughterNode = familyNodes.find(n => 
-          n.relationshipType === "Daughter" && 
-          (n.member.spouseName === node.member.fullName || 
-           node.member.spouseName === n.member.fullName)
+        const daughterNode = familyNodes.find(
+          (n) =>
+            n.relationshipType === "Daughter" &&
+            (n.member.spouseName === node.member.fullName ||
+              node.member.spouseName === n.member.fullName),
         );
-        
+
         if (daughterNode) {
           connections.push(
             <line
@@ -485,7 +513,7 @@ export function ElegantFamilyTree({
               strokeWidth="3"
               strokeDasharray="8,4"
               opacity="0.7"
-            />
+            />,
           );
           // Add small marriage symbol
           const midX = (daughterNode.position.x + node.position.x) / 2;
@@ -499,7 +527,7 @@ export function ElegantFamilyTree({
               fill="#F59E0B"
               stroke="white"
               strokeWidth="2"
-            />
+            />,
           );
           connections.push(
             <text
@@ -512,7 +540,7 @@ export function ElegantFamilyTree({
               fontWeight="bold"
             >
               ♥
-            </text>
+            </text>,
           );
         }
       }
@@ -529,7 +557,7 @@ export function ElegantFamilyTree({
     switch (shape) {
       case "heart":
         // Heart shape for spouses - made larger and more visible
-        const heartSize = radius * 1.5;
+        const heartSize = radius * 5;
         return (
           <path
             d={`M${x},${y + heartSize * 0.3} 
@@ -543,7 +571,7 @@ export function ElegantFamilyTree({
             className="drop-shadow-lg hover:stroke-yellow-400 transition-all duration-300"
           />
         );
-      
+
       case "square":
         // Square shape for parents
         const squareSize = radius * 1.4;
@@ -559,7 +587,7 @@ export function ElegantFamilyTree({
             className="drop-shadow-lg hover:stroke-yellow-400 transition-all duration-300"
           />
         );
-      
+
       case "diamond":
         // Diamond shape for children
         const diamondSize = radius * 1.2;
@@ -575,25 +603,27 @@ export function ElegantFamilyTree({
             className="drop-shadow-lg hover:stroke-yellow-400 transition-all duration-300"
           />
         );
-      
+
       case "pentagon":
         // Pentagon shape for siblings
         const pentagonRadius = radius * 1.1;
         const points = [];
         for (let i = 0; i < 5; i++) {
           const angle = (i * 2 * Math.PI) / 5 - Math.PI / 2;
-          points.push(`${x + pentagonRadius * Math.cos(angle)},${y + pentagonRadius * Math.sin(angle)}`);
+          points.push(
+            `${x + pentagonRadius * Math.cos(angle)},${y + pentagonRadius * Math.sin(angle)}`,
+          );
         }
         return (
           <polygon
-            points={points.join(' ')}
+            points={points.join(" ")}
             fill={node.color}
             stroke="white"
             strokeWidth="3"
             className="drop-shadow-lg hover:stroke-yellow-400 transition-all duration-300"
           />
         );
-      
+
       default:
         // Default circle for other relationships
         return (
@@ -643,42 +673,80 @@ export function ElegantFamilyTree({
           strokeDasharray="5,5"
         />
 
-        {/* Member name - inside shape, upper half with black text */}
-        <text
-          x={node.position.x}
-          y={node.position.y - 5}
-          textAnchor="middle"
-          fill="#000000"
-          fontSize={node.isCenter ? "14" : "12"}
-          fontWeight="bold"
-          stroke="white"
-          strokeWidth="0.5"
-        >
-          {firstName.length > 8
-            ? firstName.substring(0, 8) + ".."
-            : firstName}
-        </text>
+        {/* Member name - centered with text wrapping */}
+        {(() => {
+          const words = firstName.split(' ');
+          const maxCharsPerLine = 8;
+          const lines: string[] = [];
+          let currentLine = '';
+          
+          words.forEach(word => {
+            if ((currentLine + ' ' + word).length <= maxCharsPerLine) {
+              currentLine = currentLine ? currentLine + ' ' + word : word;
+            } else {
+              if (currentLine) lines.push(currentLine);
+              currentLine = word.length > maxCharsPerLine ? word.substring(0, maxCharsPerLine - 2) + '..' : word;
+            }
+          });
+          if (currentLine) lines.push(currentLine);
+          
+          const startY = node.position.y - (lines.length * 6);
+          
+          return lines.map((line, i) => (
+            <text
+              key={`name-${i}`}
+              x={node.position.x}
+              y={startY + (i * 12)}
+              textAnchor="middle"
+              dominantBaseline="central"
+              fill="#000000"
+              fontSize={node.isCenter ? "13" : "11"}
+              fontWeight="bold"
+              stroke="white"
+              strokeWidth="0.5"
+            >
+              {line}
+            </text>
+          ));
+        })()}
 
-        {/* Relationship type - inside shape, lower half with black text */}
-        {!node.isCenter && (
-          <text
-            x={node.position.x}
-            y={node.position.y + 12}
-            textAnchor="middle"
-            fill="#000000"
-            fontSize="10"
-            fontWeight="600"
-            stroke="white"
-            strokeWidth="0.3"
-          >
-            {transformRelationshipType(node.relationshipType).length > 10
-              ? transformRelationshipType(node.relationshipType).substring(
-                  0,
-                  10,
-                ) + ".."
-              : transformRelationshipType(node.relationshipType)}
-          </text>
-        )}
+        {/* Relationship type - centered with text wrapping */}
+        {!node.isCenter && (() => {
+          const relText = transformRelationshipType(node.relationshipType);
+          const words = relText.split(' ');
+          const maxCharsPerLine = 10;
+          const lines: string[] = [];
+          let currentLine = '';
+          
+          words.forEach(word => {
+            if ((currentLine + ' ' + word).length <= maxCharsPerLine) {
+              currentLine = currentLine ? currentLine + ' ' + word : word;
+            } else {
+              if (currentLine) lines.push(currentLine);
+              currentLine = word.length > maxCharsPerLine ? word.substring(0, maxCharsPerLine - 2) + '..' : word;
+            }
+          });
+          if (currentLine) lines.push(currentLine);
+          
+          const startY = node.position.y + 5;
+          
+          return lines.map((line, i) => (
+            <text
+              key={`rel-${i}`}
+              x={node.position.x}
+              y={startY + (i * 10)}
+              textAnchor="middle"
+              dominantBaseline="central"
+              fill="#000000"
+              fontSize="9"
+              fontWeight="600"
+              stroke="white"
+              strokeWidth="0.3"
+            >
+              {line}
+            </text>
+          ));
+        })()}
 
         {/* Edit icon for quick access */}
         <g className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
