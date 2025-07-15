@@ -98,9 +98,9 @@ export function ElegantFamilyTree({
   // Arrange family members in organized groups with guaranteed no overlapping
   const arrangeFamilyNodes = (): FamilyNode[] => {
     const nodes: FamilyNode[] = [];
-    const centerX = 700; // Center the tree horizontally
-    const centerY = 400; // Center vertically
-    const minSpacing = 220; // Increased spacing to guarantee no overlapping
+    const centerX = 800; // Center the tree horizontally  
+    const centerY = 450; // Center vertically
+    const minSpacing = 280; // Further increased spacing to prevent overlapping
     const circleRadius = 45; // Account for circle size
 
     // Add the main member at the center with gender-based color
@@ -123,14 +123,14 @@ export function ElegantFamilyTree({
       {} as Record<string, Array<Relationship & { relatedMember: Member }>>,
     );
 
-    // Define positioning zones to avoid overlaps
+    // Define positioning zones to avoid overlaps with increased spacing
     const zones = {
-      top: { y: 150, startX: centerX, spacing: minSpacing },
-      upperLevel: { y: 240, startX: centerX, spacing: minSpacing },
-      leftSide: { x: 180, startY: centerY - 150, spacing: 150 },
-      rightSide: { x: centerX + 300, startY: centerY - 150, spacing: 180 },
-      bottomLevel: { y: centerY + 150, startX: centerX, spacing: minSpacing },
-      lowerLevel: { y: centerY + 280, startX: centerX, spacing: minSpacing },
+      top: { y: 120, startX: centerX, spacing: minSpacing },
+      upperLevel: { y: 250, startX: centerX, spacing: minSpacing },
+      leftSide: { x: 250, startY: centerY - 200, spacing: 200 },
+      rightSide: { x: centerX + 350, startY: centerY - 200, spacing: 220 },
+      bottomLevel: { y: centerY + 200, startX: centerX, spacing: minSpacing },
+      lowerLevel: { y: centerY + 350, startX: centerX, spacing: minSpacing },
     };
 
     // Position grandparents at the top - properly spaced
@@ -256,7 +256,7 @@ export function ElegantFamilyTree({
     const siblingInLaws = ["Brother-in-Law", "Sister-in-Law"];
     const childInLaws = ["Son-in-Law", "Daughter-in-Law"];
     
-    // Position parent in-laws on the upper right
+    // Position parent in-laws on the upper right with better spacing
     let parentInLawIndex = 0;
     parentInLaws.forEach((inLawType) => {
       if (groupedRelationships[inLawType]) {
@@ -265,8 +265,8 @@ export function ElegantFamilyTree({
             member: rel.relatedMember,
             relationshipType: inLawType,
             position: { 
-              x: 1050 + (parentInLawIndex % 2) * 160,
-              y: 200 + Math.floor(parentInLawIndex / 2) * 140
+              x: 1200 + (parentInLawIndex % 2) * 180,
+              y: 180 + Math.floor(parentInLawIndex / 2) * 160
             },
             color: getRelationshipColor(inLawType, rel.relatedMember),
           });
@@ -275,7 +275,7 @@ export function ElegantFamilyTree({
       }
     });
     
-    // Position sibling in-laws on the middle right
+    // Position sibling in-laws on the middle right with better spacing
     let siblingInLawIndex = 0;
     siblingInLaws.forEach((inLawType) => {
       if (groupedRelationships[inLawType]) {
@@ -284,8 +284,8 @@ export function ElegantFamilyTree({
             member: rel.relatedMember,
             relationshipType: inLawType,
             position: { 
-              x: 1050 + (siblingInLawIndex % 2) * 160,
-              y: centerY - 40 + Math.floor(siblingInLawIndex / 2) * 140
+              x: 1200 + (siblingInLawIndex % 2) * 180,
+              y: centerY - 50 + Math.floor(siblingInLawIndex / 2) * 160
             },
             color: getRelationshipColor(inLawType, rel.relatedMember),
           });
@@ -294,7 +294,7 @@ export function ElegantFamilyTree({
       }
     });
     
-    // Position child in-laws near the children area but with proper spacing
+    // Position child in-laws near the children area with better spacing
     let childInLawIndex = 0;
     childInLaws.forEach((inLawType) => {
       if (groupedRelationships[inLawType]) {
@@ -303,8 +303,8 @@ export function ElegantFamilyTree({
             member: rel.relatedMember,
             relationshipType: inLawType,
             position: { 
-              x: 850 + (childInLawIndex % 3) * 140,
-              y: centerY + 250 + Math.floor(childInLawIndex / 3) * 120
+              x: 950 + (childInLawIndex % 3) * 160,
+              y: centerY + 300 + Math.floor(childInLawIndex / 3) * 140
             },
             color: getRelationshipColor(inLawType, rel.relatedMember),
           });
@@ -313,7 +313,7 @@ export function ElegantFamilyTree({
       }
     });
 
-    // Position extended family at the bottom - grouped together
+    // Position extended family at the bottom with better spacing
     const extendedFamily = ["Uncle", "Aunt", "Nephew", "Niece", "Cousin"];
     let extIndex = 0;
     extendedFamily.forEach((extType) => {
@@ -325,8 +325,8 @@ export function ElegantFamilyTree({
             member: rel.relatedMember,
             relationshipType: extType,
             position: { 
-              x: 200 + col * 140, 
-              y: centerY + 380 + row * 100 
+              x: 250 + col * 180, 
+              y: centerY + 450 + row * 120 
             },
             color: getRelationshipColor(extType, rel.relatedMember),
           });
@@ -528,14 +528,15 @@ export function ElegantFamilyTree({
 
     switch (shape) {
       case "heart":
-        // Heart shape for spouses
+        // Heart shape for spouses - made larger and more visible
+        const heartSize = radius * 1.5;
         return (
           <path
-            d={`M${x},${y + 5} 
-                C${x},${y - 5} ${x - radius * 0.8},${y - radius * 0.6} ${x - radius * 0.4},${y - radius * 0.3}
-                C${x - radius * 0.2},${y - radius * 0.6} ${x},${y - radius * 0.6} ${x},${y - radius * 0.3}
-                C${x},${y - radius * 0.6} ${x + radius * 0.2},${y - radius * 0.6} ${x + radius * 0.4},${y - radius * 0.3}
-                C${x + radius * 0.8},${y - radius * 0.6} ${x},${y - 5} ${x},${y + 5} Z`}
+            d={`M${x},${y + heartSize * 0.3} 
+                C${x},${y - heartSize * 0.1} ${x - heartSize * 0.6},${y - heartSize * 0.4} ${x - heartSize * 0.3},${y - heartSize * 0.2}
+                C${x - heartSize * 0.1},${y - heartSize * 0.4} ${x},${y - heartSize * 0.4} ${x},${y - heartSize * 0.2}
+                C${x},${y - heartSize * 0.4} ${x + heartSize * 0.1},${y - heartSize * 0.4} ${x + heartSize * 0.3},${y - heartSize * 0.2}
+                C${x + heartSize * 0.6},${y - heartSize * 0.4} ${x},${y - heartSize * 0.1} ${x},${y + heartSize * 0.3} Z`}
             fill={node.color}
             stroke="white"
             strokeWidth="3"
@@ -642,38 +643,38 @@ export function ElegantFamilyTree({
           strokeDasharray="5,5"
         />
 
-        {/* Member name - inside circle, upper half */}
+        {/* Member name - inside shape, upper half with red text */}
         <text
           x={node.position.x}
           y={node.position.y - 5}
           textAnchor="middle"
-          fill="white"
-          fontSize={node.isCenter ? "12" : "10"}
+          fill="#DC2626"
+          fontSize={node.isCenter ? "14" : "12"}
           fontWeight="bold"
-          stroke="#000"
-          strokeWidth="0.2"
+          stroke="white"
+          strokeWidth="0.5"
         >
-          {firstName.length > 10
-            ? firstName.substring(0, 10) + ".."
+          {firstName.length > 8
+            ? firstName.substring(0, 8) + ".."
             : firstName}
         </text>
 
-        {/* Relationship type - inside circle, lower half */}
+        {/* Relationship type - inside shape, lower half with red text */}
         {!node.isCenter && (
           <text
             x={node.position.x}
             y={node.position.y + 12}
             textAnchor="middle"
-            fill="white"
-            fontSize="8"
-            fontWeight="500"
-            stroke="#000"
-            strokeWidth="0.1"
+            fill="#DC2626"
+            fontSize="10"
+            fontWeight="600"
+            stroke="white"
+            strokeWidth="0.3"
           >
-            {transformRelationshipType(node.relationshipType).length > 12
+            {transformRelationshipType(node.relationshipType).length > 10
               ? transformRelationshipType(node.relationshipType).substring(
                   0,
-                  12,
+                  10,
                 ) + ".."
               : transformRelationshipType(node.relationshipType)}
           </text>
@@ -735,9 +736,9 @@ export function ElegantFamilyTree({
       <div className="w-full overflow-auto">
         <svg
           width="100%"
-          height="600"
-          viewBox="0 0 1600 900"
-          className="mx-auto border rounded-lg bg-gradient-to-br from-blue-50 to-indigo-100 w-full h-auto min-h-[400px] sm:min-h-[600px]"
+          height="700"
+          viewBox="0 0 1800 1000"
+          className="mx-auto border rounded-lg bg-gradient-to-br from-blue-50 to-indigo-100 w-full h-auto min-h-[500px] sm:min-h-[700px]"
           preserveAspectRatio="xMidYMid meet"
         >
           {/* Enhanced background and filters */}
