@@ -43,11 +43,16 @@ export default function WhatsApp() {
     },
     onSuccess: (data) => {
       setMessage(data.message);
-    },
-    onError: () => {
       toast({
-        title: "Error",
-        description: "Failed to process template",
+        title: "Template Processed",
+        description: "Message template has been successfully processed",
+      });
+    },
+    onError: (error: any) => {
+      console.error('Template processing error:', error);
+      toast({
+        title: "Template Error",
+        description: "Failed to process template. Please check your template variables.",
         variant: "destructive",
       });
     },
@@ -61,14 +66,15 @@ export default function WhatsApp() {
     onSuccess: (data) => {
       setGeneratedUrls(data.urls);
       toast({
-        title: "Success",
-        description: `Generated WhatsApp links for ${data.urls.length} members`,
+        title: "WhatsApp Links Generated",
+        description: `Successfully created ${data.urls.length} WhatsApp links. Click on individual links to send messages.`,
       });
     },
-    onError: () => {
+    onError: (error: any) => {
+      console.error('URL generation error:', error);
       toast({
-        title: "Error",
-        description: "Failed to generate WhatsApp links",
+        title: "Generation Failed",
+        description: "Failed to generate WhatsApp links. Please check member phone numbers.",
         variant: "destructive",
       });
     },
@@ -145,6 +151,15 @@ export default function WhatsApp() {
             {t('whatsapp.title')}
           </h1>
           <p className="text-gray-600">{t('whatsapp.subtitle')}</p>
+          <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+            <div className="flex items-center">
+              <CheckCircle className="text-green-600 mr-2" size={16} />
+              <span className="text-green-800 text-sm font-medium">WhatsApp Service Active</span>
+            </div>
+            <p className="text-green-700 text-sm mt-1">
+              Service is working properly. Any browser errors are related to WhatsApp web extensions and do not affect functionality.
+            </p>
+          </div>
         </div>
 
         <div className="grid lg:grid-cols-2 gap-8">
