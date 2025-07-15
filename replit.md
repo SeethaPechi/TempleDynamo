@@ -95,14 +95,16 @@ This is a full-stack temple community management system built with React, Expres
 
 ## Recent Changes
 
-✓ **WhatsApp Message Append and Temple Grouping** (January 15, 2025)
-  - Fixed message generation to append to existing content instead of replacing it
-  - Added temple-based member grouping with "Group by Temple" toggle option
-  - Implemented simultaneous messaging by temple with "Open by Temple" buttons
-  - Enhanced member selection with temple-specific "Select All" checkboxes
-  - Added temple information display in generated URLs (member name and temple name)
+✓ **WhatsApp Form Controls and Group Messaging Fix** (January 15, 2025)
+  - Enhanced date field to use proper HTML5 date control instead of text input
+  - Improved time field with automatic AM/PM conversion from 24-hour time picker
+  - Fixed group messaging by filtering out members without valid phone numbers
+  - Added phone number validation with clear error messages and warnings
+  - Enhanced UI to show phone number availability with visual indicators (red asterisk for missing phones)
+  - Added helpful notifications when members are skipped due to missing phone numbers
+  - Improved member display with orange warning banner about phone number requirements
   - Messages now accumulate when multiple templates are processed instead of overwriting
-  - Members grouped by temple association for batch messaging (e.g., Solairaja and Venkat Thirupathy)
+  - Temple-based grouping works properly with simultaneous messaging capabilities
 
 ✓ **Enhanced Family Tree Spacing System** (January 15, 2025)
   - Significantly increased minimum spacing from 280px to 350px between all family members

@@ -162,7 +162,26 @@ export default function WhatsApp() {
     }
 
     const selectedMemberData = (members as Member[]).filter((m: Member) => selectedMembers.includes(m.id));
-    const phoneNumbers = selectedMemberData.map((m: Member) => m.phone);
+    const membersWithValidPhones = selectedMemberData.filter((m: Member) => m.phone && m.phone.trim() !== '');
+    
+    if (membersWithValidPhones.length === 0) {
+      toast({
+        title: "No Valid Phone Numbers",
+        description: `Selected members don't have phone numbers. Please add phone numbers to member profiles first.`,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (membersWithValidPhones.length < selectedMemberData.length) {
+      const skippedCount = selectedMemberData.length - membersWithValidPhones.length;
+      toast({
+        title: "Warning",
+        description: `${skippedCount} members skipped due to missing phone numbers. Generating links for ${membersWithValidPhones.length} members.`,
+      });
+    }
+
+    const phoneNumbers = membersWithValidPhones.map((m: Member) => m.phone);
     generateUrlsMutation.mutate({ phoneNumbers, message });
   };
 
@@ -196,6 +215,11 @@ export default function WhatsApp() {
     });
     return groups;
   }, [members, temples]);
+
+  // Get members with valid phone numbers for WhatsApp
+  const membersWithPhones = useMemo(() => {
+    return (members as Member[]).filter((m: Member) => m.phone && m.phone.trim() !== '');
+  }, [members]);
 
   // Group URLs by temple for display
   const urlsByTemple = useMemo(() => {
@@ -265,15 +289,48 @@ export default function WhatsApp() {
                         <Label htmlFor={varName} className="text-sm capitalize">
                           {varName.replace(/([A-Z])/g, ' $1').trim()}
                         </Label>
-                        <Input
-                          id={varName}
-                          value={templateVariables[varName]}
-                          onChange={(e) => setTemplateVariables({
-                            ...templateVariables,
-                            [varName]: e.target.value
-                          })}
-                          placeholder={`Enter ${varName}`}
-                        />
+                        {varName.toLowerCase() === 'date' ? (
+                          <Input
+                            id={varName}
+                            type="date"
+                            value={templateVariables[varName]}
+                            onChange={(e) => setTemplateVariables({
+                              ...templateVariables,
+                              [varName]: e.target.value
+                            })}
+                          />
+                        ) : varName.toLowerCase() === 'time' ? (
+                          <div className="flex space-x-2">
+                            <Input
+                              id={`${varName}-time`}
+                              type="time"
+                              value={templateVariables[varName]?.split(' ')[0] || ''}
+                              onChange={(e) => {
+                                const timeValue = e.target.value;
+                                const [hours, minutes] = timeValue.split(':');
+                                const hour24 = parseInt(hours);
+                                const hour12 = hour24 === 0 ? 12 : hour24 > 12 ? hour24 - 12 : hour24;
+                                const ampm = hour24 >= 12 ? 'PM' : 'AM';
+                                const formattedTime = `${hour12}:${minutes} ${ampm}`;
+                                setTemplateVariables({
+                                  ...templateVariables,
+                                  [varName]: formattedTime
+                                });
+                              }}
+                              className="flex-1"
+                            />
+                          </div>
+                        ) : (
+                          <Input
+                            id={varName}
+                            value={templateVariables[varName]}
+                            onChange={(e) => setTemplateVariables({
+                              ...templateVariables,
+                              [varName]: e.target.value
+                            })}
+                            placeholder={`Enter ${varName}`}
+                          />
+                        )}
                       </div>
                     ))}
                     <Button 
@@ -318,6 +375,10 @@ export default function WhatsApp() {
                   </span>
                   <span className="text-sm font-normal text-gray-600">
                     {selectedMembers.length} of {(members as Member[]).length} selected
+                    <br />
+                    <span className="text-green-600">
+                      {membersWithPhones.length} members have phone numbers
+                    </span>
                   </span>
                 </CardTitle>
               </CardHeader>
@@ -334,7 +395,7 @@ export default function WhatsApp() {
                     </Label>
                   </div>
 
-                  <div className="mb-3">
+                  <div className="mb-3 space-y-2">
                     <div className="flex items-center space-x-2">
                       <Checkbox
                         id="group-by-temple"
@@ -344,6 +405,10 @@ export default function WhatsApp() {
                       <Label htmlFor="group-by-temple" className="text-sm">
                         Group by Temple
                       </Label>
+                    </div>
+                    <div className="text-xs text-orange-600 bg-orange-50 p-2 rounded">
+                      * Members without phone numbers cannot receive WhatsApp messages. 
+                      Add phone numbers in member profiles first.
                     </div>
                   </div>
                   
@@ -360,40 +425,52 @@ export default function WhatsApp() {
                               className="ml-2"
                             />
                           </div>
-                          {templeMembers.map((member: Member) => (
-                            <div key={member.id} className="flex items-center space-x-2 p-2 hover:bg-gray-50 rounded ml-4">
-                              <Checkbox
-                                id={`member-${member.id}`}
-                                checked={selectedMembers.includes(member.id)}
-                                onCheckedChange={(checked) => handleMemberSelection(member.id, checked as boolean)}
-                              />
-                              <div className="flex-1 min-w-0">
-                                <Label htmlFor={`member-${member.id}`} className="font-medium cursor-pointer">
-                                  {member.fullName}
-                                </Label>
-                                <p className="text-sm text-gray-500 truncate">{member.phone}</p>
+                          {templeMembers.map((member: Member) => {
+                            const hasPhone = member.phone && member.phone.trim() !== '';
+                            return (
+                              <div key={member.id} className={`flex items-center space-x-2 p-2 hover:bg-gray-50 rounded ml-4 ${!hasPhone ? 'opacity-60' : ''}`}>
+                                <Checkbox
+                                  id={`member-${member.id}`}
+                                  checked={selectedMembers.includes(member.id)}
+                                  onCheckedChange={(checked) => handleMemberSelection(member.id, checked as boolean)}
+                                />
+                                <div className="flex-1 min-w-0">
+                                  <Label htmlFor={`member-${member.id}`} className="font-medium cursor-pointer">
+                                    {member.fullName}
+                                    {!hasPhone && <span className="text-red-500 ml-1">*</span>}
+                                  </Label>
+                                  <p className="text-sm text-gray-500 truncate">
+                                    {hasPhone ? member.phone : 'No phone number'}
+                                  </p>
+                                </div>
                               </div>
-                            </div>
-                          ))}
+                            );
+                          })}
                         </div>
                       ))
                     ) : (
                       // Show members in flat list
-                      (members as Member[]).map((member: Member) => (
-                        <div key={member.id} className="flex items-center space-x-2 p-2 hover:bg-gray-50 rounded">
-                          <Checkbox
-                            id={`member-${member.id}`}
-                            checked={selectedMembers.includes(member.id)}
-                            onCheckedChange={(checked) => handleMemberSelection(member.id, checked as boolean)}
-                          />
-                          <div className="flex-1 min-w-0">
-                            <Label htmlFor={`member-${member.id}`} className="font-medium cursor-pointer">
-                              {member.fullName}
-                            </Label>
-                            <p className="text-sm text-gray-500 truncate">{member.phone}</p>
+                      (members as Member[]).map((member: Member) => {
+                        const hasPhone = member.phone && member.phone.trim() !== '';
+                        return (
+                          <div key={member.id} className={`flex items-center space-x-2 p-2 hover:bg-gray-50 rounded ${!hasPhone ? 'opacity-60' : ''}`}>
+                            <Checkbox
+                              id={`member-${member.id}`}
+                              checked={selectedMembers.includes(member.id)}
+                              onCheckedChange={(checked) => handleMemberSelection(member.id, checked as boolean)}
+                            />
+                            <div className="flex-1 min-w-0">
+                              <Label htmlFor={`member-${member.id}`} className="font-medium cursor-pointer">
+                                {member.fullName}
+                                {!hasPhone && <span className="text-red-500 ml-1">*</span>}
+                              </Label>
+                              <p className="text-sm text-gray-500 truncate">
+                                {hasPhone ? member.phone : 'No phone number'}
+                              </p>
+                            </div>
                           </div>
-                        </div>
-                      ))
+                        );
+                      })
                     )}
                   </div>
                 </div>
