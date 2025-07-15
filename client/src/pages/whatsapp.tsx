@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -25,7 +25,8 @@ export default function WhatsApp() {
   const [message, setMessage] = useState("");
   const [selectedMembers, setSelectedMembers] = useState<number[]>([]);
   const [templateVariables, setTemplateVariables] = useState<Record<string, string>>({});
-  const [generatedUrls, setGeneratedUrls] = useState<Array<{ phoneNumber: string; url: string }>>([]);
+  const [generatedUrls, setGeneratedUrls] = useState<Array<{ phoneNumber: string; url: string; memberName: string; templeName: string }>>([]);
+  const [groupByTemple, setGroupByTemple] = useState(true);
   const { toast } = useToast();
 
   const { data: members = [] } = useQuery({
@@ -36,16 +37,24 @@ export default function WhatsApp() {
     queryKey: ["/api/whatsapp/templates"],
   });
 
+  const { data: temples = [] } = useQuery({
+    queryKey: ["/api/temples"],
+  });
+
   const processTemplateMutation = useMutation({
     mutationFn: async ({ templateId, variables }: { templateId: string; variables: Record<string, string> }) => {
       const response = await apiRequest("POST", "/api/whatsapp/process-template", { templateId, variables });
       return response;
     },
     onSuccess: (data) => {
-      setMessage(data.message);
+      // Append to existing message instead of replacing
+      setMessage(prevMessage => {
+        const newContent = data.message;
+        return prevMessage.trim() ? `${prevMessage}\n\n${newContent}` : newContent;
+      });
       toast({
         title: "Template Processed",
-        description: "Message template has been successfully processed",
+        description: "Message template has been added to your content",
       });
     },
     onError: (error: any) => {
@@ -64,10 +73,22 @@ export default function WhatsApp() {
       return response;
     },
     onSuccess: (data) => {
-      setGeneratedUrls(data.urls);
+      // Enhance URLs with member and temple information
+      const selectedMemberData = (members as Member[]).filter((m: Member) => selectedMembers.includes(m.id));
+      const enhancedUrls = data.urls.map((urlData: any, index: number) => {
+        const member = selectedMemberData[index];
+        const temple = (temples as any[]).find(t => t.id === member?.templeId);
+        return {
+          ...urlData,
+          memberName: member?.fullName || 'Unknown',
+          templeName: temple?.templeName || 'No Temple'
+        };
+      });
+      
+      setGeneratedUrls(enhancedUrls);
       toast({
         title: "WhatsApp Links Generated",
-        description: `Successfully created ${data.urls.length} WhatsApp links. Click on individual links to send messages.`,
+        description: `Successfully created ${enhancedUrls.length} WhatsApp links. Click on individual links to send messages.`,
       });
     },
     onError: (error: any) => {
@@ -119,6 +140,17 @@ export default function WhatsApp() {
     }
   };
 
+  const handleSelectTempleMembers = (templeName: string, checked: boolean) => {
+    const templeMembers = membersByTemple[templeName] || [];
+    const templeMemberIds = templeMembers.map(m => m.id);
+    
+    if (checked) {
+      setSelectedMembers(prev => [...new Set([...prev, ...templeMemberIds])]);
+    } else {
+      setSelectedMembers(prev => prev.filter(id => !templeMemberIds.includes(id)));
+    }
+  };
+
   const handleGenerateLinks = () => {
     if (selectedMembers.length === 0 || !message.trim()) {
       toast({
@@ -141,6 +173,41 @@ export default function WhatsApp() {
       }, index * 500); // Stagger opening to avoid popup blocking
     });
   };
+
+  const handleOpenByTemple = (templeName: string) => {
+    const templeUrls = generatedUrls.filter(url => url.templeName === templeName);
+    templeUrls.forEach((item, index) => {
+      setTimeout(() => {
+        window.open(item.url, '_blank');
+      }, index * 300); // Faster stagger for same temple
+    });
+  };
+
+  // Group members by temple for display
+  const membersByTemple = useMemo(() => {
+    const groups: Record<string, Member[]> = {};
+    (members as Member[]).forEach((member: Member) => {
+      const temple = (temples as any[]).find(t => t.id === member.templeId);
+      const templeName = temple?.templeName || 'No Temple';
+      if (!groups[templeName]) {
+        groups[templeName] = [];
+      }
+      groups[templeName].push(member);
+    });
+    return groups;
+  }, [members, temples]);
+
+  // Group URLs by temple for display
+  const urlsByTemple = useMemo(() => {
+    const groups: Record<string, typeof generatedUrls> = {};
+    generatedUrls.forEach((url) => {
+      if (!groups[url.templeName]) {
+        groups[url.templeName] = [];
+      }
+      groups[url.templeName].push(url);
+    });
+    return groups;
+  }, [generatedUrls]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-temple-cream to-saffron-50 py-12">
@@ -267,22 +334,67 @@ export default function WhatsApp() {
                     </Label>
                   </div>
 
+                  <div className="mb-3">
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id="group-by-temple"
+                        checked={groupByTemple}
+                        onCheckedChange={setGroupByTemple}
+                      />
+                      <Label htmlFor="group-by-temple" className="text-sm">
+                        Group by Temple
+                      </Label>
+                    </div>
+                  </div>
+                  
                   <div className="max-h-64 overflow-y-auto space-y-2 border rounded-md p-2">
-                    {(members as Member[]).map((member: Member) => (
-                      <div key={member.id} className="flex items-center space-x-2 p-2 hover:bg-gray-50 rounded">
-                        <Checkbox
-                          id={`member-${member.id}`}
-                          checked={selectedMembers.includes(member.id)}
-                          onCheckedChange={(checked) => handleMemberSelection(member.id, checked as boolean)}
-                        />
-                        <div className="flex-1 min-w-0">
-                          <Label htmlFor={`member-${member.id}`} className="font-medium cursor-pointer">
-                            {member.fullName}
-                          </Label>
-                          <p className="text-sm text-gray-500 truncate">{member.phone}</p>
+                    {groupByTemple ? (
+                      // Show members grouped by temple
+                      Object.entries(membersByTemple).map(([templeName, templeMembers]) => (
+                        <div key={templeName} className="space-y-2">
+                          <div className="font-medium text-sm text-temple-brown bg-orange-50 px-2 py-1 rounded flex items-center justify-between">
+                            <span>{templeName} ({templeMembers.length} members)</span>
+                            <Checkbox
+                              checked={templeMembers.every(m => selectedMembers.includes(m.id))}
+                              onCheckedChange={(checked) => handleSelectTempleMembers(templeName, checked as boolean)}
+                              className="ml-2"
+                            />
+                          </div>
+                          {templeMembers.map((member: Member) => (
+                            <div key={member.id} className="flex items-center space-x-2 p-2 hover:bg-gray-50 rounded ml-4">
+                              <Checkbox
+                                id={`member-${member.id}`}
+                                checked={selectedMembers.includes(member.id)}
+                                onCheckedChange={(checked) => handleMemberSelection(member.id, checked as boolean)}
+                              />
+                              <div className="flex-1 min-w-0">
+                                <Label htmlFor={`member-${member.id}`} className="font-medium cursor-pointer">
+                                  {member.fullName}
+                                </Label>
+                                <p className="text-sm text-gray-500 truncate">{member.phone}</p>
+                              </div>
+                            </div>
+                          ))}
                         </div>
-                      </div>
-                    ))}
+                      ))
+                    ) : (
+                      // Show members in flat list
+                      (members as Member[]).map((member: Member) => (
+                        <div key={member.id} className="flex items-center space-x-2 p-2 hover:bg-gray-50 rounded">
+                          <Checkbox
+                            id={`member-${member.id}`}
+                            checked={selectedMembers.includes(member.id)}
+                            onCheckedChange={(checked) => handleMemberSelection(member.id, checked as boolean)}
+                          />
+                          <div className="flex-1 min-w-0">
+                            <Label htmlFor={`member-${member.id}`} className="font-medium cursor-pointer">
+                              {member.fullName}
+                            </Label>
+                            <p className="text-sm text-gray-500 truncate">{member.phone}</p>
+                          </div>
+                        </div>
+                      ))
+                    )}
                   </div>
                 </div>
               </CardContent>
@@ -327,18 +439,63 @@ export default function WhatsApp() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {generatedUrls.map((item, index) => {
-                  const member = (members as Member[]).find((m: Member) => m.phone === item.phoneNumber);
-                  return (
+              {groupByTemple ? (
+                // Show URLs grouped by temple
+                <div className="space-y-6">
+                  {Object.entries(urlsByTemple).map(([templeName, templeUrls]) => (
+                    <div key={templeName} className="border border-orange-200 rounded-lg p-4">
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="font-medium text-temple-brown">
+                          {templeName} ({templeUrls.length} members)
+                        </h3>
+                        <Button
+                          onClick={() => handleOpenByTemple(templeName)}
+                          size="sm"
+                          className="bg-orange-600 hover:bg-orange-700 text-white"
+                        >
+                          <ExternalLink className="mr-1" size={14} />
+                          Open All
+                        </Button>
+                      </div>
+                      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
+                        {templeUrls.map((item, index) => (
+                          <Card key={index} className="border border-green-200">
+                            <CardContent className="p-3">
+                              <div className="flex items-center justify-between">
+                                <div className="min-w-0 flex-1">
+                                  <p className="font-medium text-sm truncate">
+                                    {item.memberName}
+                                  </p>
+                                  <p className="text-sm text-gray-500">{item.phoneNumber}</p>
+                                </div>
+                                <Button
+                                  size="sm"
+                                  onClick={() => window.open(item.url, '_blank')}
+                                  className="ml-2 bg-green-600 hover:bg-green-700 text-white"
+                                >
+                                  <ExternalLink size={12} />
+                                </Button>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                // Show URLs in flat list
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {generatedUrls.map((item, index) => (
                     <Card key={index} className="border border-green-200">
                       <CardContent className="p-4">
                         <div className="flex items-center justify-between">
                           <div className="min-w-0 flex-1">
                             <p className="font-medium text-sm truncate">
-                              {member?.fullName || 'Unknown'}
+                              {item.memberName}
                             </p>
                             <p className="text-sm text-gray-500">{item.phoneNumber}</p>
+                            <p className="text-xs text-orange-600">{item.templeName}</p>
                           </div>
                           <Button
                             size="sm"
@@ -350,9 +507,9 @@ export default function WhatsApp() {
                         </div>
                       </CardContent>
                     </Card>
-                  );
-                })}
-              </div>
+                  ))}
+                </div>
+              )}
               <div className="mt-4 p-4 bg-green-50 rounded-lg">
                 <p className="text-sm text-green-800">
                   <strong>Instructions:</strong> Click on individual links or use "Open All Links" to open WhatsApp with pre-filled messages. 
