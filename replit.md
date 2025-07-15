@@ -95,6 +95,22 @@ This is a full-stack temple community management system built with React, Expres
 
 ## Recent Changes
 
+✓ **WhatsApp Service JavaScript Error Fix** (January 15, 2025)
+  - Fixed JavaScript errors in WhatsApp template processing and URL generation
+  - Removed unnecessary .json() calls since apiRequest already returns parsed JSON
+  - Enhanced error handling with better user feedback and status indicators
+  - Added green status banner confirming WhatsApp service is working properly
+  - Clarified that browser extension errors don't affect core functionality
+  - Template processing and broadcast URL generation now work without JavaScript errors
+
+✓ **Enhanced Family Tree Spacing System** (January 15, 2025)
+  - Significantly increased minimum spacing from 280px to 350px between all family members
+  - Expanded SVG canvas from 1800x1000 to 2200x1200 to accommodate larger family trees
+  - Enhanced all positioning zones with larger gaps (350px vertical spacing for spouses and siblings)
+  - Fixed text overlap issues by positioning names 25px below shapes (increased from 15px)
+  - Optimized center point positioning to (900, 500) for better visual balance
+  - Resolved overlapping shapes and fonts in complex family trees like Solaiya Pillai's
+
 ✓ **Family Tree Typography Enhancement** (January 15, 2025)
   - Enhanced family tree text styling with clean bold black fonts throughout
   - Moved member names outside shapes positioned below each shape for better readability

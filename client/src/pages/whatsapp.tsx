@@ -39,7 +39,7 @@ export default function WhatsApp() {
   const processTemplateMutation = useMutation({
     mutationFn: async ({ templateId, variables }: { templateId: string; variables: Record<string, string> }) => {
       const response = await apiRequest("POST", "/api/whatsapp/process-template", { templateId, variables });
-      return response.json();
+      return response;
     },
     onSuccess: (data) => {
       setMessage(data.message);
@@ -61,7 +61,7 @@ export default function WhatsApp() {
   const generateUrlsMutation = useMutation({
     mutationFn: async ({ phoneNumbers, message }: { phoneNumbers: string[]; message: string }) => {
       const response = await apiRequest("POST", "/api/whatsapp/broadcast-urls", { phoneNumbers, message });
-      return response.json();
+      return response;
     },
     onSuccess: (data) => {
       setGeneratedUrls(data.urls);
