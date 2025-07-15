@@ -673,9 +673,47 @@ export function ElegantFamilyTree({
           strokeDasharray="5,5"
         />
 
-        {/* Member name - centered with text wrapping */}
+        {/* Member name - positioned outside/below the shape */}
         {(() => {
           const words = firstName.split(' ');
+          const maxCharsPerLine = 12;
+          const lines: string[] = [];
+          let currentLine = '';
+          
+          words.forEach(word => {
+            if ((currentLine + ' ' + word).length <= maxCharsPerLine) {
+              currentLine = currentLine ? currentLine + ' ' + word : word;
+            } else {
+              if (currentLine) lines.push(currentLine);
+              currentLine = word.length > maxCharsPerLine ? word.substring(0, maxCharsPerLine - 2) + '..' : word;
+            }
+          });
+          if (currentLine) lines.push(currentLine);
+          
+          const startY = node.position.y + radius + 15; // Position below the shape
+          
+          return lines.map((line, i) => (
+            <text
+              key={`name-${i}`}
+              x={node.position.x}
+              y={startY + (i * 14)}
+              textAnchor="middle"
+              dominantBaseline="central"
+              fill="#000000"
+              fontSize={node.isCenter ? "14" : "12"}
+              fontWeight="bold"
+              stroke="white"
+              strokeWidth="0.5"
+            >
+              {line}
+            </text>
+          ));
+        })()}
+
+        {/* Relationship type - centered inside the shape in black */}
+        {!node.isCenter && (() => {
+          const relText = transformRelationshipType(node.relationshipType);
+          const words = relText.split(' ');
           const maxCharsPerLine = 8;
           const lines: string[] = [];
           let currentLine = '';
@@ -690,55 +728,17 @@ export function ElegantFamilyTree({
           });
           if (currentLine) lines.push(currentLine);
           
-          const startY = node.position.y - (lines.length * 6);
-          
-          return lines.map((line, i) => (
-            <text
-              key={`name-${i}`}
-              x={node.position.x}
-              y={startY + (i * 12)}
-              textAnchor="middle"
-              dominantBaseline="central"
-              fill="#000000"
-              fontSize={node.isCenter ? "13" : "11"}
-              fontWeight="bold"
-              stroke="white"
-              strokeWidth="0.5"
-            >
-              {line}
-            </text>
-          ));
-        })()}
-
-        {/* Relationship type - centered with text wrapping */}
-        {!node.isCenter && (() => {
-          const relText = transformRelationshipType(node.relationshipType);
-          const words = relText.split(' ');
-          const maxCharsPerLine = 10;
-          const lines: string[] = [];
-          let currentLine = '';
-          
-          words.forEach(word => {
-            if ((currentLine + ' ' + word).length <= maxCharsPerLine) {
-              currentLine = currentLine ? currentLine + ' ' + word : word;
-            } else {
-              if (currentLine) lines.push(currentLine);
-              currentLine = word.length > maxCharsPerLine ? word.substring(0, maxCharsPerLine - 2) + '..' : word;
-            }
-          });
-          if (currentLine) lines.push(currentLine);
-          
-          const startY = node.position.y + 5;
+          const startY = node.position.y - (lines.length * 5);
           
           return lines.map((line, i) => (
             <text
               key={`rel-${i}`}
               x={node.position.x}
-              y={startY + (i * 10)}
+              y={startY + (i * 11)}
               textAnchor="middle"
               dominantBaseline="central"
               fill="#000000"
-              fontSize="9"
+              fontSize="10"
               fontWeight="600"
               stroke="white"
               strokeWidth="0.3"
