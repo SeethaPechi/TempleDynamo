@@ -95,16 +95,15 @@ This is a full-stack temple community management system built with React, Expres
 
 ## Recent Changes
 
-✓ **WhatsApp Form Controls and Group Messaging Fix** (January 15, 2025)
-  - Enhanced date field to use proper HTML5 date control instead of text input
-  - Improved time field with automatic AM/PM conversion from 24-hour time picker
-  - Fixed group messaging by filtering out members without valid phone numbers
-  - Added phone number validation with clear error messages and warnings
-  - Enhanced UI to show phone number availability with visual indicators (red asterisk for missing phones)
-  - Added helpful notifications when members are skipped due to missing phone numbers
-  - Improved member display with orange warning banner about phone number requirements
-  - Messages now accumulate when multiple templates are processed instead of overwriting
-  - Temple-based grouping works properly with simultaneous messaging capabilities
+✓ **Complete Tamil Translation and Dynamic Language Switching** (January 16, 2025)
+  - Fixed dynamic Tamil translation issue throughout WhatsApp messaging page
+  - Added comprehensive Tamil translation keys for all UI elements, buttons, and error messages
+  - Implemented proper translation for form controls, validation messages, and toast notifications
+  - Enhanced language switching to work dynamically without page reload
+  - Added Tamil translations for: template variables, phone number warnings, member selection, link generation, and success/error messages
+  - Fixed all hardcoded English text to use proper i18n translation keys
+  - Content now translates properly when switching between English and Tamil languages
+  - Complete bilingual functionality restored with real-time language transformation
 
 ✓ **Enhanced Family Tree Spacing System** (January 15, 2025)
   - Significantly increased minimum spacing from 280px to 350px between all family members

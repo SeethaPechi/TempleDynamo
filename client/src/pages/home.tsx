@@ -181,7 +181,7 @@ export default function Home() {
     if (selectedTemple) {
       document.title = `${selectedTemple.templeName} - Our Temple`;
     } else {
-      document.title = "Nam Kovil - Devine Portal";
+      document.title = "Gateway to your Kulatheivam";
     }
   }, [selectedTemple]);
 
@@ -483,8 +483,10 @@ export default function Home() {
                     </div>
 
                     <div className="pt-4 space-y-3">
-                      <Button 
-                        onClick={() => window.open(`/temple/${selectedTemple.id}`, "_blank")}
+                      <Button
+                        onClick={() =>
+                          window.open(`/temple/${selectedTemple.id}`, "_blank")
+                        }
                         className="w-full bg-saffron-500 hover:bg-saffron-600 text-white font-semibold py-3 rounded-lg transition-all transform hover:scale-105 shadow-lg"
                       >
                         <Eye className="mr-2" size={20} />
@@ -569,7 +571,7 @@ export default function Home() {
                     className="mx-auto text-temple-gold mb-4"
                     size={48}
                   /> */}
-                  {/* <div className="text-3xl font-bold text-temple-brown">
+              {/* <div className="text-3xl font-bold text-temple-brown">
                     {volunteers}
                   </div>
                   <div className="text-sm text-gray-600">

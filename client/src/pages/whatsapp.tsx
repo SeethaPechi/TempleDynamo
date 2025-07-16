@@ -53,15 +53,15 @@ export default function WhatsApp() {
         return prevMessage.trim() ? `${prevMessage}\n\n${newContent}` : newContent;
       });
       toast({
-        title: "Template Processed",
-        description: "Message template has been added to your content",
+        title: t('whatsapp.templateProcessed'),
+        description: t('whatsapp.templateAdded'),
       });
     },
     onError: (error: any) => {
       console.error('Template processing error:', error);
       toast({
-        title: "Template Error",
-        description: "Failed to process template. Please check your template variables.",
+        title: t('whatsapp.templateError'),
+        description: t('whatsapp.templateErrorDesc'),
         variant: "destructive",
       });
     },
@@ -87,15 +87,15 @@ export default function WhatsApp() {
       
       setGeneratedUrls(enhancedUrls);
       toast({
-        title: "WhatsApp Links Generated",
-        description: `Successfully created ${enhancedUrls.length} WhatsApp links. Click on individual links to send messages.`,
+        title: t('whatsapp.linksGenerated'),
+        description: `${t('whatsapp.successfullyCreated')} ${enhancedUrls.length} ${t('whatsapp.linksCreated')}`,
       });
     },
     onError: (error: any) => {
       console.error('URL generation error:', error);
       toast({
-        title: "Generation Failed",
-        description: "Failed to generate WhatsApp links. Please check member phone numbers.",
+        title: t('whatsapp.generationFailed'),
+        description: t('whatsapp.generationFailedDesc'),
         variant: "destructive",
       });
     },
@@ -154,8 +154,8 @@ export default function WhatsApp() {
   const handleGenerateLinks = () => {
     if (selectedMembers.length === 0 || !message.trim()) {
       toast({
-        title: "Error",
-        description: "Please select members and enter a message",
+        title: t('common.error'),
+        description: t('whatsapp.selectMembersAndMessage'),
         variant: "destructive",
       });
       return;
@@ -166,8 +166,8 @@ export default function WhatsApp() {
     
     if (membersWithValidPhones.length === 0) {
       toast({
-        title: "No Valid Phone Numbers",
-        description: `Selected members don't have phone numbers. Please add phone numbers to member profiles first.`,
+        title: t('whatsapp.noValidPhones'),
+        description: t('whatsapp.noValidPhonesDesc'),
         variant: "destructive",
       });
       return;
@@ -176,8 +176,8 @@ export default function WhatsApp() {
     if (membersWithValidPhones.length < selectedMemberData.length) {
       const skippedCount = selectedMemberData.length - membersWithValidPhones.length;
       toast({
-        title: "Warning",
-        description: `${skippedCount} members skipped due to missing phone numbers. Generating links for ${membersWithValidPhones.length} members.`,
+        title: t('common.warning'),
+        description: `${skippedCount} ${t('whatsapp.membersSkipped')} ${membersWithValidPhones.length} ${t('whatsapp.membersGenerated')}`,
       });
     }
 
@@ -245,10 +245,10 @@ export default function WhatsApp() {
           <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
             <div className="flex items-center">
               <CheckCircle className="text-green-600 mr-2" size={16} />
-              <span className="text-green-800 text-sm font-medium">WhatsApp Service Active</span>
+              <span className="text-green-800 text-sm font-medium">{t('whatsapp.serviceActive')}</span>
             </div>
             <p className="text-green-700 text-sm mt-1">
-              Service is working properly. Any browser errors are related to WhatsApp web extensions and do not affect functionality.
+              {t('whatsapp.serviceDescription')}
             </p>
           </div>
         </div>
@@ -328,7 +328,7 @@ export default function WhatsApp() {
                               ...templateVariables,
                               [varName]: e.target.value
                             })}
-                            placeholder={`Enter ${varName}`}
+                            placeholder={`${t('common.enter')} ${varName}`}
                           />
                         )}
                       </div>
@@ -338,7 +338,7 @@ export default function WhatsApp() {
                       disabled={processTemplateMutation.isPending}
                       className="w-full"
                     >
-                      Generate Message
+                      {t('common.generateMessage')}
                     </Button>
                   </div>
                 )}
@@ -347,18 +347,18 @@ export default function WhatsApp() {
 
             <Card>
               <CardHeader>
-                <CardTitle>Message Content</CardTitle>
+                <CardTitle>{t('whatsapp.messageContent')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <Textarea
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
-                  placeholder="Enter your message here..."
+                  placeholder={t('whatsapp.writeMessage')}
                   rows={8}
                   className="resize-none"
                 />
                 <div className="mt-2 text-sm text-gray-500">
-                  Characters: {message.length}
+                  {t('common.characters')}: {message.length}
                 </div>
               </CardContent>
             </Card>
@@ -371,13 +371,13 @@ export default function WhatsApp() {
                 <CardTitle className="flex items-center justify-between">
                   <span className="flex items-center">
                     <Users className="text-temple-crimson mr-2" size={20} />
-                    Select Recipients
+                    {t('common.selectRecipients')}
                   </span>
                   <span className="text-sm font-normal text-gray-600">
-                    {selectedMembers.length} of {(members as Member[]).length} selected
+                    {selectedMembers.length} {t('common.of')} {(members as Member[]).length} {t('common.selected')}
                     <br />
                     <span className="text-green-600">
-                      {membersWithPhones.length} members have phone numbers
+                      {membersWithPhones.length} {t('common.membersWithPhones')}
                     </span>
                   </span>
                 </CardTitle>
@@ -391,7 +391,7 @@ export default function WhatsApp() {
                       onCheckedChange={handleSelectAll}
                     />
                     <Label htmlFor="select-all" className="font-medium">
-                      Select All Members
+                      {t('common.selectAll')} {t('common.members')}
                     </Label>
                   </div>
 
@@ -403,12 +403,11 @@ export default function WhatsApp() {
                         onCheckedChange={setGroupByTemple}
                       />
                       <Label htmlFor="group-by-temple" className="text-sm">
-                        Group by Temple
+                        {t('common.groupByTemple')}
                       </Label>
                     </div>
                     <div className="text-xs text-orange-600 bg-orange-50 p-2 rounded">
-                      * Members without phone numbers cannot receive WhatsApp messages. 
-                      Add phone numbers in member profiles first.
+                      {t('common.phoneNumberWarning')}
                     </div>
                   </div>
                   
@@ -440,7 +439,7 @@ export default function WhatsApp() {
                                     {!hasPhone && <span className="text-red-500 ml-1">*</span>}
                                   </Label>
                                   <p className="text-sm text-gray-500 truncate">
-                                    {hasPhone ? member.phone : 'No phone number'}
+                                    {hasPhone ? member.phone : t('common.noPhoneNumber')}
                                   </p>
                                 </div>
                               </div>
@@ -465,7 +464,7 @@ export default function WhatsApp() {
                                 {!hasPhone && <span className="text-red-500 ml-1">*</span>}
                               </Label>
                               <p className="text-sm text-gray-500 truncate">
-                                {hasPhone ? member.phone : 'No phone number'}
+                                {hasPhone ? member.phone : t('common.noPhoneNumber')}
                               </p>
                             </div>
                           </div>
@@ -479,7 +478,7 @@ export default function WhatsApp() {
 
             <Card>
               <CardHeader>
-                <CardTitle>Generate WhatsApp Links</CardTitle>
+                <CardTitle>{t('common.generateLinks')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <Button
@@ -489,7 +488,7 @@ export default function WhatsApp() {
                   size="lg"
                 >
                   <Send className="mr-2" size={20} />
-                  Generate WhatsApp Links
+                  {t('common.generateLinks')}
                 </Button>
               </CardContent>
             </Card>
@@ -503,7 +502,7 @@ export default function WhatsApp() {
               <CardTitle className="flex items-center justify-between">
                 <span className="flex items-center">
                   <CheckCircle className="text-green-600 mr-2" size={20} />
-                  Generated WhatsApp Links
+                  {t('whatsapp.generatedLinks')}
                 </span>
                 <Button
                   onClick={handleOpenAll}
@@ -511,7 +510,7 @@ export default function WhatsApp() {
                   className="text-green-600 border-green-200 hover:bg-green-50"
                 >
                   <ExternalLink className="mr-2" size={16} />
-                  Open All Links
+                  {t('common.openAll')}
                 </Button>
               </CardTitle>
             </CardHeader>
@@ -531,7 +530,7 @@ export default function WhatsApp() {
                           className="bg-orange-600 hover:bg-orange-700 text-white"
                         >
                           <ExternalLink className="mr-1" size={14} />
-                          Open All
+                          {t('common.openByTemple')}
                         </Button>
                       </div>
                       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -589,8 +588,7 @@ export default function WhatsApp() {
               )}
               <div className="mt-4 p-4 bg-green-50 rounded-lg">
                 <p className="text-sm text-green-800">
-                  <strong>Instructions:</strong> Click on individual links or use "Open All Links" to open WhatsApp with pre-filled messages. 
-                  Each link will open WhatsApp Web or the WhatsApp app with the message ready to send.
+                  <strong>{t('common.instructions')}:</strong> {t('whatsapp.instructions')}
                 </p>
               </div>
             </CardContent>
