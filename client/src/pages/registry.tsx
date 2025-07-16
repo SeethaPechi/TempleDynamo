@@ -786,7 +786,7 @@ export default function Registry() {
                       name="gender"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Gender</FormLabel>
+                          <FormLabel>{t("registry.form.gender")}</FormLabel>
                           <Select
                             onValueChange={(value) => {
                               field.onChange(value);
@@ -796,12 +796,12 @@ export default function Registry() {
                           >
                             <FormControl>
                               <SelectTrigger>
-                                <SelectValue placeholder="Select gender (optional)" />
+                                <SelectValue placeholder={t("registry.form.selectGender")} />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              <SelectItem value="Male">Male</SelectItem>
-                              <SelectItem value="Female">Female</SelectItem>
+                              <SelectItem value="Male">{t("registry.form.male")}</SelectItem>
+                              <SelectItem value="Female">{t("registry.form.female")}</SelectItem>
                             </SelectContent>
                           </Select>
                           <FormMessage />
@@ -815,7 +815,7 @@ export default function Registry() {
                 <div className="border-l-4 border-temple-crimson pl-6">
                   <h3 className="text-xl font-semibold text-temple-brown mb-6 flex items-center">
                     <MapPin className="text-temple-crimson mr-3" size={24} />
-                    Place of Birth
+                    {t("registry.form.placeOfBirth")}
                   </h3>
                   <div className="grid md:grid-cols-3 gap-6">
                     <FormField
@@ -823,7 +823,7 @@ export default function Registry() {
                       name="birthCountry"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Country *</FormLabel>
+                          <FormLabel>{t("registry.form.country")} *</FormLabel>
                           <Select
                             onValueChange={(value) => {
                               field.onChange(value);
@@ -834,7 +834,7 @@ export default function Registry() {
                           >
                             <FormControl>
                               <SelectTrigger>
-                                <SelectValue placeholder="Select Country" />
+                                <SelectValue placeholder={t("registry.form.selectCountry")} />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
@@ -921,7 +921,7 @@ export default function Registry() {
                 <div className="border-l-4 border-saffron-500 pl-6">
                   <h3 className="text-xl font-semibold text-temple-brown mb-6 flex items-center">
                     <Home className="text-saffron-500 mr-3" size={24} />
-                    Current Place of Stay
+                    {t("registry.form.currentPlaceOfStay")}
                   </h3>
                   <div className="grid md:grid-cols-3 gap-6">
                     <FormField
@@ -929,7 +929,7 @@ export default function Registry() {
                       name="currentCountry"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Country *</FormLabel>
+                          <FormLabel>{t("registry.form.country")} *</FormLabel>
                           <Select
                             onValueChange={(value) => {
                               field.onChange(value);
@@ -940,7 +940,7 @@ export default function Registry() {
                           >
                             <FormControl>
                               <SelectTrigger>
-                                <SelectValue placeholder="Select Country" />
+                                <SelectValue placeholder={t("registry.form.selectCountry")} />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>

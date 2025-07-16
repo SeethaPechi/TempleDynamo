@@ -1065,7 +1065,7 @@ export default function Temples() {
                       className="bg-white/90 text-gray-700 hover:bg-white cursor-pointer transition-colors"
                     >
                       <Users className="mr-1" size={12} />
-                      {getTempleMembers(temple.id).length} members
+                      {getTempleMembers(temple.id).length} {t("temples.members")}
                     </Badge>
                   </div>
                 </div>
@@ -1585,7 +1585,7 @@ export default function Temples() {
                 {/* Temple Photo Upload */}
                 <div className="space-y-4">
                   <h3 className="text-base font-semibold text-temple-brown border-b pb-2">
-                    Temple Photos
+                    {t("temples.templePhotos")}
                   </h3>
                   <PhotoUpload
                     photos={templePhotos}
@@ -1593,8 +1593,8 @@ export default function Temples() {
                     allowProfilePicture={true}
                     profilePicture={uploadedImage || ""}
                     onProfilePictureChange={handleTempleImageChange}
-                    title="Main Temple Image"
-                    description="Upload main temple image and additional photos"
+                    title={t("temples.mainTempleImage")}
+                    description={t("temples.uploadTempleImageDescription")}
                     maxPhotos={10}
                   />
                 </div>

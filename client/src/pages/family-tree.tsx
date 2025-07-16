@@ -294,7 +294,7 @@ export default function FamilyTree() {
                   {t("familyTree.selectMember")}
                 </span>
                 <span className="text-center leading-tight sm:hidden text-[10px]">
-                  Select
+                  {t("familyTree.select")}
                 </span>
               </TabsTrigger>
               <TabsTrigger
@@ -303,10 +303,10 @@ export default function FamilyTree() {
               >
                 <TreePine size={16} />
                 <span className="text-center leading-tight hidden sm:block">
-                  Branch
+                  {t("familyTree.branch")}
                 </span>
                 <span className="text-center leading-tight sm:hidden text-[10px]">
-                  Tree
+                  {t("familyTree.tree")}
                 </span>
               </TabsTrigger>
               <TabsTrigger
@@ -315,10 +315,10 @@ export default function FamilyTree() {
               >
                 <Users size={16} />
                 <span className="text-center leading-tight hidden sm:block">
-                  {t("Relation")}
+                  {t("familyTree.relation")}
                 </span>
                 <span className="text-center leading-tight sm:hidden text-[10px]">
-                  Table
+                  {t("familyTree.table")}
                 </span>
               </TabsTrigger>
               <TabsTrigger
@@ -327,10 +327,10 @@ export default function FamilyTree() {
               >
                 <Heart size={16} />
                 <span className="text-center leading-tight hidden lg:block">
-                  {t("All Relation")}
+                  {t("familyTree.allRelation")}
                 </span>
                 <span className="text-center leading-tight lg:hidden text-[10px]">
-                  All
+                  {t("familyTree.all")}
                 </span>
               </TabsTrigger>
               <TabsTrigger
@@ -339,10 +339,10 @@ export default function FamilyTree() {
               >
                 <Network size={16} />
                 <span className="text-center leading-tight hidden lg:block">
-                  {t("Family Network")}
+                  {t("familyTree.familyNetwork")}
                 </span>
                 <span className="text-center leading-tight lg:hidden text-[10px]">
-                  Network
+                  {t("familyTree.network")}
                 </span>
               </TabsTrigger>
               <TabsTrigger
@@ -351,10 +351,10 @@ export default function FamilyTree() {
               >
                 <BarChart3 size={16} />
                 <span className="text-center leading-tight hidden lg:block">
-                  Counters
+                  {t("familyTree.counters")}
                 </span>
                 <span className="text-center leading-tight lg:hidden text-[10px]">
-                  Count
+                  {t("familyTree.count")}
                 </span>
               </TabsTrigger>
             </TabsList>
@@ -380,10 +380,10 @@ export default function FamilyTree() {
               <Card className="p-6 sm:p-12 text-center">
                 <TreePine className="mx-auto mb-4 text-gray-400" size={36} />
                 <h3 className="text-lg sm:text-xl font-semibold text-gray-600 mb-2">
-                  Select a Member
+                  {t("familyTree.selectMember")}
                 </h3>
                 <p className="text-gray-500 text-sm sm:text-base">
-                  Choose a family member to view their elegant family tree
+                  {t("familyTree.chooseMember")}
                 </p>
               </Card>
             )}

@@ -124,12 +124,24 @@
   },
   "familyTree": {
     "title": "குடும்ப மரம்",
-    "subtitle": "குடும்ப உறவுகளை ஆராயுங்கள்",
+    "subtitle": "குடும்ப உறவுகள் மற்றும் இணைப்புகளை ஆராயுங்கள்",
     "selectMember": "உறுப்பினரைத் தேர்ந்தெடுக்கவும்",
+    "chooseMember": "அவர்களின் அழகான குடும்ப மரத்தைப் பார்க்க ஒரு குடும்ப உறுப்பினரைத் தேர்ந்தெடுக்கவும்",
     "searchMembers": "உறுப்பினர்களைத் தேடுங்கள்...",
     "relationships": "உறவுகள்",
     "noRelationships": "உறவுகள் இல்லை",
-    "addRelationship": "உறவைச் சேர்க்கவும்"
+    "addRelationship": "உறவைச் சேர்க்கவும்",
+    "select": "தேர்ந்தெடு",
+    "branch": "கிளை",
+    "tree": "மரம்",
+    "relation": "உறவு",
+    "table": "அட்டவணை",
+    "allRelation": "அனைத்து உறவுகள்",
+    "all": "அனைத்தும்",
+    "familyNetwork": "குடும்ப வலையமைப்பு",
+    "network": "வலையமைப்பு",
+    "counters": "கவுண்டர்கள்",
+    "count": "எண்ணிக்கை"
   },
   "temples": {
     "title": "கோவில்கள்",
@@ -198,5 +210,44 @@
       "member": "உறுப்பினர்",
       "action": "செயல்"
     }
+  },
+  "home": {
+    "title": "முகப்பு",
+    "getStarted": "தொடங்கவும்",
+    "ourStory": "எங்கள் கதை",
+    "culturalHeritage": "கலாச்சார மரபு",
+    "communityValues": "சமுதாய மதிப்புகள்",
+    "joinUs": "எங்களுடன் சேரவும்",
+    "communityMembers": "சமூக உறுப்பினர்கள்",
+    "families": "குடும்பங்கள்",
+    "activeTempleEvents": "செயலில் உள்ள கோவில் நிகழ்வுகள் (விரைவில்)",
+    "clickToViewMembers": "உறுப்பினர்களைப் பார்க்க கிளிக் செய்யவும்",
+    "clickToViewFamilies": "குடும்பங்களைப் பார்க்க கிளிக் செய்யவும்"
+  },
+  "members": {
+    "title": "சமூக உறுப்பினர்கள்",
+    "searchPlaceholder": "பெயர், மின்னஞ்சல் அல்லது தொலைபேசி மூலம் தேடுங்கள்...",
+    "allCities": "அனைத்து நகரங்கள்",
+    "allStates": "அனைத்து மாநிலங்கள்",
+    "noMembersFound": "உறுப்பினர்கள் கிடைக்கவில்லை",
+    "adjustSearchCriteria": "உங்கள் தேடல் அளவுகோல்களை மாற்றி முயற்சிக்கவும்"
+  },
+  "registry": {
+    "form": {
+      "gender": "பாலினம்",
+      "selectGender": "பாலினத்தைத் தேர்ந்தெடுக்கவும் (விருப்பம்)",
+      "male": "ஆண்",
+      "female": "பெண்",
+      "placeOfBirth": "பிறந்த இடம்",
+      "country": "நாடு",
+      "selectCountry": "நாட்டைத் தேர்ந்தெடுக்கவும்",
+      "currentPlaceOfStay": "தற்போதைய வசிப்பிடம்"
+    }
+  },
+  "temples": {
+    "members": "உறுப்பினர்கள்",
+    "templePhotos": "கோவில் புகைப்படங்கள்",
+    "mainTempleImage": "முக்கிய கோவில் படம்",
+    "uploadTempleImageDescription": "முக்கிய கோவில் படம் மற்றும் கூடுதல் புகைப்படங்களை பதிவேற்றவும்"
   }
 }

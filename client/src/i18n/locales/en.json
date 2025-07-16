@@ -192,11 +192,25 @@
   },
   "familyTree": {
     "title": "Family Tree",
+    "subtitle": "Explore family relationships and connections",
     "noConnections": "No Family Connections",
     "noConnectionsDesc": "doesn't have any family relationships added yet.",
     "addConnectionsDesc": "Add family connections to see the relationship table.",
     "familyRelationships": "Family Relationships",
-    "totalConnections": "Total Connections"
+    "totalConnections": "Total Connections",
+    "selectMember": "Select Member",
+    "chooseMember": "Choose a family member to view their elegant family tree",
+    "select": "Select",
+    "branch": "Branch",
+    "tree": "Tree",
+    "relation": "Relation",
+    "table": "Table",
+    "allRelation": "All Relation",
+    "all": "All",
+    "familyNetwork": "Family Network",
+    "network": "Network",
+    "counters": "Counters",
+    "count": "Count"
   },
   "common": {
     "loading": "Loading...",
@@ -377,5 +391,44 @@
     "successTitle": "Temple Registration Successful!",
     "successMessage": "Your temple has been successfully registered in our community network.",
     "viewTemples": "View All Temples"
+  },
+  "home": {
+    "title": "Home",
+    "getStarted": "Get Started",
+    "ourStory": "Our Story",
+    "culturalHeritage": "Cultural Heritage",
+    "communityValues": "Community Values",
+    "joinUs": "Join Us",
+    "communityMembers": "Community Members",
+    "families": "Families",
+    "activeTempleEvents": "Active Temple Events (Coming Soon)",
+    "clickToViewMembers": "Click to view members",
+    "clickToViewFamilies": "Click to view families"
+  },
+  "members": {
+    "title": "Community Members",
+    "searchPlaceholder": "Search by name, email, or phone...",
+    "allCities": "All Cities",
+    "allStates": "All States",
+    "noMembersFound": "No members found",
+    "adjustSearchCriteria": "Try adjusting your search criteria"
+  },
+  "registry": {
+    "form": {
+      "gender": "Gender",
+      "selectGender": "Select gender (optional)",
+      "male": "Male",
+      "female": "Female",
+      "placeOfBirth": "Place of Birth",
+      "country": "Country",
+      "selectCountry": "Select Country",
+      "currentPlaceOfStay": "Current Place of Stay"
+    }
+  },
+  "temples": {
+    "members": "members",
+    "templePhotos": "Temple Photos",
+    "mainTempleImage": "Main Temple Image",
+    "uploadTempleImageDescription": "Upload main temple image and additional photos"
   }
 }

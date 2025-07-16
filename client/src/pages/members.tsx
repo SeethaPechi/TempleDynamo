@@ -190,10 +190,10 @@ export default function Members() {
                 }}
               >
                 <SelectTrigger className="h-12 text-base">
-                  <SelectValue placeholder="All States" />
+                  <SelectValue placeholder={t("members.allStates")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all-states">All States</SelectItem>
+                  <SelectItem value="all-states">{t("members.allStates")}</SelectItem>
                   {uniqueStates.map((state: string) => (
                     <SelectItem key={state} value={state}>
                       {state}
@@ -231,9 +231,9 @@ export default function Members() {
           <Card className="p-12 text-center">
             <Users className="mx-auto mb-4 text-gray-400" size={48} />
             <h3 className="text-xl font-semibold text-gray-600 mb-2">
-              {t("common.noMembersFound")}
+              {t("members.noMembersFound")}
             </h3>
-            <p className="text-gray-500">{t("common.adjustSearchCriteria")}</p>
+            <p className="text-gray-500">{t("members.adjustSearchCriteria")}</p>
           </Card>
         ) : (
           <>
@@ -309,11 +309,11 @@ export default function Members() {
                     className="h-12 px-4 text-base"
                   >
                     <ChevronLeft size={16} className="mr-1" />
-                    <span className="hidden sm:inline">Previous</span>
+                    <span className="hidden sm:inline">{t("common.previous")}</span>
                   </Button>
 
                   <div className="flex items-center px-4 py-2 text-sm sm:text-base text-gray-600">
-                    Page {currentPage} of {totalPages}
+                    {t("common.page")} {currentPage} {t("common.of")} {totalPages}
                   </div>
 
                   <Button
@@ -324,7 +324,7 @@ export default function Members() {
                     disabled={currentPage === totalPages}
                     className="h-12 px-4 text-base"
                   >
-                    <span className="hidden sm:inline">Next</span>
+                    <span className="hidden sm:inline">{t("common.next")}</span>
                     <ChevronRight size={16} className="ml-1" />
                   </Button>
                 </div>

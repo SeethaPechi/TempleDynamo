@@ -526,10 +526,10 @@ export default function Home() {
                     {totalMembers}
                   </div>
                   <div className="text-sm text-gray-600">
-                    {t("Community Members")}
+                    {t("home.communityMembers")}
                   </div>
                   <div className="text-xs text-blue-600 mt-2 font-medium">
-                    Click to view members
+                    {t("home.clickToViewMembers")}
                   </div>
                 </CardContent>
               </Card>
@@ -542,9 +542,9 @@ export default function Home() {
                   <div className="text-3xl font-bold text-temple-brown">
                     {totalFamilies}
                   </div>
-                  <div className="text-sm text-gray-600">{t("Families")}</div>
+                  <div className="text-sm text-gray-600">{t("home.families")}</div>
                   <div className="text-xs text-blue-600 mt-2 font-medium">
-                    Click to view families
+                    {t("home.clickToViewFamilies")}
                   </div>
                 </CardContent>
               </Card>
@@ -558,7 +558,7 @@ export default function Home() {
                     {annualEvents}
                   </div>
                   <div className="text-sm text-gray-600">
-                    {t("Active Temple Events(comming Soon)")}
+                    {t("home.activeTempleEvents")}
                   </div>
                 </CardContent>
               </Card>
