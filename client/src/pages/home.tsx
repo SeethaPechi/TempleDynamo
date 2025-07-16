@@ -414,10 +414,10 @@ export default function Home() {
                             {totalMembers}
                           </div>
                           <div className="text-sm text-gray-600">
-                            {t("Registered Members")}
+                            {t("home.registeredMembers")}
                           </div>
                           <div className="text-xs text-blue-600 mt-1 font-medium">
-                            Click to view members
+                            {t("home.clickToViewMembers")}
                           </div>
                         </div>
                       </div>
@@ -430,10 +430,10 @@ export default function Home() {
                             {totalFamilies}
                           </div>
                           <div className="text-sm text-gray-600">
-                            {t("Families")}
+                            {t("home.families")}
                           </div>
                           <div className="text-xs text-blue-600 mt-1 font-medium">
-                            Click to view families
+                            {t("home.clickToViewFamilies")}
                           </div>
                         </div>
                       </div>
@@ -575,10 +575,10 @@ export default function Home() {
                     {volunteers}
                   </div>
                   <div className="text-sm text-gray-600">
-                    {t("Volunteers")}
+                    {t("home.volunteers")}
                   </div>
                   <div className="text-xs text-blue-600 mt-2 font-medium">
-                    Click to view volunteers
+                    {t("home.clickToViewVolunteers")}
                   </div> 
                 </CardContent>
               </Card>*/}

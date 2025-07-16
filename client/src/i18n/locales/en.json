@@ -394,6 +394,10 @@
   },
   "home": {
     "title": "Home",
+    "subtitle": "Welcome to your Kula Theivam Temple Gateway",
+    "selectTemple": "Select Temple",
+    "allTemples": "All Temples",
+    "chooseTemple": "Choose your temple to explore",
     "getStarted": "Get Started",
     "ourStory": "Our Story",
     "culturalHeritage": "Cultural Heritage",
@@ -403,7 +407,14 @@
     "families": "Families",
     "activeTempleEvents": "Active Temple Events (Coming Soon)",
     "clickToViewMembers": "Click to view members",
-    "clickToViewFamilies": "Click to view families"
+    "clickToViewFamilies": "Click to view families",
+    "welcomeText": "This serves as a spiritual beacon for our community, fostering devotion, cultural preservation, and unity among devotees. Please select your temple from the option above or register your temple to seek divine grace and communal harmony. Connect your relatives and explore your roots by linking your ancestors and encourage future generations to stay in touch.",
+    "ourGrowingCommunity": "Our Growing Community",
+    "communityDescription": "Together we strengthen our bonds through faith, tradition, and shared values",
+    "registeredMembers": "Registered Members",
+    "annualEvents": "Annual Events",
+    "volunteers": "Volunteers",
+    "clickToViewVolunteers": "Click to view volunteers"
   },
   "members": {
     "title": "Community Members",
