@@ -170,7 +170,25 @@
     "buttons": {
       "sendMessage": "Send Message",
       "back": "Back"
-    }
+    },
+    "openAll": "Open All Links",
+    "openByTemple": "Open All",
+    "noPhoneNumber": "No phone number",
+    "selectMembersAndMessage": "Please select members and enter a message",
+    "noValidPhones": "No Valid Phone Numbers",
+    "noValidPhonesDesc": "Selected members don't have phone numbers. Please add phone numbers to member profiles first.",
+    "membersSkipped": "members skipped due to missing phone numbers. Generating links for",
+    "membersGenerated": "members.",
+    "templateProcessed": "Template Processed",
+    "templateAdded": "Message template has been added to your content",
+    "templateError": "Template Error",
+    "templateErrorDesc": "Failed to process template. Please check your template variables.",
+    "linksGenerated": "WhatsApp Links Generated",
+    "successfullyCreated": "Successfully created",
+    "linksCreated": "WhatsApp links. Click on individual links to send messages.",
+    "generationFailed": "Generation Failed",
+    "generationFailedDesc": "Failed to generate WhatsApp links. Please check member phone numbers.",
+    "instructions": "Click on individual links or use 'Open All Links' to open WhatsApp with pre-filled messages. Each link will open WhatsApp Web or the WhatsApp app with the message ready to send."
   },
   "familyTree": {
     "title": "Family Tree",

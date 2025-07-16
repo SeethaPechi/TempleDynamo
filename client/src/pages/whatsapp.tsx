@@ -439,7 +439,7 @@ export default function WhatsApp() {
                                     {!hasPhone && <span className="text-red-500 ml-1">*</span>}
                                   </Label>
                                   <p className="text-sm text-gray-500 truncate">
-                                    {hasPhone ? member.phone : t('common.noPhoneNumber')}
+                                    {hasPhone ? member.phone : t('whatsapp.noPhoneNumber')}
                                   </p>
                                 </div>
                               </div>
@@ -464,7 +464,7 @@ export default function WhatsApp() {
                                 {!hasPhone && <span className="text-red-500 ml-1">*</span>}
                               </Label>
                               <p className="text-sm text-gray-500 truncate">
-                                {hasPhone ? member.phone : t('common.noPhoneNumber')}
+                                {hasPhone ? member.phone : t('whatsapp.noPhoneNumber')}
                               </p>
                             </div>
                           </div>
@@ -478,7 +478,7 @@ export default function WhatsApp() {
 
             <Card>
               <CardHeader>
-                <CardTitle>{t('common.generateLinks')}</CardTitle>
+                <CardTitle>{t('whatsapp.generateLinks')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <Button
@@ -488,7 +488,7 @@ export default function WhatsApp() {
                   size="lg"
                 >
                   <Send className="mr-2" size={20} />
-                  {t('common.generateLinks')}
+                  {t('whatsapp.generateLinks')}
                 </Button>
               </CardContent>
             </Card>
@@ -502,7 +502,7 @@ export default function WhatsApp() {
               <CardTitle className="flex items-center justify-between">
                 <span className="flex items-center">
                   <CheckCircle className="text-green-600 mr-2" size={20} />
-                  {t('whatsapp.generatedLinks')}
+                  {t('whatsapp.results.title')}
                 </span>
                 <Button
                   onClick={handleOpenAll}
@@ -510,7 +510,7 @@ export default function WhatsApp() {
                   className="text-green-600 border-green-200 hover:bg-green-50"
                 >
                   <ExternalLink className="mr-2" size={16} />
-                  {t('common.openAll')}
+                  {t('whatsapp.openAll')}
                 </Button>
               </CardTitle>
             </CardHeader>
@@ -530,7 +530,7 @@ export default function WhatsApp() {
                           className="bg-orange-600 hover:bg-orange-700 text-white"
                         >
                           <ExternalLink className="mr-1" size={14} />
-                          {t('common.openByTemple')}
+                          {t('whatsapp.openByTemple')}
                         </Button>
                       </div>
                       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
