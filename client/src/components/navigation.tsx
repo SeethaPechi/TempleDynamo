@@ -8,15 +8,22 @@ import {
   MessageSquare,
   Building,
   TreePine,
+  LogOut,
+  Shield,
+  User,
 } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useAuth } from "@/hooks/useAuth";
+import { getRoleDisplayName } from "@/lib/authUtils";
+import { Button } from "@/components/ui/button";
 import { LanguageSwitcher } from "./language-switcher";
 
 export function Navigation() {
   const [location] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { t } = useTranslation();
+  const { user, isAuthenticated, logout, isLogoutLoading } = useAuth();
 
   const isActive = (path: string) => location === path;
 
@@ -69,6 +76,43 @@ export function Navigation() {
                 </button>
               </Link>
             ))}
+            
+            {/* User Authentication Section */}
+            {isAuthenticated ? (
+              <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-2 text-sm">
+                  <Shield size={16} className="text-temple-gold" />
+                  <span className="text-temple-brown font-medium">
+                    {user?.email}
+                  </span>
+                  <span className="text-xs text-gray-500 bg-temple-gold/10 px-2 py-1 rounded">
+                    {user?.role && getRoleDisplayName(user.role)}
+                  </span>
+                </div>
+                <Button
+                  onClick={() => logout()}
+                  disabled={isLogoutLoading}
+                  variant="outline"
+                  size="sm"
+                  className="border-temple-gold text-temple-brown hover:bg-temple-gold hover:text-white"
+                >
+                  <LogOut size={16} className="mr-1" />
+                  {t("auth.logout")}
+                </Button>
+              </div>
+            ) : (
+              <Link href="/login">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  className="border-temple-gold text-temple-brown hover:bg-temple-gold hover:text-white"
+                >
+                  <User size={16} className="mr-1" />
+                  {t("auth.login")}
+                </Button>
+              </Link>
+            )}
+            
             <LanguageSwitcher />
           </div>
 
@@ -87,6 +131,21 @@ export function Navigation() {
         {/* Mobile Menu */}
         {mobileMenuOpen && (
           <div className="md:hidden pb-4 bg-white shadow-lg">
+            {/* Mobile User Info */}
+            {isAuthenticated && (
+              <div className="px-4 py-3 border-b border-gray-200 bg-gray-50">
+                <div className="flex items-center space-x-2 text-sm">
+                  <Shield size={16} className="text-temple-gold" />
+                  <div>
+                    <p className="text-temple-brown font-medium">{user?.email}</p>
+                    <p className="text-xs text-gray-500">
+                      {user?.role && getRoleDisplayName(user.role)}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {navItems.map(({ path, label, icon: Icon }) => (
               <Link key={path} href={path}>
                 <button
@@ -102,7 +161,36 @@ export function Navigation() {
                 </button>
               </Link>
             ))}
-            <div className="px-4 py-3 border-t border-gray-200 bg-gray-50">
+
+            {/* Mobile Auth Actions */}
+            <div className="px-4 py-3 border-t border-gray-200 bg-gray-50 space-y-2">
+              {isAuthenticated ? (
+                <Button
+                  onClick={() => {
+                    logout();
+                    setMobileMenuOpen(false);
+                  }}
+                  disabled={isLogoutLoading}
+                  variant="outline"
+                  size="sm"
+                  className="w-full border-temple-gold text-temple-brown hover:bg-temple-gold hover:text-white"
+                >
+                  <LogOut size={16} className="mr-1" />
+                  {t("auth.logout")}
+                </Button>
+              ) : (
+                <Link href="/login">
+                  <Button 
+                    onClick={() => setMobileMenuOpen(false)}
+                    variant="outline" 
+                    size="sm"
+                    className="w-full border-temple-gold text-temple-brown hover:bg-temple-gold hover:text-white"
+                  >
+                    <User size={16} className="mr-1" />
+                    {t("auth.login")}
+                  </Button>
+                </Link>
+              )}
               <LanguageSwitcher />
             </div>
           </div>
