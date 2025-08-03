@@ -173,7 +173,7 @@ export default function Members() {
                   <SelectItem value="all-cities">
                     {t("members.allCities")}
                   </SelectItem>
-                  {uniqueCities.map((city: string) => (
+                  {Array.isArray(uniqueCities) && (uniqueCities as string[]).map((city: string) => (
                     <SelectItem key={city} value={city}>
                       {city}
                     </SelectItem>
@@ -194,7 +194,7 @@ export default function Members() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all-states">{t("members.allStates")}</SelectItem>
-                  {uniqueStates.map((state: string) => (
+                  {Array.isArray(uniqueStates) && (uniqueStates as string[]).map((state: string) => (
                     <SelectItem key={state} value={state}>
                       {state}
                     </SelectItem>
