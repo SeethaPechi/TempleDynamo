@@ -19,13 +19,7 @@ export function useAuth() {
 
   const loginMutation = useMutation({
     mutationFn: async (role: string) => {
-      return await apiRequest("/api/auth/login", {
-        method: "POST",
-        body: JSON.stringify({ role }),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      return await apiRequest("POST", "/api/auth/login", { role });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
@@ -34,9 +28,7 @@ export function useAuth() {
 
   const logoutMutation = useMutation({
     mutationFn: async () => {
-      return await apiRequest("/api/auth/logout", {
-        method: "POST",
-      });
+      return await apiRequest("POST", "/api/auth/logout");
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
