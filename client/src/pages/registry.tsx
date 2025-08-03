@@ -587,15 +587,15 @@ export default function Registry() {
       
       // Show success toast
       toast({
-        title: "Registration Successful!",
-        description: "Member has been registered and form has been cleared for next entry.",
+        title: t("registry.success.title"),
+        description: t("registry.success.memberRegistered"),
         variant: "default",
       });
     },
     onError: (error: any) => {
       toast({
-        title: "Registration Failed",
-        description: error.message || "Failed to register member",
+        title: t("registry.errors.registrationFailed"),
+        description: error.message || t("registry.errors.failedToRegister"),
         variant: "destructive",
       });
     },
@@ -616,14 +616,16 @@ export default function Registry() {
         setSelectedRelationship("");
         setSearchTerm("");
         toast({
-          title: "Relative Added",
-          description: `${selectedRelative.fullName} added as ${selectedRelationship}`,
+          title: t("registry.messages.relativeAdded"),
+          description: t("registry.messages.relativeAddedDesc", { 
+            name: selectedRelative.fullName, 
+            relationship: selectedRelationship 
+          }),
         });
       } else {
         toast({
-          title: "Already Added",
-          description:
-            "This family member is already in your relationships list.",
+          title: t("registry.errors.alreadyAdded"),
+          description: t("registry.errors.alreadyAddedDesc"),
           variant: "destructive",
         });
       }
@@ -635,8 +637,10 @@ export default function Registry() {
     setLinkedRelatives(linkedRelatives.filter((_, i) => i !== index));
     if (removedMember) {
       toast({
-        title: "Relative Removed",
-        description: `${removedMember.member.fullName} removed from relationships`,
+        title: t("registry.messages.relativeRemoved"),
+        description: t("registry.messages.relativeRemovedDesc", { 
+          name: removedMember.member.fullName 
+        }),
       });
     }
     handleAutoSave();
@@ -678,8 +682,8 @@ export default function Registry() {
           setSelectedCurrentCountry(draftData.currentCountry || "");
           setSelectedTemple(draftData.selectedTemple || "");
           toast({
-            title: "Draft Restored",
-            description: "Your previously saved form data has been restored.",
+            title: t("registry.messages.draftRestored"),
+            description: t("registry.messages.draftRestoredDesc"),
           });
         }
       } catch (error) {
@@ -727,10 +731,10 @@ export default function Registry() {
                       name="fullName"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Full Name *</FormLabel>
+                          <FormLabel>{t("registry.form.fullName")} *</FormLabel>
                           <FormControl>
                             <Input
-                              placeholder="Enter your full name"
+                              placeholder={t("registry.form.enterFullName")}
                               {...field}
                               onBlur={() => {
                                 handleAutoSave();
@@ -746,10 +750,10 @@ export default function Registry() {
                       name="phone"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Phone Number(Optional)</FormLabel>
+                          <FormLabel>{t("registry.form.phoneNumber")}</FormLabel>
                           <FormControl>
                             <Input
-                              placeholder="+1 (555) 123-4567"
+                              placeholder={t("registry.form.phonePlaceholder")}
                               {...field}
                               onBlur={() => {
                                 handleAutoSave();
@@ -765,11 +769,11 @@ export default function Registry() {
                       name="email"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Email Address(Optional)</FormLabel>
+                          <FormLabel>{t("registry.form.emailAddress")}</FormLabel>
                           <FormControl>
                             <Input
                               type="email"
-                              placeholder="your.email@example.com (optional)"
+                              placeholder={t("registry.form.emailPlaceholder")}
                               {...field}
                               value={field.value || ""}
                               onBlur={() => {
@@ -815,7 +819,7 @@ export default function Registry() {
                 <div className="border-l-4 border-temple-crimson pl-6">
                   <h3 className="text-xl font-semibold text-temple-brown mb-6 flex items-center">
                     <MapPin className="text-temple-crimson mr-3" size={24} />
-                    {t("registry.form.placeOfBirth")}
+                    {t("registry.form.birthInformation")}
                   </h3>
                   <div className="grid md:grid-cols-3 gap-6">
                     <FormField
@@ -857,7 +861,7 @@ export default function Registry() {
                       name="birthState"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>State/Province *</FormLabel>
+                          <FormLabel>{t("registry.form.state")} *</FormLabel>
                           <Select
                             onValueChange={field.onChange}
                             defaultValue={field.value}
@@ -871,8 +875,8 @@ export default function Registry() {
                                 <SelectValue
                                   placeholder={
                                     selectedBirthCountry
-                                      ? "Select State"
-                                      : "Select Country first"
+                                      ? t("registry.form.selectState")
+                                      : t("registry.form.selectCountryFirst")
                                   }
                                 />
                               </SelectTrigger>
@@ -892,7 +896,7 @@ export default function Registry() {
                                 )
                               ) : (
                                 <SelectItem value="none" disabled>
-                                  No states available
+                                  {t("registry.errors.noStatesAvailable")}
                                 </SelectItem>
                               )}
                             </SelectContent>
@@ -906,9 +910,9 @@ export default function Registry() {
                       name="birthCity"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>City *</FormLabel>
+                          <FormLabel>{t("registry.form.city")} *</FormLabel>
                           <FormControl>
-                            <Input placeholder="Birth city" {...field} />
+                            <Input placeholder={t("registry.form.birthCity")} {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -921,7 +925,7 @@ export default function Registry() {
                 <div className="border-l-4 border-saffron-500 pl-6">
                   <h3 className="text-xl font-semibold text-temple-brown mb-6 flex items-center">
                     <Home className="text-saffron-500 mr-3" size={24} />
-                    {t("registry.form.currentPlaceOfStay")}
+                    {t("registry.form.currentInformation")}
                   </h3>
                   <div className="grid md:grid-cols-3 gap-6">
                     <FormField
@@ -963,7 +967,7 @@ export default function Registry() {
                       name="currentState"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>State/Province *</FormLabel>
+                          <FormLabel>{t("registry.form.state")} *</FormLabel>
                           <Select
                             onValueChange={field.onChange}
                             defaultValue={field.value}
@@ -977,8 +981,8 @@ export default function Registry() {
                                 <SelectValue
                                   placeholder={
                                     selectedCurrentCountry
-                                      ? "Select State"
-                                      : "Select Country first"
+                                      ? t("registry.form.selectState")
+                                      : t("registry.form.selectCountryFirst")
                                   }
                                 />
                               </SelectTrigger>
@@ -998,7 +1002,7 @@ export default function Registry() {
                                 )
                               ) : (
                                 <SelectItem value="none" disabled>
-                                  No states available
+                                  {t("registry.errors.noStatesAvailable")}
                                 </SelectItem>
                               )}
                             </SelectContent>
@@ -1012,9 +1016,9 @@ export default function Registry() {
                       name="currentCity"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>City *</FormLabel>
+                          <FormLabel>{t("registry.form.city")} *</FormLabel>
                           <FormControl>
-                            <Input placeholder="Current city" {...field} />
+                            <Input placeholder={t("registry.form.currentCity")} {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -1027,7 +1031,7 @@ export default function Registry() {
                 <div className="border-l-4 border-temple-gold pl-6">
                   <h3 className="text-xl font-semibold text-temple-brown mb-6 flex items-center">
                     <Users className="text-temple-gold mr-3" size={24} />
-                    Family Information
+                    {t("registry.form.familyInformation")}
                   </h3>
 
                   <div className="grid md:grid-cols-3 gap-6 mb-6">
@@ -1036,10 +1040,10 @@ export default function Registry() {
                       name="fatherName"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Father's Name *</FormLabel>
+                          <FormLabel>{t("registry.form.fatherName")} *</FormLabel>
                           <FormControl>
                             <Input
-                              placeholder="Father's full name"
+                              placeholder={t("registry.form.fatherNamePlaceholder")}
                               {...field}
                             />
                           </FormControl>
@@ -1052,10 +1056,10 @@ export default function Registry() {
                       name="motherName"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Mother's Name *</FormLabel>
+                          <FormLabel>{t("registry.form.motherName")} *</FormLabel>
                           <FormControl>
                             <Input
-                              placeholder="Mother's full name"
+                              placeholder={t("registry.form.motherNamePlaceholder")}
                               {...field}
                             />
                           </FormControl>
@@ -1069,7 +1073,7 @@ export default function Registry() {
                       name="maritalStatus"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Marital Status *</FormLabel>
+                          <FormLabel>{t("registry.form.maritalStatus")} *</FormLabel>
                           <Select
                             onValueChange={(value) => {
                               field.onChange(value);
@@ -1082,12 +1086,12 @@ export default function Registry() {
                           >
                             <FormControl>
                               <SelectTrigger>
-                                <SelectValue placeholder="Select marital status" />
+                                <SelectValue placeholder={t("registry.form.selectMaritalStatus")} />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              <SelectItem value="Single">Single</SelectItem>
-                              <SelectItem value="Married">Married</SelectItem>
+                              <SelectItem value="Single">{t("registry.form.single")}</SelectItem>
+                              <SelectItem value="Married">{t("registry.form.married")}</SelectItem>
                             </SelectContent>
                           </Select>
                           <FormMessage />
@@ -1101,10 +1105,10 @@ export default function Registry() {
                       name="spouseName"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Spouse Name</FormLabel>
+                          <FormLabel>{t("registry.form.spouseName")}</FormLabel>
                           <FormControl>
                             <Input
-                              placeholder="Spouse's full name"
+                              placeholder={t("registry.form.spouseNamePlaceholder")}
                               {...field}
                               disabled={selectedMaritalStatus !== "Married"}
                             />
@@ -1118,7 +1122,7 @@ export default function Registry() {
                       name="selectedTemple"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Select Temple (Optional)</FormLabel>
+                          <FormLabel>{t("registry.form.selectTemple")}</FormLabel>
                           <Select
                             onValueChange={(value) => {
                               field.onChange(value);
@@ -1319,11 +1323,11 @@ export default function Registry() {
                     className="bg-gradient-to-r from-saffron-500 to-temple-gold hover:from-saffron-600 hover:to-yellow-500 text-white font-semibold px-12 py-4 rounded-lg transition-all transform hover:scale-105 shadow-lg"
                   >
                     {registrationMutation.isPending ? (
-                      "Registering..."
+                      t("registry.buttons.registering")
                     ) : (
                       <>
                         <User className="mr-2" size={20} />
-                        Register Member
+                        {t("registry.buttons.register")}
                       </>
                     )}
                   </Button>
@@ -1342,11 +1346,10 @@ export default function Registry() {
               <span className="text-green-600 text-2xl">✓</span>
             </div>
             <DialogTitle className="text-xl font-semibold text-temple-brown">
-              Registration Successful!
+              {t("registry.success.title")}
             </DialogTitle>
             <DialogDescription className="text-gray-600">
-              Welcome to our temple community. Your profile has been created
-              successfully.
+              {t("registry.success.message")}
             </DialogDescription>
           </DialogHeader>
           <Button

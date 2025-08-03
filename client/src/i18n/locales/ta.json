@@ -244,15 +244,75 @@
     "adjustSearchCriteria": "உங்கள் தேடல் அளவுகோல்களை மாற்றி முயற்சிக்கவும்"
   },
   "registry": {
+    "title": "உறுப்பினர் பதிவு",
+    "subtitle": "எங்கள் கோவில் குடும்பத்தில் சேர்ந்து பக்தர்களுடன் இணைக்கவும்",
     "form": {
+      "personalInformation": "தனிப்பட்ட தகவல்",
+      "fullName": "முழு பெயர்",
+      "enterFullName": "உங்கள் முழு பெயரை உள்ளிடுங்கள்",
+      "phoneNumber": "தொலைபேசி எண் (விருப்பம்)",
+      "phonePlaceholder": "+1 (555) 123-4567",
+      "emailAddress": "மின்னஞ்சல் முகவரி (விருப்பம்)",
+      "emailPlaceholder": "your.email@example.com (விருப்பம்)",
       "gender": "பாலினம்",
       "selectGender": "பாலினத்தைத் தேர்ந்தெடுக்கவும் (விருப்பம்)",
       "male": "ஆண்",
       "female": "பெண்",
       "placeOfBirth": "பிறந்த இடம்",
+      "birthInformation": "பிறப்பு தகவல்",
       "country": "நாடு",
+      "state": "மாநிலம்/மாகாணம்",
+      "city": "நகரம்",
       "selectCountry": "நாட்டைத் தேர்ந்தெடுக்கவும்",
-      "currentPlaceOfStay": "தற்போதைய வசிப்பிடம்"
+      "selectState": "மாநிலத்தைத் தேர்ந்தெடுக்கவும்",
+      "selectCountryFirst": "முதலில் நாட்டைத் தேர்ந்தெடுக்கவும்",
+      "selectCity": "நகரத்தைத் தேர்ந்தெடுக்கவும்",
+      "birthCity": "பிறந்த நகரம்",
+      "currentCity": "தற்போதைய நகரம்",
+      "currentPlaceOfStay": "தற்போதைய வசிப்பிடம்",
+      "currentInformation": "தற்போதைய இட தகவல்",
+      "familyInformation": "குடும்ப தகவல்",
+      "fatherName": "தந்தையின் பெயர்",
+      "motherName": "தாயின் பெயர்",
+      "spouseName": "மனைவி/கணவர் பெயர்",
+      "maritalStatus": "திருமண நிலை",
+      "selectMaritalStatus": "திருமண நிலையைத் தேர்ந்தெடுக்கவும்",
+      "templeAffiliation": "கோவில் தொடர்பு",
+      "selectTemple": "கோவிலைத் தேர்ந்தெடுக்கவும் (விருப்பம்)",
+      "chooseTemple": "உங்கள் கோவிலைத் தேர்வு செய்யவும்",
+      "noTemple": "குறிப்பிட்ட கோவில் தொடர்பு இல்லை",
+      "fatherNamePlaceholder": "தந்தையின் முழு பெயர்",
+      "motherNamePlaceholder": "தாயின் முழு பெயர்",
+      "spouseNamePlaceholder": "மனைவி/கணவர் முழு பெயர்",
+      "single": "மணமாகாதவர்",
+      "married": "திருமணமானவர்",
+      "divorced": "விவாகரத்து",
+      "widowed": "விதவை"
+    },
+    "buttons": {
+      "register": "உறுப்பினரைப் பதிவு செய்யவும்",
+      "registering": "பதிவு செய்கிறது..."
+    },
+    "success": {
+      "title": "பதிவு வெற்றிகரமாக முடிந்தது!",
+      "message": "உறுப்பினர் எங்கள் சமுதாய வலையமைப்பில் வெற்றிகரமாக பதிவு செய்யப்பட்டுள்ளார்.",
+      "memberRegistered": "உறுப்பினர் பதிவு செய்யப்பட்டு அடுத்த உள்ளீட்டிற்காக படிவம் அழிக்கப்பட்டது.",
+      "viewMembers": "அனைத்து உறுப்பினர்களையும் பார்க்கவும்"
+    },
+    "errors": {
+      "registrationFailed": "பதிவு தோல்வியுற்றது",
+      "failedToRegister": "உறுப்பினரைப் பதிவு செய்வதில் தோல்வி",
+      "alreadyAdded": "ஏற்கனவே சேர்க்கப்பட்டது",
+      "alreadyAddedDesc": "இந்த குடும்ப உறுப்பினர் ஏற்கனவே உங்கள் உறவுகள் பட்டியலில் உள்ளார்.",
+      "noStatesAvailable": "மாநிலங்கள் கிடைக்கவில்லை"
+    },
+    "messages": {
+      "relativeAdded": "உறவினர் சேர்க்கப்பட்டார்",
+      "relativeAddedDesc": "{{name}} {{relationship}} ஆக சேர்க்கப்பட்டார்",
+      "relativeRemoved": "உறவினர் அகற்றப்பட்டார்",
+      "relativeRemovedDesc": "{{name}} உறவுகளிலிருந்து அகற்றப்பட்டார்",
+      "draftRestored": "வரைவு மீட்டமைக்கப்பட்டது",
+      "draftRestoredDesc": "உங்கள் முன்னர் சேமிக்கப்பட்ட படிவத் தரவு மீட்டமைக்கப்பட்டுள்ளது."
     }
   },
   "temples": {

@@ -425,15 +425,75 @@
     "adjustSearchCriteria": "Try adjusting your search criteria"
   },
   "registry": {
+    "title": "Member Registration",
+    "subtitle": "Join our temple family and connect with devotees",
     "form": {
+      "personalInformation": "Personal Information",
+      "fullName": "Full Name",
+      "enterFullName": "Enter your full name",
+      "phoneNumber": "Phone Number(Optional)",
+      "phonePlaceholder": "+1 (555) 123-4567",
+      "emailAddress": "Email Address(Optional)",
+      "emailPlaceholder": "your.email@example.com (optional)",
       "gender": "Gender",
       "selectGender": "Select gender (optional)",
       "male": "Male",
       "female": "Female",
       "placeOfBirth": "Place of Birth",
+      "birthInformation": "Birth Information",
       "country": "Country",
+      "state": "State/Province",
+      "city": "City",
       "selectCountry": "Select Country",
-      "currentPlaceOfStay": "Current Place of Stay"
+      "selectState": "Select State",
+      "selectCountryFirst": "Select Country first",
+      "selectCity": "Select City",
+      "birthCity": "Birth city",
+      "currentCity": "Current city",
+      "currentPlaceOfStay": "Current Place of Stay",
+      "currentInformation": "Current Location Information",
+      "familyInformation": "Family Information",
+      "fatherName": "Father's Name",
+      "motherName": "Mother's Name",
+      "spouseName": "Spouse Name",
+      "maritalStatus": "Marital Status",
+      "selectMaritalStatus": "Select Marital Status",
+      "templeAffiliation": "Temple Affiliation",
+      "selectTemple": "Select Temple (Optional)",
+      "chooseTemple": "Choose your temple",
+      "noTemple": "No specific temple affiliation",
+      "fatherNamePlaceholder": "Father's full name",
+      "motherNamePlaceholder": "Mother's full name",
+      "spouseNamePlaceholder": "Spouse's full name",
+      "single": "Single",
+      "married": "Married",
+      "divorced": "Divorced",
+      "widowed": "Widowed"
+    },
+    "buttons": {
+      "register": "Register Member",
+      "registering": "Registering..."
+    },
+    "success": {
+      "title": "Registration Successful!",
+      "message": "Member has been successfully registered in our community network.",
+      "memberRegistered": "Member has been registered and form has been cleared for next entry.",
+      "viewMembers": "View All Members"
+    },
+    "errors": {
+      "registrationFailed": "Registration Failed",
+      "failedToRegister": "Failed to register member",
+      "alreadyAdded": "Already Added",
+      "alreadyAddedDesc": "This family member is already in your relationships list.",
+      "noStatesAvailable": "No states available"
+    },
+    "messages": {
+      "relativeAdded": "Relative Added",
+      "relativeAddedDesc": "{{name}} added as {{relationship}}",
+      "relativeRemoved": "Relative Removed",
+      "relativeRemovedDesc": "{{name}} removed from relationships",
+      "draftRestored": "Draft Restored",
+      "draftRestoredDesc": "Your previously saved form data has been restored."
     }
   },
   "temples": {
