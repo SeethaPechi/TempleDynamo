@@ -4,12 +4,8 @@ import { storage } from "./storage";
 import { insertMemberSchema, insertRelationshipSchema, insertTempleSchema } from "@shared/schema";
 import { whatsappService } from "./whatsapp";
 import { z } from "zod";
-import { setupAuth, isAuthenticated, requireRole, canDeleteMembers, canModifyMembers } from "./replitAuth";
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Setup authentication
-  await setupAuth(app);
-
   // Health check endpoint
   app.get("/api/health", async (req, res) => {
     try {
@@ -52,8 +48,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
-  // Member routes - protected with authentication and role-based authorization
-  app.post("/api/members", isAuthenticated, canModifyMembers, async (req, res) => {
+  // Member routes
+  app.post("/api/members", async (req, res) => {
     try {
       const memberData = insertMemberSchema.parse(req.body);
       
@@ -70,7 +66,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/members", isAuthenticated, async (req, res) => {
+  app.get("/api/members", async (req, res) => {
     try {
       const { search, city, state } = req.query;
       
@@ -90,7 +86,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/members/search", isAuthenticated, async (req, res) => {
+  app.get("/api/members/search", async (req, res) => {
     try {
       const { term, city, state } = req.query;
       
@@ -111,7 +107,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get unique cities from members - MUST come before /:id route
-  app.get("/api/members/cities", isAuthenticated, async (req, res) => {
+  app.get("/api/members/cities", async (req, res) => {
     try {
       const cities = await storage.getUniqueCities();
       res.json(cities);
@@ -122,7 +118,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get unique states from members - MUST come before /:id route
-  app.get("/api/members/states", isAuthenticated, async (req, res) => {
+  app.get("/api/members/states", async (req, res) => {
     try {
       const states = await storage.getUniqueStates();
       res.json(states);
@@ -132,7 +128,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/members/:id", isAuthenticated, async (req, res) => {
+  app.get("/api/members/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const member = await storage.getMember(id);
@@ -158,7 +154,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Update member (PUT for full updates)
-  app.put("/api/members/:id", isAuthenticated, canModifyMembers, async (req, res) => {
+  app.put("/api/members/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       if (isNaN(id)) {
@@ -180,7 +176,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Update member (PATCH for partial updates)
-  app.patch("/api/members/:id", isAuthenticated, canModifyMembers, async (req, res) => {
+  app.patch("/api/members/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       if (isNaN(id)) {
@@ -230,7 +226,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Delete member
-  app.delete("/api/members/:id", isAuthenticated, canDeleteMembers, async (req, res) => {
+  app.delete("/api/members/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       if (isNaN(id)) {
@@ -251,7 +247,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Relationship routes
-  app.post("/api/relationships", isAuthenticated, canModifyMembers, async (req, res) => {
+  app.post("/api/relationships", async (req, res) => {
     try {
       const relationshipData = insertRelationshipSchema.parse(req.body);
       
@@ -273,7 +269,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/relationships/:memberId", isAuthenticated, async (req, res) => {
+  app.get("/api/relationships/:memberId", async (req, res) => {
     try {
       const memberId = parseInt(req.params.memberId);
       if (isNaN(memberId)) {
@@ -289,7 +285,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/relationships", isAuthenticated, async (req, res) => {
+  app.get("/api/relationships", async (req, res) => {
     try {
       const relationships = await storage.getAllRelationships();
       console.log('Fetching all relationships:', relationships);
@@ -300,7 +296,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.patch("/api/relationships/:id", isAuthenticated, canModifyMembers, async (req, res) => {
+  app.patch("/api/relationships/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       if (isNaN(id)) {
@@ -320,7 +316,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/relationships/:id", isAuthenticated, canDeleteMembers, async (req, res) => {
+  app.delete("/api/relationships/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       await storage.deleteRelationship(id);
@@ -429,8 +425,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Temple routes - Some routes need authentication
-  app.get("/api/temples", isAuthenticated, async (req, res) => {
+  // Temple routes
+  app.get("/api/temples", async (req, res) => {
     try {
       const temples = await storage.getAllTemples();
       res.json(temples);
@@ -439,7 +435,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/temples/:id", isAuthenticated, async (req, res) => {
+  app.get("/api/temples/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       if (isNaN(id)) {
@@ -458,7 +454,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/temples", isAuthenticated, requireRole(["system_admin", "temple_admin"]), async (req, res) => {
+  app.post("/api/temples", async (req, res) => {
     try {
       const templeData = insertTempleSchema.parse(req.body);
       const temple = await storage.createTemple(templeData);
@@ -471,7 +467,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/temples/:id", isAuthenticated, requireRole(["system_admin", "temple_admin"]), async (req, res) => {
+  app.put("/api/temples/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       if (isNaN(id)) {

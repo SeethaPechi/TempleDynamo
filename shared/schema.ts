@@ -1,7 +1,6 @@
-import { pgTable, text, serial, integer, timestamp, varchar, boolean, jsonb, index } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, timestamp } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
-import { sql } from 'drizzle-orm';
 
 export const members = pgTable("members", {
   id: serial("id").primaryKey(),
@@ -54,51 +53,19 @@ export type Member = typeof members.$inferSelect;
 export type InsertRelationship = z.infer<typeof insertRelationshipSchema>;
 export type Relationship = typeof relationships.$inferSelect;
 
-// Session storage table for authentication
-export const sessions = pgTable(
-  "sessions",
-  {
-    sid: varchar("sid").primaryKey(),
-    sess: jsonb("sess").notNull(),
-    expire: timestamp("expire").notNull(),
-  },
-  (table) => [index("IDX_session_expire").on(table.expire)],
-);
-
-// Enhanced users table with role-based authentication
+// Keep existing users table for compatibility
 export const users = pgTable("users", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  email: varchar("email").unique(),
-  firstName: varchar("first_name"),
-  lastName: varchar("last_name"),
-  profileImageUrl: varchar("profile_image_url"),
-  role: text("role", { enum: ["system_admin", "temple_admin", "temple_guest"] }).notNull().default("temple_guest"),
-  templeId: integer("temple_id").references(() => temples.id), // For temple_admin and temple_guest users
-  isActive: boolean("is_active").notNull().default(true),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
+  id: serial("id").primaryKey(),
+  username: text("username").notNull().unique(),
+  password: text("password").notNull(),
 });
 
-export const insertUserSchema = createInsertSchema(users).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-}).extend({
-  role: z.enum(["system_admin", "temple_admin", "temple_guest"]).default("temple_guest"),
-  templeId: z.number().optional().nullable(),
-  email: z.string().email().optional().nullable(),
-});
-
-export const upsertUserSchema = createInsertSchema(users).omit({
-  createdAt: true,
-}).extend({
-  role: z.enum(["system_admin", "temple_admin", "temple_guest"]).default("temple_guest"),
-  templeId: z.number().optional().nullable(),
-  email: z.string().email().optional().nullable(),
+export const insertUserSchema = createInsertSchema(users).pick({
+  username: true,
+  password: true,
 });
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
-export type UpsertUser = z.infer<typeof upsertUserSchema>;
 export type User = typeof users.$inferSelect;
 
 // Temple schema

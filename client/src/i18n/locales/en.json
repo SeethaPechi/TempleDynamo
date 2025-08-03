@@ -501,25 +501,5 @@
     "templePhotos": "Temple Photos",
     "mainTempleImage": "Main Temple Image",
     "uploadTempleImageDescription": "Upload main temple image and additional photos"
-  },
-  "auth": {
-    "loginTitle": "Temple Community Login",
-    "loginDescription": "Please select your role to access the temple management system",
-    "selectRole": "Select Your Role",
-    "chooseRole": "Choose a role...",
-    "login": "Login",
-    "loggingIn": "Logging in...",
-    "logout": "Logout",
-    "demoNote": "Demo System - Select any role to continue:",
-    "roles": {
-      "systemAdmin": "System Administrator",
-      "templeAdmin": "Temple Administrator", 
-      "templeGuest": "Temple Guest"
-    },
-    "permissions": {
-      "systemAdmin": "Full site management access",
-      "templeAdmin": "Add and modify members, manage temple content",
-      "templeGuest": "View temple information and member directory"
-    }
   }
 }

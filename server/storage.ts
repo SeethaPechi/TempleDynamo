@@ -1,15 +1,10 @@
-import { users, members, relationships, temples, type User, type InsertUser, type UpsertUser, type Member, type InsertMember, type Relationship, type InsertRelationship, type Temple, type InsertTemple } from "@shared/schema";
-import { db } from "./db";
-import { eq, ilike, or, and } from "drizzle-orm";
+import { users, members, relationships, temples, type User, type InsertUser, type Member, type InsertMember, type Relationship, type InsertRelationship, type Temple, type InsertTemple } from "@shared/schema";
 
 export interface IStorage {
-  // User methods for authentication
-  getUser(id: string): Promise<User | undefined>;
-  getUserByEmail(email: string): Promise<User | undefined>;
+  // User methods (existing)
+  getUser(id: number): Promise<User | undefined>;
+  getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
-  upsertUser(user: UpsertUser): Promise<User>;
-  updateUser(id: string, userData: Partial<InsertUser>): Promise<User>;
-  getAllUsers(): Promise<User[]>;
   
   // Member methods
   getMember(id: number): Promise<Member | undefined>;
@@ -38,238 +33,237 @@ export interface IStorage {
   searchTemples(searchTerm: string, state?: string, country?: string): Promise<Temple[]>;
 }
 
-export class DatabaseStorage implements IStorage {
-  // User methods for authentication
-  async getUser(id: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.id, id));
-    return user || undefined;
+export class MemStorage implements IStorage {
+  private users: Map<number, User>;
+  private members: Map<number, Member>;
+  private relationships: Map<number, Relationship>;
+  private temples: Map<number, Temple>;
+  private currentUserId: number;
+  private currentMemberId: number;
+  private currentRelationshipId: number;
+  private currentTempleId: number;
+
+  constructor() {
+    this.users = new Map();
+    this.members = new Map();
+    this.relationships = new Map();
+    this.temples = new Map();
+    this.currentUserId = 1;
+    this.currentMemberId = 1;
+    this.currentRelationshipId = 1;
+    this.currentTempleId = 1;
   }
 
-  async getUserByEmail(email: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.email, email));
-    return user || undefined;
+  // User methods
+  async getUser(id: number): Promise<User | undefined> {
+    return this.users.get(id);
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    return Array.from(this.users.values()).find(
+      (user) => user.username === username,
+    );
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const [user] = await db
-      .insert(users)
-      .values(insertUser)
-      .returning();
+    const id = this.currentUserId++;
+    const user: User = { ...insertUser, id };
+    this.users.set(id, user);
     return user;
-  }
-
-  async upsertUser(userData: UpsertUser): Promise<User> {
-    const [user] = await db
-      .insert(users)
-      .values(userData)
-      .onConflictDoUpdate({
-        target: users.id,
-        set: {
-          ...userData,
-          updatedAt: new Date(),
-        },
-      })
-      .returning();
-    return user;
-  }
-
-  async updateUser(id: string, userData: Partial<InsertUser>): Promise<User> {
-    const [user] = await db
-      .update(users)
-      .set({ ...userData, updatedAt: new Date() })
-      .where(eq(users.id, id))
-      .returning();
-    return user;
-  }
-
-  async getAllUsers(): Promise<User[]> {
-    return await db.select().from(users);
   }
 
   // Member methods
   async getMember(id: number): Promise<Member | undefined> {
-    const [member] = await db.select().from(members).where(eq(members.id, id));
-    return member || undefined;
+    return this.members.get(id);
   }
 
   async getMemberByEmail(email: string): Promise<Member | undefined> {
-    const [member] = await db.select().from(members).where(eq(members.email, email));
-    return member || undefined;
+    return Array.from(this.members.values()).find(
+      (member) => member.email === email,
+    );
   }
 
   async createMember(insertMember: InsertMember): Promise<Member> {
-    const [member] = await db
-      .insert(members)
-      .values(insertMember)
-      .returning();
+    const id = this.currentMemberId++;
+    const member: Member = { ...insertMember, id };
+    this.members.set(id, member);
     return member;
-  }
-
-  async updateMember(id: number, insertMember: InsertMember): Promise<Member> {
-    const [member] = await db
-      .update(members)
-      .set(insertMember)
-      .where(eq(members.id, id))
-      .returning();
-    return member;
-  }
-
-  async deleteMember(id: number): Promise<void> {
-    // Delete relationships first
-    await db.delete(relationships).where(
-      or(
-        eq(relationships.memberId, id),
-        eq(relationships.relatedMemberId, id)
-      )
-    );
-    // Delete member
-    await db.delete(members).where(eq(members.id, id));
   }
 
   async getAllMembers(): Promise<Member[]> {
-    return await db.select().from(members);
+    return Array.from(this.members.values());
   }
 
   async searchMembers(searchTerm: string, city?: string, state?: string): Promise<Member[]> {
-    const conditions = [];
-    
-    if (searchTerm) {
-      conditions.push(
-        or(
-          ilike(members.fullName, `%${searchTerm}%`),
-          ilike(members.email, `%${searchTerm}%`),
-          ilike(members.phone, `%${searchTerm}%`)
-        )
-      );
-    }
-    
-    if (city) {
-      conditions.push(eq(members.currentCity, city));
-    }
-    
-    if (state) {
-      conditions.push(eq(members.currentState, state));
-    }
-    
-    const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
-    
-    return await db.select().from(members).where(whereClause);
+    const allMembers = Array.from(this.members.values());
+    return allMembers.filter(member => {
+      const matchesSearch = !searchTerm || 
+        member.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        member.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        member.phone.includes(searchTerm);
+      
+      const matchesCity = !city || member.currentCity.toLowerCase() === city.toLowerCase();
+      const matchesState = !state || member.currentState.toLowerCase() === state.toLowerCase();
+      
+      return matchesSearch && matchesCity && matchesState;
+    });
   }
 
   async getUniqueCities(): Promise<string[]> {
-    const result = await db.selectDistinct({ city: members.currentCity }).from(members);
-    return result.map(r => r.city).filter(Boolean).sort();
+    const allMembers = Array.from(this.members.values());
+    const cities = new Set<string>();
+    allMembers.forEach(member => {
+      if (member.currentCity) {
+        cities.add(member.currentCity);
+      }
+    });
+    return Array.from(cities).sort();
   }
 
   async getUniqueStates(): Promise<string[]> {
-    const result = await db.selectDistinct({ state: members.currentState }).from(members);
-    return result.map(r => r.state).filter(Boolean).sort();
+    const allMembers = Array.from(this.members.values());
+    const states = new Set<string>();
+    allMembers.forEach(member => {
+      if (member.currentState) {
+        states.add(member.currentState);
+      }
+    });
+    return Array.from(states).sort();
   }
 
   // Relationship methods
   async createRelationship(insertRelationship: InsertRelationship): Promise<Relationship> {
-    const [relationship] = await db
-      .insert(relationships)
-      .values(insertRelationship)
-      .returning();
+    const id = this.currentRelationshipId++;
+    const relationship: Relationship = { ...insertRelationship, id };
+    this.relationships.set(id, relationship);
     return relationship;
   }
 
   async getMemberRelationships(memberId: number): Promise<Array<Relationship & { relatedMember: Member }>> {
-    const result = await db
-      .select()
-      .from(relationships)
-      .innerJoin(members, eq(relationships.relatedMemberId, members.id))
-      .where(eq(relationships.memberId, memberId));
+    const memberRelationships = Array.from(this.relationships.values())
+      .filter(rel => rel.memberId === memberId);
+    
+    const result = [];
+    for (const rel of memberRelationships) {
+      const relatedMember = this.members.get(rel.relatedMemberId);
+      if (relatedMember) {
+        result.push({ ...rel, relatedMember });
+      }
+    }
+    return result;
+  }
 
-    return result.map(row => ({
-      ...row.relationships,
-      relatedMember: row.members
-    }));
+  async updateMember(id: number, insertMember: InsertMember): Promise<Member> {
+    const member = this.members.get(id);
+    if (!member) {
+      throw new Error("Member not found");
+    }
+    const updatedMember: Member = { ...member, ...insertMember };
+    this.members.set(id, updatedMember);
+    return updatedMember;
+  }
+
+  async deleteMember(id: number): Promise<void> {
+    // Delete all relationships involving this member
+    for (const [relationshipId, relationship] of this.relationships.entries()) {
+      if (relationship.memberId === id || relationship.relatedMemberId === id) {
+        this.relationships.delete(relationshipId);
+      }
+    }
+    // Delete the member
+    this.members.delete(id);
   }
 
   async getAllRelationships(): Promise<Array<Relationship & { relatedMember: Member }>> {
-    const result = await db
-      .select()
-      .from(relationships)
-      .innerJoin(members, eq(relationships.relatedMemberId, members.id));
-
-    return result.map(row => ({
-      ...row.relationships,
-      relatedMember: row.members
-    }));
+    const results: Array<Relationship & { relatedMember: Member }> = [];
+    
+    for (const [id, relationship] of this.relationships) {
+      const relatedMember = this.members.get(relationship.relatedMemberId);
+      if (relatedMember) {
+        results.push({
+          ...relationship,
+          relatedMember
+        });
+      }
+    }
+    
+    return results;
   }
 
   async updateRelationship(id: number, data: { relationshipType: string }): Promise<Relationship> {
-    const [relationship] = await db
-      .update(relationships)
-      .set(data)
-      .where(eq(relationships.id, id))
-      .returning();
-    return relationship;
+    const existingRelationship = this.relationships.get(id);
+    if (!existingRelationship) {
+      throw new Error("Relationship not found");
+    }
+    const updatedRelationship: Relationship = {
+      ...existingRelationship,
+      relationshipType: data.relationshipType,
+    };
+    this.relationships.set(id, updatedRelationship);
+    return updatedRelationship;
   }
 
   async deleteRelationship(id: number): Promise<void> {
-    await db.delete(relationships).where(eq(relationships.id, id));
+    this.relationships.delete(id);
   }
 
   // Temple methods
   async getTemple(id: number): Promise<Temple | undefined> {
-    const [temple] = await db.select().from(temples).where(eq(temples.id, id));
-    return temple || undefined;
+    return this.temples.get(id);
   }
 
   async createTemple(insertTemple: InsertTemple): Promise<Temple> {
-    const [temple] = await db
-      .insert(temples)
-      .values(insertTemple)
-      .returning();
+    const id = this.currentTempleId++;
+    const temple: Temple = { 
+      ...insertTemple, 
+      id,
+      createdAt: new Date()
+    };
+    this.temples.set(id, temple);
     return temple;
   }
 
   async updateTemple(id: number, insertTemple: InsertTemple): Promise<Temple> {
-    const [temple] = await db
-      .update(temples)
-      .set(insertTemple)
-      .where(eq(temples.id, id))
-      .returning();
-    return temple;
-  }
-
-  async deleteTemple(id: number): Promise<void> {
-    await db.delete(temples).where(eq(temples.id, id));
+    const existingTemple = this.temples.get(id);
+    if (!existingTemple) {
+      throw new Error("Temple not found");
+    }
+    const updatedTemple: Temple = { 
+      ...existingTemple, 
+      ...insertTemple 
+    };
+    this.temples.set(id, updatedTemple);
+    return updatedTemple;
   }
 
   async getAllTemples(): Promise<Temple[]> {
-    return await db.select().from(temples);
+    return Array.from(this.temples.values());
+  }
+
+  async deleteTemple(id: number): Promise<void> {
+    if (!this.temples.has(id)) {
+      throw new Error("Temple not found");
+    }
+    this.temples.delete(id);
   }
 
   async searchTemples(searchTerm: string, state?: string, country?: string): Promise<Temple[]> {
-    const conditions = [];
-    
-    if (searchTerm) {
-      conditions.push(
-        or(
-          ilike(temples.templeName, `%${searchTerm}%`),
-          ilike(temples.village, `%${searchTerm}%`),
-          ilike(temples.nearestCity, `%${searchTerm}%`),
-          ilike(temples.deity, `%${searchTerm}%`)
-        )
-      );
-    }
-    
-    if (state) {
-      conditions.push(eq(temples.state, state));
-    }
-    
-    if (country) {
-      conditions.push(eq(temples.country, country));
-    }
-    
-    const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
-    
-    return await db.select().from(temples).where(whereClause);
+    const temples = Array.from(this.temples.values());
+    return temples.filter(temple => {
+      const matchesSearch = !searchTerm || 
+        temple.templeName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        temple.village.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        temple.nearestCity.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (temple.deity && temple.deity.toLowerCase().includes(searchTerm.toLowerCase()));
+      
+      const matchesState = !state || temple.state.toLowerCase() === state.toLowerCase();
+      const matchesCountry = !country || temple.country.toLowerCase() === country.toLowerCase();
+      
+      return matchesSearch && matchesState && matchesCountry;
+    });
   }
 }
+
+import { DatabaseStorage } from "./db";
 
 export const storage = new DatabaseStorage();
