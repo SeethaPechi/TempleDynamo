@@ -1,17 +1,22 @@
 import type { Express, RequestHandler } from "express";
 
-// Extend Express Request type to include user role information
+// Extend Express Request type to include user role information and cookies
 declare global {
   namespace Express {
     interface Request {
       userRole?: string;
       userTempleId?: number | null;
+      cookies?: Record<string, string>;
+    }
+    interface Response {
+      cookie(name: string, value: string, options?: any): Response;
+      clearCookie(name: string): Response;
     }
   }
 }
 import { storage } from "./storage";
 
-// Simple session-based authentication for development
+// Simple in-memory authentication for development
 // In production, you would integrate with Replit Auth or other OAuth providers
 
 // Mock user session for development
@@ -21,6 +26,9 @@ interface MockUser {
   role: string;
   templeId?: number;
 }
+
+// In-memory session storage for development
+const activeSessions: Map<string, MockUser> = new Map();
 
 // Temporary storage for demo users
 const mockUsers: Record<string, MockUser> = {
@@ -43,6 +51,11 @@ const mockUsers: Record<string, MockUser> = {
   }
 };
 
+// Generate simple session ID
+function generateSessionId(): string {
+  return Math.random().toString(36).substring(2) + Date.now().toString(36);
+}
+
 export async function setupAuth(app: Express) {
   // Simple login endpoint for demo
   app.post("/api/auth/login", (req, res) => {
@@ -53,33 +66,56 @@ export async function setupAuth(app: Express) {
     }
     
     const user = mockUsers[role];
+    const sessionId = generateSessionId();
     
-    // Set user in session (simplified)
-    (req as any).session = (req as any).session || {};
-    (req as any).session.user = user;
+    // Store session in memory
+    activeSessions.set(sessionId, user);
+    
+    // Set session cookie
+    res.cookie('sessionId', sessionId, {
+      httpOnly: true,
+      secure: false, // Set to true in production with HTTPS
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 1 week
+      sameSite: 'lax'
+    });
     
     res.json({ success: true, user });
   });
   
   // Logout endpoint
   app.post("/api/auth/logout", (req, res) => {
-    (req as any).session = null;
+    const sessionId = req.cookies?.sessionId;
+    if (sessionId) {
+      activeSessions.delete(sessionId);
+    }
+    res.clearCookie('sessionId');
     res.json({ success: true });
   });
   
   // Get current user
   app.get("/api/auth/user", (req, res) => {
-    const user = (req as any).session?.user;
+    const sessionId = req.cookies?.sessionId;
+    if (!sessionId) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+    
+    const user = activeSessions.get(sessionId);
     if (!user) {
       return res.status(401).json({ message: "Not authenticated" });
     }
+    
     res.json(user);
   });
 }
 
 export const isAuthenticated: RequestHandler = async (req, res, next) => {
-  const user = (req as any).session?.user;
+  const sessionId = req.cookies?.sessionId;
   
+  if (!sessionId) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+  
+  const user = activeSessions.get(sessionId);
   if (!user) {
     return res.status(401).json({ message: "Unauthorized" });
   }

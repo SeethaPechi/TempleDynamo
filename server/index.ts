@@ -1,24 +1,56 @@
 import express, { type Request, Response, NextFunction } from "express";
-import session from "express-session";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 
 const app = express();
 
-// Session configuration
-app.use(session({
-  secret: process.env.SESSION_SECRET || 'temple-dev-secret-key-change-in-production',
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    secure: false, // Set to true in production with HTTPS
-    httpOnly: true,
-    maxAge: 7 * 24 * 60 * 60 * 1000, // 1 week
-  }
-}));
-
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: false, limit: '50mb' }));
+
+// Cookie parser middleware (simple implementation)
+app.use((req, res, next) => {
+  const cookies: Record<string, string> = {};
+  const cookieHeader = req.headers.cookie;
+  
+  if (cookieHeader) {
+    cookieHeader.split(';').forEach(cookie => {
+      const [name, value] = cookie.trim().split('=');
+      if (name && value) {
+        cookies[name] = decodeURIComponent(value);
+      }
+    });
+  }
+  
+  req.cookies = cookies;
+  
+  // Add cookie helper to response
+  res.cookie = function(name: string, value: string, options: any = {}) {
+    let cookieString = `${name}=${encodeURIComponent(value)}`;
+    
+    if (options.maxAge) {
+      cookieString += `; Max-Age=${Math.floor(options.maxAge / 1000)}`;
+    }
+    if (options.httpOnly) {
+      cookieString += '; HttpOnly';
+    }
+    if (options.secure) {
+      cookieString += '; Secure';
+    }
+    if (options.sameSite) {
+      cookieString += `; SameSite=${options.sameSite}`;
+    }
+    
+    res.setHeader('Set-Cookie', cookieString);
+    return res;
+  };
+  
+  res.clearCookie = function(name: string) {
+    res.setHeader('Set-Cookie', `${name}=; Max-Age=0; Path=/`);
+    return res;
+  };
+  
+  next();
+});
 
 // Add CORS headers for production
 app.use((req, res, next) => {
