@@ -228,6 +228,17 @@ function WelcomePage() {
 export default function Home() {
   const { t } = useTranslation();
   const { isAuthenticated } = useAuth();
+
+  // Show welcome page for non-authenticated users
+  if (!isAuthenticated) {
+    return <WelcomePage />;
+  }
+
+  return <AuthenticatedHome />;
+}
+
+function AuthenticatedHome() {
+  const { t } = useTranslation();
   const [selectedTemple, setSelectedTemple] = useState<Temple | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
@@ -239,11 +250,6 @@ export default function Home() {
   }>({ members: [], title: "", description: "" });
   const { toast } = useToast();
   const queryClient = useQueryClient();
-
-  // Show welcome page for non-authenticated users
-  if (!isAuthenticated) {
-    return <WelcomePage />;
-  }
 
   const { data: members = [] } = useQuery({
     queryKey: ["/api/members"],
