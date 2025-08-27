@@ -1,10 +1,11 @@
 import { users, members, relationships, temples, type User, type InsertUser, type Member, type InsertMember, type Relationship, type InsertRelationship, type Temple, type InsertTemple } from "@shared/schema";
 
 export interface IStorage {
-  // User methods (existing)
+  // User methods (updated for authentication)
   getUser(id: number): Promise<User | undefined>;
-  getUserByUsername(username: string): Promise<User | undefined>;
+  getUserByEmail(email: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
+  validateUserCredentials(email: string, password: string): Promise<User | null>;
   
   // Member methods
   getMember(id: number): Promise<Member | undefined>;
@@ -59,17 +60,30 @@ export class MemStorage implements IStorage {
     return this.users.get(id);
   }
 
-  async getUserByUsername(username: string): Promise<User | undefined> {
+  async getUserByEmail(email: string): Promise<User | undefined> {
     return Array.from(this.users.values()).find(
-      (user) => user.username === username,
+      (user) => user.email === email,
     );
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
     const id = this.currentUserId++;
-    const user: User = { ...insertUser, id };
+    const user: User = { 
+      ...insertUser, 
+      id, 
+      isActive: "true",
+      createdAt: new Date()
+    };
     this.users.set(id, user);
     return user;
+  }
+
+  async validateUserCredentials(email: string, password: string): Promise<User | null> {
+    const user = await this.getUserByEmail(email);
+    if (user && user.password === password) {
+      return user;
+    }
+    return null;
   }
 
   // Member methods
@@ -85,7 +99,11 @@ export class MemStorage implements IStorage {
 
   async createMember(insertMember: InsertMember): Promise<Member> {
     const id = this.currentMemberId++;
-    const member: Member = { ...insertMember, id };
+    const member: Member = { 
+      ...insertMember, 
+      id, 
+      createdAt: new Date()
+    };
     this.members.set(id, member);
     return member;
   }
@@ -99,8 +117,8 @@ export class MemStorage implements IStorage {
     return allMembers.filter(member => {
       const matchesSearch = !searchTerm || 
         member.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        member.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        member.phone.includes(searchTerm);
+        (member.email && member.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (member.phone && member.phone.includes(searchTerm));
       
       const matchesCity = !city || member.currentCity.toLowerCase() === city.toLowerCase();
       const matchesState = !state || member.currentState.toLowerCase() === state.toLowerCase();
@@ -134,7 +152,11 @@ export class MemStorage implements IStorage {
   // Relationship methods
   async createRelationship(insertRelationship: InsertRelationship): Promise<Relationship> {
     const id = this.currentRelationshipId++;
-    const relationship: Relationship = { ...insertRelationship, id };
+    const relationship: Relationship = { 
+      ...insertRelationship, 
+      id, 
+      createdAt: new Date()
+    };
     this.relationships.set(id, relationship);
     return relationship;
   }

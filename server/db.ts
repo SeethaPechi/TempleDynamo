@@ -52,9 +52,17 @@ export class DatabaseStorage implements IStorage {
     return user || undefined;
   }
 
-  async getUserByUsername(username: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.username, username));
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.email, email));
     return user || undefined;
+  }
+
+  async validateUserCredentials(email: string, password: string): Promise<User | null> {
+    const [user] = await db.select().from(users).where(eq(users.email, email));
+    if (user && user.password === password) {
+      return user;
+    }
+    return null;
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {

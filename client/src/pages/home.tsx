@@ -20,10 +20,13 @@ import {
   Phone,
   Mail,
   Eye,
+  UserPlus,
+  LogIn,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useState, useEffect, ChangeEvent } from "react";
 import type { Temple, Member } from "@shared/schema";
+import { useAuth } from "@/hooks/useAuth";
 import {
   Dialog,
   DialogContent,

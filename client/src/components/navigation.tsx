@@ -8,21 +8,49 @@ import {
   MessageSquare,
   Building,
   TreePine,
+  LogOut,
+  LogIn,
+  User,
 } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { LanguageSwitcher } from "./language-switcher";
+import { useAuth } from "@/hooks/useAuth";
+import { Button } from "./ui/button";
+import { useToast } from "@/hooks/use-toast";
 
 export function Navigation() {
   const [location] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { t } = useTranslation();
+  const { isAuthenticated, user, logout } = useAuth();
+  const { toast } = useToast();
 
   const isActive = (path: string) => location === path;
 
-  const navItems = [
+  const handleLogout = async () => {
+    try {
+      await logout();
+      toast({
+        title: "Logged Out",
+        description: "You have been logged out successfully.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to log out. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const publicNavItems = [
     { path: "/", label: t("nav.home"), icon: Home },
-    { path: "/registry", label: t("nav.registry"), icon: UserPlus },
+  ];
+
+  const authenticatedNavItems = [
+    { path: "/", label: t("nav.home"), icon: Home },
+    { path: "/family-registry", label: "Family Registry", icon: UserPlus },
     { path: "/members", label: t("nav.members"), icon: Users },
     { path: "/family-tree", label: t("nav.familyTree"), icon: TreePine },
     { path: "/temples", label: t("nav.temples"), icon: Building },
@@ -38,6 +66,8 @@ export function Navigation() {
     },
     { path: "/whatsapp", label: t("nav.whatsapp"), icon: MessageSquare },
   ];
+
+  const navItems = isAuthenticated ? authenticatedNavItems : publicNavItems;
 
   return (
     <nav className="bg-white shadow-lg border-b-4 border-temple-gold sticky top-0 z-50">
@@ -70,6 +100,47 @@ export function Navigation() {
               </Link>
             ))}
             <LanguageSwitcher />
+            
+            {/* Authentication controls */}
+            {isAuthenticated ? (
+              <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-2 text-sm text-gray-600">
+                  <User size={16} />
+                  <span>{user?.firstName} {user?.lastName}</span>
+                </div>
+                <Button
+                  onClick={handleLogout}
+                  variant="outline"
+                  size="sm"
+                  className="flex items-center space-x-2"
+                >
+                  <LogOut size={16} />
+                  <span>Sign Out</span>
+                </Button>
+              </div>
+            ) : (
+              <div className="flex items-center space-x-2">
+                <Link href="/signin">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex items-center space-x-2"
+                  >
+                    <LogIn size={16} />
+                    <span>Sign In</span>
+                  </Button>
+                </Link>
+                <Link href="/register">
+                  <Button
+                    size="sm"
+                    className="flex items-center space-x-2 bg-saffron-500 hover:bg-saffron-600"
+                  >
+                    <UserPlus size={16} />
+                    <span>Register</span>
+                  </Button>
+                </Link>
+              </div>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -102,6 +173,52 @@ export function Navigation() {
                 </button>
               </Link>
             ))}
+            
+            {/* Mobile authentication controls */}
+            <div className="px-4 py-3 border-t border-gray-200">
+              {isAuthenticated ? (
+                <div className="space-y-3">
+                  <div className="flex items-center space-x-2 text-sm text-gray-600 py-2">
+                    <User size={16} />
+                    <span>{user?.firstName} {user?.lastName}</span>
+                  </div>
+                  <Button
+                    onClick={handleLogout}
+                    variant="outline"
+                    size="sm"
+                    className="w-full flex items-center justify-center space-x-2"
+                  >
+                    <LogOut size={16} />
+                    <span>Sign Out</span>
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <Link href="/signin">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full flex items-center justify-center space-x-2"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <LogIn size={16} />
+                      <span>Sign In</span>
+                    </Button>
+                  </Link>
+                  <Link href="/register">
+                    <Button
+                      size="sm"
+                      className="w-full flex items-center justify-center space-x-2 bg-saffron-500 hover:bg-saffron-600"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <UserPlus size={16} />
+                      <span>Register</span>
+                    </Button>
+                  </Link>
+                </div>
+              )}
+            </div>
+            
             <div className="px-4 py-3 border-t border-gray-200 bg-gray-50">
               <LanguageSwitcher />
             </div>

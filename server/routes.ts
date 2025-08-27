@@ -1,11 +1,123 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertMemberSchema, insertRelationshipSchema, insertTempleSchema } from "@shared/schema";
+import { insertMemberSchema, insertRelationshipSchema, insertTempleSchema, insertUserSchema, loginUserSchema } from "@shared/schema";
 import { whatsappService } from "./whatsapp";
 import { z } from "zod";
+import session from "express-session";
+
+// Simple hash function for demonstration (in production, use bcrypt)
+function hashPassword(password: string): string {
+  return Buffer.from(password).toString('base64');
+}
+
+function verifyPassword(password: string, hash: string): boolean {
+  return Buffer.from(password).toString('base64') === hash;
+}
+
+// Authentication middleware
+function requireAuth(req: any, res: any, next: any) {
+  if (req.session?.userId) {
+    next();
+  } else {
+    res.status(401).json({ message: "Authentication required" });
+  }
+}
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Configure session middleware
+  app.use(session({
+    secret: process.env.SESSION_SECRET || 'temple-management-secret-key',
+    resave: false,
+    saveUninitialized: false,
+    cookie: { 
+      secure: false, // Set to true in production with HTTPS
+      maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    }
+  }));
+
+  // Authentication Routes
+  app.post("/api/auth/register", async (req, res) => {
+    try {
+      const userData = insertUserSchema.parse(req.body);
+      
+      // Check if user already exists
+      const existingUser = await storage.getUserByEmail(userData.email);
+      if (existingUser) {
+        return res.status(400).json({ message: "User already exists with this email" });
+      }
+      
+      // Hash the password
+      const hashedPassword = hashPassword(userData.password);
+      const user = await storage.createUser({
+        ...userData,
+        password: hashedPassword
+      });
+      
+      // Don't return the password
+      const { password, ...userWithoutPassword } = user;
+      res.json(userWithoutPassword);
+    } catch (error) {
+      console.error("Error registering user:", error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid data", errors: error.errors });
+      }
+      res.status(500).json({ message: "Failed to register user" });
+    }
+  });
+
+  app.post("/api/auth/login", async (req, res) => {
+    try {
+      const { email, password } = loginUserSchema.parse(req.body);
+      
+      const user = await storage.getUserByEmail(email);
+      if (!user || !verifyPassword(password, user.password)) {
+        return res.status(401).json({ message: "Invalid email or password" });
+      }
+      
+      // Set session
+      (req.session as any).userId = user.id;
+      
+      // Return user without password
+      const { password: _, ...userWithoutPassword } = user;
+      res.json(userWithoutPassword);
+    } catch (error) {
+      console.error("Error logging in:", error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid data", errors: error.errors });
+      }
+      res.status(500).json({ message: "Failed to log in" });
+    }
+  });
+
+  app.post("/api/auth/logout", (req, res) => {
+    req.session?.destroy((err) => {
+      if (err) {
+        console.error("Error destroying session:", err);
+        return res.status(500).json({ message: "Failed to log out" });
+      }
+      res.json({ message: "Logged out successfully" });
+    });
+  });
+
+  app.get("/api/auth/me", async (req, res) => {
+    if (!(req.session as any)?.userId) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+    
+    try {
+      const user = await storage.getUser((req.session as any).userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      const { password, ...userWithoutPassword } = user;
+      res.json(userWithoutPassword);
+    } catch (error) {
+      console.error("Error fetching user:", error);
+      res.status(500).json({ message: "Failed to fetch user" });
+    }
+  });
   // Health check endpoint
   app.get("/api/health", async (req, res) => {
     try {
@@ -48,8 +160,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
-  // Member routes
-  app.post("/api/members", async (req, res) => {
+  // Member routes (protected)
+  app.post("/api/members", requireAuth, async (req, res) => {
     try {
       const memberData = insertMemberSchema.parse(req.body);
       
@@ -66,7 +178,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/members", async (req, res) => {
+  app.get("/api/members", requireAuth, async (req, res) => {
     try {
       const { search, city, state } = req.query;
       
@@ -128,7 +240,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/members/:id", async (req, res) => {
+  app.get("/api/members/:id", requireAuth, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const member = await storage.getMember(id);
@@ -154,7 +266,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Update member (PUT for full updates)
-  app.put("/api/members/:id", async (req, res) => {
+  app.put("/api/members/:id", requireAuth, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       if (isNaN(id)) {
@@ -226,7 +338,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Delete member
-  app.delete("/api/members/:id", async (req, res) => {
+  app.delete("/api/members/:id", requireAuth, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       if (isNaN(id)) {
@@ -246,8 +358,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Relationship routes
-  app.post("/api/relationships", async (req, res) => {
+  // Relationship routes (protected)  
+  app.post("/api/relationships", requireAuth, async (req, res) => {
     try {
       const relationshipData = insertRelationshipSchema.parse(req.body);
       
@@ -285,7 +397,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/relationships", async (req, res) => {
+  app.get("/api/relationships", requireAuth, async (req, res) => {
     try {
       const relationships = await storage.getAllRelationships();
       console.log('Fetching all relationships:', relationships);

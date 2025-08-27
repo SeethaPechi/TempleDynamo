@@ -53,19 +53,39 @@ export type Member = typeof members.$inferSelect;
 export type InsertRelationship = z.infer<typeof insertRelationshipSchema>;
 export type Relationship = typeof relationships.$inferSelect;
 
-// Keep existing users table for compatibility
+// User authentication schema
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
-  username: text("username").notNull().unique(),
+  firstName: text("first_name").notNull(),
+  lastName: text("last_name").notNull(),
+  email: text("email").notNull().unique(),
+  phone: text("phone").notNull(),
+  countryCode: text("country_code").notNull().default("+1"),
   password: text("password").notNull(),
+  passwordHint: text("password_hint"),
+  isActive: text("is_active").default("true"),
+  createdAt: timestamp("created_at").defaultNow(),
 });
 
-export const insertUserSchema = createInsertSchema(users).pick({
-  username: true,
-  password: true,
+export const insertUserSchema = createInsertSchema(users).omit({
+  id: true,
+  createdAt: true,
+  isActive: true,
+}).extend({
+  email: z.string().email("Please enter a valid email address"),
+  phone: z.string().regex(/^(\d{10}|\d{3}-\d{3}-\d{4}|\(\d{3}\)\s\d{3}\s\d{4})$/, "Phone must be in format: XXXXXXXXXX, XXX-XXX-XXXX, or (XXX) XXX XXXX"),
+  password: z.string().min(8, "Password must be at least 8 characters long"),
+  countryCode: z.string().default("+1"),
+  passwordHint: z.string().optional(),
+});
+
+export const loginUserSchema = z.object({
+  email: z.string().email("Please enter a valid email address"),
+  password: z.string().min(1, "Password is required"),
 });
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
+export type LoginUser = z.infer<typeof loginUserSchema>;
 export type User = typeof users.$inferSelect;
 
 // Temple schema
