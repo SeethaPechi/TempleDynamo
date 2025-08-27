@@ -75,72 +75,79 @@ export function Navigation() {
         <div className="flex justify-between items-center h-16">
           <Link href="/" className="flex items-center space-x-3">
             <div className="w-10 h-10 bg-gradient-to-br from-saffron-500 to-temple-red rounded-full flex items-center justify-center">
-              <span className="text-white text-lg"></span>
+              <span className="text-white text-lg font-bold">ॐ</span>
             </div>
             <div>
-              <h1 className="text-xl font-bold text-temple-brown"></h1>
-              <p className="text-xs text-gray-600"></p>
+              <h1 className="text-xl font-bold text-temple-brown">Sri Lakshmi Temple</h1>
+              <p className="text-xs text-gray-600">Family Community</p>
             </div>
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex space-x-8 items-center">
-            {navItems.map(({ path, label, icon: Icon }) => (
-              <Link key={path} href={path}>
-                <button
-                  className={`px-4 py-2 font-medium transition-colors flex items-center space-x-2 ${
-                    isActive(path)
-                      ? "text-saffron-600 border-b-2 border-saffron-500"
-                      : "text-temple-brown hover:text-saffron-600"
-                  }`}
-                >
-                  <Icon size={16} />
-                  <span>{label}</span>
-                </button>
-              </Link>
-            ))}
-            <LanguageSwitcher />
+          <div className="hidden md:flex items-center space-x-4">
+            {/* Navigation items */}
+            <div className="flex items-center space-x-6">
+              {navItems.map(({ path, label, icon: Icon }) => (
+                <Link key={path} href={path}>
+                  <button
+                    className={`px-3 py-2 font-medium transition-colors flex items-center space-x-2 rounded-lg ${
+                      isActive(path)
+                        ? "text-saffron-600 bg-saffron-50"
+                        : "text-temple-brown hover:text-saffron-600 hover:bg-saffron-50"
+                    }`}
+                  >
+                    <Icon size={16} />
+                    <span>{label}</span>
+                  </button>
+                </Link>
+              ))}
+            </div>
             
-            {/* Authentication controls */}
-            {isAuthenticated ? (
-              <div className="flex items-center space-x-4">
-                <div className="flex items-center space-x-2 text-sm text-gray-600">
-                  <User size={16} />
-                  <span>{user?.firstName} {user?.lastName}</span>
-                </div>
-                <Button
-                  onClick={handleLogout}
-                  variant="outline"
-                  size="sm"
-                  className="flex items-center space-x-2"
-                >
-                  <LogOut size={16} />
-                  <span>Sign Out</span>
-                </Button>
-              </div>
-            ) : (
-              <div className="flex items-center space-x-2">
-                <Link href="/signin">
+            {/* Right side controls */}
+            <div className="flex items-center space-x-3 border-l border-gray-200 pl-4">
+              <LanguageSwitcher />
+              
+              {/* Authentication controls */}
+              {isAuthenticated ? (
+                <div className="flex items-center space-x-3">
+                  <div className="flex items-center space-x-2 text-sm text-gray-600 bg-gray-50 px-3 py-1 rounded-full">
+                    <User size={14} />
+                    <span>{user?.firstName} {user?.lastName}</span>
+                  </div>
                   <Button
+                    onClick={handleLogout}
                     variant="outline"
                     size="sm"
                     className="flex items-center space-x-2"
                   >
-                    <LogIn size={16} />
-                    <span>Sign In</span>
+                    <LogOut size={16} />
+                    <span>Sign Out</span>
                   </Button>
-                </Link>
-                <Link href="/register">
-                  <Button
-                    size="sm"
-                    className="flex items-center space-x-2 bg-saffron-500 hover:bg-saffron-600"
-                  >
-                    <UserPlus size={16} />
-                    <span>Register</span>
-                  </Button>
-                </Link>
-              </div>
-            )}
+                </div>
+              ) : (
+                <div className="flex items-center space-x-2">
+                  <Link href="/signin">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="flex items-center space-x-2 text-temple-brown hover:text-saffron-600"
+                    >
+                      <LogIn size={16} />
+                      <span>Sign In</span>
+                    </Button>
+                  </Link>
+                  <Link href="/register">
+                    <Button
+                      size="sm"
+                      className="flex items-center space-x-2 bg-saffron-500 hover:bg-saffron-600 text-white"
+                    >
+                      <UserPlus size={16} />
+                      <span>Register</span>
+                    </Button>
+                  </Link>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Mobile Menu Button */}
@@ -157,69 +164,75 @@ export function Navigation() {
 
         {/* Mobile Menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden pb-4 bg-white shadow-lg">
-            {navItems.map(({ path, label, icon: Icon }) => (
-              <Link key={path} href={path}>
-                <button
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={`block w-full text-left px-4 py-3 flex items-center space-x-2 touch-manipulation border-b border-gray-100 ${
-                    isActive(path)
-                      ? "text-saffron-600 bg-saffron-50"
-                      : "text-temple-brown hover:bg-saffron-50 active:bg-saffron-100"
-                  }`}
-                >
-                  <Icon size={18} />
-                  <span className="text-base">{label}</span>
-                </button>
-              </Link>
-            ))}
+          <div className="md:hidden bg-white shadow-lg border-t border-gray-100">
+            {/* Navigation Items */}
+            <div className="py-2">
+              {navItems.map(({ path, label, icon: Icon }) => (
+                <Link key={path} href={path}>
+                  <button
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={`block w-full text-left px-6 py-4 flex items-center space-x-3 touch-manipulation transition-colors ${
+                      isActive(path)
+                        ? "text-saffron-600 bg-saffron-50 border-r-4 border-saffron-500"
+                        : "text-temple-brown hover:bg-saffron-50 active:bg-saffron-100"
+                    }`}
+                  >
+                    <Icon size={20} />
+                    <span className="text-base font-medium">{label}</span>
+                  </button>
+                </Link>
+              ))}
+            </div>
             
-            {/* Mobile authentication controls */}
-            <div className="px-4 py-3 border-t border-gray-200">
+            {/* Mobile authentication section */}
+            <div className="border-t border-gray-200 bg-gray-50 px-6 py-4">
               {isAuthenticated ? (
                 <div className="space-y-3">
-                  <div className="flex items-center space-x-2 text-sm text-gray-600 py-2">
+                  <div className="flex items-center space-x-2 text-sm text-gray-600 bg-white px-3 py-2 rounded-lg">
                     <User size={16} />
-                    <span>{user?.firstName} {user?.lastName}</span>
+                    <span className="font-medium">{user?.firstName} {user?.lastName}</span>
                   </div>
                   <Button
                     onClick={handleLogout}
                     variant="outline"
-                    size="sm"
-                    className="w-full flex items-center justify-center space-x-2"
+                    className="w-full flex items-center justify-center space-x-2 bg-white"
                   >
                     <LogOut size={16} />
                     <span>Sign Out</span>
                   </Button>
                 </div>
               ) : (
-                <div className="space-y-2">
-                  <Link href="/signin">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="w-full flex items-center justify-center space-x-2"
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      <LogIn size={16} />
-                      <span>Sign In</span>
-                    </Button>
-                  </Link>
-                  <Link href="/register">
-                    <Button
-                      size="sm"
-                      className="w-full flex items-center justify-center space-x-2 bg-saffron-500 hover:bg-saffron-600"
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      <UserPlus size={16} />
-                      <span>Register</span>
-                    </Button>
-                  </Link>
+                <div className="space-y-3">
+                  <div className="text-sm text-gray-600 text-center mb-3">
+                    Sign in to access all features
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <Link href="/signin">
+                      <Button
+                        variant="outline"
+                        className="w-full flex items-center justify-center space-x-2 bg-white"
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        <LogIn size={16} />
+                        <span>Sign In</span>
+                      </Button>
+                    </Link>
+                    <Link href="/register">
+                      <Button
+                        className="w-full flex items-center justify-center space-x-2 bg-saffron-500 hover:bg-saffron-600 text-white"
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        <UserPlus size={16} />
+                        <span>Register</span>
+                      </Button>
+                    </Link>
+                  </div>
                 </div>
               )}
             </div>
             
-            <div className="px-4 py-3 border-t border-gray-200 bg-gray-50">
+            {/* Language switcher */}
+            <div className="px-6 py-3 border-t border-gray-200">
               <LanguageSwitcher />
             </div>
           </div>

@@ -22,6 +22,8 @@ import {
   Eye,
   UserPlus,
   LogIn,
+  TreePine,
+  MessageSquare,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useState, useEffect, ChangeEvent } from "react";
@@ -77,6 +79,7 @@ type TempleEditData = z.infer<typeof templeEditSchema>;
 
 export default function Home() {
   const { t } = useTranslation();
+  const { isAuthenticated } = useAuth();
   const [selectedTemple, setSelectedTemple] = useState<Temple | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
@@ -88,6 +91,154 @@ export default function Home() {
   }>({ members: [], title: "", description: "" });
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  // Show welcome page for non-authenticated users
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-temple-cream to-saffron-50">
+        {/* Hero Section */}
+        <div className="relative bg-gradient-to-r from-saffron-500 to-temple-red text-white">
+          <div className="absolute inset-0 bg-black bg-opacity-20"></div>
+          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+            <div className="text-center">
+              <div className="w-24 h-24 bg-white bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-6">
+                <span className="text-4xl font-bold">ॐ</span>
+              </div>
+              <h1 className="text-4xl md:text-6xl font-bold mb-6">
+                Sri Lakshmi Temple
+              </h1>
+              <p className="text-xl md:text-2xl mb-8 opacity-90">
+                Hindu Family Community Management System
+              </p>
+              <p className="text-lg max-w-2xl mx-auto mb-12 opacity-80">
+                Connect with your temple community, track family relationships, manage member information, and stay connected through WhatsApp messaging.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Link href="/register">
+                  <Button size="lg" className="bg-white text-saffron-600 hover:bg-gray-50 text-lg px-8 py-3">
+                    <UserPlus className="mr-2" size={20} />
+                    Join Our Community
+                  </Button>
+                </Link>
+                <Link href="/signin">
+                  <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-saffron-600 text-lg px-8 py-3">
+                    <LogIn className="mr-2" size={20} />
+                    Sign In
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Features Section */}
+        <div className="py-16">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl md:text-4xl font-bold text-temple-brown mb-4">
+                Community Features
+              </h2>
+              <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+                Comprehensive tools to strengthen temple community bonds and facilitate meaningful connections
+              </p>
+            </div>
+            
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              <Card className="p-6 text-center hover:shadow-lg transition-shadow">
+                <div className="w-16 h-16 bg-saffron-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Users className="text-saffron-600" size={32} />
+                </div>
+                <h3 className="text-xl font-semibold text-temple-brown mb-2">
+                  Family Registry
+                </h3>
+                <p className="text-gray-600">
+                  Register and manage family member information with detailed profiles and relationships
+                </p>
+              </Card>
+              
+              <Card className="p-6 text-center hover:shadow-lg transition-shadow">
+                <div className="w-16 h-16 bg-saffron-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <TreePine className="text-saffron-600" size={32} />
+                </div>
+                <h3 className="text-xl font-semibold text-temple-brown mb-2">
+                  Family Tree
+                </h3>
+                <p className="text-gray-600">
+                  Visualize family relationships and genealogical connections within the community
+                </p>
+              </Card>
+              
+              <Card className="p-6 text-center hover:shadow-lg transition-shadow">
+                <div className="w-16 h-16 bg-saffron-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Building className="text-saffron-600" size={32} />
+                </div>
+                <h3 className="text-xl font-semibold text-temple-brown mb-2">
+                  Temple Management
+                </h3>
+                <p className="text-gray-600">
+                  Manage temple information, events, and connect members with their primary temples
+                </p>
+              </Card>
+              
+              <Card className="p-6 text-center hover:shadow-lg transition-shadow">
+                <div className="w-16 h-16 bg-saffron-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <MessageSquare className="text-saffron-600" size={32} />
+                </div>
+                <h3 className="text-xl font-semibold text-temple-brown mb-2">
+                  WhatsApp Integration
+                </h3>
+                <p className="text-gray-600">
+                  Send community announcements and stay connected through WhatsApp messaging
+                </p>
+              </Card>
+              
+              <Card className="p-6 text-center hover:shadow-lg transition-shadow">
+                <div className="w-16 h-16 bg-saffron-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Heart className="text-saffron-600" size={32} />
+                </div>
+                <h3 className="text-xl font-semibold text-temple-brown mb-2">
+                  Community Events
+                </h3>
+                <p className="text-gray-600">
+                  Track festivals, celebrations, and community gatherings with event management
+                </p>
+              </Card>
+              
+              <Card className="p-6 text-center hover:shadow-lg transition-shadow">
+                <div className="w-16 h-16 bg-saffron-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <HandHeart className="text-saffron-600" size={32} />
+                </div>
+                <h3 className="text-xl font-semibold text-temple-brown mb-2">
+                  Volunteer Management
+                </h3>
+                <p className="text-gray-600">
+                  Coordinate volunteer activities and community service initiatives
+                </p>
+              </Card>
+            </div>
+          </div>
+        </div>
+
+        {/* Call to Action */}
+        <div className="bg-temple-brown text-white py-16">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+              Ready to Join Our Community?
+            </h2>
+            <p className="text-xl mb-8 opacity-90">
+              Create your account today and become part of our temple family
+            </p>
+            <Link href="/register">
+              <Button size="lg" className="bg-saffron-500 hover:bg-saffron-600 text-white text-lg px-8 py-3">
+                <UserPlus className="mr-2" size={20} />
+                Get Started Now
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const { data: members = [] } = useQuery({
     queryKey: ["/api/members"],
