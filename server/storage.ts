@@ -3,6 +3,7 @@ import { users, members, relationships, temples, type User, type InsertUser, typ
 export interface IStorage {
   // User methods (updated for authentication)
   getUser(id: number): Promise<User | undefined>;
+  getUserById(id: number): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
   validateUserCredentials(email: string, password: string): Promise<User | null>;
@@ -57,6 +58,10 @@ export class MemStorage implements IStorage {
 
   // User methods
   async getUser(id: number): Promise<User | undefined> {
+    return this.users.get(id);
+  }
+
+  async getUserById(id: number): Promise<User | undefined> {
     return this.users.get(id);
   }
 

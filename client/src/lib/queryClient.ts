@@ -13,7 +13,7 @@ export async function apiRequest(
   data?: unknown | undefined,
 ): Promise<any> {
   const requestBody = data ? JSON.stringify(data) : undefined;
-  console.log(`API Request: ${method} ${url} - Payload size: ${requestBody?.length || 0} bytes`);
+  console.log(`API Request: ${method} ${url}`, data, `- Payload size: ${requestBody?.length || 0} bytes`);
   
   const res = await fetch(url, {
     method,

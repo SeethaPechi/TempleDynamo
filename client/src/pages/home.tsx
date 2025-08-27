@@ -105,23 +105,23 @@ export default function Home() {
                 <span className="text-4xl font-bold">ॐ</span>
               </div>
               <h1 className="text-4xl md:text-6xl font-bold mb-6">
-                Sri Lakshmi Temple
+                Family Temple Connection
               </h1>
               <p className="text-xl md:text-2xl mb-8 opacity-90">
-                Hindu Family Community Management System
+                Family Community Management System
               </p>
               <p className="text-lg max-w-2xl mx-auto mb-12 opacity-80">
                 Connect with your temple community, track family relationships, manage member information, and stay connected through WhatsApp messaging.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Link href="/register">
-                  <Button size="lg" className="bg-white text-saffron-600 hover:bg-gray-50 text-lg px-8 py-3">
+                  <Button size="lg" className="bg-black text-black-600 hover:bg-gray-50 text-lg px-8 py-3">
                     <UserPlus className="mr-2" size={20} />
                     Join Our Community
                   </Button>
                 </Link>
                 <Link href="/signin">
-                  <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-saffron-600 text-lg px-8 py-3">
+                  <Button size="lg" variant="outline" className="border-white text-black hover:bg-white hover:text-saffron-600 text-lg px-8 py-3">
                     <LogIn className="mr-2" size={20} />
                     Sign In
                   </Button>

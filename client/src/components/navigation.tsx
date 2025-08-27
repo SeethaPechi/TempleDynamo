@@ -78,7 +78,7 @@ export function Navigation() {
               <span className="text-white text-lg font-bold">ॐ</span>
             </div>
             <div>
-              <h1 className="text-xl font-bold text-temple-brown">Sri Lakshmi Temple</h1>
+              <h1 className="text-xl font-bold text-temple-brown">Your spiritual Connection</h1>
               <p className="text-xs text-gray-600">Family Community</p>
             </div>
           </Link>

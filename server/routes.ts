@@ -66,6 +66,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+
+
   app.post("/api/auth/login", async (req, res) => {
     try {
       const { email, password } = loginUserSchema.parse(req.body);
@@ -106,7 +108,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
     
     try {
-      const user = await storage.getUser((req.session as any).userId);
+      const user = await storage.getUserById((req.session as any).userId);
       if (!user) {
         return res.status(404).json({ message: "User not found" });
       }
