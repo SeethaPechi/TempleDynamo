@@ -44,9 +44,7 @@ export function Navigation() {
     }
   };
 
-  const publicNavItems = [
-    { path: "/", label: t("nav.home"), icon: Home },
-  ];
+  const publicNavItems = [{ path: "/", label: t("nav.home"), icon: Home }];
 
   const authenticatedNavItems = [
     { path: "/", label: t("nav.home"), icon: Home },
@@ -75,11 +73,12 @@ export function Navigation() {
         <div className="flex justify-between items-center h-16">
           <Link href="/" className="flex items-center space-x-3">
             <div className="w-10 h-10 bg-gradient-to-br from-saffron-500 to-temple-red rounded-full flex items-center justify-center">
-              <span className="text-white text-lg font-bold">ॐ</span>
+              <span className="text-white text-lg font-bold"></span>
             </div>
             <div>
-              <h1 className="text-xl font-bold text-temple-brown">Your spiritual Connection</h1>
-              <p className="text-xs text-gray-600">Family Community</p>
+              <h1 className="text-xm font-bold text-temple-brown">
+                Your spiritual Connection
+              </h1>
             </div>
           </Link>
 
@@ -102,17 +101,19 @@ export function Navigation() {
                 </Link>
               ))}
             </div>
-            
+
             {/* Right side controls */}
             <div className="flex items-center space-x-3 border-l border-gray-200 pl-4">
               <LanguageSwitcher />
-              
+
               {/* Authentication controls */}
               {isAuthenticated ? (
                 <div className="flex items-center space-x-3">
                   <div className="flex items-center space-x-2 text-sm text-gray-600 bg-gray-50 px-3 py-1 rounded-full">
                     <User size={14} />
-                    <span>{user?.firstName} {user?.lastName}</span>
+                    <span>
+                      {user?.firstName} {user?.lastName}
+                    </span>
                   </div>
                   <Button
                     onClick={handleLogout}
@@ -183,14 +184,16 @@ export function Navigation() {
                 </Link>
               ))}
             </div>
-            
+
             {/* Mobile authentication section */}
             <div className="border-t border-gray-200 bg-gray-50 px-6 py-4">
               {isAuthenticated ? (
                 <div className="space-y-3">
                   <div className="flex items-center space-x-2 text-sm text-gray-600 bg-white px-3 py-2 rounded-lg">
                     <User size={16} />
-                    <span className="font-medium">{user?.firstName} {user?.lastName}</span>
+                    <span className="font-medium">
+                      {user?.firstName} {user?.lastName}
+                    </span>
                   </div>
                   <Button
                     onClick={handleLogout}
@@ -230,7 +233,7 @@ export function Navigation() {
                 </div>
               )}
             </div>
-            
+
             {/* Language switcher */}
             <div className="px-6 py-3 border-t border-gray-200">
               <LanguageSwitcher />
