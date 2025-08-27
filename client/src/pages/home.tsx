@@ -77,25 +77,10 @@ const templeEditSchema = z.object({
 
 type TempleEditData = z.infer<typeof templeEditSchema>;
 
-export default function Home() {
-  const { t } = useTranslation();
-  const { isAuthenticated } = useAuth();
-  const [selectedTemple, setSelectedTemple] = useState<Temple | null>(null);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [uploadedImage, setUploadedImage] = useState<string | null>(null);
-  const [isMemberListOpen, setIsMemberListOpen] = useState(false);
-  const [memberListData, setMemberListData] = useState<{
-    members: Member[];
-    title: string;
-    description?: string;
-  }>({ members: [], title: "", description: "" });
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
-
-  // Show welcome page for non-authenticated users
-  if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-temple-cream to-saffron-50">
+// Welcome page component for non-authenticated users
+function WelcomePage() {
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-temple-cream to-saffron-50">
         {/* Hero Section */}
         <div className="relative bg-gradient-to-r from-saffron-500 to-temple-red text-white">
           <div className="absolute inset-0 bg-black bg-opacity-20"></div>
@@ -238,6 +223,26 @@ export default function Home() {
         </div>
       </div>
     );
+}
+
+export default function Home() {
+  const { t } = useTranslation();
+  const { isAuthenticated } = useAuth();
+  const [selectedTemple, setSelectedTemple] = useState<Temple | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [uploadedImage, setUploadedImage] = useState<string | null>(null);
+  const [isMemberListOpen, setIsMemberListOpen] = useState(false);
+  const [memberListData, setMemberListData] = useState<{
+    members: Member[];
+    title: string;
+    description?: string;
+  }>({ members: [], title: "", description: "" });
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  // Show welcome page for non-authenticated users
+  if (!isAuthenticated) {
+    return <WelcomePage />;
   }
 
   const { data: members = [] } = useQuery({
