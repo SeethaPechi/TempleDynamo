@@ -278,13 +278,18 @@ export default function Members() {
                         <Users className={colors.iconColor} size={20} />
                       )}
                     </div>
-                    <div className="flex-1">
-                      <h3 className={`text-lg font-semibold hover:text-saffron-600 ${colors.text}`}>
-                        {member.fullName} : {t('registry.form.fatherName', 'Father Name')} : {(member as Member).fatherName}
+                    <div className="flex-1 min-w-0">
+                      <h3 className={`text-lg font-semibold hover:text-saffron-600 break-words ${colors.text}`}>
+                        {member.fullName}
                       </h3>
                       <p className="text-sm text-gray-500">
                         {t('common.member', 'Member')} #{member.id} • {transformedMember.gender || t('common.unspecified', 'Unspecified')}
                       </p>
+                      {(member as Member).fatherName && (
+                        <p className="text-sm text-gray-500">
+                          {t('registry.form.fatherName', "Father's Name")}: {(member as Member).fatherName}
+                        </p>
+                      )}
                       <p className="text-sm text-gray-500">{member.email}</p>
                       <p className="text-sm text-gray-500">
                         {member.currentCity}, {member.currentState}

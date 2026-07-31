@@ -434,26 +434,21 @@ export default function FamilyTree() {
                                   {transformedMember.gender &&
                                     `• ${transformedMember.gender}`}
                                 </h4>
-                                <p className="text-xs text-blue-600 font-semibold">
-                                  {t("Father")}
-                                  {t("-")}
-
-                                  {member.fatherName}
-                                </p>
-                                <p className="text-xs text-blue-600 font-semibold">
-                                  {t("Mother")}
-                                  {t("-")}
-                                  {member.motherName}
-                                </p>
-                                <p className="text-xs text-blue-600 font-semibold">
-                                  {t("Spouse")}
-                                  {t("-")}
-                                  {member.spouseName}
-                                </p>
-                                <p className="text-xs text-red-600 font-semibold">
-                                  Relationship Count:{" "}
-                                  {getMemberRelationshipCount(member.id)}
-                                </p>
+                                {member.fatherName && (
+                                  <p className="text-xs text-blue-600 font-semibold">
+                                    {t("Father")} - {member.fatherName}
+                                  </p>
+                                )}
+                                {member.motherName && (
+                                  <p className="text-xs text-blue-600 font-semibold">
+                                    {t("Mother")} - {member.motherName}
+                                  </p>
+                                )}
+                                {member.spouseName && (
+                                  <p className="text-xs text-blue-600 font-semibold">
+                                    {t("Spouse")} - {member.spouseName}
+                                  </p>
+                                )}
                                 <p className="text-xs text-gray-500">
                                   {member.currentCity}, {member.currentState}
                                 </p>
@@ -495,29 +490,23 @@ export default function FamilyTree() {
                                   {transformedMember.gender &&
                                     `• ${transformedMember.gender}`}
                                 </h4>
-                                <p className="text-xs text-blue-600 font-semibold">
-                                  {t("Father")}
-                                  {t("-")}
-
-                                  {member.fatherName}
-                                </p>
-                                <p className="text-xs text-blue-600 font-semibold">
-                                  {t("Mother")}
-                                  {t("-")}
-                                  {member.motherName}
-                                </p>
-                                <p className="text-xs text-blue-600 font-semibold">
-                                  {t("Spouse")}
-                                  {t("-")}
-                                  {member.spouseName}
-                                </p>
-                                <p className="text-xs text-blue-600 font-semibold">
-                                  Relationship Count:{" "}
-                                  {getMemberRelationshipCount(member.id)}
-                                </p>
+                                {member.fatherName && (
+                                  <p className="text-xs text-blue-600 font-semibold">
+                                    {t("Father")} - {member.fatherName}
+                                  </p>
+                                )}
+                                {member.motherName && (
+                                  <p className="text-xs text-blue-600 font-semibold">
+                                    {t("Mother")} - {member.motherName}
+                                  </p>
+                                )}
+                                {member.spouseName && (
+                                  <p className="text-xs text-blue-600 font-semibold">
+                                    {t("Spouse")} - {member.spouseName}
+                                  </p>
+                                )}
                                 <p className="text-xs text-gray-500">
-                                  {member.currentCity}, {member.currentState},
-                                  {member.currentCountry}
+                                  {member.currentCity}, {member.currentState}
                                 </p>
                               </div>
                             );
