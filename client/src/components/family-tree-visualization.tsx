@@ -209,8 +209,8 @@ export function FamilyTreeVisualization({
                 >
                   <div className="space-y-3">
                     {/* Member Avatar */}
-                    <div className="flex items-center space-x-3">
-                      <div className="w-12 h-12 bg-gradient-to-br from-saffron-200 to-gold-200 rounded-full flex items-center justify-center overflow-hidden">
+                    <div className="flex flex-col items-center text-center space-y-2">
+                      <div className="w-12 h-12 bg-gradient-to-br from-saffron-200 to-gold-200 rounded-full flex items-center justify-center overflow-hidden flex-shrink-0">
                         {relationship.relatedMember.profilePicture ? (
                           <img
                             src={relationship.relatedMember.profilePicture}
@@ -221,15 +221,15 @@ export function FamilyTreeVisualization({
                           <Users className="text-temple-brown" size={20} />
                         )}
                       </div>
-                      <div className="flex-1 min-w-0">
+                      <div className="w-full">
                         <h4
-                          className={`font-semibold text-sm truncate ${getGenderColors(relationship.relatedMember.gender).text}`}
+                          className={`font-semibold text-sm break-words leading-tight ${getGenderColors(relationship.relatedMember.gender).text}`}
                         >
                           {relationship.relatedMember.fullName}
                         </h4>
                         <Badge
                           variant="secondary"
-                          className={`text-xs ${getRelationshipColor(relationship.relationshipType)}`}
+                          className={`text-xs mt-1 ${getRelationshipColor(relationship.relationshipType)}`}
                         >
                           {transformRelationshipType(
                             relationship.relationshipType,
