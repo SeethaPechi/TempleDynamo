@@ -26,6 +26,8 @@
     "clickToViewMembers": "Click to view members",
     "clickToViewFamilies": "Click to view families",
     "clickToViewVolunteers": "Click to view volunteers",
+    "defaultTempleDescription": "A sacred place of worship and community gathering",
+    "joinCommunity": "Join Our Community",
     "welcomeText": "This serves as a spiritual beacon for our community, fostering devotion, cultural preservation, and unity among devotees. Please select your temple from the option above or register your temple to seek divine grace and communal harmony. Connect your relatives and explore your roots by linking your ancestors and encourage future generations to stay in touch.",
     "ourGrowingCommunity": "Our Growing Community",
     "communityDescription": "Together we strengthen our bonds through faith, tradition, and shared values",
@@ -51,6 +53,7 @@
     "noMembersFound": "No members found",
     "adjustSearchCriteria": "Try adjusting your search criteria",
     "totalMembers": "Total Members: {{count}}",
+    "viewProfile": "View Profile",
     "memberDetails": {
       "email": "Email",
       "phone": "Phone",
@@ -334,7 +337,11 @@
     "deleteError": "Failed to delete member",
     "viewFamilyTree": "View Family Tree",
     "familyConnections": "Family Connections",
-    "directRelationshipsLabel": "Direct Family Relationships"
+    "directRelationshipsLabel": "Direct Family Relationships",
+    "familyClusters": "Family Clusters",
+    "avgConnections": "Avg Connections",
+    "relationshipTypes": "Relationship Types",
+    "mostConnectedMember": "Most Connected Family Member"
   },
   "common": {
     "loading": "Loading...",
@@ -395,7 +402,13 @@
     "chooseTemplate": "Choose a template",
     "customMessage": "Custom Message",
     "templateVariables": "Template Variables",
-    "processTemplate": "Process Template"
+    "processTemplate": "Process Template",
+    "totalMembers": "Total Members",
+    "warning": "Warning",
+    "generateMessage": "Generate Message",
+    "update": "Update",
+    "updating": "Updating...",
+    "deleting": "Deleting..."
   },
   "memberDetails": {
     "title": "Member Details",
@@ -454,6 +467,15 @@
     "uploadTempleImageDescription": "Upload main temple image and additional photos",
     "noPhotos": "No photos uploaded yet",
     "photoPreview": "Photo Preview",
+    "deity": "Deity",
+    "templeName": "Temple Name",
+    "templeNamePlaceholder": "e.g., Sri Lakshmi Narasimha Temple",
+    "village": "Village/Area",
+    "villagePlaceholder": "e.g., Tirupati, Mylapore",
+    "websiteLink": "Website Link",
+    "websitePlaceholder": "https://www.example-temple.org",
+    "wikiLink": "Wikipedia Link",
+    "wikiPlaceholder": "https://en.wikipedia.org/wiki/Temple_Name",
     "visitWebsite": "Visit Website",
     "viewOnMaps": "View on Maps",
     "viewWikipedia": "View Wikipedia",

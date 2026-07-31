@@ -1,0 +1,45 @@
+TASK: Verify and harden the i18n locale JSON fix just completed. The en.json
+duplicate-key merge is done. Now check nothing was lost, apply the same fix to
+ta.json, and prevent regressions. Do NOT touch auth, WhatsApp, or WebSocket logic.
+
+── STEP 1: Confirm the en.json merge lost nothing
+The bug was duplicate top-level keys (familyTree, registry, home, members) where
+JSON silently keeps only the LAST block. The fix merged them. But verify the
+merge went BOTH ways — any key that existed ONLY in the second (later) duplicate
+block must also survive in the merged result, not just the keys from the first.
+
+1. Search the codebase for all translation calls: t("..."), t('...'),
+   and i18n.t(...) usages.
+2. Collect every key referenced under namespaces familyTree, registry, home,
+   members, common, whatsapp.
+3. For each referenced key, confirm it resolves in the merged en.json.
+4. Report any key used in code that is MISSING from en.json.
+
+── STEP 2: Apply the identical dedup fix to ta.json (Tamil)
+ta.json was likely copied from en.json and has the SAME duplicate top-level keys.
+There the silent overwrite wipes TAMIL translations.
+
+1. Check ta.json for duplicate top-level keys (familyTree, registry, home,
+   members, common, whatsapp, or any others).
+2. If duplicates exist, merge them into single blocks exactly as done for en.json,
+   preserving every key from every duplicate block.
+3. Confirm ta.json has the SAME set of keys as en.json (same structure). Report
+   any key present in en.json but missing from ta.json.
+4. Specifically confirm registry.form.genders.male and .female in ta.json hold
+   the TAMIL words ஆண் and பெண் — NOT English fallbacks.
+
+── STEP 3: Prevent this from recurring
+Duplicate JSON keys are invisible to normal parsing, so add a build-time guard.
+
+1. Add jsonc-eslint-parser and configure the jsonc/no-dupe-keys ESLint rule to
+   run against src/i18n/locales/*.json (en.json and ta.json).
+2. Make sure it runs in the lint/build step so a future duplicate key fails
+   the build instead of silently overwriting.
+
+── ACCEPTANCE CHECK
+- Every translation key used in code resolves in BOTH en.json and ta.json
+- No duplicate top-level keys remain in either file
+- Tamil gender keys show ஆண்/பெண், not English
+- en.json and ta.json have matching key structures
+- Linting fails if a duplicate JSON key is introduced
+- Report a list of any keys that were missing/mismatched and were added
