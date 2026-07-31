@@ -345,7 +345,22 @@
     "familyClusters": "Family Clusters",
     "avgConnections": "Avg Connections",
     "relationshipTypes": "Relationship Types",
-    "mostConnectedMember": "Most Connected Family Member"
+    "mostConnectedMember": "Most Connected Family Member",
+    "relationshipSummary": "Relationship Summary for",
+    "clickToView": "Click on any counter to view members in that relationship",
+    "viewTree": "View Tree",
+    "groups": {
+      "parents": "Parents",
+      "spouse": "Spouse",
+      "children": "Children",
+      "siblings": "Siblings",
+      "grandParents": "Grand Parents",
+      "grandChildren": "Grand Children",
+      "inLaws": "In-Laws",
+      "cousins": "Cousins",
+      "auntsUncles": "Aunts & Uncles",
+      "otherConnections": "Other Family Connections"
+    }
   },
   "common": {
     "loading": "Loading...",
@@ -374,6 +389,7 @@
     "selected": "selected",
     "characters": "Characters",
     "unspecified": "Unspecified",
+    "notProvided": "Not provided",
     "clickToViewDetails": "Click to view details",
     "selectRecipients": "Select Recipients",
     "selectAll": "Select All",

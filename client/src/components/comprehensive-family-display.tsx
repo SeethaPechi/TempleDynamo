@@ -39,6 +39,22 @@ export function ComprehensiveFamilyDisplay({
 }: ComprehensiveFamilyDisplayProps) {
   const { t } = useTranslation();
   const { transformRelationshipType, transformMemberData } = useFormDataTransformation();
+
+  const groupNameKeyMap: Record<string, string> = {
+    "Parents": "familyTree.groups.parents",
+    "Spouse": "familyTree.groups.spouse",
+    "Children": "familyTree.groups.children",
+    "Siblings": "familyTree.groups.siblings",
+    "Grand Parents": "familyTree.groups.grandParents",
+    "Grand Children": "familyTree.groups.grandChildren",
+    "In-Laws": "familyTree.groups.inLaws",
+    "Cousins": "familyTree.groups.cousins",
+    "Aunts & Uncles": "familyTree.groups.auntsUncles",
+    "Other Family Connections": "familyTree.groups.otherConnections",
+  };
+  const translateGroupName = (name: string) =>
+    groupNameKeyMap[name] ? t(groupNameKeyMap[name]) : name;
+
   // Get unique color coding for each relationship group
   const getRelationshipColor = (groupName: string) => {
     const groupColors: Record<string, string> = {
@@ -146,7 +162,6 @@ export function ComprehensiveFamilyDisplay({
           </div>
         </div>
       </Card>
-      --
       {/* Direct Family Relationships */}
       {relationships.length > 0 && (
         <Card className="p-6">
@@ -161,7 +176,7 @@ export function ComprehensiveFamilyDisplay({
               <div key={groupName} className="border-l-4 border-saffron-500 pl-4">
                 <h3 className="font-semibold text-temple-brown mb-3 flex items-center">
                   <Badge className={`mr-2 ${getRelationshipColor(groupName)}`}>
-                    {groupName}
+                    {translateGroupName(groupName)}
                   </Badge>
                   <span className="text-sm text-gray-600">({rels.length})</span>
                 </h3>
@@ -186,7 +201,7 @@ export function ComprehensiveFamilyDisplay({
                             onMemberClick?.(rel.relatedMember.id);
                           }}
                         >
-                          View Tree
+                          {t("familyTree.viewTree")}
                         </Button>
                       </div>
 
@@ -194,13 +209,13 @@ export function ComprehensiveFamilyDisplay({
                         <div className="flex items-center">
                           <Phone className="mr-2 text-saffron-500" size={14} />
                           <span className="font-medium">
-                            {rel.relatedMember.phone || 'Not provided'}
+                            {rel.relatedMember.phone || t("common.notProvided")}
                           </span>
                         </div>
                         <div className="flex items-center">
                           <Mail className="mr-2 text-saffron-500" size={14} />
                           <span className="truncate">
-                            {rel.relatedMember.email || 'Not provided'}
+                            {rel.relatedMember.email || t("common.notProvided")}
                           </span>
                         </div>
                         <div className="flex items-center">

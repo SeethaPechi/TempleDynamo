@@ -24,6 +24,21 @@ interface RelationshipCount {
 export function RelationshipCounters({ member, relationships, onMemberClick }: RelationshipCountersProps) {
   const { t } = useTranslation();
   const { transformRelationshipData, formatDate } = useFormDataTransformation();
+
+  const groupNameKeyMap: Record<string, string> = {
+    "Parents": "familyTree.groups.parents",
+    "Spouse": "familyTree.groups.spouse",
+    "Children": "familyTree.groups.children",
+    "Siblings": "familyTree.groups.siblings",
+    "Grand Parents": "familyTree.groups.grandParents",
+    "Grand Children": "familyTree.groups.grandChildren",
+    "In-Laws": "familyTree.groups.inLaws",
+    "Cousins": "familyTree.groups.cousins",
+    "Aunts & Uncles": "familyTree.groups.auntsUncles",
+    "Other Family Connections": "familyTree.groups.otherConnections",
+  };
+  const translateGroupName = (name: string) =>
+    groupNameKeyMap[name] ? t(groupNameKeyMap[name]) : name;
   const [selectedRelationship, setSelectedRelationship] = useState<RelationshipCount | null>(null);
 
   // Transform relationships data for current language
@@ -147,9 +162,9 @@ export function RelationshipCounters({ member, relationships, onMemberClick }: R
     return (
       <Card className="p-8 text-center">
         <Users className="mx-auto mb-4 text-gray-400" size={48} />
-        <h3 className="text-lg font-semibold text-gray-600 mb-2">No Relationships</h3>
+        <h3 className="text-lg font-semibold text-gray-600 mb-2">{t("familyTree.noConnections")}</h3>
         <p className="text-gray-500">
-          {member.fullName} doesn't have any family relationships added yet.
+          {member.fullName} {t("familyTree.noConnectionsDesc")}
         </p>
       </Card>
     );
@@ -161,14 +176,14 @@ export function RelationshipCounters({ member, relationships, onMemberClick }: R
         <CardHeader className="pb-4">
           <CardTitle className="flex items-center">
             <Heart className="mr-2 text-saffron-500" size={20} />
-            Relationship Summary for {member.fullName}
+            {t("familyTree.relationshipSummary")} {member.fullName}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Total Count */}
           <div className="text-center p-4 bg-gradient-to-r from-saffron-100 to-gold-100 rounded-lg">
             <div className="text-3xl font-bold text-saffron-600">{relationships.length}</div>
-            <div className="text-sm text-gray-600">Total Family Connections</div>
+            <div className="text-sm text-gray-600">{t("familyTree.totalConnections")}</div>
           </div>
 
           {/* Relationship Type Counters */}
@@ -182,8 +197,7 @@ export function RelationshipCounters({ member, relationships, onMemberClick }: R
                 <div className="text-center">
                   <div className="text-2xl font-bold">{relationshipCount.count}</div>
                   <div className="text-xs font-medium leading-tight">
-                    {relationshipCount.type}
-                    {relationshipCount.count > 1 ? 's' : ''}
+                    {translateGroupName(relationshipCount.type)}
                   </div>
                 </div>
               </div>
@@ -191,7 +205,7 @@ export function RelationshipCounters({ member, relationships, onMemberClick }: R
           </div>
 
           <div className="text-center text-sm text-gray-500 mt-4">
-            Click on any counter to view members in that relationship
+            {t("familyTree.clickToView")}
           </div>
         </CardContent>
       </Card>
@@ -202,7 +216,7 @@ export function RelationshipCounters({ member, relationships, onMemberClick }: R
           <DialogHeader>
             <DialogTitle className="flex items-center justify-between">
               <span>
-                {selectedRelationship?.type} - {selectedRelationship?.count} Member{selectedRelationship?.count !== 1 ? 's' : ''}
+                {selectedRelationship ? translateGroupName(selectedRelationship.type) : ''} — {selectedRelationship?.count}
               </span>
               <Button 
                 variant="ghost" 

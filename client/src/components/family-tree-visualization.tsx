@@ -22,6 +22,22 @@ export function FamilyTreeVisualization({
   const { t } = useTranslation();
   const { transformRelationshipType, transformMemberData } =
     useFormDataTransformation();
+
+  const groupNameKeyMap: Record<string, string> = {
+    "Parents": "familyTree.groups.parents",
+    "Spouse": "familyTree.groups.spouse",
+    "Children": "familyTree.groups.children",
+    "Siblings": "familyTree.groups.siblings",
+    "Grand Parents": "familyTree.groups.grandParents",
+    "Grand Children": "familyTree.groups.grandChildren",
+    "In-Laws": "familyTree.groups.inLaws",
+    "Cousins": "familyTree.groups.cousins",
+    "Aunts & Uncles": "familyTree.groups.auntsUncles",
+    "Other Family Connections": "familyTree.groups.otherConnections",
+  };
+  const translateGroupName = (name: string) =>
+    groupNameKeyMap[name] ? t(groupNameKeyMap[name]) : name;
+
   // Organize relationships by the 10 family groups
   const organizeByGroups = (
     relationships: Array<Relationship & { relatedMember: Member }>,
@@ -146,10 +162,10 @@ export function FamilyTreeVisualization({
       <Card className="p-8 text-center">
         <Users className="mx-auto mb-4 text-gray-400" size={64} />
         <h3 className="text-xl font-semibold text-gray-600 mb-2">
-          No Family Connections
+          {t("familyTree.noConnections")}
         </h3>
         <p className="text-gray-500">
-          This member has no recorded family relationships yet.
+          {t("familyTree.noConnectionsDesc")}
         </p>
       </Card>
     );
@@ -195,7 +211,7 @@ export function FamilyTreeVisualization({
             {/* Group Title */}
             <div className="text-center mb-4">
               <h3 className="text-lg font-semibold text-temple-brown bg-temple-light px-4 py-2 rounded-full inline-block">
-                {groupName}
+                {translateGroupName(groupName)}
               </h3>
             </div>
 

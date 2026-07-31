@@ -36,6 +36,7 @@
     "selected": "தேர்ந்தெடுக்கப்பட்டது",
     "characters": "எழுத்துக்கள்",
     "unspecified": "குறிப்பிடப்படவில்லை",
+    "notProvided": "வழங்கப்படவில்லை",
     "clickToViewDetails": "விவரங்களைக் காண கிளிக் செய்யவும்",
     "selectRecipients": "பெறுநர்களைத் தேர்ந்தெடுக்கவும்",
     "selectAll": "அனைத்தையும் தேர்ந்தெடுக்கவும்",
@@ -431,7 +432,22 @@
     "relationshipTypes": "உறவு வகைகள்",
     "mostConnectedMember": "அதிக இணைப்புகள் கொண்ட குடும்ப உறுப்பினர்",
     "relationships": "உறவுகள்",
-    "searchMembers": "உறுப்பினர்களைத் தேடுங்கள்..."
+    "searchMembers": "உறுப்பினர்களைத் தேடுங்கள்...",
+    "relationshipSummary": "உறவு சுருக்கம்",
+    "clickToView": "அந்த உறவில் உறுப்பினர்களைக் காண எந்த கவுண்டரையும் கிளிக் செய்யவும்",
+    "viewTree": "மரத்தைக் காண்க",
+    "groups": {
+      "parents": "பெற்றோர்",
+      "spouse": "வாழ்க்கைத் துணை",
+      "children": "பிள்ளைகள்",
+      "siblings": "உடன்பிறந்தவர்கள்",
+      "grandParents": "தாத்தா பாட்டி",
+      "grandChildren": "பேரன் பேத்திகள்",
+      "inLaws": "மைத்துனர்கள்",
+      "cousins": "உறவினர்கள்",
+      "auntsUncles": "மாமா அத்தைகள்",
+      "otherConnections": "மற்ற குடும்ப இணைப்புகள்"
+    }
   },
   "memberDetails": {
     "title": "உறுப்பினர் விவரங்கள்",
