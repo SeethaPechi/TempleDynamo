@@ -180,20 +180,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Helper: apply Tamil field fallback when lang=ta is requested
+  const applyLangCoalesce = (member: any, lang: string) => {
+    if (lang !== "ta") return member;
+    return {
+      ...member,
+      fullName: member.fullNameTa || member.fullName,
+      fatherName: member.fatherNameTa || member.fatherName,
+      motherName: member.motherNameTa || member.motherName,
+      spouseName: member.spouseNameTa || member.spouseName,
+      birthCity: member.birthCityTa || member.birthCity,
+      currentCity: member.currentCityTa || member.currentCity,
+    };
+  };
+
   app.get("/api/members", requireAuth, async (req, res) => {
     try {
-      const { search, city, state } = req.query;
+      const { search, city, state, lang } = req.query;
       
       if (search || city || state) {
-        const members = await storage.searchMembers(
+        const memberList = await storage.searchMembers(
           search as string || "",
           city as string,
           state as string
         );
-        res.json(members);
+        res.json(memberList.map((m) => applyLangCoalesce(m, lang as string)));
       } else {
-        const members = await storage.getAllMembers();
-        res.json(members);
+        const memberList = await storage.getAllMembers();
+        res.json(memberList.map((m) => applyLangCoalesce(m, lang as string)));
       }
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch members" });

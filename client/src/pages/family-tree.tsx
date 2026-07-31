@@ -88,7 +88,7 @@ const isProfileIncomplete = (
 };
 
 export default function FamilyTree() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { transformMemberData } = useFormDataTransformation();
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -100,8 +100,14 @@ export default function FamilyTree() {
   const [relationshipType, setRelationshipType] = useState("");
   const [relatedMemberId, setRelatedMemberId] = useState<number | null>(null);
 
+  const lang = i18n.language;
   const { data: allMembers = [], isLoading } = useQuery({
-    queryKey: ["/api/members"],
+    queryKey: ["/api/members", lang],
+    queryFn: async () => {
+      const res = await fetch(`/api/members?lang=${lang}`, { credentials: "include" });
+      if (!res.ok) throw new Error("Failed to fetch members");
+      return res.json();
+    },
   });
 
   // Handle URL parameters for direct member selection
@@ -436,17 +442,17 @@ export default function FamilyTree() {
                                 </h4>
                                 {member.fatherName && (
                                   <p className="text-xs text-blue-600 font-semibold">
-                                    {t("Father")} - {member.fatherName}
+                                    {t("familyTree.father")} - {member.fatherName}
                                   </p>
                                 )}
                                 {member.motherName && (
                                   <p className="text-xs text-blue-600 font-semibold">
-                                    {t("Mother")} - {member.motherName}
+                                    {t("familyTree.mother")} - {member.motherName}
                                   </p>
                                 )}
                                 {member.spouseName && (
                                   <p className="text-xs text-blue-600 font-semibold">
-                                    {t("Spouse")} - {member.spouseName}
+                                    {t("familyTree.spouse")} - {member.spouseName}
                                   </p>
                                 )}
                                 <p className="text-xs text-gray-500">
@@ -492,17 +498,17 @@ export default function FamilyTree() {
                                 </h4>
                                 {member.fatherName && (
                                   <p className="text-xs text-blue-600 font-semibold">
-                                    {t("Father")} - {member.fatherName}
+                                    {t("familyTree.father")} - {member.fatherName}
                                   </p>
                                 )}
                                 {member.motherName && (
                                   <p className="text-xs text-blue-600 font-semibold">
-                                    {t("Mother")} - {member.motherName}
+                                    {t("familyTree.mother")} - {member.motherName}
                                   </p>
                                 )}
                                 {member.spouseName && (
                                   <p className="text-xs text-blue-600 font-semibold">
-                                    {t("Spouse")} - {member.spouseName}
+                                    {t("familyTree.spouse")} - {member.spouseName}
                                   </p>
                                 )}
                                 <p className="text-xs text-gray-500">
@@ -563,11 +569,10 @@ export default function FamilyTree() {
                   <Card className="p-12 text-center">
                     <Users className="mx-auto mb-4 text-gray-400" size={64} />
                     <h3 className="text-xl font-semibold text-gray-600 mb-2">
-                      Select a Member
+                      {t("familyTree.selectMember")}
                     </h3>
                     <p className="text-gray-500">
-                      Choose a member from the search panel to view their family
-                      tree
+                      {t("familyTree.selectMemberHint")}
                     </p>
                   </Card>
                 )}
@@ -589,7 +594,7 @@ export default function FamilyTree() {
                           {selectedMember.fullName}
                         </h2>
                         <p className="text-saffron-100 text-sm">
-                          Family Relationships
+                          {t("familyTree.familyRelationships")}
                         </p>
                       </div>
                     </div>
@@ -598,7 +603,7 @@ export default function FamilyTree() {
                         {filteredMemberRelationships.length}
                       </div>
                       <div className="text-saffron-100 text-sm">
-                        Connections
+                        {t("familyTree.connections")}
                       </div>
                     </div>
                   </div>
@@ -616,11 +621,10 @@ export default function FamilyTree() {
               <Card className="p-12 text-center">
                 <Users className="mx-auto mb-4 text-gray-400" size={64} />
                 <h3 className="text-xl font-semibold text-gray-600 mb-2">
-                  Select a Member
+                  {t("familyTree.selectMember")}
                 </h3>
                 <p className="text-gray-500">
-                  Choose a member from the search panel to view their family
-                  tree
+                  {t("familyTree.selectMemberHint")}
                 </p>
               </Card>
             )}
@@ -640,7 +644,7 @@ export default function FamilyTree() {
                           {selectedMember.fullName}
                         </h2>
                         <p className="text-saffron-100 text-sm">
-                          Family Relationships
+                          {t("familyTree.familyRelationships")}
                         </p>
                       </div>
                     </div>
@@ -649,7 +653,7 @@ export default function FamilyTree() {
                         {filteredMemberRelationships.length}
                       </div>
                       <div className="text-saffron-100 text-sm">
-                        Connections
+                        {t("familyTree.connections")}
                       </div>
                     </div>
                   </div>
@@ -844,14 +848,13 @@ export default function FamilyTree() {
                   <Card className="p-8 text-center">
                     <Users className="mx-auto mb-4 text-gray-400" size={48} />
                     <h3 className="text-lg font-semibold text-gray-600 mb-2">
-                      No Family Connections
+                      {t("familyTree.noConnections")}
                     </h3>
                     <p className="text-gray-500 mb-4">
-                      {selectedMember.fullName} doesn't have any family
-                      relationships added yet.
+                      {selectedMember.fullName} {t("familyTree.noConnectionsDesc")}
                     </p>
                     <p className="text-sm text-gray-400">
-                      Add family connections to see the relationship table.
+                      {t("familyTree.addConnectionsDesc")}
                     </p>
                   </Card>
                 )}
@@ -860,11 +863,10 @@ export default function FamilyTree() {
               <Card className="p-12 text-center">
                 <Users className="mx-auto mb-4 text-gray-400" size={64} />
                 <h3 className="text-xl font-semibold text-gray-600 mb-2">
-                  Select a Member
+                  {t("familyTree.selectMember")}
                 </h3>
                 <p className="text-gray-500">
-                  Choose a member to view their family relationships in table
-                  format
+                  {t("familyTree.chooseMember")}
                 </p>
               </Card>
             )}
@@ -888,11 +890,10 @@ export default function FamilyTree() {
               <Card className="p-12 text-center">
                 <Users className="mx-auto mb-4 text-gray-400" size={64} />
                 <h3 className="text-xl font-semibold text-gray-600 mb-2">
-                  Select a Member
+                  {t("familyTree.selectMember")}
                 </h3>
                 <p className="text-gray-500">
-                  Choose a member to view all their family relationships and
-                  connections
+                  {t("familyTree.chooseMember")}
                 </p>
               </Card>
             )}
@@ -914,11 +915,10 @@ export default function FamilyTree() {
               <Card className="p-12 text-center">
                 <BarChart3 className="mx-auto mb-4 text-gray-400" size={64} />
                 <h3 className="text-xl font-semibold text-gray-600 mb-2">
-                  Select a Member
+                  {t("familyTree.selectMember")}
                 </h3>
                 <p className="text-gray-500">
-                  Choose a member to view their relationship statistics and
-                  counters
+                  {t("familyTree.chooseMember")}
                 </p>
               </Card>
             )}
@@ -984,7 +984,7 @@ export default function FamilyTree() {
                           100,
                       ) / 100}
                     </div>
-                    <div className="text-sm text-gray-600">Avg Connections</div>
+                    <div className="text-sm text-gray-600">{t("familyTree.avgConnections")}</div>
                   </div>
                   <div className="text-center p-4 bg-temple-gold-50 rounded-lg">
                     <TreePine

@@ -20,7 +20,8 @@ import { useFormDataTransformation } from "@/lib/i18n-utils";
 
 export default function Members() {
   console.log("Members component rendered at:", new Date().toISOString());
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const lang = i18n.language;
   const { transformMemberData } = useFormDataTransformation();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCity, setSelectedCity] = useState("");
@@ -29,7 +30,12 @@ export default function Members() {
   const membersPerPage = 20;
 
   const { data: allMembers = [], isLoading } = useQuery({
-    queryKey: ["/api/members"],
+    queryKey: ["/api/members", lang],
+    queryFn: async () => {
+      const res = await fetch(`/api/members?lang=${lang}`, { credentials: "include" });
+      if (!res.ok) throw new Error("Failed to fetch members");
+      return res.json();
+    },
   });
 
   const { data: uniqueCities = [] } = useQuery({

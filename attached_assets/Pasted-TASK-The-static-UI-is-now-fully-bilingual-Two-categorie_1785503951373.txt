@@ -1,0 +1,46 @@
+TASK: The static UI is now fully bilingual. Two categories of text still show in
+English on the member cards. Handle both. Do NOT touch auth/WhatsApp/WebSocket.
+
+── CATEGORY A: Relationship labels + panel text are still English (STATIC — fixable now)
+On each member card, the labels "Father -", "Mother -", "Spouse -" render in
+English in Tamil mode, and the empty-state text "Select a Member" / "Choose a
+member from the search panel to view their family tree" is also English.
+
+1. Find where the card renders these relationship labels and the family-tree
+   empty state. They are either hardcoded English strings or t() keys missing
+   from the locale files.
+2. Replace any hardcoded strings with t() keys and add the keys to BOTH
+   en.json and ta.json:
+     familyTree.father  = "Father" / "தந்தை"
+     familyTree.mother  = "Mother" / "தாய்"
+     familyTree.spouse  = "Spouse" / "வாழ்க்கைத் துணை"
+     familyTree.selectMember      = "Select a Member" / "ஒரு உறுப்பினரைத் தேர்ந்தெடுக்கவும்"
+     familyTree.selectMemberHint  = "Choose a member from the search panel to view their family tree"
+                                    / "குடும்ப மரத்தைக் காண தேடல் பலகத்திலிருந்து ஒரு உறுப்பினரைத் தேர்ந்தெடுக்கவும்"
+   (Adjust key names to match existing familyTree structure.)
+3. Run the i18n dupe checker after editing.
+
+── CATEGORY B: Member NAMES and CITIES are English (DATABASE — not an i18n fix)
+Values like "Alagumalai Pillai", "Thirumal Pillai", "Muthuthevanpatty" come from
+the members table rows, NOT from locale files. They CANNOT be fixed in JSON.
+Do the following, and DO NOT rename any existing DB columns (Replit-managed schema):
+
+1. In schema.ts, ADD new nullable text columns to the members table (additive
+   only — existing columns and rows untouched):
+     full_name_ta, father_name_ta, mother_name_ta, spouse_name_ta,
+     birth_city_ta, current_city_ta
+   Run: npx drizzle-kit generate && npx drizzle-kit push
+2. In the GET members Express route, read lang from req.query.lang. When
+   lang === "ta", return each translatable field as
+   COALESCE(<field>_ta, <field>) using drizzle-orm sql``, so rows without a
+   Tamil value fall back to English. Keep the JSON response field names identical.
+3. In the client members query hook, read active language from react-i18next,
+   pass ?lang=, and include lang in the TanStack Query queryKey (e.g.
+   ["members", lang]) so switching language refetches.
+
+── ACCEPTANCE
+- Relationship labels + empty-state text show Tamil in TA mode (Category A)
+- New _ta columns exist; no existing column renamed; no rows lost (Category B)
+- Member cards show Tamil names/cities when _ta is filled, English when null
+- Language toggle refetches member data without page reload
+- i18n dupe checker still passes

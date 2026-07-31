@@ -170,13 +170,13 @@ export function MemberListModal({
                       <div className="mt-3 pt-3 border-t border-gray-100">
                         <div className="text-xs text-gray-500 space-y-1">
                           {member.fatherName && (
-                            <div>Father: {member.fatherName}</div>
+                            <div>{t("familyTree.father")}: {member.fatherName}</div>
                           )}
                           {member.motherName && (
-                            <div>Mother: {member.motherName}</div>
+                            <div>{t("familyTree.mother")}: {member.motherName}</div>
                           )}
                           {member.spouseName && (
-                            <div>Spouse: {member.spouseName}</div>
+                            <div>{t("familyTree.spouse")}: {member.spouseName}</div>
                           )}
                         </div>
                       </div>
