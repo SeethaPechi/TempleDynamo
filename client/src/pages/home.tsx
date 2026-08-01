@@ -86,12 +86,15 @@ function WelcomePage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-temple-cream to-saffron-50">
       {/* Hero Section */}
-      <div className="relative bg-gradient-to-r from-saffron-500 to-temple-red text-white">
+      <div
+        className="relative text-white"
+        style={{ background: "linear-gradient(to right, hsl(33,100%,60%), hsl(0,100%,27%))" }}
+      >
         <div className="absolute inset-0 bg-black bg-opacity-20"></div>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
           <div className="text-center">
             <div className="w-24 h-24 bg-white bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-6">
-              <span className="text-4xl font-bold"></span>
+              <span className="text-5xl leading-none select-none">🛕</span>
             </div>
             <h1 className="text-4xl md:text-6xl font-bold mb-6">
               Family Temple Connection
