@@ -26,10 +26,27 @@ const VALID_ROLES = ["system_admin", "temple_admin", "user"] as const;
  * Domain restriction (which hostnames may issue tokens) must also be
  * configured in the Cloudflare Turnstile dashboard — see docs/captcha-setup.md.
  */
+// How long (ms) to wait for Cloudflare's siteverify endpoint before giving up.
+// On timeout the request is treated as a network outage and the login is
+// allowed through (fail-open) so a Cloudflare outage cannot lock users out.
+const CAPTCHA_TIMEOUT_MS = 5_000;
+
 async function verifyCaptcha(
   token: string | undefined,
   remoteip?: string,
 ): Promise<boolean> {
+  // ── Emergency bypass ────────────────────────────────────────────────────────
+  // Set CAPTCHA_REQUIRED=false in the environment to skip CAPTCHA verification
+  // entirely without a code deploy.  Log a warning every time so the bypass
+  // never goes unnoticed in production logs.
+  if (process.env.CAPTCHA_REQUIRED === "false") {
+    console.warn(
+      "[captcha] CAPTCHA_REQUIRED=false — verification bypassed; " +
+      "re-enable before accepting real traffic",
+    );
+    return true;
+  }
+
   if (!token) return false;
   const secret = process.env.TURNSTILE_SECRET_KEY;
   if (!secret) {
@@ -40,14 +57,26 @@ async function verifyCaptcha(
     const payload: Record<string, string> = { secret, response: token };
     if (remoteip) payload.remoteip = remoteip;
 
-    const resp = await fetch(
-      "https://challenges.cloudflare.com/turnstile/v0/siteverify",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      },
-    );
+    // Abort the request if Cloudflare takes too long so the login route is
+    // not stalled indefinitely during an outage.
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), CAPTCHA_TIMEOUT_MS);
+
+    let resp: Response;
+    try {
+      resp = await fetch(
+        "https://challenges.cloudflare.com/turnstile/v0/siteverify",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+          signal: controller.signal,
+        },
+      );
+    } finally {
+      clearTimeout(timeoutId);
+    }
+
     const data = (await resp.json()) as {
       success: boolean;
       "error-codes"?: string[];
@@ -59,9 +88,20 @@ async function verifyCaptcha(
       );
     }
     return data.success === true;
-  } catch (err) {
-    console.error("[captcha] siteverify request failed —", err);
-    return false;
+  } catch (err: any) {
+    // Distinguish a deliberate timeout abort from other network errors.
+    const isTimeout = err?.name === "AbortError";
+    console.warn(
+      isTimeout
+        ? `[captcha] siteverify timed out after ${CAPTCHA_TIMEOUT_MS} ms — ` +
+          "failing open to prevent Cloudflare outage from locking users out"
+        : "[captcha] siteverify network error — failing open —",
+      isTimeout ? undefined : err,
+    );
+    // Fail-open: allow the login/register through so a Cloudflare network
+    // outage does not become a production lockout.  The warnings above ensure
+    // the operations team is aware of the degraded state.
+    return true;
   }
 }
 

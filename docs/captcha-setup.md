@@ -44,8 +44,57 @@ or host will be rejected.
 |---|---|---|
 | `VITE_TURNSTILE_SITE_KEY` | Frontend (Vite build-time) | Public site key used by the widget |
 | `TURNSTILE_SECRET_KEY` | Backend (server runtime) | Secret used to call `siteverify` — never expose to the browser |
+| `CAPTCHA_REQUIRED` | Backend (server runtime) | Set to `false` to disable CAPTCHA verification entirely (default: `true`) |
 
-Both are already stored as Replit secrets.
+`VITE_TURNSTILE_SITE_KEY` and `TURNSTILE_SECRET_KEY` are already stored as Replit secrets.
+
+## Resilience: how the server handles Cloudflare outages
+
+Two mechanisms ensure a Cloudflare outage cannot permanently lock users out of the site:
+
+### 1. Fail-open on network errors and timeouts
+
+`verifyCaptcha` in `server/routes.ts` wraps the `siteverify` HTTP call in an
+`AbortController` with a **5-second timeout**. If the request times out or
+encounters any network-level error (DNS failure, TCP reset, etc.) the function
+returns `true` — the login or registration is **allowed through**. A `[captcha]`
+warning is always logged so the operations team can see the degraded state:
+
+```
+[captcha] siteverify timed out after 5000 ms — failing open to prevent Cloudflare outage from locking users out
+[captcha] siteverify network error — failing open — <error details>
+```
+
+> **Note:** fail-open applies only to network/infrastructure failures.
+> If Cloudflare responds but rejects the token (e.g. `hostname-not-allowed`,
+> `invalid-input-response`) the request is still rejected — that path is
+> unaffected by this change.
+
+### 2. Emergency bypass via `CAPTCHA_REQUIRED=false`
+
+If the Turnstile service has a prolonged outage, an operator can disable CAPTCHA
+verification entirely **without a code deploy** by setting the environment
+variable:
+
+```
+CAPTCHA_REQUIRED=false
+```
+
+When set, every call to `verifyCaptcha` returns `true` immediately and logs a
+prominent warning:
+
+```
+[captcha] CAPTCHA_REQUIRED=false — verification bypassed; re-enable before accepting real traffic
+```
+
+**How to set it in Replit:**
+
+1. Open the **Secrets** panel in the Replit sidebar.
+2. Add a secret named `CAPTCHA_REQUIRED` with value `false`.
+3. Restart the server workflow.
+
+**Remember to remove or reset the variable to `true` once Cloudflare recovers.**
+Leaving it off in production permanently defeats bot protection.
 
 ## Troubleshooting
 
