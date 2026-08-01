@@ -6,7 +6,6 @@ export interface IStorage {
   getUserById(id: number): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
-  validateUserCredentials(email: string, password: string): Promise<User | null>;
   getAllUsers(): Promise<User[]>;
   updateUserRole(id: number, role: string): Promise<User | undefined>;
   updateUserPassword(id: number, hash: string): Promise<void>;
@@ -105,14 +104,6 @@ export class MemStorage implements IStorage {
     };
     this.users.set(id, user);
     return user;
-  }
-
-  async validateUserCredentials(email: string, password: string): Promise<User | null> {
-    const user = await this.getUserByEmail(email);
-    if (user && user.password === password) {
-      return user;
-    }
-    return null;
   }
 
   async getAllUsers(): Promise<User[]> {
