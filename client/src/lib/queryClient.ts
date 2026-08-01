@@ -29,6 +29,7 @@ export async function apiRequest(
     console.error("API Error Response:", errorText);
     let errorMessage = `Request failed: ${res.status} ${res.statusText}`;
     
+    let hint: string | undefined;
     try {
       const errorData = JSON.parse(errorText);
       if (errorData.message) {
@@ -37,13 +38,18 @@ export async function apiRequest(
       if (errorData.details) {
         errorMessage += ` - ${errorData.details.join(', ')}`;
       }
+      if (errorData.hint) {
+        hint = errorData.hint;
+      }
     } catch {
       if (errorText) {
         errorMessage = errorText;
       }
     }
     
-    throw new Error(errorMessage);
+    const err = new Error(errorMessage) as Error & { hint?: string };
+    if (hint) err.hint = hint;
+    throw err;
   }
 
   const result = await res.json();

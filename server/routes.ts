@@ -178,8 +178,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const user = await storage.getUserByEmail(email);
       // Use generic message to avoid user-enumeration
-      if (!user || !(await verifyPassword(password, user.password, user.id))) {
+      if (!user) {
         return res.status(401).json({ message: "Invalid email or password" });
+      }
+      const passwordOk = await verifyPassword(password, user.password, user.id);
+      if (!passwordOk) {
+        // When the stored hash is already bcrypt the account has been migrated.
+        // A wrong password here likely means the user still has their old
+        // password in mind — surface a reset hint so they can self-serve.
+        const isBcrypt =
+          user.password.startsWith("$2b$") || user.password.startsWith("$2a$");
+        return res.status(401).json({
+          message: "Invalid email or password",
+          ...(isBcrypt && { hint: "password_reset_suggested" }),
+        });
       }
 
       (req.session as any).userId = user.id;

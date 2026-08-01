@@ -18,6 +18,7 @@ export default function SignInPage() {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [captchaToken, setCaptchaToken] = useState("");
+  const [showResetHint, setShowResetHint] = useState(false);
 
   const form = useForm<LoginUser>({
     resolver: zodResolver(loginUserSchema),
@@ -38,6 +39,7 @@ export default function SignInPage() {
     }
 
     setIsLoading(true);
+    setShowResetHint(false);
     try {
       await login(data.email, data.password, captchaToken);
       
@@ -48,6 +50,9 @@ export default function SignInPage() {
       
       setLocation('/');
     } catch (error: any) {
+      if (error?.hint === "password_reset_suggested") {
+        setShowResetHint(true);
+      }
       toast({
         title: "Sign In Failed",
         description: error.message || "Invalid email or password. Please try again.",
@@ -123,6 +128,19 @@ export default function SignInPage() {
                   isVerified={!!captchaToken}
                 />
               </div>
+
+              {showResetHint && (
+                <div className="rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm text-amber-800">
+                  <p className="font-semibold mb-1">Having trouble signing in?</p>
+                  <p>
+                    Your account password may need to be reset.{' '}
+                    <Link href="/forgot-password" className="underline font-semibold hover:text-amber-900">
+                      Reset your password
+                    </Link>{' '}
+                    to regain access.
+                  </p>
+                </div>
+              )}
 
               <Button
                 type="submit"
