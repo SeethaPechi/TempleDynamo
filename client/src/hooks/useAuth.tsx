@@ -1,6 +1,6 @@
 import React, { createContext, useContext, ReactNode } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiRequest } from '@/lib/queryClient';
+import { apiRequest, getQueryFn } from '@/lib/queryClient';
 import type { User } from '@shared/schema';
 
 export type AuthUser = Omit<User, 'password'>;
@@ -21,6 +21,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const { data: user, isLoading } = useQuery<Omit<User, 'password'> | null>({
     queryKey: ['/api/auth/me'],
+    queryFn: getQueryFn<Omit<User, 'password'> | null>({ on401: "returnNull" }),
     retry: false,
     staleTime: 5 * 60 * 1000, // 5 minutes
   });

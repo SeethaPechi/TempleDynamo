@@ -2,3 +2,4 @@
 - [Admin Panel Structure](admin-panel.md) — 5-tab admin panel; each tab is a separate component under client/src/pages/admin/
 - [Overview Doc](overview-doc.md) — TAMIL_KOVIL_APP_OVERVIEW.md must be updated every time a schema, API, or screen changes
 - [Relationship Types](relationship-types.md) — relationship_types lookup table exists; relationships.relationship_type is still free text (not FK linked)
+- [Workflow port forwarding](workflow-ports.md) — [[ports]] in .replit needs externalPort (80) or the workflow times out with "didn't open port 5000" even though the server is up
