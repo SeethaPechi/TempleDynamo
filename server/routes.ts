@@ -5,8 +5,10 @@ import { insertMemberSchema, insertRelationshipSchema, insertTempleSchema, inser
 import { whatsappService } from "./whatsapp";
 import { z } from "zod";
 import session from "express-session";
+import connectPgSimple from "connect-pg-simple";
 import bcrypt from "bcrypt";
 import rateLimit from "express-rate-limit";
+import { pool } from "./db";
 
 const VALID_ROLES = ["system_admin", "temple_admin", "user"] as const;
 const BCRYPT_ROUNDS = 12;
@@ -97,15 +99,22 @@ async function requireSystemAdmin(req: any, res: any, next: any) {
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Configure session middleware
+  // Configure session middleware with Postgres-backed store so sessions
+  // survive server restarts in production.
+  const PgSession = connectPgSimple(session);
   app.use(session({
+    store: new PgSession({
+      pool,
+      tableName: "session",
+      createTableIfMissing: true,
+    }),
     secret: process.env.SESSION_SECRET || 'temple-management-secret-key',
     resave: false,
     saveUninitialized: false,
-    cookie: { 
-      secure: false, // Set to true in production with HTTPS
-      maxAge: 24 * 60 * 60 * 1000 // 24 hours
-    }
+    cookie: {
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+    },
   }));
 
   // Authentication Routes
