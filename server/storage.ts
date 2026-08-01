@@ -1,4 +1,4 @@
-import { users, members, relationships, temples, type User, type InsertUser, type Member, type InsertMember, type Relationship, type InsertRelationship, type Temple, type InsertTemple } from "@shared/schema";
+import { users, members, relationships, temples, type User, type InsertUser, type Member, type InsertMember, type Relationship, type InsertRelationship, type Temple, type InsertTemple, type Role } from "@shared/schema";
 
 export interface IStorage {
   // User methods (updated for authentication)
@@ -7,6 +7,11 @@ export interface IStorage {
   getUserByEmail(email: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
   validateUserCredentials(email: string, password: string): Promise<User | null>;
+  getAllUsers(): Promise<User[]>;
+  updateUserRole(id: number, role: string): Promise<User | undefined>;
+
+  // Role methods
+  getAllRoles(): Promise<Role[]>;
   
   // Member methods
   getMember(id: number): Promise<Member | undefined>;
@@ -89,6 +94,26 @@ export class MemStorage implements IStorage {
       return user;
     }
     return null;
+  }
+
+  async getAllUsers(): Promise<User[]> {
+    return Array.from(this.users.values());
+  }
+
+  async updateUserRole(id: number, role: string): Promise<User | undefined> {
+    const user = this.users.get(id);
+    if (!user) return undefined;
+    const updated = { ...user, role };
+    this.users.set(id, updated);
+    return updated;
+  }
+
+  async getAllRoles(): Promise<import("@shared/schema").Role[]> {
+    return [
+      { id: 1, name: "system_admin", label: "System Admin", description: "Full access", createdAt: new Date() },
+      { id: 2, name: "temple_admin", label: "Temple Admin", description: "Manage temples and view temple members", createdAt: new Date() },
+      { id: 3, name: "user", label: "Regular User", description: "Default role", createdAt: new Date() },
+    ];
   }
 
   // Member methods

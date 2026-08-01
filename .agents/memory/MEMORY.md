@@ -1,0 +1,2 @@
+- [Roles & Admin System](roles-admin.md) — role slug stored directly on users.role (not FK); 3 roles: system_admin, temple_admin, user
+- [Overview Doc](overview-doc.md) — TAMIL_KOVIL_APP_OVERVIEW.md must be updated every time a schema, API, or screen changes

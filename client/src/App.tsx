@@ -18,10 +18,11 @@ import FamilyTree from "./pages/family-tree";
 import MemberDetails from "./pages/member-details";
 import RegisterPage from "./pages/register";
 import SignInPage from "./pages/signin";
+import AdminPage from "./pages/admin";
 import NotFound from "./pages/not-found";
 
 function Router() {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, user } = useAuth();
 
   if (isLoading) {
     return (
@@ -56,6 +57,7 @@ function Router() {
           <Route path="/family-tree" component={FamilyTree} />
           <Route path="/member/:id" component={MemberDetails} />
           <Route path="/member-details/:id" component={MemberDetails} />
+          <Route path="/admin" component={AdminPage} />
         </>
       ) : (
         <Route>

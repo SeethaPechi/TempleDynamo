@@ -70,6 +70,22 @@
 
 ## 3. Database Schema
 
+### Table: `roles` *(added 2026-08-01)*
+| Column | Type | Constraints | Notes |
+|---|---|---|---|
+| `id` | serial | PK | |
+| `name` | text | NOT NULL, UNIQUE | slug: `system_admin`, `temple_admin`, `user` |
+| `label` | text | NOT NULL | Human-readable label |
+| `description` | text | nullable | Role description |
+| `created_at` | timestamp | defaultNow() | |
+
+**Seeded rows:**
+| name | label | description |
+|---|---|---|
+| `system_admin` | System Admin | Full access including admin panel and user management |
+| `temple_admin` | Temple Admin | Can manage temple details and view all members of their temple |
+| `user` | Regular User | Default role for all registered community members |
+
 ### Table: `members`
 | Column | Type | Constraints | Notes |
 |---|---|---|---|
@@ -120,6 +136,7 @@
 | `password` | text | NOT NULL | **base64-encoded** (not hashed) |
 | `password_hint` | text | nullable | stored in plaintext |
 | `is_active` | text | default `'true'` | string, not boolean |
+| `role` | text | NOT NULL, default `'user'` | slug matching `roles.name` *(added 2026-08-01)* |
 | `created_at` | timestamp | defaultNow() | |
 
 ### Table: `temples`
@@ -190,6 +207,13 @@
 | GET | `/api/whatsapp/templates` | ✅ Required | Return available message templates. |
 | POST | `/api/whatsapp/process-template` | ✅ Required | Replace template variables with values. |
 | POST | `/api/whatsapp/broadcast-urls` | ✅ Required | Generate `wa.me` click-to-chat URLs for recipients. |
+
+### Admin *(added 2026-08-01 — system_admin only)*
+| Method | Path | Auth | Description |
+|---|---|---|---|
+| GET | `/api/admin/users` | system_admin | Returns all users (no passwords) with their roles. |
+| PUT | `/api/admin/users/:id/role` | system_admin | Body `{role}`. Updates a user's role. Valid values: `system_admin`, `temple_admin`, `user`. |
+| GET | `/api/admin/roles` | system_admin | Returns the `roles` reference table. |
 
 ### Utility
 | Method | Path | Auth | Description |
@@ -358,6 +382,21 @@
 
 ---
 
+#### `/admin` — Admin Panel (`admin.tsx`) *(added 2026-08-01)*
+**Access:** `system_admin` role only. Other authenticated users see "Access Denied". Unauthenticated visitors see "Authentication Required".
+
+**UI sections:**
+1. **Header** — Shield icon, "Admin Panel" title
+2. **Stats cards** — 3 cards showing user count per role (System Admin / Temple Admin / Regular User) with colour-coded left borders
+3. **Users table** — All users with columns: ID, Name, Email, Phone, Current Role (badge), Change Role (inline dropdown), Status (Active/Inactive), Joined date. Supports name/email search and role filter.
+4. **Role Definitions legend** — explains each role's permissions
+
+**APIs called:** `GET /api/admin/users`, `PUT /api/admin/users/:id/role`
+
+**Navigation:** "Admin" link (Shield icon) appears in nav bar only for `system_admin` users.
+
+---
+
 ### 5.3 Error & Utility Screens
 - `/not-found` — 404 page
 - Loading spinner shown during auth state resolution on app boot
@@ -369,8 +408,9 @@
 - **Strategy:** Passport.js local strategy with `express-session`
 - **Session store:** PostgreSQL via `connect-pg-simple` (persistent sessions)
 - **Session duration:** 24 hours cookie
-- **Auth context:** `AuthProvider` wraps the app; `useAuth()` hook exposes `{user, isAuthenticated, isLoading, login, logout, register}`
-- **Route guard:** `Router` component checks `isAuthenticated`; protected routes render only when authenticated, otherwise redirect to `/signin`
+- **Auth context:** `AuthProvider` wraps the app; `useAuth()` hook exposes `{user: AuthUser | null, isAuthenticated, isLoading, login, logout, register}`; `AuthUser = Omit<User, 'password'>` includes the `role` field
+- **Route guard:** `Router` component checks `isAuthenticated`; protected routes render only when authenticated, otherwise shows "Authentication Required" prompt
+- **Role-based access:** `system_admin` middleware (`requireSystemAdmin`) on admin API routes; admin page component has a client-side role guard showing "Access Denied" for non-admins
 - **Password storage:** `btoa()` / base64 encoding — **NOT cryptographic hashing** (critical security gap)
 - **CAPTCHA:** Frontend renders a captcha input field on sign-in and register, but there is no server-side captcha verification
 
@@ -482,7 +522,7 @@ User switches to Tamil via LanguageSwitcher
 10. **All Tamil name columns (`_ta`) are NULL** — no UI to enter Tamil data.
 11. **Duplicate route handler** for `GET /api/members/search` (second one unreachable).
 12. **Health endpoint** does a full table scan (`getAllMembers`) — should use a lightweight `SELECT 1`.
-13. **No role-based access control** — any authenticated user can delete members, temples, and relationships.
+13. **Partial RBAC** — roles system exists (system_admin, temple_admin, user) and admin panel is protected, but member/temple DELETE and PUT/PATCH endpoints are not yet role-restricted (any authenticated user can delete members or temples).
 14. **No email verification** — anyone can register with any email address.
 15. **Session secret** stored as an env var but no rotation mechanism.
 
@@ -515,6 +555,7 @@ User switches to Tamil via LanguageSwitcher
 │       │   ├── temple-members.tsx         # Temple → member view
 │       │   ├── temple-details.tsx         # Temple profile
 │       │   ├── whatsapp.tsx               # WhatsApp broadcast
+│       │   ├── admin.tsx                  # Admin panel (system_admin only) ← NEW
 │       │   └── not-found.tsx              # 404
 │       ├── components/
 │       │   ├── navigation.tsx
@@ -540,6 +581,7 @@ User switches to Tamil via LanguageSwitcher
 │   └── vite.ts                            # Vite dev/prod middleware
 ├── shared/
 │   └── schema.ts                          # Drizzle schema + Zod schemas (shared client/server)
+│                                          # Tables: members, relationships, users, temples, roles
 ├── scripts/
 │   └── check-i18n-dupes.cjs              # i18n duplicate key guard
 ├── migrations/                            # Drizzle migration SQL files

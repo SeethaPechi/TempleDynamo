@@ -12,6 +12,7 @@ import {
   LogIn,
   User,
   Info,
+  Shield,
 } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -69,7 +70,15 @@ export function Navigation() {
     { path: "/whatsapp", label: t("nav.whatsapp"), icon: MessageSquare },
   ];
 
-  const navItems = isAuthenticated ? authenticatedNavItems : publicNavItems;
+  const isSystemAdmin = (user as any)?.role === "system_admin";
+
+  const adminNavItem = { path: "/admin", label: "Admin", icon: Shield };
+
+  const navItems = isAuthenticated
+    ? isSystemAdmin
+      ? [...authenticatedNavItems, adminNavItem]
+      : authenticatedNavItems
+    : publicNavItems;
 
   return (
     <nav className="bg-white shadow-lg border-b-4 border-temple-gold sticky top-0 z-50">

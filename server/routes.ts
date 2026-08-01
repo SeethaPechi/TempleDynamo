@@ -6,6 +6,8 @@ import { whatsappService } from "./whatsapp";
 import { z } from "zod";
 import session from "express-session";
 
+const VALID_ROLES = ["system_admin", "temple_admin", "user"] as const;
+
 // Simple hash function for demonstration (in production, use bcrypt)
 function hashPassword(password: string): string {
   return Buffer.from(password).toString('base64');
@@ -22,6 +24,18 @@ function requireAuth(req: any, res: any, next: any) {
   } else {
     res.status(401).json({ message: "Authentication required" });
   }
+}
+
+// System admin middleware
+async function requireSystemAdmin(req: any, res: any, next: any) {
+  if (!req.session?.userId) {
+    return res.status(401).json({ message: "Authentication required" });
+  }
+  const user = await storage.getUserById(req.session.userId);
+  if (!user || user.role !== "system_admin") {
+    return res.status(403).json({ message: "System admin access required" });
+  }
+  next();
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -120,6 +134,53 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Failed to fetch user" });
     }
   });
+  // ── Admin Routes (system_admin only) ──────────────────────────────────────
+
+  // List all users with their roles
+  app.get("/api/admin/users", requireSystemAdmin, async (req, res) => {
+    try {
+      const allUsers = await storage.getAllUsers();
+      const sanitized = allUsers.map(({ password, ...u }) => u);
+      res.json(sanitized);
+    } catch (error) {
+      console.error("Error fetching users:", error);
+      res.status(500).json({ message: "Failed to fetch users" });
+    }
+  });
+
+  // Update a user's role
+  app.put("/api/admin/users/:id/role", requireSystemAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) return res.status(400).json({ message: "Invalid user ID" });
+
+      const { role } = req.body;
+      if (!VALID_ROLES.includes(role)) {
+        return res.status(400).json({ message: `Invalid role. Must be one of: ${VALID_ROLES.join(", ")}` });
+      }
+
+      const updated = await storage.updateUserRole(id, role);
+      if (!updated) return res.status(404).json({ message: "User not found" });
+
+      const { password, ...userWithoutPassword } = updated;
+      res.json(userWithoutPassword);
+    } catch (error) {
+      console.error("Error updating user role:", error);
+      res.status(500).json({ message: "Failed to update role" });
+    }
+  });
+
+  // List all available roles
+  app.get("/api/admin/roles", requireSystemAdmin, async (req, res) => {
+    try {
+      const allRoles = await storage.getAllRoles();
+      res.json(allRoles);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch roles" });
+    }
+  });
+
+  // ── Health check endpoint ───────────────────────────────────────────────────
   // Health check endpoint
   app.get("/api/health", async (req, res) => {
     try {

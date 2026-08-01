@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, timestamp, boolean } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -59,6 +59,17 @@ export type Member = typeof members.$inferSelect;
 export type InsertRelationship = z.infer<typeof insertRelationshipSchema>;
 export type Relationship = typeof relationships.$inferSelect;
 
+// Roles reference table
+export const roles = pgTable("roles", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull().unique(),
+  label: text("label").notNull(),
+  description: text("description"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export type Role = typeof roles.$inferSelect;
+
 // User authentication schema
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
@@ -70,6 +81,7 @@ export const users = pgTable("users", {
   password: text("password").notNull(),
   passwordHint: text("password_hint"),
   isActive: text("is_active").default("true"),
+  role: text("role").notNull().default("user"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
