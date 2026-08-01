@@ -37,6 +37,14 @@ async function verifyCaptcha(
   token: string | undefined,
   remoteip?: string,
 ): Promise<boolean> {
+  // ── Dev bypass ──────────────────────────────────────────────────────────────
+  // In development the Turnstile widget can't load on *.replit.dev domains
+  // (Cloudflare restricts it to the registered production domain).
+  // Accept a sentinel token so the dev workflow is never blocked.
+  if (process.env.NODE_ENV !== "production") {
+    if (token === "dev-bypass") return true;
+  }
+
   // ── Emergency bypass ────────────────────────────────────────────────────────
   // Set CAPTCHA_REQUIRED=false in the environment to skip CAPTCHA verification
   // entirely without a code deploy.  Log a warning every time so the bypass
