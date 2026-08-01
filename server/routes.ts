@@ -48,9 +48,19 @@ async function verifyCaptcha(
         body: JSON.stringify(payload),
       },
     );
-    const data = (await resp.json()) as { success: boolean };
+    const data = (await resp.json()) as {
+      success: boolean;
+      "error-codes"?: string[];
+    };
+    if (!data.success) {
+      console.warn(
+        "[captcha] verification failed — " +
+        `error_codes=${JSON.stringify(data["error-codes"] ?? [])}`,
+      );
+    }
     return data.success === true;
-  } catch {
+  } catch (err) {
+    console.error("[captcha] siteverify request failed —", err);
     return false;
   }
 }

@@ -73,3 +73,31 @@ The `*.replit.dev` wildcard does not cover the production domain.
 This is the rate limiter (`authLimiter` in `server/routes.ts`), not the CAPTCHA.
 The limit is 10 requests per 15-minute window per IP. Wait 15 minutes and retry,
 or test from a different IP address.
+
+## Server-side error codes
+
+When Cloudflare rejects a token, `verifyCaptcha` logs a structured warning at
+the `[captcha]` prefix — for example:
+
+```
+[captcha] verification failed — error_codes=["hostname-not-allowed"]
+```
+
+Use the table below to diagnose the root cause without exposing any PII or
+token values:
+
+| `error-codes` value | Meaning | Fix |
+|---|---|---|
+| `missing-input-secret` | `TURNSTILE_SECRET_KEY` was not sent | Ensure the secret is set in Replit secrets |
+| `invalid-input-secret` | Secret key is wrong or revoked | Re-copy the secret from the Cloudflare Turnstile dashboard |
+| `missing-input-response` | No token was included in the request | Client-side bug — token not attached before form submit |
+| `invalid-input-response` | Token is malformed, expired, or already used | User waited too long or reused a token; ask them to retry |
+| `bad-request` | Request to `siteverify` was malformed | Check server-side payload construction in `verifyCaptcha` |
+| `timeout-or-duplicate` | Token has already been verified once | Normal on a retry — ask the user to reload and try again |
+| `hostname-not-allowed` | The hostname that issued the token is not in the Allowed Hostnames list | Add the hostname in the Cloudflare Turnstile dashboard (see setup steps above) |
+| `internal-error` | Cloudflare-side error | Transient; retry after a short delay |
+
+If the log shows `[captcha] siteverify request failed` (a network-level error
+rather than a Cloudflare rejection), the server could not reach
+`challenges.cloudflare.com` — check outbound network connectivity from the
+server.
