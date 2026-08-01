@@ -11,6 +11,12 @@ export interface IStorage {
   updateUserRole(id: number, role: string): Promise<User | undefined>;
   updateUserPassword(id: number, hash: string): Promise<void>;
 
+  // Password reset token methods
+  createPasswordResetToken(userId: number, tokenHash: string, expiresAt: Date): Promise<void>;
+  getPasswordResetToken(tokenHash: string): Promise<{ userId: number; expiresAt: Date } | undefined>;
+  deletePasswordResetToken(tokenHash: string): Promise<void>;
+  deletePasswordResetTokensByUser(userId: number): Promise<void>;
+
   // Role methods
   getAllRoles(): Promise<Role[]>;
 
@@ -124,6 +130,27 @@ export class MemStorage implements IStorage {
   async updateUserPassword(id: number, hash: string): Promise<void> {
     const user = this.users.get(id);
     if (user) this.users.set(id, { ...user, password: hash });
+  }
+
+  // Password reset tokens — in-memory store (not needed for production)
+  private resetTokens: Map<string, { userId: number; expiresAt: Date }> = new Map();
+
+  async createPasswordResetToken(userId: number, tokenHash: string, expiresAt: Date): Promise<void> {
+    this.resetTokens.set(tokenHash, { userId, expiresAt });
+  }
+
+  async getPasswordResetToken(tokenHash: string): Promise<{ userId: number; expiresAt: Date } | undefined> {
+    return this.resetTokens.get(tokenHash);
+  }
+
+  async deletePasswordResetToken(tokenHash: string): Promise<void> {
+    this.resetTokens.delete(tokenHash);
+  }
+
+  async deletePasswordResetTokensByUser(userId: number): Promise<void> {
+    for (const [hash, entry] of this.resetTokens.entries()) {
+      if (entry.userId === userId) this.resetTokens.delete(hash);
+    }
   }
 
   async getAllRoles(): Promise<import("@shared/schema").Role[]> {

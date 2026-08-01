@@ -9,6 +9,8 @@ import connectPgSimple from "connect-pg-simple";
 import rateLimit from "express-rate-limit";
 import { pool } from "./db";
 import { hashPassword, verifyPassword } from "./password";
+import { sendPasswordResetEmail } from "./email";
+import crypto from "crypto";
 
 const VALID_ROLES = ["system_admin", "temple_admin", "user"] as const;
 
@@ -155,7 +157,75 @@ async function requireSystemAdmin(req: any, res: any, next: any) {
   next();
 }
 
+// ── Reset-token helpers ─────────────────────────────────────────────────────
+
+/** Generate a cryptographically random URL-safe token (48 bytes → 64 chars). */
+function generateResetToken(): string {
+  return crypto.randomBytes(48).toString("base64url");
+}
+
+/** SHA-256 hash of the raw token — what we store in the DB. */
+function hashToken(raw: string): string {
+  return crypto.createHash("sha256").update(raw).digest("hex");
+}
+
+/**
+ * Return the canonical base URL used in reset links.
+ *
+ * Priority:
+ *   1. APP_BASE_URL — set this in production (e.g. https://tamilkovil.com).
+ *      Required in production: if it is absent the function throws so the
+ *      misconfiguration is caught at deploy time, not discovered via a
+ *      host-header poisoning exploit.
+ *   2. Development only fallback — derived from the Replit dev-domain env var.
+ *      This is intentionally never request-derived, so an attacker cannot
+ *      poison the host header to point the link at a different origin.
+ *
+ * Never build this from req.headers.host / x-forwarded-host — doing so opens
+ * a host-header poisoning attack where an attacker triggers a reset for a
+ * victim and causes the token to be sent in a link pointing at attacker.com.
+ */
+function getBaseUrl(): string {
+  // Explicit canonical origin — always preferred.
+  if (process.env.APP_BASE_URL) {
+    return process.env.APP_BASE_URL.replace(/\/$/, "");
+  }
+
+  // In production we require the explicit origin to prevent poisoning.
+  if (process.env.NODE_ENV === "production") {
+    throw new Error(
+      "[forgot-password] APP_BASE_URL must be set in production. " +
+      "Password reset links cannot be generated without a trusted canonical origin.",
+    );
+  }
+
+  // Development: use the Replit dev domain if available, else localhost.
+  const replitDomain = process.env.REPLIT_DEV_DOMAIN;
+  if (replitDomain) {
+    return `https://${replitDomain}`;
+  }
+  return "http://localhost:5000";
+}
+
+// ── One-time DB table setup ─────────────────────────────────────────────────
+async function ensureResetTokensTable(): Promise<void> {
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS password_reset_tokens (
+      id          SERIAL PRIMARY KEY,
+      user_id     INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      token_hash  TEXT    NOT NULL UNIQUE,
+      expires_at  TIMESTAMP NOT NULL,
+      created_at  TIMESTAMP DEFAULT NOW()
+    );
+    CREATE INDEX IF NOT EXISTS idx_prt_token_hash ON password_reset_tokens (token_hash);
+    CREATE INDEX IF NOT EXISTS idx_prt_user_id    ON password_reset_tokens (user_id);
+  `);
+}
+
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Ensure the password_reset_tokens table exists before the app starts.
+  await ensureResetTokensTable();
+
   // Configure session middleware with Postgres-backed store so sessions
   // survive server restarts and scale across multiple processes.
   const PgSession = connectPgSimple(session);
@@ -248,6 +318,84 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       console.error("Error logging in:", error);
       res.status(500).json({ message: "Failed to log in" });
+    }
+  });
+
+  // ── Forgot password: request a reset link ───────────────────────────────
+  app.post("/api/auth/forgot-password", authLimiter, async (req, res) => {
+    try {
+      const { email } = z.object({ email: z.string().email() }).parse(req.body);
+
+      // Always respond generically — don't reveal whether the email exists.
+      const genericOk = () =>
+        res.json({ message: "If that email is registered you will receive a reset link shortly." });
+
+      const user = await storage.getUserByEmail(email);
+      if (!user) return genericOk();
+
+      // Invalidate any previous tokens for this user so there is only one live
+      // reset link at a time.
+      await storage.deletePasswordResetTokensByUser(user.id);
+
+      const rawToken = generateResetToken();
+      const tokenHash = hashToken(rawToken);
+      const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+
+      await storage.createPasswordResetToken(user.id, tokenHash, expiresAt);
+
+      const resetUrl = `${getBaseUrl()}/reset-password?token=${rawToken}`;
+      await sendPasswordResetEmail({
+        toEmail: user.email,
+        firstName: user.firstName,
+        resetUrl,
+      });
+
+      return genericOk();
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Please provide a valid email address." });
+      }
+      console.error("[forgot-password] error:", error);
+      res.status(500).json({ message: "Failed to process request. Please try again." });
+    }
+  });
+
+  // ── Reset password: set a new password using the token ──────────────────
+  app.post("/api/auth/reset-password", authLimiter, async (req, res) => {
+    try {
+      const { token, password } = z
+        .object({
+          token: z.string().min(1),
+          password: z.string().min(8, "Password must be at least 8 characters"),
+        })
+        .parse(req.body);
+
+      const tokenHash = hashToken(token);
+      const record = await storage.getPasswordResetToken(tokenHash);
+
+      if (!record) {
+        return res.status(400).json({ message: "Invalid or expired reset link. Please request a new one." });
+      }
+
+      if (new Date() > record.expiresAt) {
+        await storage.deletePasswordResetToken(tokenHash);
+        return res.status(400).json({ message: "This reset link has expired. Please request a new one." });
+      }
+
+      const hash = await hashPassword(password);
+      await storage.updateUserPassword(record.userId, hash);
+
+      // Consume the token so it cannot be reused.
+      await storage.deletePasswordResetToken(tokenHash);
+
+      console.info(`[reset-password] password updated for userId=${record.userId}`);
+      res.json({ message: "Password updated successfully. You can now sign in with your new password." });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: error.errors[0]?.message ?? "Invalid request." });
+      }
+      console.error("[reset-password] error:", error);
+      res.status(500).json({ message: "Failed to reset password. Please try again." });
     }
   });
 

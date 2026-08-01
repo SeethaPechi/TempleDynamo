@@ -18,6 +18,8 @@ import FamilyTree from "./pages/family-tree";
 import MemberDetails from "./pages/member-details";
 import RegisterPage from "./pages/register";
 import SignInPage from "./pages/signin";
+import ForgotPasswordPage from "./pages/forgot-password";
+import ResetPasswordPage from "./pages/reset-password";
 import AdminPage from "./pages/admin";
 import NotFound from "./pages/not-found";
 
@@ -40,6 +42,8 @@ function Router() {
       {/* Public routes */}
       <Route path="/register" component={RegisterPage} />
       <Route path="/signin" component={SignInPage} />
+      <Route path="/forgot-password" component={ForgotPasswordPage} />
+      <Route path="/reset-password" component={ResetPasswordPage} />
       
       {/* Home page - accessible to everyone */}
       <Route path="/" component={Home} />

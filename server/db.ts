@@ -86,6 +86,43 @@ export class DatabaseStorage implements IStorage {
     await db.update(users).set({ password: hash }).where(eq(users.id, id));
   }
 
+  // ── Password reset tokens ──────────────────────────────────────────────────
+
+  async createPasswordResetToken(userId: number, tokenHash: string, expiresAt: Date): Promise<void> {
+    await pool.query(
+      `INSERT INTO password_reset_tokens (user_id, token_hash, expires_at)
+       VALUES ($1, $2, $3)
+       ON CONFLICT (token_hash) DO NOTHING`,
+      [userId, tokenHash, expiresAt],
+    );
+  }
+
+  async getPasswordResetToken(tokenHash: string): Promise<{ userId: number; expiresAt: Date } | undefined> {
+    const result = await pool.query<{ user_id: number; expires_at: Date }>(
+      `SELECT user_id, expires_at
+       FROM   password_reset_tokens
+       WHERE  token_hash = $1
+       LIMIT  1`,
+      [tokenHash],
+    );
+    if (!result.rows.length) return undefined;
+    return { userId: result.rows[0].user_id, expiresAt: result.rows[0].expires_at };
+  }
+
+  async deletePasswordResetToken(tokenHash: string): Promise<void> {
+    await pool.query(
+      `DELETE FROM password_reset_tokens WHERE token_hash = $1`,
+      [tokenHash],
+    );
+  }
+
+  async deletePasswordResetTokensByUser(userId: number): Promise<void> {
+    await pool.query(
+      `DELETE FROM password_reset_tokens WHERE user_id = $1`,
+      [userId],
+    );
+  }
+
   async updateUserRole(id: number, role: string): Promise<User | undefined> {
     const [user] = await db
       .update(users)
