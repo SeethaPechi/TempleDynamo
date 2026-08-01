@@ -125,6 +125,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       pool,                        // reuse the existing connection pool
       tableName: "session",        // default table name
       createTableIfMissing: true,  // auto-create session table on first run
+      pruneSessionInterval: 900,   // delete expired rows every 15 minutes
     }),
     secret: process.env.SESSION_SECRET || 'temple-management-secret-key',
     resave: false,
