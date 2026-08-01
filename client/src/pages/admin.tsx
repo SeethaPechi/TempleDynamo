@@ -9,6 +9,7 @@ import { RelationshipMapTab } from "./admin/relationship-map-tab";
 import { RelationshipTypesTab } from "./admin/relationship-types-tab";
 import { TempleMembersTab } from "./admin/temple-members-tab";
 import { TempleAdminTab } from "./admin/temple-admin-tab";
+import { OverviewDocTab } from "./admin/overview-doc-tab";
 
 export default function AdminPage() {
   const { user } = useAuth();
@@ -52,6 +53,7 @@ export default function AdminPage() {
           <TabsTrigger value="relationship" className="text-xs sm:text-sm">Relationship</TabsTrigger>
           <TabsTrigger value="temple-members" className="text-xs sm:text-sm">Temple Members</TabsTrigger>
           <TabsTrigger value="temple-admin" className="text-xs sm:text-sm">Temple Admin</TabsTrigger>
+          <TabsTrigger value="overview-doc" className="text-xs sm:text-sm">App Overview</TabsTrigger>
         </TabsList>
 
         <TabsContent value="users">
@@ -72,6 +74,10 @@ export default function AdminPage() {
 
         <TabsContent value="temple-admin">
           <TempleAdminTab />
+        </TabsContent>
+
+        <TabsContent value="overview-doc">
+          <OverviewDocTab />
         </TabsContent>
       </Tabs>
     </div>

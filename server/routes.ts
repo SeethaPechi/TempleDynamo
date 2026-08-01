@@ -247,6 +247,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch { res.status(500).json({ message: "Failed to update temple admin" }); }
   });
 
+  // ── Admin: Overview Doc ────────────────────────────────────────────────────
+  app.get("/api/admin/overview-doc", requireSystemAdmin, async (req, res) => {
+    try {
+      const fs = await import("fs/promises");
+      const path = await import("path");
+      const filePath = path.resolve(process.cwd(), "TAMIL_KOVIL_APP_OVERVIEW.md");
+      const content = await fs.readFile(filePath, "utf-8");
+      res.json({ content });
+    } catch {
+      res.status(500).json({ message: "Could not read overview document" });
+    }
+  });
+
   // ── Health check endpoint ───────────────────────────────────────────────────
   // Health check endpoint
   app.get("/api/health", async (req, res) => {
