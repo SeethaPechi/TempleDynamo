@@ -28,6 +28,8 @@ import {
   TreePine,
   Network,
   BarChart3,
+  Link2,
+  GitMerge,
 } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -39,6 +41,8 @@ import { ComprehensiveFamilyDisplay } from "@/components/comprehensive-family-di
 import { FamilyRelationshipsTable } from "@/components/family-relationships-table";
 import { RelationshipCounters } from "@/components/relationship-counters";
 import { FamilyStoryExport } from "@/components/family-story-export";
+import { RelationChainFinder } from "@/components/RelationChainFinder";
+import { DirectRelationshipFinder } from "@/components/DirectRelationshipFinder";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useFormDataTransformation } from "@/lib/i18n-utils";
 import type { Member, Relationship } from "@shared/schema";
@@ -290,7 +294,7 @@ export default function FamilyTree() {
 
         <Tabs defaultValue="elegant" className="w-full">
           <div className="flex justify-center mb-8">
-            <TabsList className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 w-full max-w-6xl h-auto py-2 gap-1">
+            <TabsList className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 w-full max-w-6xl h-auto py-2 gap-1">
               <TabsTrigger
                 value="explorer"
                 className="flex flex-col items-center gap-1 text-xs sm:text-sm px-1 py-2 min-h-[3rem]"
@@ -362,6 +366,22 @@ export default function FamilyTree() {
                 <span className="text-center leading-tight lg:hidden text-[10px]">
                   {t("familyTree.count")}
                 </span>
+              </TabsTrigger>
+              <TabsTrigger
+                value="map-relation"
+                className="flex flex-col items-center gap-1 text-xs sm:text-sm px-1 py-2 min-h-[3rem]"
+              >
+                <Link2 size={16} />
+                <span className="text-center leading-tight hidden lg:block">Map Relation</span>
+                <span className="text-center leading-tight lg:hidden text-[10px]">Map</span>
+              </TabsTrigger>
+              <TabsTrigger
+                value="relationship"
+                className="flex flex-col items-center gap-1 text-xs sm:text-sm px-1 py-2 min-h-[3rem]"
+              >
+                <GitMerge size={16} />
+                <span className="text-center leading-tight hidden lg:block">Relationship</span>
+                <span className="text-center leading-tight lg:hidden text-[10px]">Relation</span>
               </TabsTrigger>
             </TabsList>
           </div>
@@ -1013,6 +1033,37 @@ export default function FamilyTree() {
               </Card>
             </div>
           </TabsContent>
+
+          <TabsContent value="map-relation" className="space-y-6">
+            <Card className="p-6">
+              <h2 className="text-xl font-bold text-temple-brown mb-1 flex items-center gap-2">
+                <Link2 size={20} /> Map Relation
+              </h2>
+              <p className="text-sm text-gray-500 mb-6">
+                Find the connection chain between any two members.
+              </p>
+              <RelationChainFinder
+                members={allMembers as Member[]}
+                allRelationships={allRelationships as Array<Relationship & { relatedMember: Member }>}
+              />
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="relationship" className="space-y-6">
+            <Card className="p-6">
+              <h2 className="text-xl font-bold text-temple-brown mb-1 flex items-center gap-2">
+                <GitMerge size={20} /> Relationship
+              </h2>
+              <p className="text-sm text-gray-500 mb-6">
+                Check the direct relationship between two members.
+              </p>
+              <DirectRelationshipFinder
+                members={allMembers as Member[]}
+                allRelationships={allRelationships as Array<Relationship & { relatedMember: Member }>}
+              />
+            </Card>
+          </TabsContent>
+
         </Tabs>
 
         {/* Add Relationship Dialog */}
