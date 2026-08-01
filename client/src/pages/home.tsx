@@ -24,6 +24,10 @@ import {
   LogIn,
   TreePine,
   MessageSquare,
+  Globe,
+  Shield,
+  BookOpen,
+  Network,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useState, useEffect, ChangeEvent } from "react";
@@ -217,6 +221,163 @@ function WelcomePage() {
               </p>
             </Card>
           </div>
+        </div>
+      </div>
+
+      {/* About Section */}
+      <div className="bg-white py-20" id="about">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+          {/* Section header */}
+          <div className="text-center mb-14">
+            <span className="inline-block bg-saffron-100 text-saffron-700 text-sm font-semibold px-4 py-1 rounded-full mb-4 tracking-wide uppercase">
+              About This Platform
+            </span>
+            <h2 className="text-3xl md:text-4xl font-bold text-temple-brown mb-4">
+              Preserving Heritage, Strengthening Bonds
+            </h2>
+            <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+              A dedicated digital home for Tamil Kovil communities — built to
+              connect families across generations, unite devotees with their
+              temples, and keep cultural heritage alive for generations to come.
+            </p>
+          </div>
+
+          {/* Story + stat highlights */}
+          <div className="grid lg:grid-cols-2 gap-12 items-start mb-16">
+
+            {/* Narrative */}
+            <div className="space-y-5 text-gray-700 leading-relaxed">
+              <p>
+                <span className="font-semibold text-temple-brown">
+                  tamilkovil.com
+                </span>{" "}
+                is a full-stack community management platform built specifically
+                for Tamil Hindu temple communities. It gives families, temple
+                trustees, and community administrators a single place to
+                register members, trace genealogical connections, manage temple
+                information, and communicate — all in one secure, bilingual
+                environment.
+              </p>
+              <p>
+                At its core, the platform is a living family registry. Each
+                member profile captures personal details, contact information,
+                village and city roots, marital status, and up to twelve types
+                of family relationships — from parents and children to cousins,
+                in-laws, and grandparents. These links are woven into an
+                interactive family tree that can be explored visually, browsed
+                as a relationship table, or exported as a personal family story.
+              </p>
+              <p>
+                Temples are first-class citizens of the platform. Every temple
+                can be registered with its deity, location, contact details,
+                description, photographs, and external links (website and
+                Wikipedia). Members can be associated with their primary temple,
+                creating a natural bridge between individuals and the
+                institutions they hold sacred.
+              </p>
+              <p>
+                Because the community spans multiple generations and geographies,
+                the platform is fully bilingual — every screen is available in
+                both <strong>English</strong> and{" "}
+                <strong>Tamil (தமிழ்)</strong>, with member names and locations
+                storable in Tamil script so that no one is lost in translation.
+              </p>
+            </div>
+
+            {/* Highlight cards */}
+            <div className="grid grid-cols-2 gap-4">
+              <Card className="p-5 border-l-4 border-saffron-500 hover:shadow-md transition-shadow">
+                <Users className="text-saffron-600 mb-3" size={28} />
+                <h4 className="font-bold text-temple-brown text-lg mb-1">
+                  Member Registry
+                </h4>
+                <p className="text-sm text-gray-600">
+                  Detailed profiles with family links, photos, temple
+                  association, and bilingual fields
+                </p>
+              </Card>
+
+              <Card className="p-5 border-l-4 border-temple-red hover:shadow-md transition-shadow">
+                <Network className="text-temple-red mb-3" size={28} />
+                <h4 className="font-bold text-temple-brown text-lg mb-1">
+                  Family Tree
+                </h4>
+                <p className="text-sm text-gray-600">
+                  Interactive visualisations, relationship tables, analytics,
+                  and family story export
+                </p>
+              </Card>
+
+              <Card className="p-5 border-l-4 border-gold-500 hover:shadow-md transition-shadow">
+                <Building className="text-gold-600 mb-3" size={28} />
+                <h4 className="font-bold text-temple-brown text-lg mb-1">
+                  Temple Management
+                </h4>
+                <p className="text-sm text-gray-600">
+                  Register temples with deity, images, contacts, and external
+                  links; link members to their temple
+                </p>
+              </Card>
+
+              <Card className="p-5 border-l-4 border-green-500 hover:shadow-md transition-shadow">
+                <MessageSquare className="text-green-600 mb-3" size={28} />
+                <h4 className="font-bold text-temple-brown text-lg mb-1">
+                  WhatsApp Outreach
+                </h4>
+                <p className="text-sm text-gray-600">
+                  Bulk community messaging with customisable templates, QR
+                  codes, and direct link generation
+                </p>
+              </Card>
+            </div>
+          </div>
+
+          {/* Three pillars */}
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="text-center p-6 rounded-2xl bg-saffron-50 hover:bg-saffron-100 transition-colors">
+              <div className="w-14 h-14 bg-saffron-200 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Globe className="text-saffron-700" size={26} />
+              </div>
+              <h3 className="font-bold text-temple-brown text-lg mb-2">
+                Bilingual by Design
+              </h3>
+              <p className="text-gray-600 text-sm">
+                Every page, label, and form is available in English and Tamil
+                (தமிழ்). Member names and cities can be stored in Tamil script
+                so the platform feels native to every user.
+              </p>
+            </div>
+
+            <div className="text-center p-6 rounded-2xl bg-red-50 hover:bg-red-100 transition-colors">
+              <div className="w-14 h-14 bg-red-200 rounded-full flex items-center justify-center mx-auto mb-4">
+                <BookOpen className="text-red-700" size={26} />
+              </div>
+              <h3 className="font-bold text-temple-brown text-lg mb-2">
+                Genealogy &amp; Heritage
+              </h3>
+              <p className="text-gray-600 text-sm">
+                Track up to twelve relationship types across multiple
+                generations. Visualise the entire family network, discover
+                connections, and export a personalised family story.
+              </p>
+            </div>
+
+            <div className="text-center p-6 rounded-2xl bg-green-50 hover:bg-green-100 transition-colors">
+              <div className="w-14 h-14 bg-green-200 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Shield className="text-green-700" size={26} />
+              </div>
+              <h3 className="font-bold text-temple-brown text-lg mb-2">
+                Secure &amp; Private
+              </h3>
+              <p className="text-gray-600 text-sm">
+                Authenticated access ensures community data stays within the
+                community. Member profiles, family links, and temple details are
+                only visible to registered members.
+              </p>
+            </div>
+          </div>
+
         </div>
       </div>
 
