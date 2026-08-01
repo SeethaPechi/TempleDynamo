@@ -11,6 +11,7 @@ import {
   LogOut,
   LogIn,
   User,
+  Info,
 } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -44,7 +45,10 @@ export function Navigation() {
     }
   };
 
-  const publicNavItems = [{ path: "/", label: t("nav.home"), icon: Home }];
+  const publicNavItems = [
+    { path: "/", label: t("nav.home"), icon: Home },
+    { path: "/#about", label: "About", icon: Info },
+  ];
 
   const authenticatedNavItems = [
     { path: "/", label: t("nav.home"), icon: Home },
@@ -86,20 +90,29 @@ export function Navigation() {
           <div className="hidden md:flex items-center space-x-4">
             {/* Navigation items */}
             <div className="flex items-center space-x-6">
-              {navItems.map(({ path, label, icon: Icon }) => (
-                <Link key={path} href={path}>
-                  <button
-                    className={`px-3 py-2 font-medium transition-colors flex items-center space-x-2 rounded-lg ${
-                      isActive(path)
-                        ? "text-saffron-600 bg-saffron-50"
-                        : "text-temple-brown hover:text-saffron-600 hover:bg-saffron-50"
-                    }`}
-                  >
-                    <Icon size={16} />
-                    <span>{label}</span>
-                  </button>
-                </Link>
-              ))}
+              {navItems.map(({ path, label, icon: Icon }) =>
+                path.startsWith("/#") ? (
+                  <a key={path} href={path}>
+                    <button className="px-3 py-2 font-medium transition-colors flex items-center space-x-2 rounded-lg text-temple-brown hover:text-saffron-600 hover:bg-saffron-50">
+                      <Icon size={16} />
+                      <span>{label}</span>
+                    </button>
+                  </a>
+                ) : (
+                  <Link key={path} href={path}>
+                    <button
+                      className={`px-3 py-2 font-medium transition-colors flex items-center space-x-2 rounded-lg ${
+                        isActive(path)
+                          ? "text-saffron-600 bg-saffron-50"
+                          : "text-temple-brown hover:text-saffron-600 hover:bg-saffron-50"
+                      }`}
+                    >
+                      <Icon size={16} />
+                      <span>{label}</span>
+                    </button>
+                  </Link>
+                )
+              )}
             </div>
 
             {/* Right side controls */}
@@ -168,21 +181,30 @@ export function Navigation() {
           <div className="md:hidden bg-white shadow-lg border-t border-gray-100">
             {/* Navigation Items */}
             <div className="py-2">
-              {navItems.map(({ path, label, icon: Icon }) => (
-                <Link key={path} href={path}>
-                  <button
-                    onClick={() => setMobileMenuOpen(false)}
-                    className={`block w-full text-left px-6 py-4 flex items-center space-x-3 touch-manipulation transition-colors ${
-                      isActive(path)
-                        ? "text-saffron-600 bg-saffron-50 border-r-4 border-saffron-500"
-                        : "text-temple-brown hover:bg-saffron-50 active:bg-saffron-100"
-                    }`}
-                  >
-                    <Icon size={20} />
-                    <span className="text-base font-medium">{label}</span>
-                  </button>
-                </Link>
-              ))}
+              {navItems.map(({ path, label, icon: Icon }) =>
+                path.startsWith("/#") ? (
+                  <a key={path} href={path} onClick={() => setMobileMenuOpen(false)}>
+                    <button className="block w-full text-left px-6 py-4 flex items-center space-x-3 touch-manipulation transition-colors text-temple-brown hover:bg-saffron-50 active:bg-saffron-100">
+                      <Icon size={20} />
+                      <span className="text-base font-medium">{label}</span>
+                    </button>
+                  </a>
+                ) : (
+                  <Link key={path} href={path}>
+                    <button
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={`block w-full text-left px-6 py-4 flex items-center space-x-3 touch-manipulation transition-colors ${
+                        isActive(path)
+                          ? "text-saffron-600 bg-saffron-50 border-r-4 border-saffron-500"
+                          : "text-temple-brown hover:bg-saffron-50 active:bg-saffron-100"
+                      }`}
+                    >
+                      <Icon size={20} />
+                      <span className="text-base font-medium">{label}</span>
+                    </button>
+                  </Link>
+                )
+              )}
             </div>
 
             {/* Mobile authentication section */}
