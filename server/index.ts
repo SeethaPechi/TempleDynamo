@@ -9,8 +9,8 @@ app.set("trust proxy", 1);
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: false, limit: '50mb' }));
 
-// CORS — restrict to the production domain; allow localhost in development
-const ALLOWED_ORIGINS = new Set([
+// CORS — allow production domain and all Replit dev/preview origins in development
+const PRODUCTION_ORIGINS = new Set([
   "https://tamilkovil.com",
   "https://www.tamilkovil.com",
 ]);
@@ -18,12 +18,16 @@ const ALLOWED_ORIGINS = new Set([
 app.use((req, res, next) => {
   const origin = req.headers.origin ?? "";
   const isDev = app.get("env") === "development";
-  const isLocalhost = /^https?:\/\/localhost(:\d+)?$/.test(origin) ||
-                      /^https?:\/\/127\.0\.0\.1(:\d+)?$/.test(origin);
 
-  if (isDev && isLocalhost) {
-    res.header("Access-Control-Allow-Origin", origin);
-  } else if (ALLOWED_ORIGINS.has(origin)) {
+  // In development allow localhost AND any *.replit.dev / *.repl.co origin
+  const isDevOrigin = isDev && (
+    /^https?:\/\/localhost(:\d+)?$/.test(origin) ||
+    /^https?:\/\/127\.0\.0\.1(:\d+)?$/.test(origin) ||
+    /\.replit\.dev$/.test(origin) ||
+    /\.repl\.co$/.test(origin)
+  );
+
+  if (isDevOrigin || PRODUCTION_ORIGINS.has(origin)) {
     res.header("Access-Control-Allow-Origin", origin);
   }
   // Omit the header entirely for unlisted origins — browsers will block the request.
