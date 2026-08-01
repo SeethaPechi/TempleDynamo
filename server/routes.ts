@@ -100,21 +100,21 @@ async function requireSystemAdmin(req: any, res: any, next: any) {
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Configure session middleware with Postgres-backed store so sessions
-  // survive server restarts in production.
+  // survive server restarts and scale across multiple processes.
   const PgSession = connectPgSimple(session);
   app.use(session({
     store: new PgSession({
-      pool,
-      tableName: "session",
-      createTableIfMissing: true,
+      pool,                        // reuse the existing connection pool
+      tableName: "session",        // default table name
+      createTableIfMissing: true,  // auto-create session table on first run
     }),
     secret: process.env.SESSION_SECRET || 'temple-management-secret-key',
     resave: false,
     saveUninitialized: false,
     cookie: {
       secure: process.env.NODE_ENV === "production",
-      maxAge: 24 * 60 * 60 * 1000, // 24 hours
-    },
+      maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    }
   }));
 
   // Authentication Routes
