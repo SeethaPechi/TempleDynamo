@@ -34,3 +34,8 @@ waitForPort = 5000
 [[ports]]
 localPort = 5000
 externalPort = 80
+
+[userenv]
+
+[userenv.shared]
+VITE_TURNSTILE_SITE_KEY = "1x00000000000000000000AA"
