@@ -37,7 +37,7 @@ export default function RegisterPage() {
   const { register } = useAuth();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
-  const [captchaVerified, setCaptchaVerified] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState("");
 
   const form = useForm<RegisterFormData>({
     resolver: zodResolver(registerFormSchema),
@@ -54,10 +54,10 @@ export default function RegisterPage() {
   });
 
   const onSubmit = async (data: RegisterFormData) => {
-    if (!captchaVerified) {
+    if (!captchaToken) {
       toast({
         title: "Captcha Required",
-        description: "Please complete the captcha verification.",
+        description: "Please complete the security verification.",
         variant: "destructive",
       });
       return;
@@ -65,9 +65,9 @@ export default function RegisterPage() {
 
     setIsLoading(true);
     try {
-      // Remove confirmPassword before sending to API
+      // Remove confirmPassword before sending to API; attach captcha token
       const { confirmPassword, ...registrationData } = data;
-      await register(registrationData);
+      await register({ ...registrationData, captchaToken });
       
       toast({
         title: "Registration Successful",
@@ -278,16 +278,16 @@ export default function RegisterPage() {
               {/* Captcha */}
               <div>
                 <label className="text-sm font-medium mb-2 block">Security Verification *</label>
-                <SimpleCaptcha 
-                  onVerify={setCaptchaVerified} 
-                  isVerified={captchaVerified} 
+                <SimpleCaptcha
+                  onVerify={setCaptchaToken}
+                  isVerified={!!captchaToken}
                 />
               </div>
 
               <Button
                 type="submit"
                 className="w-full bg-gradient-to-r from-saffron-500 to-temple-gold hover:from-saffron-600 hover:to-yellow-500 text-white font-semibold py-3 rounded-lg transition-all transform hover:scale-105"
-                disabled={isLoading || !captchaVerified}
+                disabled={isLoading || !captchaToken}
               >
                 {isLoading ? "Creating Account..." : "Create Account"}
               </Button>

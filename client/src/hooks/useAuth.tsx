@@ -9,7 +9,7 @@ interface AuthContextType {
   user: AuthUser | null;
   isLoading: boolean;
   isAuthenticated: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string, captchaToken?: string) => Promise<void>;
   logout: () => Promise<void>;
   register: (userData: any) => Promise<void>;
 }
@@ -26,8 +26,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   });
 
   const loginMutation = useMutation({
-    mutationFn: async ({ email, password }: { email: string; password: string }) => {
-      const response = await apiRequest('POST', '/api/auth/login', { email, password });
+    mutationFn: async ({ email, password, captchaToken }: { email: string; password: string; captchaToken?: string }) => {
+      const response = await apiRequest('POST', '/api/auth/login', { email, password, captchaToken });
       return response;
     },
     onSuccess: (userData) => {
@@ -53,8 +53,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     },
   });
 
-  const login = async (email: string, password: string) => {
-    await loginMutation.mutateAsync({ email, password });
+  const login = async (email: string, password: string, captchaToken?: string) => {
+    await loginMutation.mutateAsync({ email, password, captchaToken });
   };
 
   const logout = async () => {

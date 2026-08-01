@@ -6,12 +6,30 @@ const app = express();
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: false, limit: '50mb' }));
 
-// Add CORS headers for production
+// CORS — restrict to the production domain; allow localhost in development
+const ALLOWED_ORIGINS = new Set([
+  "https://tamilkovil.com",
+  "https://www.tamilkovil.com",
+]);
+
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
-  if (req.method === 'OPTIONS') {
+  const origin = req.headers.origin ?? "";
+  const isDev = app.get("env") === "development";
+  const isLocalhost = /^https?:\/\/localhost(:\d+)?$/.test(origin) ||
+                      /^https?:\/\/127\.0\.0\.1(:\d+)?$/.test(origin);
+
+  if (isDev && isLocalhost) {
+    res.header("Access-Control-Allow-Origin", origin);
+  } else if (ALLOWED_ORIGINS.has(origin)) {
+    res.header("Access-Control-Allow-Origin", origin);
+  }
+  // Omit the header entirely for unlisted origins — browsers will block the request.
+
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
+  res.header("Access-Control-Allow-Credentials", "true");
+
+  if (req.method === "OPTIONS") {
     res.sendStatus(200);
   } else {
     next();

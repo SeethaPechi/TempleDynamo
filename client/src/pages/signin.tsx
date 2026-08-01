@@ -17,7 +17,7 @@ export default function SignInPage() {
   const { login } = useAuth();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
-  const [captchaVerified, setCaptchaVerified] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState("");
 
   const form = useForm<LoginUser>({
     resolver: zodResolver(loginUserSchema),
@@ -28,10 +28,10 @@ export default function SignInPage() {
   });
 
   const onSubmit = async (data: LoginUser) => {
-    if (!captchaVerified) {
+    if (!captchaToken) {
       toast({
         title: "Captcha Required",
-        description: "Please complete the captcha verification.",
+        description: "Please complete the security verification.",
         variant: "destructive",
       });
       return;
@@ -39,7 +39,7 @@ export default function SignInPage() {
 
     setIsLoading(true);
     try {
-      await login(data.email, data.password);
+      await login(data.email, data.password, captchaToken);
       
       toast({
         title: "Welcome Back",
@@ -118,16 +118,16 @@ export default function SignInPage() {
               {/* Captcha */}
               <div>
                 <label className="text-sm font-medium mb-2 block">Security Verification</label>
-                <SimpleCaptcha 
-                  onVerify={setCaptchaVerified} 
-                  isVerified={captchaVerified} 
+                <SimpleCaptcha
+                  onVerify={setCaptchaToken}
+                  isVerified={!!captchaToken}
                 />
               </div>
 
               <Button
                 type="submit"
                 className="w-full bg-gradient-to-r from-saffron-500 to-temple-gold hover:from-saffron-600 hover:to-yellow-500 text-white font-semibold py-3 rounded-lg transition-all transform hover:scale-105"
-                disabled={isLoading || !captchaVerified}
+                disabled={isLoading || !captchaToken}
               >
                 {isLoading ? "Signing In..." : "Sign In"}
               </Button>

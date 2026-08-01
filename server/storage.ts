@@ -9,6 +9,7 @@ export interface IStorage {
   validateUserCredentials(email: string, password: string): Promise<User | null>;
   getAllUsers(): Promise<User[]>;
   updateUserRole(id: number, role: string): Promise<User | undefined>;
+  updateUserPassword(id: number, hash: string): Promise<void>;
 
   // Role methods
   getAllRoles(): Promise<Role[]>;
@@ -118,6 +119,11 @@ export class MemStorage implements IStorage {
     const updated = { ...user, role };
     this.users.set(id, updated);
     return updated;
+  }
+
+  async updateUserPassword(id: number, hash: string): Promise<void> {
+    const user = this.users.get(id);
+    if (user) this.users.set(id, { ...user, password: hash });
   }
 
   async getAllRoles(): Promise<import("@shared/schema").Role[]> {

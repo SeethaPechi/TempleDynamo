@@ -5,7 +5,7 @@ import * as schema from "@shared/schema";
 import { users, roles, relationshipTypes, type User, type InsertUser, type Role, type RelationshipType, type InsertRelationshipType, members, type Member, type InsertMember, relationships, type Relationship, type InsertRelationship, temples, type Temple, type InsertTemple } from "@shared/schema";
 
 // SECURITY: Use environment variables for production credentials
-const DATABASE_URL = process.env.DATABASE_URL || "postgresql://YOUR_DB_USER:YOUR_SECURE_PASSWORD@localhost:5432/temple_management";
+const DATABASE_URL = process.env.DATABASE_URL || process.env.NEON_DATABASE_URL || "postgresql://YOUR_DB_USER:YOUR_SECURE_PASSWORD@localhost:5432/temple_management";
 
 if (!DATABASE_URL) {
   throw new Error(
@@ -80,6 +80,10 @@ export class DatabaseStorage implements IStorage {
 
   async getAllUsers(): Promise<User[]> {
     return await db.select().from(users).orderBy(asc(users.id));
+  }
+
+  async updateUserPassword(id: number, hash: string): Promise<void> {
+    await db.update(users).set({ password: hash }).where(eq(users.id, id));
   }
 
   async updateUserRole(id: number, role: string): Promise<User | undefined> {

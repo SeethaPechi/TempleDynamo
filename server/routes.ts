@@ -5,17 +5,75 @@ import { insertMemberSchema, insertRelationshipSchema, insertTempleSchema, inser
 import { whatsappService } from "./whatsapp";
 import { z } from "zod";
 import session from "express-session";
+import bcrypt from "bcrypt";
+import rateLimit from "express-rate-limit";
 
 const VALID_ROLES = ["system_admin", "temple_admin", "user"] as const;
+const BCRYPT_ROUNDS = 12;
 
-// Simple hash function for demonstration (in production, use bcrypt)
-function hashPassword(password: string): string {
-  return Buffer.from(password).toString('base64');
+// ── Password helpers ────────────────────────────────────────────────────────
+
+async function hashPassword(password: string): Promise<string> {
+  return bcrypt.hash(password, BCRYPT_ROUNDS);
 }
 
-function verifyPassword(password: string, hash: string): boolean {
-  return Buffer.from(password).toString('base64') === hash;
+/**
+ * Verify password with automatic migration from legacy base64 storage.
+ * On first successful login the row is silently re-hashed with bcrypt.
+ */
+async function verifyPassword(
+  input: string,
+  stored: string,
+  userId: number,
+): Promise<boolean> {
+  if (stored.startsWith("$2b$") || stored.startsWith("$2a$")) {
+    // Already bcrypt
+    return bcrypt.compare(input, stored);
+  }
+  // Legacy base64 — decode and compare (constant-time via bcrypt.compare is
+  // not possible here, but the migration happens only once per account)
+  const decoded = Buffer.from(stored, "base64").toString("utf-8");
+  if (decoded !== input) return false;
+  // Upgrade: re-hash with bcrypt then store (do NOT log input)
+  const newHash = await bcrypt.hash(input, BCRYPT_ROUNDS);
+  await storage.updateUserPassword(userId, newHash);
+  return true;
 }
+
+// ── Cloudflare Turnstile CAPTCHA verification ───────────────────────────────
+
+async function verifyCaptcha(token: string | undefined): Promise<boolean> {
+  if (!token) return false;
+  const secret = process.env.TURNSTILE_SECRET_KEY;
+  if (!secret) {
+    console.error("[captcha] TURNSTILE_SECRET_KEY not configured");
+    return false;
+  }
+  try {
+    const resp = await fetch(
+      "https://challenges.cloudflare.com/turnstile/v0/siteverify",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ secret, response: token }),
+      },
+    );
+    const data = (await resp.json()) as { success: boolean };
+    return data.success === true;
+  } catch {
+    return false;
+  }
+}
+
+// ── Rate limiters ───────────────────────────────────────────────────────────
+
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 10,
+  message: { message: "Too many attempts — please wait 15 minutes and try again." },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
 
 // Authentication middleware
 function requireAuth(req: any, res: any, next: any) {
@@ -51,57 +109,60 @@ export async function registerRoutes(app: Express): Promise<Server> {
   }));
 
   // Authentication Routes
-  app.post("/api/auth/register", async (req, res) => {
+  app.post("/api/auth/register", authLimiter, async (req, res) => {
     try {
+      // Verify CAPTCHA before anything else
+      const captchaOk = await verifyCaptcha(req.body.captchaToken);
+      if (!captchaOk) {
+        return res.status(400).json({ message: "CAPTCHA verification failed. Please try again." });
+      }
+
       const userData = insertUserSchema.parse(req.body);
-      
-      // Check if user already exists
+
       const existingUser = await storage.getUserByEmail(userData.email);
       if (existingUser) {
         return res.status(400).json({ message: "User already exists with this email" });
       }
-      
-      // Hash the password
-      const hashedPassword = hashPassword(userData.password);
-      const user = await storage.createUser({
-        ...userData,
-        password: hashedPassword
-      });
-      
-      // Don't return the password
+
+      const hashedPassword = await hashPassword(userData.password);
+      const user = await storage.createUser({ ...userData, password: hashedPassword });
+
       const { password, ...userWithoutPassword } = user;
       res.json(userWithoutPassword);
     } catch (error) {
-      console.error("Error registering user:", error);
       if (error instanceof z.ZodError) {
         return res.status(400).json({ message: "Invalid data", errors: error.errors });
       }
+      console.error("Error registering user:", error);
       res.status(500).json({ message: "Failed to register user" });
     }
   });
 
-
-
-  app.post("/api/auth/login", async (req, res) => {
+  app.post("/api/auth/login", authLimiter, async (req, res) => {
     try {
+      // Verify CAPTCHA before anything else
+      const captchaOk = await verifyCaptcha(req.body.captchaToken);
+      if (!captchaOk) {
+        return res.status(400).json({ message: "CAPTCHA verification failed. Please try again." });
+      }
+
       const { email, password } = loginUserSchema.parse(req.body);
-      
+
       const user = await storage.getUserByEmail(email);
-      if (!user || !verifyPassword(password, user.password)) {
+      // Use generic message to avoid user-enumeration
+      if (!user || !(await verifyPassword(password, user.password, user.id))) {
         return res.status(401).json({ message: "Invalid email or password" });
       }
-      
-      // Set session
+
       (req.session as any).userId = user.id;
-      
-      // Return user without password
+
       const { password: _, ...userWithoutPassword } = user;
       res.json(userWithoutPassword);
     } catch (error) {
-      console.error("Error logging in:", error);
       if (error instanceof z.ZodError) {
         return res.status(400).json({ message: "Invalid data", errors: error.errors });
       }
+      console.error("Error logging in:", error);
       res.status(500).json({ message: "Failed to log in" });
     }
   });
@@ -445,7 +506,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Update member (PATCH for partial updates)
-  app.patch("/api/members/:id", async (req, res) => {
+  app.patch("/api/members/:id", requireAuth, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       if (isNaN(id)) {
@@ -490,7 +551,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           details: error.errors.map(e => `${e.path.join('.')}: ${e.message}`)
         });
       }
-      res.status(500).json({ message: "Failed to update member", error: error.message });
+      res.status(500).json({ message: "Failed to update member", error: error instanceof Error ? error.message : String(error) });
     }
   });
 
@@ -750,7 +811,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (error instanceof z.ZodError) {
         return res.status(400).json({ message: "Invalid data", errors: error.errors });
       }
-      if (error.message === "Temple not found") {
+      if (error instanceof Error && error.message === "Temple not found") {
         return res.status(404).json({ message: "Temple not found" });
       }
       res.status(500).json({ message: "Failed to update temple" });
@@ -767,7 +828,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       await storage.deleteTemple(id);
       res.json({ message: "Temple deleted successfully" });
     } catch (error) {
-      if (error.message === "Temple not found") {
+      if (error instanceof Error && error.message === "Temple not found") {
         return res.status(404).json({ message: "Temple not found" });
       }
       res.status(500).json({ message: "Failed to delete temple" });
