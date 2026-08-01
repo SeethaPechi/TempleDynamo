@@ -59,6 +59,20 @@ export type Member = typeof members.$inferSelect;
 export type InsertRelationship = z.infer<typeof insertRelationshipSchema>;
 export type Relationship = typeof relationships.$inferSelect;
 
+// Relationship Types lookup table
+export const relationshipTypes = pgTable("relationship_types", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull().unique(),
+  labelEn: text("label_en").notNull(),
+  labelTa: text("label_ta"),
+  category: text("category"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertRelationshipTypeSchema = createInsertSchema(relationshipTypes).omit({ id: true, createdAt: true });
+export type RelationshipType = typeof relationshipTypes.$inferSelect;
+export type InsertRelationshipType = typeof insertRelationshipTypeSchema._type;
+
 // Roles reference table
 export const roles = pgTable("roles", {
   id: serial("id").primaryKey(),
@@ -109,6 +123,7 @@ export type User = typeof users.$inferSelect;
 // Temple schema
 export const temples = pgTable("temples", {
   id: serial("id").primaryKey(),
+  templeAdminId: integer("temple_admin_id").references(() => users.id),
   templeName: text("temple_name").notNull(),
   deity: text("deity"),
   village: text("village").notNull(),
@@ -132,6 +147,7 @@ export const insertTempleSchema = createInsertSchema(temples).omit({
   id: true,
   createdAt: true,
 }).extend({
+  templeAdminId: z.number().optional().nullable(),
   establishedYear: z.number().optional(),
   contactEmail: z.string().email("Please enter a valid email address").optional().or(z.literal("")),
   linkedTemples: z.array(z.string()).default([]),

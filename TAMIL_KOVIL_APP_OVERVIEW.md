@@ -115,14 +115,26 @@
 | `photos` | text[] | default `[]` | array of base64 or URLs |
 | `created_at` | timestamp | defaultNow() | |
 
-### Table: `relationships`
+### Table: `relationships` (called "Relationship Map" in UI)
 | Column | Type | Constraints | Notes |
 |---|---|---|---|
 | `id` | serial | PK | |
 | `member_id` | integer | NOT NULL, FK → members.id | subject |
 | `related_member_id` | integer | NOT NULL, FK → members.id | object |
-| `relationship_type` | text | NOT NULL | stored in **English** (e.g. "Father", "Son") — not translated |
+| `relationship_type` | text | NOT NULL | stored in **English** (e.g. "Father", "Son") — lookups in `relationship_types` |
 | `created_at` | timestamp | defaultNow() | |
+
+### Table: `relationship_types` *(added 2026-08-01)*
+| Column | Type | Constraints | Notes |
+|---|---|---|---|
+| `id` | serial | PK | |
+| `name` | text | NOT NULL, UNIQUE | slug (e.g. `father`, `mother_in_law`) |
+| `label_en` | text | NOT NULL | English label |
+| `label_ta` | text | nullable | Tamil label |
+| `category` | text | nullable | `immediate` / `extended` / `in-law` |
+| `created_at` | timestamp | defaultNow() | |
+
+Seeded with **23 standard Tamil family relationship types** across 3 categories.
 
 ### Table: `users` (authenticated app accounts)
 | Column | Type | Constraints | Notes |
@@ -143,18 +155,23 @@
 | Column | Type | Notes |
 |---|---|---|
 | `id` | serial PK | |
-| `name` | text NOT NULL | |
+| `temple_admin_id` | integer, FK → users.id | Assigned Temple Admin user *(added 2026-08-01)* |
+| `temple_name` | text NOT NULL | |
 | `deity` | text | |
-| `address` | text | |
-| `city` | text | |
+| `village` | text | |
+| `nearest_city` | text | |
 | `state` | text | |
 | `country` | text | |
-| `phone` | text | |
-| `email` | text | |
-| `website` | text | |
+| `linked_temples` | text[] | array of related temple names |
+| `established_year` | integer | |
+| `contact_phone` | text | |
+| `contact_email` | text | |
 | `description` | text | |
-| `established_year` | text | |
-| `image` | text | base64 or URL |
+| `temple_image` | text | base64 or URL |
+| `temple_photos` | text[] | up to 10 photos |
+| `google_map_link` | text | |
+| `website_link` | text | |
+| `wiki_link` | text | |
 | `created_at` | timestamp | |
 
 > **Gap:** temples table has no Tamil-language columns.
@@ -208,12 +225,20 @@
 | POST | `/api/whatsapp/process-template` | ✅ Required | Replace template variables with values. |
 | POST | `/api/whatsapp/broadcast-urls` | ✅ Required | Generate `wa.me` click-to-chat URLs for recipients. |
 
-### Admin *(added 2026-08-01 — system_admin only)*
-| Method | Path | Auth | Description |
-|---|---|---|---|
-| GET | `/api/admin/users` | system_admin | Returns all users (no passwords) with their roles. |
-| PUT | `/api/admin/users/:id/role` | system_admin | Body `{role}`. Updates a user's role. Valid values: `system_admin`, `temple_admin`, `user`. |
-| GET | `/api/admin/roles` | system_admin | Returns the `roles` reference table. |
+### Admin *(system_admin only)*
+| Method | Path | Description |
+|---|---|---|
+| GET | `/api/admin/users` | All users (no passwords) with roles |
+| PUT | `/api/admin/users/:id/role` | Update a user's role (`system_admin`, `temple_admin`, `user`) |
+| GET | `/api/admin/roles` | Roles reference table |
+| GET | `/api/admin/relationship-types` | All relationship type definitions |
+| POST | `/api/admin/relationship-types` | Create new type. Body: `{name, labelEn, labelTa?, category?}` |
+| PUT | `/api/admin/relationship-types/:id` | Update a type |
+| DELETE | `/api/admin/relationship-types/:id` | Delete a type (existing relationship records keep their text value) |
+| GET | `/api/admin/relationship-map` | All relationships with member names (self-join via raw SQL) |
+| GET | `/api/admin/temple-members` | All members with full details + temple name (LEFT JOIN temples) |
+| GET | `/api/admin/temple-admins` | All temples with their assigned admin user |
+| PUT | `/api/admin/temple-admins/:templeId` | Assign/clear temple admin. Body: `{adminUserId: number\|null}` |
 
 ### Utility
 | Method | Path | Auth | Description |
@@ -382,18 +407,20 @@
 
 ---
 
-#### `/admin` — Admin Panel (`admin.tsx`) *(added 2026-08-01)*
+#### `/admin` — Admin Panel (`admin.tsx` + `admin/` tab components) *(added 2026-08-01, expanded 2026-08-01)*
 **Access:** `system_admin` role only. Other authenticated users see "Access Denied". Unauthenticated visitors see "Authentication Required".
 
-**UI sections:**
-1. **Header** — Shield icon, "Admin Panel" title
-2. **Stats cards** — 3 cards showing user count per role (System Admin / Temple Admin / Regular User) with colour-coded left borders
-3. **Users table** — All users with columns: ID, Name, Email, Phone, Current Role (badge), Change Role (inline dropdown), Status (Active/Inactive), Joined date. Supports name/email search and role filter.
-4. **Role Definitions legend** — explains each role's permissions
-
-**APIs called:** `GET /api/admin/users`, `PUT /api/admin/users/:id/role`
-
 **Navigation:** "Admin" link (Shield icon) appears in nav bar only for `system_admin` users.
+
+**Tabs:**
+
+| Tab | File | Description |
+|---|---|---|
+| Users & Roles | `admin/users-roles-tab.tsx` | Stats cards per role; full users table with inline role-change dropdown; search + role filter; role definitions legend |
+| Relationship Map | `admin/relationship-map-tab.tsx` | All relationships in system as a table (Member → Type → Related Member). Search by name or type. Read-only. |
+| Relationship | `admin/relationship-types-tab.tsx` | CRUD management of `relationship_types` lookup table. Add/edit/delete types with English label, Tamil label, and category (immediate/extended/in-law). |
+| Temple Members | `admin/temple-members-tab.tsx` | All members with full detail columns: name, phone, email, birth city/state/country, current city/state/country, father, mother, spouse, marital status, Temple Name (joined). Filter by temple or search. |
+| Temple Admin | `admin/temple-admin-tab.tsx` | List of all temples with current admin user shown. Dropdown to assign/clear a Temple Admin user per temple. Only users with `temple_admin` role appear in the dropdown. Warning shown if no temple_admin users exist. |
 
 ---
 
@@ -518,7 +545,7 @@ User switches to Tamil via LanguageSwitcher
 8. **`password_hint` stored in plaintext** alongside the user record.
 
 ### Medium Priority
-9. **Relationship types stored as English strings** — cannot be translated without data migration or a lookup table.
+9. **Relationship types partially standardised** — `relationship_types` lookup table exists with 23 seeded types; existing relationship records store the type as free text and are not yet FK-linked to the lookup table.
 10. **All Tamil name columns (`_ta`) are NULL** — no UI to enter Tamil data.
 11. **Duplicate route handler** for `GET /api/members/search` (second one unreachable).
 12. **Health endpoint** does a full table scan (`getAllMembers`) — should use a lightweight `SELECT 1`.
@@ -555,7 +582,13 @@ User switches to Tamil via LanguageSwitcher
 │       │   ├── temple-members.tsx         # Temple → member view
 │       │   ├── temple-details.tsx         # Temple profile
 │       │   ├── whatsapp.tsx               # WhatsApp broadcast
-│       │   ├── admin.tsx                  # Admin panel (system_admin only) ← NEW
+│       │   ├── admin.tsx                  # Admin panel shell (tabs container, system_admin only)
+│       │   ├── admin/
+│       │   │   ├── users-roles-tab.tsx    # Users & Roles management
+│       │   │   ├── relationship-map-tab.tsx  # All relationships view
+│       │   │   ├── relationship-types-tab.tsx # CRUD for relationship_types lookup
+│       │   │   ├── temple-members-tab.tsx # Members + temple join table
+│       │   │   └── temple-admin-tab.tsx   # Assign temple admins to temples
 │       │   └── not-found.tsx              # 404
 │       ├── components/
 │       │   ├── navigation.tsx

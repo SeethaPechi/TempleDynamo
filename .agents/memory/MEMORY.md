@@ -1,2 +1,4 @@
 - [Roles & Admin System](roles-admin.md) — role slug stored directly on users.role (not FK); 3 roles: system_admin, temple_admin, user
+- [Admin Panel Structure](admin-panel.md) — 5-tab admin panel; each tab is a separate component under client/src/pages/admin/
 - [Overview Doc](overview-doc.md) — TAMIL_KOVIL_APP_OVERVIEW.md must be updated every time a schema, API, or screen changes
+- [Relationship Types](relationship-types.md) — relationship_types lookup table exists; relationships.relationship_type is still free text (not FK linked)

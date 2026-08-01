@@ -1,8 +1,8 @@
 import { Pool } from 'pg';
 import { drizzle } from 'drizzle-orm/node-postgres';
-import { eq, or, asc, sql } from 'drizzle-orm';
+import { eq, or, asc, sql, isNull } from 'drizzle-orm';
 import * as schema from "@shared/schema";
-import { users, roles, type User, type InsertUser, type Role, members, type Member, type InsertMember, relationships, type Relationship, type InsertRelationship, temples, type Temple, type InsertTemple } from "@shared/schema";
+import { users, roles, relationshipTypes, type User, type InsertUser, type Role, type RelationshipType, type InsertRelationshipType, members, type Member, type InsertMember, relationships, type Relationship, type InsertRelationship, temples, type Temple, type InsertTemple } from "@shared/schema";
 
 // SECURITY: Use environment variables for production credentials
 const DATABASE_URL = process.env.DATABASE_URL || "postgresql://YOUR_DB_USER:YOUR_SECURE_PASSWORD@localhost:5432/temple_management";
@@ -93,6 +93,109 @@ export class DatabaseStorage implements IStorage {
 
   async getAllRoles(): Promise<Role[]> {
     return await db.select().from(roles).orderBy(asc(roles.id));
+  }
+
+  // ── Relationship Types ────────────────────────────────────────────────────
+
+  async getAllRelationshipTypes(): Promise<RelationshipType[]> {
+    return await db.select().from(relationshipTypes).orderBy(asc(relationshipTypes.id));
+  }
+
+  async createRelationshipType(data: InsertRelationshipType): Promise<RelationshipType> {
+    const [rt] = await db.insert(relationshipTypes).values(data).returning();
+    return rt;
+  }
+
+  async updateRelationshipType(id: number, data: Partial<InsertRelationshipType>): Promise<RelationshipType | undefined> {
+    const [rt] = await db.update(relationshipTypes).set(data).where(eq(relationshipTypes.id, id)).returning();
+    return rt || undefined;
+  }
+
+  async deleteRelationshipType(id: number): Promise<void> {
+    await db.delete(relationshipTypes).where(eq(relationshipTypes.id, id));
+  }
+
+  // ── Admin compound queries ─────────────────────────────────────────────────
+
+  async getAllMembersWithTemple(): Promise<Array<Member & { templeName: string | null }>> {
+    const result = await db
+      .select({
+        id: members.id,
+        fullName: members.fullName,
+        fullNameTa: members.fullNameTa,
+        phone: members.phone,
+        email: members.email,
+        gender: members.gender,
+        birthCity: members.birthCity,
+        birthCityTa: members.birthCityTa,
+        birthState: members.birthState,
+        birthCountry: members.birthCountry,
+        currentCity: members.currentCity,
+        currentCityTa: members.currentCityTa,
+        currentState: members.currentState,
+        currentCountry: members.currentCountry,
+        fatherName: members.fatherName,
+        fatherNameTa: members.fatherNameTa,
+        motherName: members.motherName,
+        motherNameTa: members.motherNameTa,
+        spouseName: members.spouseName,
+        spouseNameTa: members.spouseNameTa,
+        maritalStatus: members.maritalStatus,
+        templeId: members.templeId,
+        profilePicture: members.profilePicture,
+        photos: members.photos,
+        createdAt: members.createdAt,
+        templeName: temples.templeName,
+      })
+      .from(members)
+      .leftJoin(temples, eq(members.templeId, temples.id))
+      .orderBy(asc(members.fullName));
+
+    return result.map(r => ({ ...r, templeName: r.templeName ?? null }));
+  }
+
+  async getAllTemplesWithAdmin(): Promise<Array<Temple & { adminUser: { id: number; firstName: string; lastName: string; email: string } | null }>> {
+    const allTemples = await db.select().from(temples).orderBy(asc(temples.templeName));
+    const allUsers = await db.select({ id: users.id, firstName: users.firstName, lastName: users.lastName, email: users.email }).from(users);
+
+    return allTemples.map(t => ({
+      ...t,
+      adminUser: t.templeAdminId
+        ? allUsers.find(u => u.id === t.templeAdminId) ?? null
+        : null,
+    }));
+  }
+
+  async updateTempleAdmin(templeId: number, adminUserId: number | null): Promise<Temple | undefined> {
+    const [temple] = await db
+      .update(temples)
+      .set({ templeAdminId: adminUserId })
+      .where(eq(temples.id, templeId))
+      .returning();
+    return temple || undefined;
+  }
+
+  async getAllRelationshipsForMap(): Promise<Array<{ id: number; memberId: number; memberName: string; relatedMemberId: number; relatedMemberName: string; relationshipType: string }>> {
+    const result = await pool.query<{ id: number; member_id: number; member_name: string; related_member_id: number; related_member_name: string; relationship_type: string }>(`
+      SELECT r.id,
+             r.member_id,
+             m1.full_name  AS member_name,
+             r.related_member_id,
+             m2.full_name  AS related_member_name,
+             r.relationship_type
+      FROM   relationships r
+      JOIN   members m1 ON m1.id = r.member_id
+      JOIN   members m2 ON m2.id = r.related_member_id
+      ORDER  BY m1.full_name
+    `);
+    return result.rows.map(r => ({
+      id: r.id,
+      memberId: r.member_id,
+      memberName: r.member_name,
+      relatedMemberId: r.related_member_id,
+      relatedMemberName: r.related_member_name,
+      relationshipType: r.relationship_type,
+    }));
   }
 
   async getMember(id: number): Promise<Member | undefined> {

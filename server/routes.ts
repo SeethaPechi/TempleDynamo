@@ -180,6 +180,73 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // ── Relationship Types (system_admin only) ────────────────────────────────
+  app.get("/api/admin/relationship-types", requireSystemAdmin, async (req, res) => {
+    try { res.json(await storage.getAllRelationshipTypes()); }
+    catch { res.status(500).json({ message: "Failed to fetch relationship types" }); }
+  });
+
+  app.post("/api/admin/relationship-types", requireSystemAdmin, async (req, res) => {
+    try {
+      const { name, labelEn, labelTa, category } = req.body;
+      if (!name || !labelEn) return res.status(400).json({ message: "name and labelEn are required" });
+      const rt = await storage.createRelationshipType({ name, labelEn, labelTa: labelTa || null, category: category || null });
+      res.json(rt);
+    } catch (e: any) {
+      if (e?.code === "23505") return res.status(400).json({ message: "Relationship type name already exists" });
+      res.status(500).json({ message: "Failed to create relationship type" });
+    }
+  });
+
+  app.put("/api/admin/relationship-types/:id", requireSystemAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) return res.status(400).json({ message: "Invalid ID" });
+      const { name, labelEn, labelTa, category } = req.body;
+      const updated = await storage.updateRelationshipType(id, { name, labelEn, labelTa: labelTa || null, category: category || null });
+      if (!updated) return res.status(404).json({ message: "Not found" });
+      res.json(updated);
+    } catch { res.status(500).json({ message: "Failed to update relationship type" }); }
+  });
+
+  app.delete("/api/admin/relationship-types/:id", requireSystemAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) return res.status(400).json({ message: "Invalid ID" });
+      await storage.deleteRelationshipType(id);
+      res.json({ message: "Deleted" });
+    } catch { res.status(500).json({ message: "Failed to delete relationship type" }); }
+  });
+
+  // ── Relationship Map (all relationships with member names) ────────────────
+  app.get("/api/admin/relationship-map", requireSystemAdmin, async (req, res) => {
+    try { res.json(await storage.getAllRelationshipsForMap()); }
+    catch { res.status(500).json({ message: "Failed to fetch relationship map" }); }
+  });
+
+  // ── Temple Members (full member info + temple name join) ──────────────────
+  app.get("/api/admin/temple-members", requireSystemAdmin, async (req, res) => {
+    try { res.json(await storage.getAllMembersWithTemple()); }
+    catch { res.status(500).json({ message: "Failed to fetch temple members" }); }
+  });
+
+  // ── Temple Admin assignments ───────────────────────────────────────────────
+  app.get("/api/admin/temple-admins", requireSystemAdmin, async (req, res) => {
+    try { res.json(await storage.getAllTemplesWithAdmin()); }
+    catch { res.status(500).json({ message: "Failed to fetch temple admins" }); }
+  });
+
+  app.put("/api/admin/temple-admins/:templeId", requireSystemAdmin, async (req, res) => {
+    try {
+      const templeId = parseInt(req.params.templeId);
+      if (isNaN(templeId)) return res.status(400).json({ message: "Invalid temple ID" });
+      const { adminUserId } = req.body; // null to clear
+      const updated = await storage.updateTempleAdmin(templeId, adminUserId ?? null);
+      if (!updated) return res.status(404).json({ message: "Temple not found" });
+      res.json(updated);
+    } catch { res.status(500).json({ message: "Failed to update temple admin" }); }
+  });
+
   // ── Health check endpoint ───────────────────────────────────────────────────
   // Health check endpoint
   app.get("/api/health", async (req, res) => {

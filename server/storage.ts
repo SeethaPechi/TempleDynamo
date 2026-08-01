@@ -1,4 +1,4 @@
-import { users, members, relationships, temples, type User, type InsertUser, type Member, type InsertMember, type Relationship, type InsertRelationship, type Temple, type InsertTemple, type Role } from "@shared/schema";
+import { users, members, relationships, temples, type User, type InsertUser, type Member, type InsertMember, type Relationship, type InsertRelationship, type Temple, type InsertTemple, type Role, type RelationshipType, type InsertRelationshipType } from "@shared/schema";
 
 export interface IStorage {
   // User methods (updated for authentication)
@@ -12,6 +12,18 @@ export interface IStorage {
 
   // Role methods
   getAllRoles(): Promise<Role[]>;
+
+  // Relationship type methods
+  getAllRelationshipTypes(): Promise<RelationshipType[]>;
+  createRelationshipType(data: InsertRelationshipType): Promise<RelationshipType>;
+  updateRelationshipType(id: number, data: Partial<InsertRelationshipType>): Promise<RelationshipType | undefined>;
+  deleteRelationshipType(id: number): Promise<void>;
+
+  // Admin compound queries
+  getAllMembersWithTemple(): Promise<Array<Member & { templeName: string | null }>>;
+  getAllTemplesWithAdmin(): Promise<Array<Temple & { adminUser: { id: number; firstName: string; lastName: string; email: string } | null }>>;
+  updateTempleAdmin(templeId: number, adminUserId: number | null): Promise<Temple | undefined>;
+  getAllRelationshipsForMap(): Promise<Array<{ id: number; memberId: number; memberName: string; relatedMemberId: number; relatedMemberName: string; relationshipType: string }>>;
   
   // Member methods
   getMember(id: number): Promise<Member | undefined>;
@@ -115,6 +127,17 @@ export class MemStorage implements IStorage {
       { id: 3, name: "user", label: "Regular User", description: "Default role", createdAt: new Date() },
     ];
   }
+
+  async getAllRelationshipTypes(): Promise<RelationshipType[]> { return []; }
+  async createRelationshipType(data: InsertRelationshipType): Promise<RelationshipType> {
+    return { id: 1, ...data, labelTa: data.labelTa ?? null, category: data.category ?? null, createdAt: new Date() };
+  }
+  async updateRelationshipType(id: number, data: Partial<InsertRelationshipType>): Promise<RelationshipType | undefined> { return undefined; }
+  async deleteRelationshipType(id: number): Promise<void> {}
+  async getAllMembersWithTemple(): Promise<Array<Member & { templeName: string | null }>> { return []; }
+  async getAllTemplesWithAdmin(): Promise<Array<Temple & { adminUser: { id: number; firstName: string; lastName: string; email: string } | null }>> { return []; }
+  async updateTempleAdmin(templeId: number, adminUserId: number | null): Promise<Temple | undefined> { return undefined; }
+  async getAllRelationshipsForMap(): Promise<Array<{ id: number; memberId: number; memberName: string; relatedMemberId: number; relatedMemberName: string; relationshipType: string }>> { return []; }
 
   // Member methods
   async getMember(id: number): Promise<Member | undefined> {
