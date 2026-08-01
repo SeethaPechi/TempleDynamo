@@ -406,12 +406,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // ── Health check endpoint ───────────────────────────────────────────────────
-  // Health check endpoint
+  // Rows beyond this count trigger a warning in the health response.
+  // Override by setting SESSION_TABLE_WARN_THRESHOLD in the environment.
+  const SESSION_TABLE_WARN_THRESHOLD =
+    parseInt(process.env.SESSION_TABLE_WARN_THRESHOLD ?? "", 10) || 10_000;
+
   app.get("/api/health", async (req, res) => {
     try {
       // Test database connection by trying to get members
       await storage.getAllMembers();
-      res.json({ status: "healthy", database: "connected", timestamp: new Date().toISOString() });
+
+      // Count session table rows so operators can spot unbounded growth without
+      // querying the database directly.
+      let sessionTableRows: number | null = null;
+      let sessionTableWarning = false;
+      try {
+        const result = await pool.query<{ count: string }>(
+          "SELECT COUNT(*) AS count FROM session",
+        );
+        sessionTableRows = parseInt(result.rows[0].count, 10);
+        if (sessionTableRows > SESSION_TABLE_WARN_THRESHOLD) {
+          sessionTableWarning = true;
+          console.warn(
+            `[health] session table has ${sessionTableRows} rows ` +
+            `(threshold: ${SESSION_TABLE_WARN_THRESHOLD}) — ` +
+            "consider investigating whether pruning is running",
+          );
+        }
+      } catch (sessionErr: any) {
+        // Non-fatal: report null rather than failing the whole health check
+        console.warn("[health] could not count session table rows:", sessionErr?.message);
+      }
+
+      res.json({
+        status: "healthy",
+        database: "connected",
+        timestamp: new Date().toISOString(),
+        sessionTableRows,
+        ...(sessionTableWarning && {
+          sessionTableWarning: `Row count exceeds threshold of ${SESSION_TABLE_WARN_THRESHOLD}`,
+        }),
+      });
     } catch (error: any) {
       console.error("Health check failed:", error);
       res.status(500).json({ status: "unhealthy", database: "disconnected", error: error?.message || "Unknown error" });
