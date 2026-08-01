@@ -6,41 +6,11 @@ import { whatsappService } from "./whatsapp";
 import { z } from "zod";
 import session from "express-session";
 import connectPgSimple from "connect-pg-simple";
-import bcrypt from "bcrypt";
 import rateLimit from "express-rate-limit";
 import { pool } from "./db";
+import { hashPassword, verifyPassword } from "./password";
 
 const VALID_ROLES = ["system_admin", "temple_admin", "user"] as const;
-const BCRYPT_ROUNDS = 12;
-
-// ── Password helpers ────────────────────────────────────────────────────────
-
-async function hashPassword(password: string): Promise<string> {
-  return bcrypt.hash(password, BCRYPT_ROUNDS);
-}
-
-/**
- * Verify password with automatic migration from legacy base64 storage.
- * On first successful login the row is silently re-hashed with bcrypt.
- */
-async function verifyPassword(
-  input: string,
-  stored: string,
-  userId: number,
-): Promise<boolean> {
-  if (stored.startsWith("$2b$") || stored.startsWith("$2a$")) {
-    // Already bcrypt
-    return bcrypt.compare(input, stored);
-  }
-  // Legacy base64 — decode and compare (constant-time via bcrypt.compare is
-  // not possible here, but the migration happens only once per account)
-  const decoded = Buffer.from(stored, "base64").toString("utf-8");
-  if (decoded !== input) return false;
-  // Upgrade: re-hash with bcrypt then store (do NOT log input)
-  const newHash = await bcrypt.hash(input, BCRYPT_ROUNDS);
-  await storage.updateUserPassword(userId, newHash);
-  return true;
-}
 
 // ── Cloudflare Turnstile CAPTCHA verification ───────────────────────────────
 
@@ -181,7 +151,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!user) {
         return res.status(401).json({ message: "Invalid email or password" });
       }
-      const passwordOk = await verifyPassword(password, user.password, user.id);
+      const passwordOk = await verifyPassword(
+        password,
+        user.password,
+        user.id,
+        (id, hash) => storage.updateUserPassword(id, hash),
+      );
       if (!passwordOk) {
         // When the stored hash is already bcrypt the account has been migrated.
         // A wrong password here likely means the user still has their old
