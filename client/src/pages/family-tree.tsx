@@ -294,10 +294,10 @@ export default function FamilyTree() {
 
         <Tabs defaultValue="elegant" className="w-full">
           <div className="flex justify-center mb-8">
-            <TabsList className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 w-full max-w-6xl h-auto py-2 gap-1">
+            <TabsList className="flex flex-nowrap overflow-x-auto w-full max-w-6xl h-auto py-2 gap-1 justify-start">
               <TabsTrigger
                 value="explorer"
-                className="flex flex-col items-center gap-1 text-xs sm:text-sm px-1 py-2 min-h-[3rem]"
+                className="flex flex-col items-center gap-1 text-xs sm:text-sm px-2 py-2 min-h-[3rem] flex-shrink-0"
               >
                 <Search size={16} />
                 <span className="text-center leading-tight hidden sm:block">
@@ -309,79 +309,52 @@ export default function FamilyTree() {
               </TabsTrigger>
               <TabsTrigger
                 value="elegant"
-                className="flex flex-col items-center gap-1 text-xs sm:text-sm px-1 py-2 min-h-[3rem]"
+                className="flex flex-col items-center gap-1 text-xs sm:text-sm px-2 py-2 min-h-[3rem] flex-shrink-0"
               >
                 <TreePine size={16} />
-                <span className="text-center leading-tight hidden sm:block">
-                  {t("familyTree.branch")}
-                </span>
-                <span className="text-center leading-tight sm:hidden text-[10px]">
-                  {t("familyTree.tree")}
-                </span>
+                <span className="text-center leading-tight">{t("familyTree.branch")}</span>
               </TabsTrigger>
               <TabsTrigger
                 value="table"
-                className="flex flex-col items-center gap-1 text-xs sm:text-sm px-1 py-2 min-h-[3rem]"
+                className="flex flex-col items-center gap-1 text-xs sm:text-sm px-2 py-2 min-h-[3rem] flex-shrink-0"
               >
                 <Users size={16} />
-                <span className="text-center leading-tight hidden sm:block">
-                  {t("familyTree.relation")}
-                </span>
-                <span className="text-center leading-tight sm:hidden text-[10px]">
-                  {t("familyTree.table")}
-                </span>
+                <span className="text-center leading-tight">{t("familyTree.relation")}</span>
               </TabsTrigger>
               <TabsTrigger
                 value="comprehensive"
-                className="flex flex-col items-center gap-1 text-xs sm:text-sm px-1 py-2 min-h-[3rem]"
+                className="flex flex-col items-center gap-1 text-xs sm:text-sm px-2 py-2 min-h-[3rem] flex-shrink-0"
               >
                 <Heart size={16} />
-                <span className="text-center leading-tight hidden lg:block">
-                  {t("familyTree.allRelation")}
-                </span>
-                <span className="text-center leading-tight lg:hidden text-[10px]">
-                  {t("familyTree.all")}
-                </span>
+                <span className="text-center leading-tight">{t("familyTree.all")}</span>
               </TabsTrigger>
               <TabsTrigger
                 value="network"
-                className="flex flex-col items-center gap-1 text-xs sm:text-sm px-1 py-2 min-h-[3rem]"
+                className="flex flex-col items-center gap-1 text-xs sm:text-sm px-2 py-2 min-h-[3rem] flex-shrink-0"
               >
                 <Network size={16} />
-                <span className="text-center leading-tight hidden lg:block">
-                  {t("familyTree.familyNetwork")}
-                </span>
-                <span className="text-center leading-tight lg:hidden text-[10px]">
-                  {t("familyTree.network")}
-                </span>
+                <span className="text-center leading-tight">{t("familyTree.network")}</span>
               </TabsTrigger>
               <TabsTrigger
                 value="counters"
-                className="flex flex-col items-center gap-1 text-xs sm:text-sm px-1 py-2 min-h-[3rem]"
+                className="flex flex-col items-center gap-1 text-xs sm:text-sm px-2 py-2 min-h-[3rem] flex-shrink-0"
               >
                 <BarChart3 size={16} />
-                <span className="text-center leading-tight hidden lg:block">
-                  {t("familyTree.counters")}
-                </span>
-                <span className="text-center leading-tight lg:hidden text-[10px]">
-                  {t("familyTree.count")}
-                </span>
+                <span className="text-center leading-tight">{t("familyTree.count")}</span>
               </TabsTrigger>
               <TabsTrigger
                 value="map-relation"
-                className="flex flex-col items-center gap-1 text-xs sm:text-sm px-1 py-2 min-h-[3rem]"
+                className="flex flex-col items-center gap-1 text-xs sm:text-sm px-2 py-2 min-h-[3rem] flex-shrink-0"
               >
                 <Link2 size={16} />
-                <span className="text-center leading-tight hidden lg:block">Map Relation</span>
-                <span className="text-center leading-tight lg:hidden text-[10px]">Map</span>
+                <span className="text-center leading-tight">{t("familyTree.mapRelationShort")}</span>
               </TabsTrigger>
               <TabsTrigger
                 value="relationship"
-                className="flex flex-col items-center gap-1 text-xs sm:text-sm px-1 py-2 min-h-[3rem]"
+                className="flex flex-col items-center gap-1 text-xs sm:text-sm px-2 py-2 min-h-[3rem] flex-shrink-0"
               >
                 <GitMerge size={16} />
-                <span className="text-center leading-tight hidden lg:block">Relationship</span>
-                <span className="text-center leading-tight lg:hidden text-[10px]">Relation</span>
+                <span className="text-center leading-tight">{t("familyTree.relationshipTabShort")}</span>
               </TabsTrigger>
             </TabsList>
           </div>

@@ -1,9 +1,10 @@
 /**
  * RelationChainFinder
  * Pick two members and see the shortest connection chain between them.
- * e.g.  A --[Father]--> B --[Brother]--> C --[Son]--> D
+ * Arrows show direction clearly: "Durairaj  ─is Father of─▶  Karuppa Pillai"
  */
 import { useState, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Select,
   SelectContent,
@@ -25,49 +26,77 @@ interface Edge {
   toId: number;
   toName: string;
   relationshipType: string;
+  /** true = we travel in the stored direction (memberId → relatedMemberId) */
+  isForward: boolean;
+  /** id of the person who IS the relationship type (e.g. the Father) */
+  subjectId: number;
+  subjectName: string;
+  /** id of the person the relationship points AT (e.g. the Son) */
+  objectId: number;
+  objectName: string;
 }
 
 interface ChainStep {
   memberId: number;
   memberName: string;
-  relationshipType?: string; // label on the arrow *after* this node
+  /** Populated on all steps except the last */
+  edge?: Edge;
 }
 
-// Build undirected adjacency map from all relationships
 function buildGraph(
   allRelationships: Array<Relationship & { relatedMember: Member }>,
-  members: Member[],
+  memberById: Map<number, string>,
 ): Map<number, Edge[]> {
-  const memberById = new Map(members.map((m) => [m.id, m.fullName]));
   const graph = new Map<number, Edge[]>();
 
-  const addEdge = (from: number, to: number, type: string, toName: string) => {
-    if (!graph.has(from)) graph.set(from, []);
-    graph.get(from)!.push({ toId: to, toName, relationshipType: type });
+  const addEdge = (fromId: number, edge: Edge) => {
+    if (!graph.has(fromId)) graph.set(fromId, []);
+    graph.get(fromId)!.push(edge);
   };
 
   for (const rel of allRelationships) {
-    addEdge(rel.memberId, rel.relatedMemberId, rel.relationshipType, rel.relatedMember.fullName);
-    // reverse edge — label is the inverse; we just show the stored type for simplicity
     const fromName = memberById.get(rel.memberId) ?? `#${rel.memberId}`;
-    addEdge(rel.relatedMemberId, rel.memberId, rel.relationshipType, fromName);
+    const toName = rel.relatedMember.fullName;
+
+    // Forward: memberId → relatedMemberId
+    addEdge(rel.memberId, {
+      toId: rel.relatedMemberId,
+      toName,
+      relationshipType: rel.relationshipType,
+      isForward: true,
+      subjectId: rel.memberId,
+      subjectName: fromName,
+      objectId: rel.relatedMemberId,
+      objectName: toName,
+    });
+
+    // Reverse: relatedMemberId → memberId (same stored meaning, opposite traversal)
+    addEdge(rel.relatedMemberId, {
+      toId: rel.memberId,
+      toName: fromName,
+      relationshipType: rel.relationshipType,
+      isForward: false,
+      subjectId: rel.memberId,
+      subjectName: fromName,
+      objectId: rel.relatedMemberId,
+      objectName: toName,
+    });
   }
 
   return graph;
 }
 
-// BFS — returns ordered list of steps or null if no path
 function bfsPath(
   graph: Map<number, Edge[]>,
   startId: number,
+  startName: string,
   endId: number,
 ): ChainStep[] | null {
   if (startId === endId) return [];
 
   const visited = new Set<number>();
-  // queue items: [currentId, path so far]
   const queue: Array<[number, ChainStep[]]> = [
-    [startId, [{ memberId: startId, memberName: "" }]],
+    [startId, [{ memberId: startId, memberName: startName }]],
   ];
   visited.add(startId);
 
@@ -79,10 +108,10 @@ function bfsPath(
       if (visited.has(edge.toId)) continue;
       visited.add(edge.toId);
 
-      // Attach the relationship label to the *previous* step
+      // Attach edge to the current (last) step
       const newPath: ChainStep[] = [
         ...path.slice(0, -1),
-        { ...path[path.length - 1], relationshipType: edge.relationshipType },
+        { ...path[path.length - 1], edge },
         { memberId: edge.toId, memberName: edge.toName },
       ];
 
@@ -91,23 +120,34 @@ function bfsPath(
     }
   }
 
-  return null; // no path found
+  return null;
+}
+
+/** Build a human-readable label for an edge, making direction explicit. */
+function edgeLabel(edge: Edge): { subject: string; type: string; object: string } {
+  // The stored record always says: subjectName IS relationshipType OF objectName
+  // e.g. "Durairaj is Father of Karuppa Pillai"
+  return {
+    subject: edge.subjectName,
+    type: edge.relationshipType,
+    object: edge.objectName,
+  };
 }
 
 export function RelationChainFinder({ members, allRelationships }: Props) {
+  const { t } = useTranslation();
   const [fromId, setFromId] = useState<string>("");
   const [toId, setToId] = useState<string>("");
   const [chain, setChain] = useState<ChainStep[] | null | "none">(null);
 
-  const graph = useMemo(
-    () => buildGraph(allRelationships, members),
-    [allRelationships, members],
-  );
-
-  // Populate names on the start/end nodes
   const memberById = useMemo(
     () => new Map(members.map((m) => [m.id, m.fullName])),
     [members],
+  );
+
+  const graph = useMemo(
+    () => buildGraph(allRelationships, memberById),
+    [allRelationships, memberById],
   );
 
   function findChain() {
@@ -115,18 +155,9 @@ export function RelationChainFinder({ members, allRelationships }: Props) {
     const tId = parseInt(toId);
     if (!fId || !tId || fId === tId) return;
 
-    const result = bfsPath(graph, fId, tId);
-    if (!result) {
-      setChain("none");
-      return;
-    }
-
-    // Fill in the start node name
-    const filled = result.map((step) => ({
-      ...step,
-      memberName: step.memberName || memberById.get(step.memberId) || `#${step.memberId}`,
-    }));
-    setChain(filled);
+    const startName = memberById.get(fId) ?? `#${fId}`;
+    const result = bfsPath(graph, fId, startName, tId);
+    setChain(result ?? "none");
   }
 
   const sorted = [...members].sort((a, b) => a.fullName.localeCompare(b.fullName));
@@ -134,15 +165,15 @@ export function RelationChainFinder({ members, allRelationships }: Props) {
   return (
     <div className="space-y-6">
       <p className="text-gray-600 text-sm">
-        Select two members to find the shortest connection chain between them.
+        {t("familyTree.selectMembersHint")}
       </p>
 
       <div className="flex flex-col sm:flex-row gap-4 items-end">
         <div className="flex-1 space-y-1">
-          <label className="text-sm font-medium text-gray-700">From</label>
+          <label className="text-sm font-medium text-gray-700">{t("familyTree.from")}</label>
           <Select value={fromId} onValueChange={setFromId}>
             <SelectTrigger>
-              <SelectValue placeholder="Select first member" />
+              <SelectValue placeholder={t("familyTree.selectFirstMember")} />
             </SelectTrigger>
             <SelectContent>
               {sorted.map((m) => (
@@ -155,10 +186,10 @@ export function RelationChainFinder({ members, allRelationships }: Props) {
         </div>
 
         <div className="flex-1 space-y-1">
-          <label className="text-sm font-medium text-gray-700">To</label>
+          <label className="text-sm font-medium text-gray-700">{t("familyTree.to")}</label>
           <Select value={toId} onValueChange={setToId}>
             <SelectTrigger>
-              <SelectValue placeholder="Select second member" />
+              <SelectValue placeholder={t("familyTree.selectSecondMember")} />
             </SelectTrigger>
             <SelectContent>
               {sorted.map((m) => (
@@ -173,57 +204,85 @@ export function RelationChainFinder({ members, allRelationships }: Props) {
         <Button
           onClick={findChain}
           disabled={!fromId || !toId || fromId === toId}
-          className="bg-saffron-600 hover:bg-saffron-700 text-white sm:w-auto w-full"
+          className="text-white sm:w-auto w-full"
           style={{ backgroundColor: "hsl(37,100%,50%)" }}
         >
           <Link2 size={16} className="mr-2" />
-          Find Chain
+          {t("familyTree.findChain")}
         </Button>
       </div>
 
-      {/* Result */}
+      {/* No path */}
       {chain === "none" && (
         <Card className="p-6 text-center text-gray-500">
-          No connection found between these two members.
+          {t("familyTree.noConnectionFound")}
         </Card>
       )}
 
+      {/* Path found */}
       {Array.isArray(chain) && chain.length > 0 && (
-        <Card className="p-6">
-          <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">
-            Connection Chain ({chain.length - 1} step{chain.length !== 2 ? "s" : ""})
+        <Card className="p-6 overflow-x-auto">
+          <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-5">
+            {t("familyTree.connectionChain")} ({chain.length - 1} {chain.length === 2 ? "step" : "steps"})
           </h3>
-          <div className="flex flex-wrap items-center gap-2">
-            {chain.map((step, i) => (
-              <div key={i} className="flex items-center gap-2">
-                {/* Member bubble */}
-                <div className="flex flex-col items-center">
-                  <div
-                    className="rounded-full px-4 py-2 text-sm font-semibold text-white shadow"
-                    style={{ backgroundColor: "hsl(33,100%,50%)" }}
-                  >
-                    {step.memberName}
-                  </div>
-                </div>
 
-                {/* Arrow + label */}
-                {step.relationshipType && (
-                  <div className="flex flex-col items-center">
-                    <span className="text-xs text-gray-500 mb-0.5">
-                      {step.relationshipType}
-                    </span>
-                    <ArrowRight size={20} className="text-gray-400" />
+          {/* Vertical step-by-step layout — unambiguous direction */}
+          <div className="space-y-3">
+            {chain.map((step, i) => {
+              const isLast = i === chain.length - 1;
+              const label = step.edge ? edgeLabel(step.edge) : null;
+
+              return (
+                <div key={i}>
+                  {/* Member pill */}
+                  <div className="flex items-center gap-3">
+                    <div
+                      className="inline-flex items-center justify-center rounded-full px-5 py-2 text-sm font-semibold text-white shadow-md"
+                      style={{ backgroundColor: "hsl(33,100%,48%)" }}
+                    >
+                      {step.memberName}
+                    </div>
+                    {/* step number badge */}
+                    {i === 0 && (
+                      <span className="text-xs text-gray-400 font-medium uppercase tracking-wide">
+                        Start
+                      </span>
+                    )}
+                    {isLast && (
+                      <span className="text-xs text-gray-400 font-medium uppercase tracking-wide">
+                        End
+                      </span>
+                    )}
                   </div>
-                )}
-              </div>
-            ))}
+
+                  {/* Arrow + relationship sentence */}
+                  {label && (
+                    <div className="flex items-start gap-2 ml-4 mt-1 mb-1">
+                      <div className="flex flex-col items-center">
+                        <div className="w-px h-2 bg-gray-300" />
+                        <ArrowRight size={16} className="text-orange-400 rotate-90" />
+                        <div className="w-px h-2 bg-gray-300" />
+                      </div>
+                      <div className="bg-orange-50 border border-orange-200 rounded-lg px-3 py-1.5 text-xs text-gray-700 max-w-xs">
+                        <span className="font-semibold text-orange-700">{label.subject}</span>
+                        <span className="text-gray-500"> is </span>
+                        <span className="font-semibold text-orange-700">{label.type}</span>
+                        <span className="text-gray-500"> of </span>
+                        <span className="font-semibold text-orange-700">{label.object}</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </Card>
       )}
 
+      {/* Initial prompt */}
       {chain === null && (
         <Card className="p-6 text-center text-gray-400 border-dashed">
-          Select two members and click <strong>Find Chain</strong> to see how they are connected.
+          {t("familyTree.selectMembersHint")}
         </Card>
       )}
     </div>

@@ -3,6 +3,7 @@
  * Pick two members and see their direct relationship (if one exists).
  */
 import { useState, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Select,
   SelectContent,
@@ -12,7 +13,7 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Heart, Users } from "lucide-react";
+import { Heart, Users, GitMerge } from "lucide-react";
 import type { Member, Relationship } from "@shared/schema";
 
 interface Props {
@@ -22,13 +23,15 @@ interface Props {
 
 interface DirectResult {
   type: "direct" | "none";
-  fromName: string;
-  toName: string;
-  /** The relationship label as stored (e.g. "Father") */
+  /** The person who IS the relationship type (e.g. the Father) */
+  subjectName: string;
+  /** The person the type points at (e.g. the Son) */
+  objectName: string;
   relationshipType?: string;
 }
 
 export function DirectRelationshipFinder({ members, allRelationships }: Props) {
+  const { t } = useTranslation();
   const [fromId, setFromId] = useState<string>("");
   const [toId, setToId] = useState<string>("");
   const [result, setResult] = useState<DirectResult | null>(null);
@@ -58,21 +61,22 @@ export function DirectRelationshipFinder({ members, allRelationships }: Props) {
     const rel = forward ?? reverse;
 
     if (!rel) {
-      setResult({ type: "none", fromName: fromMember.fullName, toName: toMember.fullName });
+      setResult({ type: "none", subjectName: fromMember.fullName, objectName: toMember.fullName });
       return;
     }
 
-    // If the stored record goes from->to, keep it as-is.
-    // If it goes to->from, swap so the label reads naturally.
-    const [labelFrom, labelTo] =
-      rel.memberId === fId
-        ? [fromMember.fullName, toMember.fullName]
-        : [toMember.fullName, fromMember.fullName];
+    // Always show in stored direction: memberId IS [type] OF relatedMemberId
+    const subjectName =
+      memberById.get(rel.memberId)?.fullName ?? `#${rel.memberId}`;
+    const objectName =
+      memberById.get(rel.relatedMemberId)?.fullName ??
+      rel.relatedMember?.fullName ??
+      `#${rel.relatedMemberId}`;
 
     setResult({
       type: "direct",
-      fromName: labelFrom,
-      toName: labelTo,
+      subjectName,
+      objectName,
       relationshipType: rel.relationshipType,
     });
   }
@@ -82,15 +86,15 @@ export function DirectRelationshipFinder({ members, allRelationships }: Props) {
   return (
     <div className="space-y-6">
       <p className="text-gray-600 text-sm">
-        Select two members to see if they have a direct relationship recorded.
+        {t("familyTree.selectMembersRelHint")}
       </p>
 
       <div className="flex flex-col sm:flex-row gap-4 items-end">
         <div className="flex-1 space-y-1">
-          <label className="text-sm font-medium text-gray-700">Member 1</label>
+          <label className="text-sm font-medium text-gray-700">{t("familyTree.member1")}</label>
           <Select value={fromId} onValueChange={setFromId}>
             <SelectTrigger>
-              <SelectValue placeholder="Select first member" />
+              <SelectValue placeholder={t("familyTree.selectFirstMember")} />
             </SelectTrigger>
             <SelectContent>
               {sorted.map((m) => (
@@ -103,10 +107,10 @@ export function DirectRelationshipFinder({ members, allRelationships }: Props) {
         </div>
 
         <div className="flex-1 space-y-1">
-          <label className="text-sm font-medium text-gray-700">Member 2</label>
+          <label className="text-sm font-medium text-gray-700">{t("familyTree.member2")}</label>
           <Select value={toId} onValueChange={setToId}>
             <SelectTrigger>
-              <SelectValue placeholder="Select second member" />
+              <SelectValue placeholder={t("familyTree.selectSecondMember")} />
             </SelectTrigger>
             <SelectContent>
               {sorted.map((m) => (
@@ -125,67 +129,97 @@ export function DirectRelationshipFinder({ members, allRelationships }: Props) {
           style={{ backgroundColor: "hsl(37,100%,50%)" }}
         >
           <Heart size={16} className="mr-2" />
-          Check
+          {t("familyTree.checkRelationship")}
         </Button>
       </div>
 
-      {/* Result */}
+      {/* No direct relationship */}
       {result?.type === "none" && (
         <Card className="p-6 text-center text-gray-500">
           <Users size={32} className="mx-auto mb-2 text-gray-300" />
           <p>
-            <strong>{result.fromName}</strong> and <strong>{result.toName}</strong> have no
-            direct relationship recorded.
+            <strong>{result.subjectName}</strong> {t("familyTree.isOf")}{" "}
+            <strong>{result.objectName}</strong>{" "}
+            இடையே நேரடி உறவு பதிவு இல்லை.
           </p>
-          <p className="text-xs mt-1 text-gray-400">
-            Use the Map Relation tab to see if they are connected indirectly.
+          <p className="text-xs mt-2 text-gray-400">
+            Use the <strong>Map Relation</strong> tab to see if they are connected indirectly.
           </p>
         </Card>
       )}
 
+      {/* Direct relationship found */}
       {result?.type === "direct" && (
         <Card className="p-6">
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 text-center">
-            {/* Member 1 */}
-            <div className="flex flex-col items-center gap-1">
-              <div
-                className="w-16 h-16 rounded-full flex items-center justify-center text-white text-xl font-bold shadow"
-                style={{ backgroundColor: "hsl(33,100%,50%)" }}
-              >
-                {result.fromName.charAt(0)}
-              </div>
-              <span className="font-semibold text-gray-800">{result.fromName}</span>
-            </div>
-
-            {/* Relationship badge */}
-            <div className="flex flex-col items-center gap-1 px-4">
-              <Heart size={18} className="text-rose-400" />
+          <div className="flex flex-col items-center gap-4 text-center">
+            {/* Sentence display — unambiguous */}
+            <div className="bg-orange-50 border border-orange-200 rounded-xl px-6 py-4 text-base text-gray-800 max-w-lg">
               <span
-                className="px-4 py-1.5 rounded-full text-sm font-semibold text-white shadow"
-                style={{ backgroundColor: "hsl(0,100%,35%)" }}
+                className="font-bold text-lg"
+                style={{ color: "hsl(33,100%,38%)" }}
+              >
+                {result.subjectName}
+              </span>
+              <span className="text-gray-500 mx-2">is</span>
+              <span
+                className="font-bold text-lg px-3 py-1 rounded-full text-white"
+                style={{ backgroundColor: "hsl(0,80%,40%)" }}
               >
                 {result.relationshipType}
               </span>
-              <span className="text-xs text-gray-400">of</span>
+              <span className="text-gray-500 mx-2">of</span>
+              <span
+                className="font-bold text-lg"
+                style={{ color: "hsl(33,100%,38%)" }}
+              >
+                {result.objectName}
+              </span>
             </div>
 
-            {/* Member 2 */}
-            <div className="flex flex-col items-center gap-1">
-              <div
-                className="w-16 h-16 rounded-full flex items-center justify-center text-white text-xl font-bold shadow"
-                style={{ backgroundColor: "hsl(33,100%,50%)" }}
-              >
-                {result.toName.charAt(0)}
+            {/* Avatar row */}
+            <div className="flex items-center gap-6 mt-2">
+              <div className="flex flex-col items-center gap-1">
+                <div
+                  className="w-14 h-14 rounded-full flex items-center justify-center text-white text-xl font-bold shadow"
+                  style={{ backgroundColor: "hsl(33,100%,48%)" }}
+                >
+                  {result.subjectName.charAt(0)}
+                </div>
+                <span className="text-xs font-medium text-gray-700 max-w-[80px] text-center leading-tight">
+                  {result.subjectName}
+                </span>
               </div>
-              <span className="font-semibold text-gray-800">{result.toName}</span>
+
+              <div className="flex flex-col items-center gap-1">
+                <GitMerge size={22} className="text-orange-400" />
+                <span
+                  className="text-xs font-semibold px-2 py-0.5 rounded-full text-white"
+                  style={{ backgroundColor: "hsl(0,80%,40%)" }}
+                >
+                  {result.relationshipType}
+                </span>
+              </div>
+
+              <div className="flex flex-col items-center gap-1">
+                <div
+                  className="w-14 h-14 rounded-full flex items-center justify-center text-white text-xl font-bold shadow"
+                  style={{ backgroundColor: "hsl(33,100%,48%)" }}
+                >
+                  {result.objectName.charAt(0)}
+                </div>
+                <span className="text-xs font-medium text-gray-700 max-w-[80px] text-center leading-tight">
+                  {result.objectName}
+                </span>
+              </div>
             </div>
           </div>
         </Card>
       )}
 
+      {/* Initial prompt */}
       {result === null && (
         <Card className="p-6 text-center text-gray-400 border-dashed">
-          Select two members and click <strong>Check</strong> to see their relationship.
+          {t("familyTree.selectMembersRelHint")}
         </Card>
       )}
     </div>
