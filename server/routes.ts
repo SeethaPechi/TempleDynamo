@@ -57,12 +57,31 @@ async function verifyCaptcha(
 
 // ── Rate limiters ───────────────────────────────────────────────────────────
 
+// ── Why no custom keyGenerator? ────────────────────────────────────────────
+// express-rate-limit's built-in default already keys on req.ip (with full
+// IPv6 normalisation).  Because `app.set("trust proxy", 1)` is set in
+// server/index.ts, Express reads the first value from the X-Forwarded-For
+// header and exposes it as req.ip — so the limiter throttles by the *real
+// visitor IP*, not the shared CDN/proxy address.  Overriding keyGenerator
+// here would bypass the library's IPv6 helper and risk keying on a raw
+// socket address if trust proxy is ever misconfigured.
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 10,
   message: { message: "Too many attempts — please wait 15 minutes and try again." },
   standardHeaders: true,
   legacyHeaders: false,
+
+  // Log every time a visitor hits the ceiling so operational issues
+  // (e.g. trust proxy accidentally disabled, all traffic keying on the
+  // same proxy IP) surface immediately in server logs.
+  handler: (req, res, _next, options) => {
+    console.warn(
+      `[rate-limit] auth limit reached — ip=${req.ip} ` +
+      `socket=${req.socket.remoteAddress} path=${req.path}`,
+    );
+    res.status(options.statusCode).json(options.message);
+  },
 });
 
 // Authentication middleware
