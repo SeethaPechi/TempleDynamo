@@ -12,8 +12,10 @@ interface SimpleCaptchaProps {
   isVerified: boolean;
 }
 
-const SITE_KEY =
-  import.meta.env.VITE_TURNSTILE_SITE_KEY ?? "1x00000000000000000000AA";
+const SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY as string;
+if (!SITE_KEY) {
+  console.error("[captcha] VITE_TURNSTILE_SITE_KEY is not set — CAPTCHA will not load");
+}
 
 export function SimpleCaptcha({ onVerify, isVerified }: SimpleCaptchaProps) {
   return (
