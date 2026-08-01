@@ -17,6 +17,19 @@ production domain or will accept tokens from any domain.
 Tokens issued on a hostname that is not listed will fail server-side verification
 even if the widget renders.
 
+## Verification checklist
+
+After configuring the dashboard, complete these checks on the live production domain:
+
+- [ ] Open `https://tamilkovil.com` in an **incognito/private** window
+- [ ] Navigate to the **Login** page — the Turnstile widget should appear and spin briefly, then show a checkmark or interactive challenge
+- [ ] Complete a test login with valid credentials — it should succeed without any "CAPTCHA verification failed" error
+- [ ] Navigate to the **Register** page — the Turnstile widget should appear and complete the same way
+- [ ] Attempt a registration (or confirm the widget passes) — no "CAPTCHA verification failed" error should appear
+- [ ] Open browser DevTools → Console: confirm there are **no** `[captcha]` error messages and no Turnstile script errors
+
+If any step fails, see the troubleshooting section below.
+
 ## How replay protection works
 
 Beyond domain-scoping, the server passes the visitor's IP address to the
@@ -33,3 +46,30 @@ or host will be rejected.
 | `TURNSTILE_SECRET_KEY` | Backend (server runtime) | Secret used to call `siteverify` — never expose to the browser |
 
 Both are already stored as Replit secrets.
+
+## Troubleshooting
+
+### Widget renders but login/register returns "CAPTCHA verification failed"
+
+The widget loaded, but the token was rejected server-side. Most likely cause:
+`tamilkovil.com` is not yet listed under **Allowed Hostnames** in the Turnstile
+dashboard. Follow the setup steps above, save, and retry.
+
+### Widget never appears / spins forever
+
+- Confirm `VITE_TURNSTILE_SITE_KEY` is set in Replit secrets and that a fresh
+  production build was deployed after setting it (it is baked in at build time).
+- Check the browser console for `[captcha] VITE_TURNSTILE_SITE_KEY is not set`.
+- Confirm the Cloudflare Turnstile JS loads: Network tab → filter for
+  `challenges.cloudflare.com` — it should return `200`.
+
+### Widget works on `.replit.dev` but not on `tamilkovil.com`
+
+Add `tamilkovil.com` to **Allowed Hostnames** in the Turnstile dashboard.
+The `*.replit.dev` wildcard does not cover the production domain.
+
+### "Too many attempts" error before the CAPTCHA is even shown
+
+This is the rate limiter (`authLimiter` in `server/routes.ts`), not the CAPTCHA.
+The limit is 10 requests per 15-minute window per IP. Wait 15 minutes and retry,
+or test from a different IP address.
