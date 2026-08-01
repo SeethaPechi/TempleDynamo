@@ -44,7 +44,22 @@ async function verifyPassword(
 
 // ── Cloudflare Turnstile CAPTCHA verification ───────────────────────────────
 
-async function verifyCaptcha(token: string | undefined): Promise<boolean> {
+/**
+ * Verify a Turnstile token server-side.
+ *
+ * @param token      - The CAPTCHA response token from the browser widget.
+ * @param remoteip   - The visitor's IP address (forwarded from the request).
+ *                     Passing this ties the token to the origin IP so a token
+ *                     captured on tamilkovil.com cannot be replayed from a
+ *                     different host/IP.
+ *
+ * Domain restriction (which hostnames may issue tokens) must also be
+ * configured in the Cloudflare Turnstile dashboard — see docs/captcha-setup.md.
+ */
+async function verifyCaptcha(
+  token: string | undefined,
+  remoteip?: string,
+): Promise<boolean> {
   if (!token) return false;
   const secret = process.env.TURNSTILE_SECRET_KEY;
   if (!secret) {
@@ -52,12 +67,15 @@ async function verifyCaptcha(token: string | undefined): Promise<boolean> {
     return false;
   }
   try {
+    const payload: Record<string, string> = { secret, response: token };
+    if (remoteip) payload.remoteip = remoteip;
+
     const resp = await fetch(
       "https://challenges.cloudflare.com/turnstile/v0/siteverify",
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ secret, response: token }),
+        body: JSON.stringify(payload),
       },
     );
     const data = (await resp.json()) as { success: boolean };
@@ -121,7 +139,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/auth/register", authLimiter, async (req, res) => {
     try {
       // Verify CAPTCHA before anything else
-      const captchaOk = await verifyCaptcha(req.body.captchaToken);
+      const captchaOk = await verifyCaptcha(req.body.captchaToken, req.ip);
       if (!captchaOk) {
         return res.status(400).json({ message: "CAPTCHA verification failed. Please try again." });
       }
@@ -150,7 +168,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/auth/login", authLimiter, async (req, res) => {
     try {
       // Verify CAPTCHA before anything else
-      const captchaOk = await verifyCaptcha(req.body.captchaToken);
+      const captchaOk = await verifyCaptcha(req.body.captchaToken, req.ip);
       if (!captchaOk) {
         return res.status(400).json({ message: "CAPTCHA verification failed. Please try again." });
       }
