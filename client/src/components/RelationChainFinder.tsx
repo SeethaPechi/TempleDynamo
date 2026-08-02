@@ -471,9 +471,11 @@ export function RelationChainFinder({ members, allRelationships }: Props) {
             {chain.map((step, i) => {
               const isLast = i === chain.length - 1;
               const label = step.edge ? edgeLabel(step.edge) : null;
+              const via = step.edge ? getViaNote(step.edge, allRelationships, memberById) : null;
 
               return (
                 <div key={i}>
+                  {/* ── Main chain node ── */}
                   <div className="flex items-center gap-3">
                     <div
                       className="inline-flex items-center justify-center rounded-full px-5 py-2 text-sm font-semibold text-white shadow-md"
@@ -493,30 +495,41 @@ export function RelationChainFinder({ members, allRelationships }: Props) {
                     )}
                   </div>
 
-                  {label && (() => {
-                    const via = step.edge ? getViaNote(step.edge, allRelationships, memberById) : null;
-                    return (
-                      <div className="flex items-start gap-2 ml-4 mt-1 mb-1">
-                        <div className="flex flex-col items-center">
-                          <div className="w-px h-2 bg-gray-300" />
-                          <ArrowRight size={16} className="text-orange-400 rotate-90" />
-                          <div className="w-px h-2 bg-gray-300" />
-                        </div>
+                  {/* ── Edge label + optional connecting-member node ── */}
+                  {label && (
+                    <div className="flex items-start gap-2 ml-4 mt-1 mb-1">
+                      <div className="flex flex-col items-center">
+                        <div className="w-px h-2 bg-gray-300" />
+                        <ArrowRight size={16} className="text-orange-400 rotate-90" />
+                        <div className="w-px h-2 bg-gray-300" />
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        {/* Relationship label card */}
                         <div className="bg-orange-50 border border-orange-200 rounded-lg px-3 py-1.5 text-xs text-gray-700 max-w-xs">
                           <span className="font-semibold text-orange-700">{label.subject}</span>
                           <span className="text-gray-500"> is </span>
                           <span className="font-semibold text-orange-700">{label.relType}</span>
                           <span className="text-gray-500"> of </span>
                           <span className="font-semibold text-orange-700">{label.object}</span>
-                          {via && (
-                            <div className="text-gray-400 mt-0.5 italic text-[10px]">
-                              via {via}
-                            </div>
-                          )}
                         </div>
+
+                        {/* Connecting member — shown as a full named node, not a tiny note */}
+                        {via && (
+                          <div className="flex items-center gap-2">
+                            <div
+                              className="inline-flex items-center justify-center rounded-full px-4 py-1.5 text-xs font-semibold text-amber-900 shadow-sm border border-amber-400"
+                              style={{ backgroundColor: "hsl(45,100%,88%)" }}
+                            >
+                              {via}
+                            </div>
+                            <span className="text-[11px] text-amber-700 font-medium">
+                              (connecting member)
+                            </span>
+                          </div>
+                        )}
                       </div>
-                    );
-                  })()}
+                    </div>
+                  )}
                 </div>
               );
             })}
