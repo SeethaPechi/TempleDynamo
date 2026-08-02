@@ -16,7 +16,6 @@ runButton = "Start application"
 [[workflows.workflow]]
 name = "Start application"
 author = "agent"
-mode = "sequential"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
@@ -25,6 +24,7 @@ waitForPort = 5000
 
 [[ports]]
 localPort = 5000
+externalPort = 80
 
 [userenv]
 

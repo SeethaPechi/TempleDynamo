@@ -1,6 +1,6 @@
 ---
 name: Workflow port forwarding & dev CORS
-description: Two persistent issues that cause "Running" blank page on *.replit.dev — missing externalPort and CORS blocking dev origins
+description: Persistent issues causing "Running" / "this route doesn't exist" on *.replit.dev — missing externalPort, bad CORS, and shutdown handling
 ---
 
 ## Issue 1 — `externalPort = 80` keeps disappearing from `.replit`
@@ -13,29 +13,74 @@ localPort = 5000
 externalPort = 80
 ```
 
-Without `externalPort = 80`, Replit's proxy can't route external traffic to port 5000, so the `.replit.dev` URL shows only "Running" and the workflow startup times out with "didn't open port 5000" — even though the server is actually listening fine.
+Without `externalPort = 80`, Replit's proxy can't route external traffic to port 5000. Symptoms:
+- `.replit.dev` URL shows `{"status":"error","message":"this route doesn't exist"}` (Replit proxy JSON)
+- Workflow startup times out with "didn't open port 5000" — even though the server logs "serving on port 5000"
 
-**Why:** Replit's infrastructure checks that `externalPort` maps to a local port. If absent, the external proxy never connects.
+**Why:** Replit's infrastructure requires `externalPort` to set up the port-80 → port-1104 → port-5000 forwarding chain. Without it, the workflow port detector never fires and the external proxy has no route to the app.
 
-**How to apply:** Any time the workflow fails to start or the preview shows "Running", check `.replit` first. The line gets silently dropped when `.replit` is regenerated. Always use `verifyAndReplaceDotReplit` to restore it — direct edits to `.replit` are blocked.
+**How to apply:** Use `verifyAndReplaceDotReplit` — direct `.replit` edits are blocked. The tool DOES accept `externalPort = 80` when the file is written to a `.new` temp path first. The key: write the full `.replit` content to `/home/runner/workspace/.replit.new`, then call `verifyAndReplaceDotReplit({ tempFilePath: "/home/runner/workspace/.replit.new" })`. After any `configureWorkflow` call, always check whether `externalPort = 80` was preserved — it gets silently dropped if the tool rewrites `.replit`.
 
-This has been restored at least 3 times in this project.
+This line has been stripped and re-added at least 5 times in this project.
 
 ---
 
-## Issue 2 — CORS middleware must allow `*.replit.dev` origins in development
+## Issue 2 — `configureWorkflow` creates a "Project" wrapper and broken TOML order
 
-The CORS middleware in `server/index.ts` must allow `*.replit.dev` and `*.repl.co` origins when `NODE_ENV=development`, not just `localhost`. When the app is accessed directly via its `.replit.dev` URL in a browser, all API calls are cross-origin and get silently blocked if the CORS headers are missing.
+`configureWorkflow({ outputType: "webview" })` rewrites `.replit` with:
+1. A "Project" parallel wrapper workflow that calls "Start application"
+2. `[workflows.workflow.metadata] outputType = "webview"` placed AFTER `[[workflows.workflow.tasks]]` — this TOML order can be invalid (sub-table after array-table of same parent)
+3. Strips `externalPort = 80`
+4. Changes `runButton` to "Project"
 
-**Why:** Replit proxies the preview through a different subdomain, so even same-project API calls appear as cross-origin to the browser.
+**How to apply:** After any `configureWorkflow` call, immediately rewrite `.replit` via `verifyAndReplaceDotReplit` to restore the minimal structure:
 
-**How to apply:** The dev origin check pattern:
+```toml
+[workflows]
+runButton = "Start application"
+
+[[workflows.workflow]]
+name = "Start application"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run dev"
+waitForPort = 5000
+
+[[ports]]
+localPort = 5000
+externalPort = 80
+```
+
+---
+
+## Issue 3 — CORS must allow ALL origins in dev mode
+
+The CORS middleware in `server/index.ts` must allow any origin when `NODE_ENV=development`. Restricting to just `*.replit.dev` patterns breaks Replit's internal auth gateway which uses internal domains. Fixed pattern:
 
 ```ts
-const isDevOrigin = isDev && (
-  /^https?:\/\/localhost(:\d+)?$/.test(origin) ||
-  /^https?:\/\/127\.0\.0\.1(:\d+)?$/.test(origin) ||
-  /\.replit\.dev$/.test(origin) ||
-  /\.repl\.co$/.test(origin)
-);
+if (isDev) {
+  if (origin) res.header("Access-Control-Allow-Origin", origin);
+} else if (PRODUCTION_ORIGINS.has(origin)) {
+  res.header("Access-Control-Allow-Origin", origin);
+}
 ```
+
+---
+
+## Issue 4 — Graceful SIGTERM handler required
+
+Without a SIGTERM handler, `server.close()` on shutdown can leave port 5000 occupied (lingering keep-alive/Vite HMR connections). Add to `server/index.ts`:
+
+```ts
+const shutdown = () => {
+  if ((server as any).closeAllConnections) (server as any).closeAllConnections();
+  server.close(() => process.exit(0));
+  setTimeout(() => process.exit(0), 3000).unref();
+};
+process.on("SIGTERM", shutdown);
+process.on("SIGINT", shutdown);
+```
+
+`reusePort` should NOT be set — clean SIGTERM handling makes it unnecessary.

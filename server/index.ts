@@ -93,11 +93,18 @@ app.use((req, res, next) => {
   // this serves both the API and the client.
   // It is the only port that is not firewalled.
   const port = 5000;
-  server.listen({
-    port,
-    host: "0.0.0.0",
-    reusePort: true,
-  }, () => {
+  server.listen({ port, host: "0.0.0.0" }, () => {
     log(`serving on port ${port}`);
   });
+
+  // Graceful shutdown — release port 5000 immediately on SIGTERM/SIGINT so
+  // Replit's workflow restart can bind the port on the next start.
+  const shutdown = () => {
+    if ((server as any).closeAllConnections) (server as any).closeAllConnections();
+    server.close(() => process.exit(0));
+    // Force exit after 3 s in case connections linger
+    setTimeout(() => process.exit(0), 3000).unref();
+  };
+  process.on("SIGTERM", shutdown);
+  process.on("SIGINT", shutdown);
 })();
