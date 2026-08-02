@@ -1,7 +1,8 @@
 /**
  * RelationChainFinder
  * Pick two members and see the shortest connection chain between them.
- * Arrows show direction clearly: "Durairaj  ─is Father of─▶  Karuppa Pillai"
+ * Edge labels always read from the perspective of the CURRENT step person:
+ *   "Durairaj is Son of Karuppa Pillai"  (not "Karuppa Pillai is Father of Durairaj")
  */
 import { useState, useMemo } from "react";
 import { useTranslation } from "react-i18next";
@@ -26,66 +27,115 @@ interface Edge {
   toId: number;
   toName: string;
   relationshipType: string;
-  /** true = we travel in the stored direction (memberId → relatedMemberId) */
+  /**
+   * true  = forward traversal: fromPerson IS the stored subject (memberId)
+   * false = backward traversal: fromPerson IS the stored object (relatedMemberId)
+   */
   isForward: boolean;
-  /** id of the person who IS the relationship type (e.g. the Father) */
   subjectId: number;
   subjectName: string;
-  /** id of the person the relationship points AT (e.g. the Son) */
+  subjectGender: string | null | undefined;
   objectId: number;
   objectName: string;
+  objectGender: string | null | undefined;
 }
 
 interface ChainStep {
   memberId: number;
   memberName: string;
-  /** Populated on all steps except the last */
   edge?: Edge;
 }
 
+// ---------------------------------------------------------------------------
+// Inverse relationship map — used when traversing an edge BACKWARDS
+// (the "from" person is the stored *object*, not the stored *subject*)
+// ---------------------------------------------------------------------------
+function getInverseType(type: string, fromGender?: string | null): string {
+  const M = fromGender === "Male";
+  const F = fromGender === "Female";
+
+  const map: Record<string, string> = {
+    "Father":            M ? "Son"              : F ? "Daughter"        : "Child",
+    "Mother":            M ? "Son"              : F ? "Daughter"        : "Child",
+    "Son":               M ? "Father"           : F ? "Mother"          : "Parent",
+    "Daughter":          M ? "Father"           : F ? "Mother"          : "Parent",
+    "Husband":           "Wife",
+    "Wife":              "Husband",
+    "Elder Brother":     M ? "Younger Brother"  : F ? "Younger Sister"  : "Younger Sibling",
+    "Younger Brother":   M ? "Elder Brother"    : F ? "Elder Sister"    : "Elder Sibling",
+    "Elder Sister":      M ? "Younger Brother"  : F ? "Younger Sister"  : "Younger Sibling",
+    "Younger Sister":    M ? "Elder Brother"    : F ? "Elder Sister"    : "Elder Sibling",
+    "Brother-in-Law":    M ? "Brother-in-Law"   : F ? "Sister-in-Law"   : "Sibling-in-Law",
+    "Sister-in-Law":     M ? "Brother-in-Law"   : F ? "Sister-in-Law"   : "Sibling-in-Law",
+    "Father-in-Law":     M ? "Son-in-Law"       : F ? "Daughter-in-Law" : "Child-in-Law",
+    "Mother-in-Law":     M ? "Son-in-Law"       : F ? "Daughter-in-Law" : "Child-in-Law",
+    "Son-in-Law":        M ? "Father-in-Law"    : F ? "Mother-in-Law"   : "Parent-in-Law",
+    "Daughter-in-Law":   M ? "Father-in-Law"    : F ? "Mother-in-Law"   : "Parent-in-Law",
+    "Paternal Grandfather":   M ? "Grand Son"   : F ? "Grand Daugher"   : "Grandchild",
+    "Paternal Grandmother":   M ? "Grand Son"   : F ? "Grand Daugher"   : "Grandchild",
+    "Maternal Grandfather":   M ? "Grand Son"   : F ? "Grand Daugher"   : "Grandchild",
+    "Maternal Grandmother":   M ? "Grand Son"   : F ? "Grand Daugher"   : "Grandchild",
+    "Grand Son":         M ? "Paternal Grandfather" : F ? "Paternal Grandmother" : "Grandparent",
+    "Grand Daugher":     M ? "Paternal Grandfather" : F ? "Paternal Grandmother" : "Grandparent",
+    "Grand Son-Son Side":M ? "Paternal Grandfather" : F ? "Paternal Grandmother" : "Grandparent",
+    "Paternal Uncle":    M ? "Nephew"           : F ? "Niece"           : "Nephew/Niece",
+    "Paternal Aunt":     M ? "Nephew"           : F ? "Niece"           : "Nephew/Niece",
+    "Aunt-Father Side":  M ? "Nephew"           : F ? "Niece"           : "Nephew/Niece",
+  };
+
+  return map[type] ?? type; // fall back to the stored type if unknown
+}
+
+// ---------------------------------------------------------------------------
+// Graph builder
+// ---------------------------------------------------------------------------
 function buildGraph(
   allRelationships: Array<Relationship & { relatedMember: Member }>,
-  memberById: Map<number, string>,
+  memberById: Map<number, Member>,
 ): Map<number, Edge[]> {
   const graph = new Map<number, Edge[]>();
 
-  const addEdge = (fromId: number, edge: Edge) => {
+  const add = (fromId: number, edge: Edge) => {
     if (!graph.has(fromId)) graph.set(fromId, []);
     graph.get(fromId)!.push(edge);
   };
 
   for (const rel of allRelationships) {
-    const fromName = memberById.get(rel.memberId) ?? `#${rel.memberId}`;
-    const toName = rel.relatedMember.fullName;
+    const subject = memberById.get(rel.memberId);
+    const object  = memberById.get(rel.relatedMemberId);
+
+    const subjectName   = subject?.fullName ?? `#${rel.memberId}`;
+    const objectName    = rel.relatedMember.fullName;
+    const subjectGender = subject?.gender;
+    const objectGender  = object?.gender ?? rel.relatedMember.gender;
 
     // Forward: memberId → relatedMemberId
-    addEdge(rel.memberId, {
+    add(rel.memberId, {
       toId: rel.relatedMemberId,
-      toName,
+      toName: objectName,
       relationshipType: rel.relationshipType,
       isForward: true,
-      subjectId: rel.memberId,
-      subjectName: fromName,
-      objectId: rel.relatedMemberId,
-      objectName: toName,
+      subjectId: rel.memberId,     subjectName,   subjectGender,
+      objectId:  rel.relatedMemberId, objectName, objectGender,
     });
 
-    // Reverse: relatedMemberId → memberId (same stored meaning, opposite traversal)
-    addEdge(rel.relatedMemberId, {
+    // Reverse: relatedMemberId → memberId
+    add(rel.relatedMemberId, {
       toId: rel.memberId,
-      toName: fromName,
+      toName: subjectName,
       relationshipType: rel.relationshipType,
       isForward: false,
-      subjectId: rel.memberId,
-      subjectName: fromName,
-      objectId: rel.relatedMemberId,
-      objectName: toName,
+      subjectId: rel.memberId,     subjectName,   subjectGender,
+      objectId:  rel.relatedMemberId, objectName, objectGender,
     });
   }
 
   return graph;
 }
 
+// ---------------------------------------------------------------------------
+// BFS
+// ---------------------------------------------------------------------------
 function bfsPath(
   graph: Map<number, Edge[]>,
   startId: number,
@@ -102,13 +152,10 @@ function bfsPath(
 
   while (queue.length > 0) {
     const [current, path] = queue.shift()!;
-    const neighbours = graph.get(current) ?? [];
-
-    for (const edge of neighbours) {
+    for (const edge of graph.get(current) ?? []) {
       if (visited.has(edge.toId)) continue;
       visited.add(edge.toId);
 
-      // Attach edge to the current (last) step
       const newPath: ChainStep[] = [
         ...path.slice(0, -1),
         { ...path[path.length - 1], edge },
@@ -119,21 +166,34 @@ function bfsPath(
       queue.push([edge.toId, newPath]);
     }
   }
-
   return null;
 }
 
-/** Build a human-readable label for an edge, making direction explicit. */
-function edgeLabel(edge: Edge): { subject: string; type: string; object: string } {
-  // The stored record always says: subjectName IS relationshipType OF objectName
-  // e.g. "Durairaj is Father of Karuppa Pillai"
-  return {
-    subject: edge.subjectName,
-    type: edge.relationshipType,
-    object: edge.objectName,
-  };
+// ---------------------------------------------------------------------------
+// Label helper — always reads from the perspective of the FROM person
+// ---------------------------------------------------------------------------
+function edgeLabel(edge: Edge): { subject: string; relType: string; object: string } {
+  if (edge.isForward) {
+    // FROM = subject (memberId person)
+    return {
+      subject: edge.subjectName,
+      relType: edge.relationshipType,
+      object:  edge.objectName,
+    };
+  } else {
+    // FROM = object (relatedMemberId person) — need to invert the relationship
+    const fromGender = edge.objectGender;
+    return {
+      subject: edge.objectName,
+      relType: getInverseType(edge.relationshipType, fromGender),
+      object:  edge.subjectName,
+    };
+  }
 }
 
+// ---------------------------------------------------------------------------
+// Component
+// ---------------------------------------------------------------------------
 export function RelationChainFinder({ members, allRelationships }: Props) {
   const { t } = useTranslation();
   const [fromId, setFromId] = useState<string>("");
@@ -141,7 +201,7 @@ export function RelationChainFinder({ members, allRelationships }: Props) {
   const [chain, setChain] = useState<ChainStep[] | null | "none">(null);
 
   const memberById = useMemo(
-    () => new Map(members.map((m) => [m.id, m.fullName])),
+    () => new Map(members.map((m) => [m.id, m])),
     [members],
   );
 
@@ -155,7 +215,7 @@ export function RelationChainFinder({ members, allRelationships }: Props) {
     const tId = parseInt(toId);
     if (!fId || !tId || fId === tId) return;
 
-    const startName = memberById.get(fId) ?? `#${fId}`;
+    const startName = memberById.get(fId)?.fullName ?? `#${fId}`;
     const result = bfsPath(graph, fId, startName, tId);
     setChain(result ?? "none");
   }
@@ -212,21 +272,19 @@ export function RelationChainFinder({ members, allRelationships }: Props) {
         </Button>
       </div>
 
-      {/* No path */}
       {chain === "none" && (
         <Card className="p-6 text-center text-gray-500">
           {t("familyTree.noConnectionFound")}
         </Card>
       )}
 
-      {/* Path found */}
       {Array.isArray(chain) && chain.length > 0 && (
         <Card className="p-6 overflow-x-auto">
           <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-5">
-            {t("familyTree.connectionChain")} ({chain.length - 1} {chain.length === 2 ? "step" : "steps"})
+            {t("familyTree.connectionChain")} ({chain.length - 1}{" "}
+            {chain.length === 2 ? "step" : "steps"})
           </h3>
 
-          {/* Vertical step-by-step layout — unambiguous direction */}
           <div className="space-y-3">
             {chain.map((step, i) => {
               const isLast = i === chain.length - 1;
@@ -234,7 +292,6 @@ export function RelationChainFinder({ members, allRelationships }: Props) {
 
               return (
                 <div key={i}>
-                  {/* Member pill */}
                   <div className="flex items-center gap-3">
                     <div
                       className="inline-flex items-center justify-center rounded-full px-5 py-2 text-sm font-semibold text-white shadow-md"
@@ -242,7 +299,6 @@ export function RelationChainFinder({ members, allRelationships }: Props) {
                     >
                       {step.memberName}
                     </div>
-                    {/* step number badge */}
                     {i === 0 && (
                       <span className="text-xs text-gray-400 font-medium uppercase tracking-wide">
                         Start
@@ -255,7 +311,6 @@ export function RelationChainFinder({ members, allRelationships }: Props) {
                     )}
                   </div>
 
-                  {/* Arrow + relationship sentence */}
                   {label && (
                     <div className="flex items-start gap-2 ml-4 mt-1 mb-1">
                       <div className="flex flex-col items-center">
@@ -266,7 +321,7 @@ export function RelationChainFinder({ members, allRelationships }: Props) {
                       <div className="bg-orange-50 border border-orange-200 rounded-lg px-3 py-1.5 text-xs text-gray-700 max-w-xs">
                         <span className="font-semibold text-orange-700">{label.subject}</span>
                         <span className="text-gray-500"> is </span>
-                        <span className="font-semibold text-orange-700">{label.type}</span>
+                        <span className="font-semibold text-orange-700">{label.relType}</span>
                         <span className="text-gray-500"> of </span>
                         <span className="font-semibold text-orange-700">{label.object}</span>
                       </div>
@@ -279,7 +334,6 @@ export function RelationChainFinder({ members, allRelationships }: Props) {
         </Card>
       )}
 
-      {/* Initial prompt */}
       {chain === null && (
         <Card className="p-6 text-center text-gray-400 border-dashed">
           {t("familyTree.selectMembersHint")}
