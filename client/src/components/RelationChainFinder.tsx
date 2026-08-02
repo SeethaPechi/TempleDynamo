@@ -207,6 +207,94 @@ function edgeLabel(edge: Edge): { subject: string; relType: string; object: stri
 }
 
 // ---------------------------------------------------------------------------
+// Via-note helper — finds the intermediate person for multi-hop relationships
+// so the chain can show "(via [name])" for grandparent and in-law steps.
+// ---------------------------------------------------------------------------
+function getViaNote(
+  edge: Edge,
+  allRelationships: Array<Relationship & { relatedMember: Member }>,
+): string | null {
+  const { relationshipType, subjectId, objectId } = edge;
+
+  // -- Grandparent types: subjectId = grandchild (member), objectId = grandparent (related) --
+  const grandparentTypes = [
+    "Paternal Grandfather", "Paternal Grandmother",
+    "Maternal Grandfather", "Maternal Grandmother",
+  ];
+  if (grandparentTypes.includes(relationshipType)) {
+    const isPaternal = relationshipType.startsWith("Paternal");
+    const parentType = isPaternal ? "Father" : "Mother";
+    const parentRel = allRelationships.find(
+      r => r.memberId === subjectId && r.relationshipType === parentType
+    );
+    if (parentRel) return parentRel.relatedMember.fullName;
+  }
+
+  // -- Grandchild types: subjectId = grandparent (member), objectId = grandchild (related) --
+  const grandchildTypes = ["Grand Son", "Grand Daugher", "Grand Son-Son Side"];
+  if (grandchildTypes.includes(relationshipType)) {
+    // Find the grandchild's father (paternal link)
+    const parentRel = allRelationships.find(
+      r => r.memberId === objectId && r.relationshipType === "Father"
+    );
+    if (parentRel) return parentRel.relatedMember.fullName;
+  }
+
+  // -- In-law types: find the connecting sibling/spouse ------------------
+  const siblingTypes = ["Elder Brother", "Younger Brother", "Elder Sister", "Younger Sister"];
+  if (relationshipType === "Brother-in-Law" || relationshipType === "Sister-in-Law") {
+    // Case 1: subjectId's spouse who is a sibling of objectId
+    const subjectSpouses = allRelationships.filter(
+      r => r.memberId === subjectId &&
+        (r.relationshipType === "Wife" || r.relationshipType === "Husband")
+    );
+    for (const spouseRel of subjectSpouses) {
+      const spouseId = spouseRel.relatedMemberId;
+      const isSiblingOfObject = allRelationships.some(
+        r => r.memberId === spouseId &&
+          siblingTypes.includes(r.relationshipType) &&
+          r.relatedMemberId === objectId
+      );
+      if (isSiblingOfObject) return spouseRel.relatedMember.fullName;
+    }
+    // Case 2: objectId's spouse who is a sibling of subjectId
+    const objectSpouses = allRelationships.filter(
+      r => r.memberId === objectId &&
+        (r.relationshipType === "Wife" || r.relationshipType === "Husband")
+    );
+    for (const spouseRel of objectSpouses) {
+      const spouseId = spouseRel.relatedMemberId;
+      const isSiblingOfSubject = allRelationships.some(
+        r => r.memberId === spouseId &&
+          siblingTypes.includes(r.relationshipType) &&
+          r.relatedMemberId === subjectId
+      );
+      if (isSiblingOfSubject) return spouseRel.relatedMember.fullName;
+    }
+  }
+
+  // -- Father-in-Law / Mother-in-Law: find the connecting spouse child ----
+  if (["Father-in-Law", "Mother-in-Law"].includes(relationshipType)) {
+    // subjectId's spouse who is child of objectId
+    const subjectSpouses = allRelationships.filter(
+      r => r.memberId === subjectId &&
+        (r.relationshipType === "Wife" || r.relationshipType === "Husband")
+    );
+    for (const spouseRel of subjectSpouses) {
+      const spouseId = spouseRel.relatedMemberId;
+      const isChildOfObject = allRelationships.some(
+        r => r.memberId === spouseId &&
+          (r.relationshipType === "Father" || r.relationshipType === "Mother") &&
+          r.relatedMemberId === objectId
+      );
+      if (isChildOfObject) return spouseRel.relatedMember.fullName;
+    }
+  }
+
+  return null;
+}
+
+// ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
 export function RelationChainFinder({ members, allRelationships }: Props) {
@@ -326,22 +414,30 @@ export function RelationChainFinder({ members, allRelationships }: Props) {
                     )}
                   </div>
 
-                  {label && (
-                    <div className="flex items-start gap-2 ml-4 mt-1 mb-1">
-                      <div className="flex flex-col items-center">
-                        <div className="w-px h-2 bg-gray-300" />
-                        <ArrowRight size={16} className="text-orange-400 rotate-90" />
-                        <div className="w-px h-2 bg-gray-300" />
+                  {label && (() => {
+                    const via = step.edge ? getViaNote(step.edge, allRelationships) : null;
+                    return (
+                      <div className="flex items-start gap-2 ml-4 mt-1 mb-1">
+                        <div className="flex flex-col items-center">
+                          <div className="w-px h-2 bg-gray-300" />
+                          <ArrowRight size={16} className="text-orange-400 rotate-90" />
+                          <div className="w-px h-2 bg-gray-300" />
+                        </div>
+                        <div className="bg-orange-50 border border-orange-200 rounded-lg px-3 py-1.5 text-xs text-gray-700 max-w-xs">
+                          <span className="font-semibold text-orange-700">{label.subject}</span>
+                          <span className="text-gray-500"> is </span>
+                          <span className="font-semibold text-orange-700">{label.relType}</span>
+                          <span className="text-gray-500"> of </span>
+                          <span className="font-semibold text-orange-700">{label.object}</span>
+                          {via && (
+                            <div className="text-gray-400 mt-0.5 italic text-[10px]">
+                              via {via}
+                            </div>
+                          )}
+                        </div>
                       </div>
-                      <div className="bg-orange-50 border border-orange-200 rounded-lg px-3 py-1.5 text-xs text-gray-700 max-w-xs">
-                        <span className="font-semibold text-orange-700">{label.subject}</span>
-                        <span className="text-gray-500"> is </span>
-                        <span className="font-semibold text-orange-700">{label.relType}</span>
-                        <span className="text-gray-500"> of </span>
-                        <span className="font-semibold text-orange-700">{label.object}</span>
-                      </div>
-                    </div>
-                  )}
+                    );
+                  })()}
                 </div>
               );
             })}
