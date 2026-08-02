@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, timestamp, boolean } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, timestamp, boolean, date, smallint } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -27,6 +27,10 @@ export const members = pgTable("members", {
   templeId: integer("temple_id").references(() => temples.id),
   profilePicture: text("profile_picture"),
   photos: text("photos").array().default([]),
+  // Birth tracking — all optional, used for elder/younger sibling ordering
+  dateOfBirth: date("date_of_birth"),
+  birthYear: integer("birth_year"),
+  birthOrder: integer("birth_order"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -48,6 +52,10 @@ export const insertMemberSchema = createInsertSchema(members).omit({
   phone: z.string().optional().nullable(),
   profilePicture: z.string().optional().nullable(),
   photos: z.array(z.string()).default([]),
+  // Birth tracking fields — all optional
+  dateOfBirth: z.string().optional().nullable(),
+  birthYear: z.number().int().optional().nullable(),
+  birthOrder: z.number().int().optional().nullable(),
 });
 
 export const insertRelationshipSchema = createInsertSchema(relationships).omit({
@@ -66,6 +74,9 @@ export const relationshipTypes = pgTable("relationship_types", {
   labelEn: text("label_en").notNull(),
   labelTa: text("label_ta"),
   category: text("category"),
+  // Reciprocal labels used by the bidirectional resolver
+  reverseWhenMale:   text("reverse_when_male"),
+  reverseWhenFemale: text("reverse_when_female"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 

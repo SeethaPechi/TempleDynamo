@@ -132,8 +132,16 @@ export default function FamilyTree() {
 
   const { data: memberRelationships = [], isLoading: relationshipsLoading } =
     useQuery<Array<Relationship & { relatedMember: Member }>>({
-      queryKey: ["/api/relationships", selectedMember?.id],
+      queryKey: ["/api/relationships", selectedMember?.id, lang],
       enabled: !!selectedMember?.id,
+      queryFn: async () => {
+        const res = await fetch(
+          `/api/relationships/${selectedMember!.id}?lang=${lang}`,
+          { credentials: "include" },
+        );
+        if (!res.ok) return [];
+        return res.json();
+      },
     });
 
   const { data: allRelationships = [] } = useQuery({
@@ -145,11 +153,10 @@ export default function FamilyTree() {
     },
   });
 
-  // Filter relationships to show only those belonging to the selected member
+  // Resolver now guarantees all returned rows have memberId === selectedMember.id
+  // (bidirectional edges are computed server-side), so no client-side filter needed.
   const filteredMemberRelationships = selectedMember
-    ? (
-        memberRelationships as Array<Relationship & { relatedMember: Member }>
-      ).filter((rel) => rel.memberId === selectedMember.id)
+    ? (memberRelationships as Array<Relationship & { relatedMember: Member }>)
     : [];
 
   console.log("Selected member:", selectedMember?.fullName);
@@ -735,7 +742,7 @@ export default function FamilyTree() {
 
                                 <td className="p-4">
                                   <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                    {relationship.relationshipType}
+                                    {(relationship as any).label ?? relationship.relationshipType}
                                   </span>
                                 </td>
 
@@ -746,7 +753,7 @@ export default function FamilyTree() {
                                     </span>{" "}
                                     is the{" "}
                                     <span className="text-temple-brown font-medium">
-                                      {relationship.relationshipType.toLowerCase()}
+                                      {((relationship as any).label ?? relationship.relationshipType).toLowerCase()}
                                     </span>{" "}
                                     of{" "}
                                     <span className="font-medium">

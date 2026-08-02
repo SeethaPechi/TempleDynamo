@@ -576,6 +576,9 @@ export default function MemberDetails() {
       spouseName: "",
       maritalStatus: "Single",
       templeId: null,
+      dateOfBirth: null,
+      birthYear: null,
+      birthOrder: null,
     },
   });
 
@@ -601,6 +604,9 @@ export default function MemberDetails() {
         templeId: memberData.templeId,
         profilePicture: memberData.profilePicture || "",
         photos: memberData.photos || [],
+        dateOfBirth: (memberData as any).dateOfBirth ?? null,
+        birthYear: (memberData as any).birthYear ?? null,
+        birthOrder: (memberData as any).birthOrder ?? null,
       });
       setSelectedBirthCountry(memberData.birthCountry);
       setSelectedCurrentCountry(memberData.currentCountry);
@@ -701,12 +707,13 @@ export default function MemberDetails() {
       const memberData = member as Member;
       const currentValue = memberData[fieldName as keyof Member];
 
-      if (
-        currentValue !== value &&
-        value !== undefined &&
-        value !== null &&
-        value.toString().trim() !== ""
-      ) {
+      // Birth-tracking fields are intentionally nullable — allow saving null/empty
+      // so that clearing a value persists the deletion rather than silently ignoring it.
+      const isBirthField = (["dateOfBirth", "birthYear", "birthOrder"] as string[]).includes(fieldName);
+      const hasChanged = currentValue !== value;
+      const isNonEmpty = value !== undefined && value !== null && value.toString().trim() !== "";
+
+      if (hasChanged && (isNonEmpty || isBirthField)) {
         console.log(`Auto-saving ${fieldName}:`, value);
         updateMutation.mutate(updatedData);
       }
@@ -1556,6 +1563,85 @@ export default function MemberDetails() {
                                               "spouseName",
                                               e.target.value,
                                             );
+                                          }}
+                                        />
+                                      </FormControl>
+                                      <FormMessage className="text-xs" />
+                                    </FormItem>
+                                  )}
+                                />
+                              </div>
+
+                              {/* Birth tracking fields */}
+                              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                <FormField
+                                  control={form.control}
+                                  name="dateOfBirth"
+                                  render={({ field }) => (
+                                    <FormItem className="space-y-2">
+                                      <FormLabel className="text-sm font-medium">
+                                        Date of Birth (Optional)
+                                      </FormLabel>
+                                      <FormControl>
+                                        <Input
+                                          {...field}
+                                          type="date"
+                                          value={field.value ?? ""}
+                                          className="h-10 sm:h-11"
+                                          onBlur={(e) => {
+                                            field.onBlur();
+                                            autoSave("dateOfBirth", e.target.value || null);
+                                          }}
+                                        />
+                                      </FormControl>
+                                      <FormMessage className="text-xs" />
+                                    </FormItem>
+                                  )}
+                                />
+                                <FormField
+                                  control={form.control}
+                                  name="birthYear"
+                                  render={({ field }) => (
+                                    <FormItem className="space-y-2">
+                                      <FormLabel className="text-sm font-medium">
+                                        Birth Year (Optional)
+                                      </FormLabel>
+                                      <FormControl>
+                                        <Input
+                                          type="number"
+                                          placeholder="e.g. 1965"
+                                          value={field.value ?? ""}
+                                          onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : null)}
+                                          className="h-10 sm:h-11"
+                                          onBlur={(e) => {
+                                            field.onBlur();
+                                            autoSave("birthYear", e.target.value ? parseInt(e.target.value) : null);
+                                          }}
+                                        />
+                                      </FormControl>
+                                      <FormMessage className="text-xs" />
+                                    </FormItem>
+                                  )}
+                                />
+                                <FormField
+                                  control={form.control}
+                                  name="birthOrder"
+                                  render={({ field }) => (
+                                    <FormItem className="space-y-2">
+                                      <FormLabel className="text-sm font-medium">
+                                        Birth Order (Optional)
+                                      </FormLabel>
+                                      <FormControl>
+                                        <Input
+                                          type="number"
+                                          min={1}
+                                          placeholder="1 = eldest"
+                                          value={field.value ?? ""}
+                                          onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : null)}
+                                          className="h-10 sm:h-11"
+                                          onBlur={(e) => {
+                                            field.onBlur();
+                                            autoSave("birthOrder", e.target.value ? parseInt(e.target.value) : null);
                                           }}
                                         />
                                       </FormControl>

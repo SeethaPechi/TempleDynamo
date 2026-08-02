@@ -1,6 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import { getRelationshipsFor } from "./relationships-resolver";
 import { insertMemberSchema, insertRelationshipSchema, insertTempleSchema, insertUserSchema, loginUserSchema } from "@shared/schema";
 import { whatsappService } from "./whatsapp";
 import { z } from "zod";
@@ -880,10 +881,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (isNaN(memberId)) {
         return res.status(400).json({ message: "Invalid member ID" });
       }
-      
-      const relationships = await storage.getMemberRelationships(memberId);
-      console.log(`Fetching relationships for member ${memberId}:`, relationships);
-      res.json(relationships);
+
+      const lang = (req.query.lang as string) || "en";
+      const resolved = await getRelationshipsFor(memberId, lang);
+      res.json(resolved);
     } catch (error) {
       console.error("Error fetching member relationships:", error);
       res.status(500).json({ message: "Failed to fetch relationships" });

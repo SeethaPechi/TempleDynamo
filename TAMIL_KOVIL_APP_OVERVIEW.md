@@ -113,6 +113,9 @@
 | `temple_id` | integer | FK → temples.id, nullable | |
 | `profile_picture` | text | nullable | base64 or URL |
 | `photos` | text[] | default `[]` | array of base64 or URLs |
+| `date_of_birth` | date | nullable | used for automatic elder/younger sibling ordering |
+| `birth_year` | integer | nullable | fallback when full date is unknown |
+| `birth_order` | integer | nullable | 1 = eldest; used for sibling ordering when dates absent |
 | `created_at` | timestamp | defaultNow() | |
 
 ### Table: `relationships` (called "Relationship Map" in UI)
@@ -121,10 +124,12 @@
 | `id` | serial | PK | |
 | `member_id` | integer | NOT NULL, FK → members.id | subject |
 | `related_member_id` | integer | NOT NULL, FK → members.id | object |
-| `relationship_type` | text | NOT NULL | stored in **English** (e.g. "Father", "Son") — lookups in `relationship_types` |
+| `relationship_type` | text | NOT NULL | stored in **English** (e.g. "Father", "Son") — `(member_id=M, type=T, related_member_id=R)` means **"R is T of M"** |
 | `created_at` | timestamp | defaultNow() | |
 
-### Table: `relationship_types` *(added 2026-08-01)*
+**Bidirectional reads**: `GET /api/relationships/:memberId` (via `server/relationships-resolver.ts`) queries BOTH directions, computes correct reverse labels using `relationship_types.reverse_when_male/female`, and always returns `memberId` equal to the queried ID. One stored row appears on both persons' pages automatically.
+
+### Table: `relationship_types` *(updated 2026-08-02)*
 | Column | Type | Constraints | Notes |
 |---|---|---|---|
 | `id` | serial | PK | |
@@ -132,9 +137,11 @@
 | `label_en` | text | NOT NULL | English label |
 | `label_ta` | text | nullable | Tamil label |
 | `category` | text | nullable | `immediate` / `extended` / `in-law` |
+| `reverse_when_male` | text | nullable | reciprocal label when the subject is Male (used by bidirectional resolver) |
+| `reverse_when_female` | text | nullable | reciprocal label when the subject is Female |
 | `created_at` | timestamp | defaultNow() | |
 
-Seeded with **23 standard Tamil family relationship types** across 3 categories.
+Seeded with **23 standard Tamil family relationship types** across 3 categories. Reciprocal pairs populated for all standard types.
 
 ### Table: `users` (authenticated app accounts)
 | Column | Type | Constraints | Notes |
