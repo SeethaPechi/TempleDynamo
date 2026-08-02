@@ -9,7 +9,9 @@ app.set("trust proxy", 1);
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: false, limit: '50mb' }));
 
-// CORS — allow production domain and all Replit dev/preview origins in development
+// CORS
+// Development: allow every origin so Replit's proxy/auth infrastructure is never blocked.
+// Production: restrict to the registered domain.
 const PRODUCTION_ORIGINS = new Set([
   "https://tamilkovil.com",
   "https://www.tamilkovil.com",
@@ -19,18 +21,12 @@ app.use((req, res, next) => {
   const origin = req.headers.origin ?? "";
   const isDev = app.get("env") === "development";
 
-  // In development allow localhost AND any *.replit.dev / *.repl.co origin
-  const isDevOrigin = isDev && (
-    /^https?:\/\/localhost(:\d+)?$/.test(origin) ||
-    /^https?:\/\/127\.0\.0\.1(:\d+)?$/.test(origin) ||
-    /\.replit\.dev$/.test(origin) ||
-    /\.repl\.co$/.test(origin)
-  );
-
-  if (isDevOrigin || PRODUCTION_ORIGINS.has(origin)) {
+  if (isDev) {
+    // Allow any origin in dev — Replit's proxy, auth gateway, and local tools all vary
+    if (origin) res.header("Access-Control-Allow-Origin", origin);
+  } else if (PRODUCTION_ORIGINS.has(origin)) {
     res.header("Access-Control-Allow-Origin", origin);
   }
-  // Omit the header entirely for unlisted origins — browsers will block the request.
 
   res.header("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS");
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
@@ -100,6 +96,7 @@ app.use((req, res, next) => {
   server.listen({
     port,
     host: "0.0.0.0",
+    reusePort: true,
   }, () => {
     log(`serving on port ${port}`);
   });
