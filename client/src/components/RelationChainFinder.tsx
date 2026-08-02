@@ -171,21 +171,36 @@ function bfsPath(
 
 // ---------------------------------------------------------------------------
 // Label helper — always reads from the perspective of the FROM person
+//
+// DB semantics: (member, type, related) means "member's [type] is related"
+//   i.e. the related person IS [type] OF the member.
+//
+// Forward  (BFS walks member → related):
+//   from=member, to=related
+//   The type tells us what "related" is to "member", so from the member's
+//   perspective we need the INVERSE: "member is [inverse(type)] of related"
+//
+// Backward (BFS walks related → member):
+//   from=related, to=member
+//   The type directly says what "related" is to "member", so no inversion:
+//   "related is [type] of member"
 // ---------------------------------------------------------------------------
 function edgeLabel(edge: Edge): { subject: string; relType: string; object: string } {
   if (edge.isForward) {
-    // FROM = subject (memberId person)
+    // FROM = member (subject). Type describes "what related IS to member",
+    // so invert to express from the member's own perspective.
+    const fromGender = edge.subjectGender;
     return {
       subject: edge.subjectName,
-      relType: edge.relationshipType,
+      relType: getInverseType(edge.relationshipType, fromGender),
       object:  edge.objectName,
     };
   } else {
-    // FROM = object (relatedMemberId person) — need to invert the relationship
-    const fromGender = edge.objectGender;
+    // FROM = related (object). Type directly describes "what from-person IS to to-person".
+    // No inversion needed.
     return {
       subject: edge.objectName,
-      relType: getInverseType(edge.relationshipType, fromGender),
+      relType: edge.relationshipType,
       object:  edge.subjectName,
     };
   }
