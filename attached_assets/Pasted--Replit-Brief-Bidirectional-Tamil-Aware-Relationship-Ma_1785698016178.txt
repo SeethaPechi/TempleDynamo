@@ -1,0 +1,243 @@
+# Replit Brief — Bidirectional, Tamil-Aware Relationship Mapping
+
+**Goal:** Store each relationship **once** and infer the reverse edge at read time, correctly gendered and in both languages, plus refine sibling terms to elder/younger (அண்ணன்/தம்பி · அக்கா/தங்கை) using birth ordering. Fixes the bug where mapping "Solairaja is Son of Venkatachalam" does not show Venkatachalam as a parent on Solairaja's page.
+
+**Design principle:** one source of truth. Do **not** duplicate relationship rows. The `relationship_types` table becomes the "kinship brain" (it holds the reciprocals); the read query resolves direction on the fly.
+
+**DO NOT TOUCH:** auth / bcrypt logic, WhatsApp, WebSocket code, the i18n locale files (`en.json`/`ta.json`), or the existing `members` `_ta` columns and their COALESCE serving.
+
+**Storage convention (existing):** a row `(member_id = M, related_member_id = R, relationship_type = T)` means **"R is T of M."** So on M's page you list R with label T. The reverse (R's page) is what this brief adds.
+
+---
+
+## Part 1 — Database migration (run as ONE SQL file, top to bottom)
+
+Order matters: reverse-columns → precise sibling labels → populate reverses → members birth columns.
+
+```sql
+-- ============================================================
+-- 1.1  Reciprocal columns on relationship_types
+-- ============================================================
+ALTER TABLE relationship_types
+  ADD COLUMN IF NOT EXISTS reverse_when_male   TEXT,
+  ADD COLUMN IF NOT EXISTS reverse_when_female TEXT;
+
+-- FKs point back into the same table (name is UNIQUE, so it is a valid target)
+DO $$ BEGIN
+  ALTER TABLE relationship_types
+    ADD CONSTRAINT rt_reverse_male_fk
+    FOREIGN KEY (reverse_when_male) REFERENCES relationship_types(name);
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+DO $$ BEGIN
+  ALTER TABLE relationship_types
+    ADD CONSTRAINT rt_reverse_female_fk
+    FOREIGN KEY (reverse_when_female) REFERENCES relationship_types(name);
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+-- ============================================================
+-- 1.2  Precise sibling labels (display-only; never stored as edges)
+--      Must exist BEFORE we reference them as reverses below.
+-- ============================================================
+INSERT INTO relationship_types (name, label_en, label_ta, category) VALUES
+  ('elder_brother',   'Elder brother',   'அண்ணன்', 'immediate'),
+  ('younger_brother', 'Younger brother', 'தம்பி',  'immediate'),
+  ('elder_sister',    'Elder sister',    'அக்கா',  'immediate'),
+  ('younger_sister',  'Younger sister',  'தங்கை',  'immediate')
+ON CONFLICT (name) DO NOTHING;
+
+-- ============================================================
+-- 1.3  Populate reciprocals for the base 23 types
+--      Reverse is chosen by the OTHER person's gender.
+-- ============================================================
+UPDATE relationship_types AS rt
+SET reverse_when_male = m.rev_m,
+    reverse_when_female = m.rev_f
+FROM (VALUES
+  ('father','son','daughter'),               ('mother','son','daughter'),
+  ('son','father','mother'),                 ('daughter','father','mother'),
+  ('husband','husband','wife'),              ('wife','husband','wife'),
+  ('brother','brother','sister'),            ('sister','brother','sister'),
+  ('grandfather','grandson','granddaughter'),('grandmother','grandson','granddaughter'),
+  ('grandson','grandfather','grandmother'),  ('granddaughter','grandfather','grandmother'),
+  ('uncle','nephew','niece'),                ('aunt','nephew','niece'),
+  ('nephew','uncle','aunt'),                 ('niece','uncle','aunt'),
+  ('cousin','cousin','cousin'),
+  ('father_in_law','son_in_law','daughter_in_law'),
+  ('mother_in_law','son_in_law','daughter_in_law'),
+  ('son_in_law','father_in_law','mother_in_law'),
+  ('daughter_in_law','father_in_law','mother_in_law'),
+  ('brother_in_law','brother_in_law','sister_in_law'),
+  ('sister_in_law','brother_in_law','sister_in_law')
+) AS m(name, rev_m, rev_f)
+WHERE rt.name = m.name;
+
+-- Reciprocals for the precise sibling labels (internal consistency; optional but tidy)
+UPDATE relationship_types AS rt
+SET reverse_when_male = m.rev_m,
+    reverse_when_female = m.rev_f
+FROM (VALUES
+  ('elder_brother',   'younger_brother','younger_sister'),
+  ('younger_brother', 'elder_brother',  'elder_sister'),
+  ('elder_sister',    'younger_brother','younger_sister'),
+  ('younger_sister',  'elder_brother',  'elder_sister')
+) AS m(name, rev_m, rev_f)
+WHERE rt.name = m.name;
+
+-- ============================================================
+-- 1.4  Birth ordering on members (for elder/younger sibling logic)
+--      All nullable — ancestors may have none of these.
+-- ============================================================
+ALTER TABLE members
+  ADD COLUMN IF NOT EXISTS date_of_birth DATE,      -- exact date when known
+  ADD COLUMN IF NOT EXISTS birth_year    SMALLINT,  -- year-only fallback
+  ADD COLUMN IF NOT EXISTS birth_order   SMALLINT;  -- manual override; 1 = eldest
+```
+
+---
+
+## Part 2 — Drizzle schema updates (`shared/schema.ts`)
+
+Add the new columns to the existing table definitions. Match your existing camelCase mapping style.
+
+```ts
+// members table — add:
+dateOfBirth: date("date_of_birth"),
+birthYear:   smallint("birth_year"),
+birthOrder:  smallint("birth_order"),
+
+// relationshipTypes table — add:
+reverseWhenMale:   text("reverse_when_male"),
+reverseWhenFemale: text("reverse_when_female"),
+```
+
+Add `dateOfBirth`, `birthYear`, `birthOrder` as **optional** fields in `insertMemberSchema` (drizzle-zod) so the member form can write them. Do not make them required.
+
+---
+
+## Part 3 — Server: bidirectional resolver
+
+Replace the body of `GET /api/relationships/:memberId` with a resolver that reads **both** directions and computes the correct label per edge. Reference implementation:
+
+```ts
+// server/relationships-resolver.ts
+import { or, eq, inArray } from 'drizzle-orm';
+import { db } from './db';
+import { relationships, members, relationshipTypes } from '../shared/schema';
+
+type AgeRel = 'elder' | 'younger' | 'unknown';
+
+// Is `rel` elder or younger than `viewed`? Precedence: birth_order → date_of_birth → birth_year.
+function ageRelation(rel: any, viewed: any): AgeRel {
+  const keys: [number | null, number | null][] = [
+    [rel.birthOrder ?? null, viewed.birthOrder ?? null],
+    [rel.dateOfBirth ? +new Date(rel.dateOfBirth) : null,
+     viewed.dateOfBirth ? +new Date(viewed.dateOfBirth) : null],
+    [rel.birthYear ?? null, viewed.birthYear ?? null],
+  ];
+  for (const [a, b] of keys) {
+    if (a != null && b != null && a !== b) return a < b ? 'elder' : 'younger';
+  }
+  return 'unknown';
+}
+
+// Precise sibling slug for what `rel` is to `viewed`.
+function siblingSlug(rel: any, viewed: any): string {
+  const female = rel.gender === 'Female';
+  const age = ageRelation(rel, viewed);
+  if (age === 'unknown') return female ? 'sister' : 'brother';
+  if (age === 'elder')   return female ? 'elder_sister'   : 'elder_brother';
+  return female ? 'younger_sister' : 'younger_brother';
+}
+
+export async function getRelationshipsFor(memberId: number, lang: 'en' | 'ta' = 'en') {
+  const viewed = (await db.select().from(members).where(eq(members.id, memberId)))[0];
+  if (!viewed) return [];
+
+  // BOTH directions — this is the core fix
+  const rows = await db.select().from(relationships)
+    .where(or(eq(relationships.memberId, memberId),
+              eq(relationships.relatedMemberId, memberId)));
+
+  const typeRows = await db.select().from(relationshipTypes);
+  const T = new Map(typeRows.map(t => [t.name, t]));
+
+  const otherIds = rows.map(r => r.memberId === memberId ? r.relatedMemberId : r.memberId);
+  const others = otherIds.length
+    ? await db.select().from(members).where(inArray(members.id, otherIds))
+    : [];
+  const M = new Map(others.map(m => [m.id, m]));
+
+  const seen = new Set<string>();
+  const out: any[] = [];
+
+  for (const row of rows) {
+    const isSubject = row.memberId === memberId;      // viewed is the member_id side
+    const relative = M.get(isSubject ? row.relatedMemberId : row.memberId);
+    if (!relative) continue;
+
+    // base slug = what `relative` is to `viewed`
+    let baseSlug: string;
+    if (isSubject) {
+      baseSlug = row.relationshipType;                // stored directly ("R is T of M")
+    } else {
+      const t = T.get(row.relationshipType);          // reverse it, by relative's gender
+      baseSlug = (relative.gender === 'Female'
+        ? t?.reverseWhenFemale
+        : t?.reverseWhenMale) ?? row.relationshipType; // null gender -> male form
+    }
+
+    // refine siblings to elder/younger
+    if (baseSlug === 'brother' || baseSlug === 'sister') {
+      baseSlug = siblingSlug(relative, viewed);
+    }
+
+    const key = `${relative.id}:${baseSlug}`;
+    if (seen.has(key)) continue;                       // guards any legacy double-rows
+    seen.add(key);
+
+    const def = T.get(baseSlug);
+    out.push({
+      relativeMember: relative,
+      relationshipType: baseSlug,
+      labelEn: def?.labelEn ?? baseSlug,
+      labelTa: def?.labelTa ?? def?.labelEn ?? baseSlug,
+      label:   lang === 'ta' ? (def?.labelTa ?? def?.labelEn) : def?.labelEn,
+    });
+  }
+  return out;
+}
+```
+
+Wire the route to pass `?lang` through, and have the family-tree and member-details pages render `label` (already language-resolved) or `labelEn`/`labelTa` as they prefer.
+
+---
+
+## Part 4 — Member form / edit UI
+
+Add three optional inputs to the member create/edit form (React Hook Form + Zod), so admins can backfill and rearrange retroactively:
+
+- **Date of birth** — date picker (writes `date_of_birth`).
+- **Birth year** — number, for ancestors with year only (writes `birth_year`).
+- **Birth order** — number, 1 = eldest; manual override when no dates exist (writes `birth_order`).
+
+These flow through the updated `insertMemberSchema`. The moment a date or order is filled, sibling labels correct themselves on both members' pages — no re-mapping.
+
+---
+
+## Acceptance criteria
+
+1. Mapping "Solairaja is Son of Venkatachalam" (one stored row) makes **Venkatachalam appear as "Father / அப்பா" on Solairaja's page** and **Solairaja as "Son / மகன்" on Venkatachalam's page**.
+2. Reverse labels are gendered from the relative's `gender` (e.g. a female parent resolves to Mother / அம்மா).
+3. Two brothers with known birth dates show **தம்பி** (younger) on the elder's page and **அண்ணன்** (elder) on the younger's; clearing the dates falls back to generic brother/sister; setting `birth_order` overrides when no dates exist.
+4. Switching to Tamil renders the `label_ta` values throughout.
+5. No duplicate relationship rows are created; deleting a relationship removes the single stored row and the reverse disappears from both pages.
+
+---
+
+## Notes & known limits (by design, not bugs)
+
+- `cousin` stays symmetric at this granularity — fine.
+- Cross-kin overlaps in Tamil (மருமகள் = daughter-in-law *and* niece; மாமா/அத்தை span both sides) are correct reflections of the Dravidian cross-cousin system.
+- Null `gender` on a relative defaults reverse resolution to the male form; fill gender for accuracy.
+- Precise sibling terms are **display-only** — edges are still stored as generic `brother`/`sister`, so no historical data needs rewriting.
