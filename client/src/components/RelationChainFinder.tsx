@@ -209,86 +209,165 @@ function edgeLabel(edge: Edge): { subject: string; relType: string; object: stri
 // ---------------------------------------------------------------------------
 // Via-note helper — finds the intermediate person for multi-hop relationships
 // so the chain can show "(via [name])" for grandparent and in-law steps.
+//
+// DB semantics reminder: (member_id=M, type=T, related_member_id=R) means
+// "R is T of M". So r.relatedMember is always the R side.
 // ---------------------------------------------------------------------------
 function getViaNote(
   edge: Edge,
   allRelationships: Array<Relationship & { relatedMember: Member }>,
+  memberById: Map<number, Member>,
 ): string | null {
   const { relationshipType, subjectId, objectId } = edge;
 
-  // -- Grandparent types: subjectId = grandchild (member), objectId = grandparent (related) --
+  // ---- Shared lookup helpers -------------------------------------------
+
+  /** Spouses of `id` — returns {id, name} for each Wife/Husband row. */
+  const spousesOf = (id: number) =>
+    allRelationships
+      .filter(r => r.memberId === id &&
+        (r.relationshipType === "Wife" || r.relationshipType === "Husband"))
+      .map(r => ({ id: r.relatedMemberId, name: r.relatedMember.fullName }));
+
+  /**
+   * True when `childId` is a child of `parentId`, checked in both
+   * storage directions:
+   *   Dir-1: (member=child, type=Father|Mother, related=parent)
+   *   Dir-2: (member=parent, type=Son|Daughter, related=child)
+   */
+  const isChildOf = (childId: number, parentId: number): boolean =>
+    allRelationships.some(r =>
+      r.memberId === childId &&
+      (r.relationshipType === "Father" || r.relationshipType === "Mother") &&
+      r.relatedMemberId === parentId
+    ) ||
+    allRelationships.some(r =>
+      r.memberId === parentId &&
+      (r.relationshipType === "Son" || r.relationshipType === "Daughter") &&
+      r.relatedMemberId === childId
+    );
+
+  /**
+   * True when `aId` and `bId` are siblings, checked in both directions.
+   */
+  const sibTypes = ["Elder Brother", "Younger Brother", "Elder Sister", "Younger Sister"];
+  const isSiblingOf = (aId: number, bId: number): boolean =>
+    allRelationships.some(r =>
+      r.memberId === aId && sibTypes.includes(r.relationshipType) && r.relatedMemberId === bId
+    ) ||
+    allRelationships.some(r =>
+      r.memberId === bId && sibTypes.includes(r.relationshipType) && r.relatedMemberId === aId
+    );
+
+  /**
+   * Returns the name of a child of `parentId` who is also a spouse of
+   * `spouseOfId`. Scans BOTH storage directions for the parent→child edge:
+   *
+   *   Dir-1: (member=parentId, type=Son|Daughter, related=child)
+   *          → child id = r.relatedMemberId, name from r.relatedMember
+   *   Dir-2: (member=child, type=Father|Mother, related=parentId)
+   *          → child id = r.memberId, name from memberById
+   *
+   * Then checks spouse relationship in both directions.
+   */
+  const connectingChildSpouse = (parentId: number, spouseOfId: number): string | null => {
+    // Dir-1: parent has Son/Daughter → child rows
+    const dir1 = allRelationships
+      .filter(r =>
+        r.memberId === parentId &&
+        (r.relationshipType === "Son" || r.relationshipType === "Daughter"))
+      .map(r => ({ id: r.relatedMemberId, name: r.relatedMember.fullName }));
+
+    // Dir-2: child has Father/Mother = parent rows
+    // memberId is the child; use memberById for the child's name
+    const dir2 = allRelationships
+      .filter(r =>
+        r.relatedMemberId === parentId &&
+        (r.relationshipType === "Father" || r.relationshipType === "Mother"))
+      .map(r => ({
+        id: r.memberId,
+        name: memberById.get(r.memberId)?.fullName ?? `#${r.memberId}`,
+      }));
+
+    // Merge, dedup by id
+    const seen = new Set<number>();
+    const children: { id: number; name: string }[] = [];
+    for (const c of [...dir1, ...dir2]) {
+      if (!seen.has(c.id)) { seen.add(c.id); children.push(c); }
+    }
+
+    // For each child, check spouse relationship in both directions
+    for (const child of children) {
+      const isSpouseOfTarget =
+        allRelationships.some(r =>
+          r.memberId === child.id &&
+          (r.relationshipType === "Wife" || r.relationshipType === "Husband") &&
+          r.relatedMemberId === spouseOfId
+        ) ||
+        allRelationships.some(r =>
+          r.memberId === spouseOfId &&
+          (r.relationshipType === "Wife" || r.relationshipType === "Husband") &&
+          r.relatedMemberId === child.id
+        );
+      if (isSpouseOfTarget) return child.name;
+    }
+
+    // Final fallback: spouseOfId's spouses who are children of parentId
+    for (const sp of spousesOf(spouseOfId)) {
+      if (isChildOf(sp.id, parentId)) return sp.name;
+    }
+
+    return null;
+  };
+
+  // ---- Grandparent types: subjectId = grandchild, objectId = grandparent --
   const grandparentTypes = [
     "Paternal Grandfather", "Paternal Grandmother",
     "Maternal Grandfather", "Maternal Grandmother",
   ];
   if (grandparentTypes.includes(relationshipType)) {
-    const isPaternal = relationshipType.startsWith("Paternal");
-    const parentType = isPaternal ? "Father" : "Mother";
+    const parentType = relationshipType.startsWith("Paternal") ? "Father" : "Mother";
     const parentRel = allRelationships.find(
       r => r.memberId === subjectId && r.relationshipType === parentType
     );
     if (parentRel) return parentRel.relatedMember.fullName;
   }
 
-  // -- Grandchild types: subjectId = grandparent (member), objectId = grandchild (related) --
+  // ---- Grandchild types: subjectId = grandparent, objectId = grandchild --
   const grandchildTypes = ["Grand Son", "Grand Daugher", "Grand Son-Son Side"];
   if (grandchildTypes.includes(relationshipType)) {
-    // Find the grandchild's father (paternal link)
     const parentRel = allRelationships.find(
       r => r.memberId === objectId && r.relationshipType === "Father"
     );
     if (parentRel) return parentRel.relatedMember.fullName;
   }
 
-  // -- In-law types: find the connecting sibling/spouse ------------------
-  const siblingTypes = ["Elder Brother", "Younger Brother", "Elder Sister", "Younger Sister"];
+  // ---- Brother-in-Law / Sister-in-Law ------------------------------------
   if (relationshipType === "Brother-in-Law" || relationshipType === "Sister-in-Law") {
-    // Case 1: subjectId's spouse who is a sibling of objectId
-    const subjectSpouses = allRelationships.filter(
-      r => r.memberId === subjectId &&
-        (r.relationshipType === "Wife" || r.relationshipType === "Husband")
-    );
-    for (const spouseRel of subjectSpouses) {
-      const spouseId = spouseRel.relatedMemberId;
-      const isSiblingOfObject = allRelationships.some(
-        r => r.memberId === spouseId &&
-          siblingTypes.includes(r.relationshipType) &&
-          r.relatedMemberId === objectId
-      );
-      if (isSiblingOfObject) return spouseRel.relatedMember.fullName;
+    // Case 1: subjectId's spouse who is sibling of objectId
+    for (const sp of spousesOf(subjectId)) {
+      if (isSiblingOf(sp.id, objectId)) return sp.name;
     }
-    // Case 2: objectId's spouse who is a sibling of subjectId
-    const objectSpouses = allRelationships.filter(
-      r => r.memberId === objectId &&
-        (r.relationshipType === "Wife" || r.relationshipType === "Husband")
-    );
-    for (const spouseRel of objectSpouses) {
-      const spouseId = spouseRel.relatedMemberId;
-      const isSiblingOfSubject = allRelationships.some(
-        r => r.memberId === spouseId &&
-          siblingTypes.includes(r.relationshipType) &&
-          r.relatedMemberId === subjectId
-      );
-      if (isSiblingOfSubject) return spouseRel.relatedMember.fullName;
+    // Case 2: objectId's spouse who is sibling of subjectId
+    for (const sp of spousesOf(objectId)) {
+      if (isSiblingOf(sp.id, subjectId)) return sp.name;
     }
   }
 
-  // -- Father-in-Law / Mother-in-Law: find the connecting spouse child ----
+  // ---- Father-in-Law / Mother-in-Law -------------------------------------
+  // "objectId is Father/Mother-in-Law of subjectId"
+  // → connecting person = child of objectId who married subjectId
   if (["Father-in-Law", "Mother-in-Law"].includes(relationshipType)) {
-    // subjectId's spouse who is child of objectId
-    const subjectSpouses = allRelationships.filter(
-      r => r.memberId === subjectId &&
-        (r.relationshipType === "Wife" || r.relationshipType === "Husband")
-    );
-    for (const spouseRel of subjectSpouses) {
-      const spouseId = spouseRel.relatedMemberId;
-      const isChildOfObject = allRelationships.some(
-        r => r.memberId === spouseId &&
-          (r.relationshipType === "Father" || r.relationshipType === "Mother") &&
-          r.relatedMemberId === objectId
-      );
-      if (isChildOfObject) return spouseRel.relatedMember.fullName;
-    }
+    const name = connectingChildSpouse(objectId, subjectId);
+    if (name) return name;
+  }
+
+  // ---- Son-in-Law / Daughter-in-Law --------------------------------------
+  // "objectId is Son/Daughter-in-Law of subjectId"
+  // → connecting person = child of subjectId who married objectId
+  if (["Son-in-Law", "Daughter-in-Law"].includes(relationshipType)) {
+    const name = connectingChildSpouse(subjectId, objectId);
+    if (name) return name;
   }
 
   return null;
@@ -415,7 +494,7 @@ export function RelationChainFinder({ members, allRelationships }: Props) {
                   </div>
 
                   {label && (() => {
-                    const via = step.edge ? getViaNote(step.edge, allRelationships) : null;
+                    const via = step.edge ? getViaNote(step.edge, allRelationships, memberById) : null;
                     return (
                       <div className="flex items-start gap-2 ml-4 mt-1 mb-1">
                         <div className="flex flex-col items-center">
