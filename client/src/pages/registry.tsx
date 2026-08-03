@@ -45,6 +45,7 @@ import { useTranslation } from "react-i18next";
 import { insertMemberSchema } from "@shared/schema";
 import type { Member } from "@shared/schema";
 import { PhotoUpload } from "@/components/photo-upload";
+import { MemberNameCombobox } from "@/components/MemberNameCombobox";
 
 const registrationSchema = insertMemberSchema.extend({
   fullName: z.string().min(2, "Full name must be at least 2 characters"),
@@ -485,6 +486,11 @@ export default function Registry() {
   // Fetch temples for dropdown
   const { data: temples = [] } = useQuery<any[]>({
     queryKey: ["/api/temples"],
+  });
+
+  // Fetch all members for father/mother/spouse comboboxes
+  const { data: allMembers = [] } = useQuery<Member[]>({
+    queryKey: ["/api/members"],
   });
 
   const form = useForm<RegistrationData>({
@@ -1042,9 +1048,12 @@ export default function Registry() {
                         <FormItem>
                           <FormLabel>{t("registry.form.fatherName")} *</FormLabel>
                           <FormControl>
-                            <Input
+                            <MemberNameCombobox
+                              value={field.value ?? ""}
+                              onChange={field.onChange}
+                              members={allMembers}
+                              temples={temples}
                               placeholder={t("registry.form.fatherNamePlaceholder")}
-                              {...field}
                             />
                           </FormControl>
                           <FormMessage />
@@ -1058,9 +1067,12 @@ export default function Registry() {
                         <FormItem>
                           <FormLabel>{t("registry.form.motherName")} *</FormLabel>
                           <FormControl>
-                            <Input
+                            <MemberNameCombobox
+                              value={field.value ?? ""}
+                              onChange={field.onChange}
+                              members={allMembers}
+                              temples={temples}
                               placeholder={t("registry.form.motherNamePlaceholder")}
-                              {...field}
                             />
                           </FormControl>
                           <FormMessage />
@@ -1107,9 +1119,12 @@ export default function Registry() {
                         <FormItem>
                           <FormLabel>{t("registry.form.spouseName")}</FormLabel>
                           <FormControl>
-                            <Input
+                            <MemberNameCombobox
+                              value={field.value ?? ""}
+                              onChange={field.onChange}
+                              members={allMembers}
+                              temples={temples}
                               placeholder={t("registry.form.spouseNamePlaceholder")}
-                              {...field}
                               disabled={selectedMaritalStatus !== "Married"}
                             />
                           </FormControl>

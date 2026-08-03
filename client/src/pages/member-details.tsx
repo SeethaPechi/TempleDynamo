@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRoute, useLocation } from "wouter";
 import { useForm } from "react-hook-form";
@@ -58,6 +58,7 @@ import {
 } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { MemberNameCombobox } from "@/components/MemberNameCombobox";
 import { FamilyTreeVisualization } from "@/components/family-tree-visualization";
 import { PhotoUpload } from "@/components/photo-upload";
 import type { Member, Relationship, InsertMember } from "@shared/schema";
@@ -694,6 +695,18 @@ export default function MemberDetails() {
   const onSubmit = (data: InsertMember) => {
     updateMutation.mutate(data);
   };
+
+  // Warn on page close/refresh when there are unsaved changes
+  const { isDirty } = form.formState;
+  useEffect(() => {
+    if (!isDirty) return;
+    const handler = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = "";
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [isDirty]);
 
   // Auto-save function for individual fields
   const autoSave = useCallback(
@@ -1504,16 +1517,14 @@ export default function MemberDetails() {
                                         Father's Name *
                                       </FormLabel>
                                       <FormControl>
-                                        <Input
-                                          {...field}
-                                          className="h-10 sm:h-11"
-                                          onBlur={(e) => {
-                                            field.onBlur();
-                                            autoSave(
-                                              "fatherName",
-                                              e.target.value,
-                                            );
-                                          }}
+                                        <MemberNameCombobox
+                                          value={field.value ?? ""}
+                                          onChange={field.onChange}
+                                          onSave={(v) => autoSave("fatherName", v)}
+                                          members={allMembers as Member[]}
+                                          temples={existingTemples as any[] ?? []}
+                                          placeholder="Select father…"
+                                          currentMemberId={memberId}
                                         />
                                       </FormControl>
                                       <FormMessage className="text-xs" />
@@ -1529,16 +1540,14 @@ export default function MemberDetails() {
                                         Mother's Name *
                                       </FormLabel>
                                       <FormControl>
-                                        <Input
-                                          {...field}
-                                          className="h-10 sm:h-11"
-                                          onBlur={(e) => {
-                                            field.onBlur();
-                                            autoSave(
-                                              "motherName",
-                                              e.target.value,
-                                            );
-                                          }}
+                                        <MemberNameCombobox
+                                          value={field.value ?? ""}
+                                          onChange={field.onChange}
+                                          onSave={(v) => autoSave("motherName", v)}
+                                          members={allMembers as Member[]}
+                                          temples={existingTemples as any[] ?? []}
+                                          placeholder="Select mother…"
+                                          currentMemberId={memberId}
                                         />
                                       </FormControl>
                                       <FormMessage className="text-xs" />
@@ -1554,16 +1563,14 @@ export default function MemberDetails() {
                                         Spouse Name
                                       </FormLabel>
                                       <FormControl>
-                                        <Input
-                                          {...field}
-                                          className="h-10 sm:h-11"
-                                          onBlur={(e) => {
-                                            field.onBlur();
-                                            autoSave(
-                                              "spouseName",
-                                              e.target.value,
-                                            );
-                                          }}
+                                        <MemberNameCombobox
+                                          value={field.value ?? ""}
+                                          onChange={field.onChange}
+                                          onSave={(v) => autoSave("spouseName", v)}
+                                          members={allMembers as Member[]}
+                                          temples={existingTemples as any[] ?? []}
+                                          placeholder="Select spouse…"
+                                          currentMemberId={memberId}
                                         />
                                       </FormControl>
                                       <FormMessage className="text-xs" />
@@ -2023,13 +2030,30 @@ export default function MemberDetails() {
                         </Form>
                       </div>
 
-                      {/* Sticky Close Button */}
+                      {/* Sticky footer — Save Changes + Close */}
                       <div className="sticky bottom-0 bg-white border-t p-4 sm:p-6">
-                        <div className="flex justify-center">
+                        <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
+                          {isDirty && (
+                            <Button
+                              type="button"
+                              onClick={form.handleSubmit(onSubmit)}
+                              disabled={updateMutation.isPending}
+                              className="w-full sm:w-auto px-6 py-2 h-10 sm:h-11 text-white font-semibold"
+                              style={{ backgroundColor: "hsl(33,100%,48%)" }}
+                            >
+                              <Save size={16} className="mr-2" />
+                              {updateMutation.isPending ? "Saving…" : "Save Changes"}
+                            </Button>
+                          )}
                           <Button
                             type="button"
                             variant="outline"
-                            onClick={() => setIsEditModalOpen(false)}
+                            onClick={() => {
+                              if (isDirty) {
+                                if (!window.confirm("You have unsaved changes. Close without saving?")) return;
+                              }
+                              setIsEditModalOpen(false);
+                            }}
                             className="w-full sm:w-auto px-4 sm:px-6 py-2 h-10 sm:h-11"
                           >
                             Close
@@ -2037,24 +2061,17 @@ export default function MemberDetails() {
                         </div>
                         {updateMutation.isPending && (
                           <div className="text-center mt-2">
-                            <p className="text-sm text-saffron-600">
-                              Auto-saving changes...
-                            </p>
+                            <p className="text-sm text-saffron-600">Saving changes…</p>
                           </div>
                         )}
-                        {updateMutation.isSuccess &&
-                          !updateMutation.isPending && (
-                            <div className="text-center mt-2">
-                              <p className="text-sm text-green-600">
-                                Changes saved successfully
-                              </p>
-                            </div>
-                          )}
+                        {updateMutation.isSuccess && !updateMutation.isPending && (
+                          <div className="text-center mt-2">
+                            <p className="text-sm text-green-600">Changes saved successfully ✓</p>
+                          </div>
+                        )}
                         {updateMutation.isError && (
                           <div className="text-center mt-2">
-                            <p className="text-sm text-red-600">
-                              Failed to save changes. Please try again.
-                            </p>
+                            <p className="text-sm text-red-600">Failed to save changes. Please try again.</p>
                           </div>
                         )}
                       </div>
