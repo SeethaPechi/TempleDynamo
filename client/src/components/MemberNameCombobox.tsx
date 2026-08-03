@@ -142,13 +142,13 @@ export function MemberNameCombobox({
         </PopoverTrigger>
 
         <PopoverContent className="w-[340px] p-0" align="start">
-          <Command>
+          <Command shouldFilter={false}>
             <CommandInput
               placeholder="Type a name to search…"
               value={search}
               onValueChange={setSearch}
             />
-            <CommandList>
+            <CommandList className="max-h-[300px] overflow-y-auto">
               <CommandEmpty>No member found with that name.</CommandEmpty>
 
               {/* DON'T KNOW option */}
@@ -168,30 +168,38 @@ export function MemberNameCombobox({
 
               {/* Registry members */}
               <CommandGroup heading="Family Registry">
-                {filtered.map((m) => (
-                  <CommandItem
-                    key={m.id}
-                    value={m.fullName}
-                    onSelect={() => handleSelect(m.fullName)}
-                  >
-                    <div className="flex flex-col flex-1 min-w-0">
-                      <span className="font-medium truncate">{m.fullName}</span>
-                      {(m.fatherName || m.birthCity) && (
-                        <span className="text-[11px] text-gray-400 truncate">
-                          {[
-                            m.fatherName && `s/o ${m.fatherName}`,
-                            m.birthCity,
-                          ]
-                            .filter(Boolean)
-                            .join(" · ")}
-                        </span>
+                {filtered.map((m) => {
+                  const parentPrefix = m.gender === "Female" ? "d/o" : "s/o";
+                  const isMarried =
+                    m.maritalStatus === "Married" || m.maritalStatus === "Widowed";
+                  const hint = [
+                    m.fatherName && `${parentPrefix} ${m.fatherName}`,
+                    isMarried && m.spouseName && `Sp. ${m.spouseName}`,
+                    m.birthCity,
+                  ]
+                    .filter(Boolean)
+                    .join(" · ");
+
+                  return (
+                    <CommandItem
+                      key={m.id}
+                      value={m.fullName}
+                      onSelect={() => handleSelect(m.fullName)}
+                    >
+                      <div className="flex flex-col flex-1 min-w-0">
+                        <span className="font-medium truncate">{m.fullName}</span>
+                        {hint && (
+                          <span className="text-[11px] text-gray-400 truncate">
+                            {hint}
+                          </span>
+                        )}
+                      </div>
+                      {value === m.fullName && !isUnknown && (
+                        <Check className="ml-2 h-4 w-4 shrink-0 text-green-600" />
                       )}
-                    </div>
-                    {value === m.fullName && !isUnknown && (
-                      <Check className="ml-2 h-4 w-4 shrink-0 text-green-600" />
-                    )}
-                  </CommandItem>
-                ))}
+                    </CommandItem>
+                  );
+                })}
               </CommandGroup>
             </CommandList>
           </Command>
