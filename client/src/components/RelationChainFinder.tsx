@@ -5,6 +5,7 @@
  *   "Durairaj is Son of Karuppa Pillai"  (not "Karuppa Pillai is Father of Durairaj")
  */
 import { useState, useMemo } from "react";
+import { useLocation } from "wouter";
 import { useTranslation } from "react-i18next";
 import {
   Select,
@@ -217,7 +218,7 @@ function getViaNote(
   edge: Edge,
   allRelationships: Array<Relationship & { relatedMember: Member }>,
   memberById: Map<number, Member>,
-): string | null {
+): { id: number; name: string } | null {
   const { relationshipType, subjectId, objectId } = edge;
 
   // ---- Shared lookup helpers -------------------------------------------
@@ -270,7 +271,7 @@ function getViaNote(
    *
    * Then checks spouse relationship in both directions.
    */
-  const connectingChildSpouse = (parentId: number, spouseOfId: number): string | null => {
+  const connectingChildSpouse = (parentId: number, spouseOfId: number): { id: number; name: string } | null => {
     // Dir-1: parent has Son/Daughter → child rows
     const dir1 = allRelationships
       .filter(r =>
@@ -309,12 +310,12 @@ function getViaNote(
           (r.relationshipType === "Wife" || r.relationshipType === "Husband") &&
           r.relatedMemberId === child.id
         );
-      if (isSpouseOfTarget) return child.name;
+      if (isSpouseOfTarget) return child;
     }
 
     // Final fallback: spouseOfId's spouses who are children of parentId
     for (const sp of spousesOf(spouseOfId)) {
-      if (isChildOf(sp.id, parentId)) return sp.name;
+      if (isChildOf(sp.id, parentId)) return sp;
     }
 
     return null;
@@ -330,7 +331,7 @@ function getViaNote(
     const parentRel = allRelationships.find(
       r => r.memberId === subjectId && r.relationshipType === parentType
     );
-    if (parentRel) return parentRel.relatedMember.fullName;
+    if (parentRel) return { id: parentRel.relatedMemberId, name: parentRel.relatedMember.fullName };
   }
 
   // ---- Grandchild types: subjectId = grandparent, objectId = grandchild --
@@ -339,18 +340,18 @@ function getViaNote(
     const parentRel = allRelationships.find(
       r => r.memberId === objectId && r.relationshipType === "Father"
     );
-    if (parentRel) return parentRel.relatedMember.fullName;
+    if (parentRel) return { id: parentRel.relatedMemberId, name: parentRel.relatedMember.fullName };
   }
 
   // ---- Brother-in-Law / Sister-in-Law ------------------------------------
   if (relationshipType === "Brother-in-Law" || relationshipType === "Sister-in-Law") {
     // Case 1: subjectId's spouse who is sibling of objectId
     for (const sp of spousesOf(subjectId)) {
-      if (isSiblingOf(sp.id, objectId)) return sp.name;
+      if (isSiblingOf(sp.id, objectId)) return sp;
     }
     // Case 2: objectId's spouse who is sibling of subjectId
     for (const sp of spousesOf(objectId)) {
-      if (isSiblingOf(sp.id, subjectId)) return sp.name;
+      if (isSiblingOf(sp.id, subjectId)) return sp;
     }
   }
 
@@ -358,16 +359,16 @@ function getViaNote(
   // "objectId is Father/Mother-in-Law of subjectId"
   // → connecting person = child of objectId who married subjectId
   if (["Father-in-Law", "Mother-in-Law"].includes(relationshipType)) {
-    const name = connectingChildSpouse(objectId, subjectId);
-    if (name) return name;
+    const person = connectingChildSpouse(objectId, subjectId);
+    if (person) return person;
   }
 
   // ---- Son-in-Law / Daughter-in-Law --------------------------------------
   // "objectId is Son/Daughter-in-Law of subjectId"
   // → connecting person = child of subjectId who married objectId
   if (["Son-in-Law", "Daughter-in-Law"].includes(relationshipType)) {
-    const name = connectingChildSpouse(subjectId, objectId);
-    if (name) return name;
+    const person = connectingChildSpouse(subjectId, objectId);
+    if (person) return person;
   }
 
   return null;
@@ -378,6 +379,7 @@ function getViaNote(
 // ---------------------------------------------------------------------------
 export function RelationChainFinder({ members, allRelationships }: Props) {
   const { t } = useTranslation();
+  const [, setLocation] = useLocation();
   const [fromId, setFromId] = useState<string>("");
   const [toId, setToId] = useState<string>("");
   const [chain, setChain] = useState<ChainStep[] | null | "none">(null);
@@ -477,12 +479,14 @@ export function RelationChainFinder({ members, allRelationships }: Props) {
                 <div key={i}>
                   {/* ── Main chain node ── */}
                   <div className="flex items-center gap-3">
-                    <div
-                      className="inline-flex items-center justify-center rounded-full px-5 py-2 text-sm font-semibold text-white shadow-md"
+                    <button
+                      type="button"
+                      onClick={() => setLocation(`/member/${step.memberId}`)}
+                      className="inline-flex items-center justify-center rounded-full px-5 py-2 text-sm font-semibold text-white shadow-md hover:opacity-85 active:scale-95 transition-all cursor-pointer"
                       style={{ backgroundColor: "hsl(33,100%,48%)" }}
                     >
                       {step.memberName}
-                    </div>
+                    </button>
                     {i === 0 && (
                       <span className="text-xs text-gray-400 font-medium uppercase tracking-wide">
                         Start
@@ -513,15 +517,17 @@ export function RelationChainFinder({ members, allRelationships }: Props) {
                           <span className="font-semibold text-orange-700">{label.object}</span>
                         </div>
 
-                        {/* Connecting member — shown as a full named node, not a tiny note */}
+                        {/* Connecting member — clickable pill that opens their profile */}
                         {via && (
                           <div className="flex items-center gap-2">
-                            <div
-                              className="inline-flex items-center justify-center rounded-full px-4 py-1.5 text-xs font-semibold text-amber-900 shadow-sm border border-amber-400"
+                            <button
+                              type="button"
+                              onClick={() => setLocation(`/member/${via.id}`)}
+                              className="inline-flex items-center justify-center rounded-full px-4 py-1.5 text-xs font-semibold text-amber-900 shadow-sm border border-amber-400 hover:border-amber-500 hover:bg-amber-200 active:scale-95 transition-all cursor-pointer"
                               style={{ backgroundColor: "hsl(45,100%,88%)" }}
                             >
-                              {via}
-                            </div>
+                              {via.name}
+                            </button>
                             <span className="text-[11px] text-amber-700 font-medium">
                               (connecting member)
                             </span>
