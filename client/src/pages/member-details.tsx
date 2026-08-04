@@ -575,6 +575,7 @@ export default function MemberDetails() {
       fatherName: "",
       motherName: "",
       spouseName: "",
+      spouseName2: "",
       maritalStatus: "Single",
       templeId: null,
       dateOfBirth: null,
@@ -601,6 +602,7 @@ export default function MemberDetails() {
         fatherName: memberData.fatherName,
         motherName: memberData.motherName,
         spouseName: memberData.spouseName || "",
+        spouseName2: (memberData as any).spouseName2 || "",
         maritalStatus: memberData.maritalStatus,
         templeId: memberData.templeId,
         profilePicture: memberData.profilePicture || "",
@@ -1560,7 +1562,7 @@ export default function MemberDetails() {
                                   render={({ field }) => (
                                     <FormItem className="space-y-2 sm:col-span-2 lg:col-span-1">
                                       <FormLabel className="text-sm font-medium">
-                                        Spouse Name
+                                        Spouse Name <span className="text-xs font-normal text-muted-foreground">(1st Marriage)</span>
                                       </FormLabel>
                                       <FormControl>
                                         <MemberNameCombobox
@@ -1569,7 +1571,30 @@ export default function MemberDetails() {
                                           onSave={(v) => autoSave("spouseName", v)}
                                           members={allMembers as Member[]}
                                           temples={existingTemples as any[] ?? []}
-                                          placeholder="Select spouse…"
+                                          placeholder="1st spouse name…"
+                                          currentMemberId={memberId}
+                                        />
+                                      </FormControl>
+                                      <FormMessage className="text-xs" />
+                                    </FormItem>
+                                  )}
+                                />
+                                <FormField
+                                  control={form.control}
+                                  name="spouseName2"
+                                  render={({ field }) => (
+                                    <FormItem className="space-y-2 sm:col-span-2 lg:col-span-1">
+                                      <FormLabel className="text-sm font-medium">
+                                        Spouse Name <span className="text-xs font-normal text-muted-foreground">(2nd Marriage)</span>
+                                      </FormLabel>
+                                      <FormControl>
+                                        <MemberNameCombobox
+                                          value={field.value ?? ""}
+                                          onChange={field.onChange}
+                                          onSave={(v) => autoSave("spouseName2", v)}
+                                          members={allMembers as Member[]}
+                                          temples={existingTemples as any[] ?? []}
+                                          placeholder="2nd spouse name (if applicable)…"
                                           currentMemberId={memberId}
                                         />
                                       </FormControl>
@@ -1672,6 +1697,7 @@ export default function MemberDetails() {
                                         setSelectedMaritalStatus(value);
                                         if (value !== "Married") {
                                           form.setValue("spouseName", "");
+                                          form.setValue("spouseName2", "");
                                         }
                                         autoSave("maritalStatus", value);
                                       }}
@@ -2141,7 +2167,16 @@ export default function MemberDetails() {
                   <div className="flex items-center">
                     <Heart className="mr-2 flex-shrink-0" size={16} />
                     <span className="break-words">
-                      Spouse: {(member as Member).spouseName}
+                      {(member as any).spouseName2 ? "1st Spouse: " : "Spouse: "}
+                      {(member as Member).spouseName}
+                    </span>
+                  </div>
+                )}
+                {(member as any).spouseName2 && (
+                  <div className="flex items-center">
+                    <Heart className="mr-2 flex-shrink-0" size={16} />
+                    <span className="break-words">
+                      2nd Spouse: {(member as any).spouseName2}
                     </span>
                   </div>
                 )}
@@ -2191,7 +2226,13 @@ export default function MemberDetails() {
                 </p>
                 {(member as Member).spouseName && (
                   <p className="text-gray-600 text-sm sm:text-base break-words">
-                    Spouse: {(member as Member).spouseName}
+                    {(member as any).spouseName2 ? "1st Spouse: " : "Spouse: "}
+                    {(member as Member).spouseName}
+                  </p>
+                )}
+                {(member as any).spouseName2 && (
+                  <p className="text-gray-600 text-sm sm:text-base break-words">
+                    2nd Spouse: {(member as any).spouseName2}
                   </p>
                 )}
               </div>

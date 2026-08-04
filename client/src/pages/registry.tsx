@@ -67,6 +67,7 @@ const registrationSchema = insertMemberSchema.extend({
   fatherName: z.string().min(2, "Father's name must be at least 2 characters"),
   motherName: z.string().min(2, "Mother's name must be at least 2 characters"),
   spouseName: z.string().optional(),
+  spouseName2: z.string().optional(),
   maritalStatus: z.enum(["Single", "Married", "Divorced", "Widowed"]),
   linkedRelatives: z
     .array(
@@ -509,6 +510,7 @@ export default function Registry() {
       fatherName: "",
       motherName: "",
       spouseName: "",
+      spouseName2: "",
       maritalStatus: "Single" as const,
     },
   });
@@ -574,6 +576,7 @@ export default function Registry() {
         fatherName: "",
         motherName: "",
         spouseName: "",
+        spouseName2: "",
         maritalStatus: "Single",
         selectedTemple: "",
         linkedRelatives: []
@@ -1095,6 +1098,7 @@ export default function Registry() {
                               setSelectedMaritalStatus(value);
                               if (value !== "Married") {
                                 form.setValue("spouseName", "");
+                                form.setValue("spouseName2", "");
                               }
                             }}
                             defaultValue={field.value}
@@ -1120,7 +1124,12 @@ export default function Registry() {
                       name="spouseName"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>{t("registry.form.spouseName")}</FormLabel>
+                          <FormLabel>
+                            {t("registry.form.spouseName")}
+                            {selectedMaritalStatus === "Married" && (
+                              <span className="ml-2 text-xs font-normal text-muted-foreground">(1st Marriage)</span>
+                            )}
+                          </FormLabel>
                           <FormControl>
                             <MemberNameCombobox
                               value={field.value ?? ""}
@@ -1135,6 +1144,33 @@ export default function Registry() {
                         </FormItem>
                       )}
                     />
+                    <FormField
+                      control={form.control}
+                      name="spouseName2"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>
+                            Spouse Name
+                            {selectedMaritalStatus === "Married" && (
+                              <span className="ml-2 text-xs font-normal text-muted-foreground">(2nd Marriage)</span>
+                            )}
+                          </FormLabel>
+                          <FormControl>
+                            <MemberNameCombobox
+                              value={field.value ?? ""}
+                              onChange={field.onChange}
+                              members={allMembers}
+                              temples={temples}
+                              placeholder="2nd spouse name (if applicable)"
+                              disabled={selectedMaritalStatus !== "Married"}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <div className="grid md:grid-cols-2 gap-6 mb-6">
                     <FormField
                       control={form.control}
                       name="selectedTemple"

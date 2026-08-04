@@ -300,19 +300,26 @@ export function ElegantFamilyTree({ member, relationships, onMemberClick }: Eleg
           />
 
           {/* Heart connector(s) between member and each spouse */}
-          {spouses.map((rel) => (
+          {spouses.map((rel, idx) => (
             <React.Fragment key={rel.id}>
               <div className="flex flex-col items-center">
                 <span className="text-rose-500 text-xl sm:text-2xl leading-none">♥</span>
                 <div className="w-6 h-0.5 bg-rose-400 mt-0.5" />
               </div>
-              <NodeCard
-                member={rel.relatedMember}
-                relationshipType={rel.relationshipType}
-                displayRelType={relLabel(rel)}
-                colorScheme={COLORS.spouse}
-                onMemberClick={onMemberClick}
-              />
+              <div className="flex flex-col items-center">
+                {spouses.length > 1 && (
+                  <span className="text-[9px] font-semibold text-rose-500 uppercase tracking-wide mb-0.5">
+                    {idx === 0 ? "1st Marriage" : `${idx + 1}${idx === 1 ? "nd" : idx === 2 ? "rd" : "th"} Marriage`}
+                  </span>
+                )}
+                <NodeCard
+                  member={rel.relatedMember}
+                  relationshipType={rel.relationshipType}
+                  displayRelType={relLabel(rel)}
+                  colorScheme={COLORS.spouse}
+                  onMemberClick={onMemberClick}
+                />
+              </div>
             </React.Fragment>
           ))}
         </div>

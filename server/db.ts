@@ -173,6 +173,8 @@ export class DatabaseStorage implements IStorage {
         motherNameTa: members.motherNameTa,
         spouseName: members.spouseName,
         spouseNameTa: members.spouseNameTa,
+        spouseName2: members.spouseName2,
+        spouseName2Ta: members.spouseName2Ta,
         maritalStatus: members.maritalStatus,
         templeId: members.templeId,
         profilePicture: members.profilePicture,
