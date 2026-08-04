@@ -15,6 +15,7 @@ import { eq } from "drizzle-orm";
 import { hashPassword, verifyPassword } from "./password";
 import { sendPasswordResetEmail } from "./email";
 import crypto from "crypto";
+import { buildFamilyGraph } from "./family-graph";
 
 const VALID_ROLES = ["system_admin", "temple_admin", "user"] as const;
 
@@ -1142,7 +1143,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Family graph endpoint — returns all members as nodes with BFS-computed generations + edges
   app.get("/api/family-graph", requireAuth, async (req, res) => {
     try {
-      const { buildFamilyGraph } = await import("./family-graph");
       const graph = await buildFamilyGraph();
       res.json(graph);
     } catch (error) {

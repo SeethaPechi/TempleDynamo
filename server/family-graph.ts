@@ -1,4 +1,4 @@
-import { storage } from "./db";
+import { storage } from "./storage";
 
 export interface FamilyNode {
   id: number;

@@ -133,7 +133,7 @@ export function FamilyMap({ onMemberClick, selectedMemberId }: FamilyMapProps) {
   const [hoveredId,     setHoveredId]     = useState<number | null>(null);
 
   // ── Data fetch ──────────────────────────────────────────────────────────────
-  const { data: graph, isLoading, error } = useQuery<FamilyGraph>({
+  const { data: graph, isLoading, error, refetch } = useQuery<FamilyGraph>({
     queryKey: ["/api/family-graph"],
     queryFn: async () => {
       const res = await fetch("/api/family-graph", { credentials: "include" });
@@ -481,8 +481,12 @@ export function FamilyMap({ onMemberClick, selectedMemberId }: FamilyMapProps) {
 
   if (error) {
     return (
-      <div className="flex items-center justify-center h-[400px] text-muted-foreground">
-        <p>Could not load family graph. Please refresh.</p>
+      <div className="flex flex-col items-center justify-center gap-4 h-[400px] text-muted-foreground">
+        <p className="text-sm">Could not load the family map.</p>
+        <Button variant="outline" size="sm" onClick={() => refetch()} className="gap-2">
+          <RotateCcw className="h-4 w-4" />
+          Try again
+        </Button>
       </div>
     );
   }
