@@ -69,6 +69,7 @@ async function syncNameRelationships(memberId: number): Promise<void> {
       if (alreadyLinked.has(target.id)) return; // already linked
       alreadyLinked.add(target.id); // prevent double-creation in same pass
       storage.createRelationship({ memberId, relationshipType: type, relatedMemberId: target.id })
+        .then(() => syncReverseNameFields(memberId, type, target.id))
         .catch((err) => console.error(`syncNameRelationships: failed to create ${type} row`, err));
     };
 
@@ -80,6 +81,90 @@ async function syncNameRelationships(memberId: number): Promise<void> {
   } catch (err) {
     // Non-fatal — log and continue
     console.error("syncNameRelationships error:", err);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// syncReverseNameFields — when a relationship row is created, update the
+// reverse member's text name-fields so both sides stay in sync.
+//
+// Examples:
+//   (Geetha → Husband → Venkat)  → Venkat.spouseName = "Geetha"
+//   (Dad    → Son     → Child)   → Child.fatherName  = "Dad" (if male)
+//   (Mum    → Daughter→ Child)   → Child.motherName  = "Mum" (if female)
+//   (Child  → Father  → Dad)     → Child.fatherName  = "Dad" (if empty/Don't Know)
+//   (Child  → Mother  → Mum)     → Child.motherName  = "Mum" (if empty/Don't Know)
+// ---------------------------------------------------------------------------
+async function syncReverseNameFields(
+  memberId: number,
+  relationshipType: string,
+  relatedMemberId: number,
+): Promise<void> {
+  try {
+    const [memberA, memberB] = await Promise.all([
+      storage.getMember(memberId),
+      storage.getMember(relatedMemberId),
+    ]);
+    if (!memberA || !memberB) return;
+
+    const EMPTY = ["", "don't know", "dont know", "unknown", "n/a"];
+    const isEmpty = (v: string | null | undefined) =>
+      !v || EMPTY.includes(v.trim().toLowerCase());
+
+    // Helper: update a single text field on a member row (no-op if already correct)
+    const patch = async (targetId: number, field: "spouseName" | "fatherName" | "motherName", value: string) => {
+      await db
+        .update(membersTable)
+        .set({ [field]: value } as Record<string, string>)
+        .where(eq(membersTable.id, targetId));
+    };
+
+    switch (relationshipType) {
+      // ── Spouse: both members get each other's name ─────────────────────
+      case "Husband":
+      case "Wife":
+        // B is the spouse of A → B.spouseName = A's name
+        if (isEmpty(memberB.spouseName) || memberB.spouseName?.toLowerCase() === "don't know") {
+          await patch(memberB.id, "spouseName", memberA.fullName);
+        }
+        // A.spouseName should already be set, but fill it if missing
+        if (isEmpty(memberA.spouseName) || memberA.spouseName?.toLowerCase() === "don't know") {
+          await patch(memberA.id, "spouseName", memberB.fullName);
+        }
+        break;
+
+      // ── A has Son/Daughter B → update B's parent name field ───────────
+      case "Son":
+      case "Step-Son":
+        if (memberA.gender === "Female") {
+          if (isEmpty(memberB.motherName)) await patch(memberB.id, "motherName", memberA.fullName);
+        } else {
+          if (isEmpty(memberB.fatherName)) await patch(memberB.id, "fatherName", memberA.fullName);
+        }
+        break;
+
+      case "Daughter":
+      case "Step-Daughter":
+        if (memberA.gender === "Female") {
+          if (isEmpty(memberB.motherName)) await patch(memberB.id, "motherName", memberA.fullName);
+        } else {
+          if (isEmpty(memberB.fatherName)) await patch(memberB.id, "fatherName", memberA.fullName);
+        }
+        break;
+
+      // ── A's Father/Mother is B → fill A's name field if missing ───────
+      case "Father":
+      case "Step Father":
+        if (isEmpty(memberA.fatherName)) await patch(memberA.id, "fatherName", memberB.fullName);
+        break;
+
+      case "Mother":
+      case "Step Mother":
+        if (isEmpty(memberA.motherName)) await patch(memberA.id, "motherName", memberB.fullName);
+        break;
+    }
+  } catch (err) {
+    console.error("syncReverseNameFields error:", err);
   }
 }
 
@@ -952,6 +1037,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       const relationship = await storage.createRelationship(relationshipData);
+      // Keep reverse name-fields in sync (fire-and-forget, non-fatal)
+      syncReverseNameFields(
+        relationshipData.memberId,
+        relationshipData.relationshipType,
+        relationshipData.relatedMemberId,
+      ).catch((e) => console.error("syncReverseNameFields:", e));
       res.json(relationship);
     } catch (error) {
       if (error instanceof z.ZodError) {
