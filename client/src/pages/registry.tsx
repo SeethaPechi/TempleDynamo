@@ -68,6 +68,7 @@ const registrationSchema = insertMemberSchema.extend({
   motherName: z.string().min(2, "Mother's name must be at least 2 characters"),
   spouseName: z.string().optional(),
   spouseName2: z.string().optional(),
+  birthOrder: z.number().int().min(1).optional().nullable(),
   maritalStatus: z.enum(["Single", "Married", "Divorced", "Widowed"]),
   linkedRelatives: z
     .array(
@@ -511,6 +512,7 @@ export default function Registry() {
       motherName: "",
       spouseName: "",
       spouseName2: "",
+      birthOrder: null,
       maritalStatus: "Single" as const,
     },
   });
@@ -577,6 +579,7 @@ export default function Registry() {
         motherName: "",
         spouseName: "",
         spouseName2: "",
+        birthOrder: null,
         maritalStatus: "Single",
         selectedTemple: "",
         linkedRelatives: []
@@ -925,6 +928,29 @@ export default function Registry() {
                           <FormLabel>{t("registry.form.city")} *</FormLabel>
                           <FormControl>
                             <Input placeholder={t("registry.form.birthCity")} {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="birthOrder"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Birth Order (Optional)</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              min={1}
+                              placeholder="1 = eldest child"
+                              value={field.value ?? ""}
+                              onChange={(e) =>
+                                field.onChange(
+                                  e.target.value ? parseInt(e.target.value) : null,
+                                )
+                              }
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
