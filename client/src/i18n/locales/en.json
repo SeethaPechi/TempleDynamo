@@ -84,6 +84,8 @@
       "phone": "Phone Number",
       "dateOfBirth": "Date of Birth",
       "gender": "Gender",
+      "male": "Male",
+      "female": "Female",
       "selectGender": "Select gender (optional)",
       "birthCity": "Birth City",
       "birthState": "Birth State",

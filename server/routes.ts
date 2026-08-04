@@ -9,11 +9,79 @@ import session from "express-session";
 import connectPgSimple from "connect-pg-simple";
 import rateLimit from "express-rate-limit";
 import { pool } from "./db";
+import { db } from "./db";
+import { relationships as relationshipsTable, members as membersTable } from "@shared/schema";
+import { eq } from "drizzle-orm";
 import { hashPassword, verifyPassword } from "./password";
 import { sendPasswordResetEmail } from "./email";
 import crypto from "crypto";
 
 const VALID_ROLES = ["system_admin", "temple_admin", "user"] as const;
+
+// ---------------------------------------------------------------------------
+// syncNameRelationships — auto-creates relationship rows from the
+// father_name / mother_name / spouse_name text fields on a member.
+//
+// Rules:
+//  • Only links when exactly ONE registry member matches the name (avoids
+//    ambiguous duplicate-name cases).
+//  • Does NOT create a row if any relationship row already exists between
+//    the two members in either direction (prevents duplicates).
+//  • Reverse direction is handled automatically by the bidirectional resolver
+//    at query time — no extra rows are needed.
+// ---------------------------------------------------------------------------
+async function syncNameRelationships(memberId: number): Promise<void> {
+  try {
+    const member = await storage.getMember(memberId);
+    if (!member) return;
+
+    const allMembers = await storage.getAllMembers();
+
+    // Case-insensitive name → Member[] index (excluding self)
+    const byName = new Map<string, typeof allMembers>();
+    for (const m of allMembers) {
+      if (m.id === memberId) continue;
+      const key = m.fullName.trim().toLowerCase();
+      if (!byName.has(key)) byName.set(key, []);
+      byName.get(key)!.push(m);
+    }
+
+    // All existing relationship rows involving this member (both directions)
+    const fwdRows = await db
+      .select({ relatedId: relationshipsTable.relatedMemberId })
+      .from(relationshipsTable)
+      .where(eq(relationshipsTable.memberId, memberId));
+    const revRows = await db
+      .select({ subjectId: relationshipsTable.memberId })
+      .from(relationshipsTable)
+      .where(eq(relationshipsTable.relatedMemberId, memberId));
+
+    const alreadyLinked = new Set<number>([
+      ...fwdRows.map((r) => r.relatedId),
+      ...revRows.map((r) => r.subjectId),
+    ]);
+
+    const tryLink = (nameField: string | null | undefined, type: string) => {
+      if (!nameField) return;
+      const matches = byName.get(nameField.trim().toLowerCase());
+      if (!matches || matches.length !== 1) return; // not found or ambiguous
+      const target = matches[0];
+      if (alreadyLinked.has(target.id)) return; // already linked
+      alreadyLinked.add(target.id); // prevent double-creation in same pass
+      storage.createRelationship({ memberId, relationshipType: type, relatedMemberId: target.id })
+        .catch((err) => console.error(`syncNameRelationships: failed to create ${type} row`, err));
+    };
+
+    tryLink(member.fatherName, "Father");
+    tryLink(member.motherName, "Mother");
+    if (member.spouseName) {
+      tryLink(member.spouseName, member.gender === "Female" ? "Husband" : "Wife");
+    }
+  } catch (err) {
+    // Non-fatal — log and continue
+    console.error("syncNameRelationships error:", err);
+  }
+}
 
 // ── Cloudflare Turnstile CAPTCHA verification ───────────────────────────────
 
@@ -482,6 +550,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // ── One-shot: sync name-field relationships for all members ─────────────
+  app.post("/api/admin/sync-name-relationships", requireSystemAdmin, async (req, res) => {
+    try {
+      const allMembers = await storage.getAllMembers();
+      for (const m of allMembers) {
+        await syncNameRelationships(m.id);
+      }
+      res.json({ ok: true, synced: allMembers.length });
+    } catch (err) {
+      console.error("sync-name-relationships error:", err);
+      res.status(500).json({ message: "Sync failed" });
+    }
+  });
+
   // ── Relationship Types (system_admin only) ────────────────────────────────
   app.get("/api/admin/relationship-types", requireSystemAdmin, async (req, res) => {
     try { res.json(await storage.getAllRelationshipTypes()); }
@@ -648,6 +730,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Allow duplicate emails and phone numbers - no uniqueness check
       
       const member = await storage.createMember(memberData);
+      // Fire-and-forget: link any name fields that match registry members
+      syncNameRelationships(member.id);
       res.json(member);
     } catch (error) {
       console.error("Error creating member:", error);
@@ -774,6 +858,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const memberData = insertMemberSchema.parse(req.body);
       const updatedMember = await storage.updateMember(id, memberData);
+      syncNameRelationships(id);
       res.json(updatedMember);
     } catch (error) {
       console.error("Error updating member:", error);
@@ -815,6 +900,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const memberData = insertMemberSchema.parse(req.body);
       const updatedMember = await storage.updateMember(id, memberData);
+      syncNameRelationships(id);
       console.log(`Member updated successfully - ID: ${id}`);
       res.json(updatedMember);
     } catch (error) {
