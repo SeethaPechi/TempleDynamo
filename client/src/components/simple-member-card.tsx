@@ -1,12 +1,15 @@
 import { Card } from "@/components/ui/card";
 import { Users } from "lucide-react";
+import { withHonorific } from "@/lib/honorific";
 
 interface SimpleMemberCardProps {
   fullName: string;
   memberNumber: number;
+  gender?: string | null;
+  maritalStatus?: string | null;
 }
 
-export function SimpleMemberCard({ fullName, memberNumber }: SimpleMemberCardProps) {
+export function SimpleMemberCard({ fullName, memberNumber, gender, maritalStatus }: SimpleMemberCardProps) {
   return (
     <Card className="overflow-hidden hover:shadow-xl transition-shadow border border-temple-gold/20">
       <div className="bg-gradient-to-r from-saffron-500 to-temple-gold p-6 text-center">
@@ -14,7 +17,7 @@ export function SimpleMemberCard({ fullName, memberNumber }: SimpleMemberCardPro
           <Users className="text-temple-brown" size={24} />
         </div>
         <h3 className="text-lg font-bold text-white mb-2">
-          {fullName || 'Unknown Member'}
+          {withHonorific(fullName || 'Unknown Member', gender, maritalStatus)}
         </h3>
         <p className="text-saffron-100 text-sm">Member #{memberNumber}</p>
       </div>

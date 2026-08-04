@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { withHonorific } from "@/lib/honorific";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -582,7 +583,7 @@ export default function TempleMembers() {
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
                         <h3 className="font-bold text-temple-brown text-lg hover:text-saffron-600 transition-colors">
-                          {member.fullName}
+                          {withHonorific(member.fullName, member.gender, member.maritalStatus)}
                         </h3>
                         <Badge variant="outline" className="text-xs">
                           #{member.id}

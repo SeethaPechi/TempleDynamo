@@ -14,6 +14,7 @@ import {
 import { useTranslation } from "react-i18next";
 import type { Member, Relationship } from "@shared/schema";
 import { useFormDataTransformation } from "@/lib/i18n-utils";
+import { withHonorific } from "@/lib/honorific";
 
 interface ComprehensiveFamilyDisplayProps {
   member: Member;
@@ -142,7 +143,7 @@ export function ComprehensiveFamilyDisplay({
               )}
             </div>
             <div>
-              <h1 className="text-2xl font-bold">{member.fullName}</h1>
+              <h1 className="text-2xl font-bold">{withHonorific(member.fullName, member.gender, member.maritalStatus)}</h1>
               <p className={`${member.gender === 'Male' ? 'text-blue-100' : 
                              member.gender === 'Female' ? 'text-pink-100' : 
                              'text-saffron-100'}`}>
@@ -190,7 +191,7 @@ export function ComprehensiveFamilyDisplay({
                     >
                       <div className="flex items-start justify-between mb-3">
                         <h4 className="font-bold text-temple-brown text-lg hover:text-saffron-600 transition-colors">
-                          {rel.relatedMember.fullName}
+                          {withHonorific(rel.relatedMember.fullName, rel.relatedMember.gender, (rel.relatedMember as any).maritalStatus)}
                         </h4>
                         <Button
                           variant="outline"

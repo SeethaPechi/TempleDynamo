@@ -6,6 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Users, ExternalLink, Phone, Mail, MapPin } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useFormDataTransformation } from "@/lib/i18n-utils";
+import { withHonorific } from "@/lib/honorific";
 import type { Member, Relationship } from "@shared/schema";
 
 interface FamilyRelationshipsTableProps {
@@ -107,7 +108,7 @@ export function FamilyRelationshipsTable({
         <Users className="mx-auto mb-4 text-gray-400" size={48} />
         <h3 className="text-lg font-semibold text-gray-600 mb-2">{t('familyTree.noConnections')}</h3>
         <p className="text-gray-500 mb-4">
-          {member.fullName} {t('familyTree.noConnectionsDesc')}
+          {withHonorific(member.fullName, member.gender, member.maritalStatus)} {t('familyTree.noConnectionsDesc')}
         </p>
         <p className="text-sm text-gray-400">
           {t('familyTree.addConnectionsDesc')}
@@ -126,7 +127,7 @@ export function FamilyRelationshipsTable({
               <Users className="text-saffron-500" size={24} />
             </div>
             <div>
-              <h2 className="text-xl font-bold">{member.fullName}</h2>
+              <h2 className="text-xl font-bold">{withHonorific(member.fullName, member.gender, member.maritalStatus)}</h2>
               <p className="text-saffron-100 text-sm">Family Relationships</p>
             </div>
           </div>
@@ -141,7 +142,7 @@ export function FamilyRelationshipsTable({
       <Card className="p-6">
         <div className="mb-4">
           <h3 className="text-lg font-semibold text-temple-brown">
-            Family Relationships for {member.fullName}
+            Family Relationships for {withHonorific(member.fullName, member.gender, member.maritalStatus)}
           </h3>
           <p className="text-sm text-gray-600">
             Click on any name to view their detailed profile and family tree
@@ -181,7 +182,7 @@ export function FamilyRelationshipsTable({
                           }}
                           className={`font-bold hover:text-saffron-600 transition-colors text-left underline hover:no-underline ${getMemberGenderColor(relationship.relatedMember.gender)}`}
                         >
-                          {relationship.relatedMember.fullName}
+                          {withHonorific(relationship.relatedMember.fullName, relationship.relatedMember.gender, (relationship.relatedMember as any).maritalStatus)}
                         </button>
                         <p className="text-xs text-gray-500">
                           Member #{relationship.relatedMember.id} • {relationship.relatedMember.gender || 'Unspecified'}
@@ -199,9 +200,9 @@ export function FamilyRelationshipsTable({
                         {transformRelationshipType(relationship.relationshipType)}
                       </Badge>
                       <div className="text-xs text-gray-500">
-                        {relationship.relatedMember.fullName} is the{' '}
+                        {withHonorific(relationship.relatedMember.fullName, relationship.relatedMember.gender, (relationship.relatedMember as any).maritalStatus)} is the{' '}
                         <span className="font-medium">{relationship.relationshipType.toLowerCase()}</span>{' '}
-                        of {member.fullName}
+                        of {withHonorific(member.fullName, member.gender, member.maritalStatus)}
                       </div>
                     </div>
                   </TableCell>

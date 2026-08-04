@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
+import { withHonorific } from "@/lib/honorific";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRoute, useLocation } from "wouter";
 import { useForm } from "react-hook-form";
@@ -976,7 +977,7 @@ export default function MemberDetails() {
                 <span className="sm:hidden">Back</span>
               </Button>
               <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-temple-brown">
-                Member Details for {(member as Member).fullName}
+                Member Details for {withHonorific((member as Member).fullName, (member as Member).gender, (member as Member).maritalStatus)}
               </h1>
             </div>
           </div>
@@ -1040,7 +1041,7 @@ export default function MemberDetails() {
                   </div>
                   <div className="min-w-0 flex-1">
                     <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-temple-brown">
-                      {(member as Member).fullName}
+                      {withHonorific((member as Member).fullName, (member as Member).gender, (member as Member).maritalStatus)}
                     </h2>
                     <p className="text-saffron-100">
                       Member #{(member as Member).id}

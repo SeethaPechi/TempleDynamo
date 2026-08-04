@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { withHonorific } from "@/lib/honorific";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -87,7 +88,7 @@ export function TempleMembersTab() {
                 <TableBody>
                   {filtered.map(m => (
                     <TableRow key={m.id}>
-                      <TableCell className="font-medium text-sm whitespace-nowrap">{m.fullName}</TableCell>
+                      <TableCell className="font-medium text-sm whitespace-nowrap">{withHonorific(m.fullName, m.gender, m.maritalStatus)}</TableCell>
                       <TableCell className="text-xs text-gray-600 whitespace-nowrap">{m.phone ?? "—"}</TableCell>
                       <TableCell className="text-xs text-gray-600 whitespace-nowrap">{m.email ?? "—"}</TableCell>
                       <TableCell className="text-xs whitespace-nowrap">{m.birthCity}</TableCell>

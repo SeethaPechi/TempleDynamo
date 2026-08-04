@@ -1,4 +1,5 @@
 import { useRef, useEffect, useCallback, useState, useMemo } from "react";
+import { withHonorific } from "@/lib/honorific";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import * as d3 from "d3";
@@ -13,6 +14,7 @@ export interface FamilyNode {
   fullName: string;
   fullNameTa: string | null;
   gender: string | null;
+  maritalStatus: string | null;
   parentIds: number[];
   spouseIds: number[];
   generation: number;
@@ -361,7 +363,7 @@ function FocusView({ graph, focalId, lang, onMemberClick }: FocusViewProps) {
             const cy      = pos.y - F_CH / 2;
             const parts   = (lang.startsWith("ta") && node.fullNameTa
               ? node.fullNameTa
-              : node.fullName.trim().replace(/\.$/, "")
+              : withHonorific(node.fullName, node.gender, node.maritalStatus).trim().replace(/\.$/, "")
             ).split(/\s+/);
             const line1 = parts[0].slice(0, 14);
             const line2 = parts.slice(1).join(" ").slice(0, 16);
@@ -376,7 +378,7 @@ function FocusView({ graph, focalId, lang, onMemberClick }: FocusViewProps) {
                 onClick={() => onMemberClick?.(node.id)}
                 style={{ cursor: "pointer" }}
                 role="button"
-                aria-label={node.fullName}
+                aria-label={withHonorific(node.fullName, node.gender, node.maritalStatus)}
               >
                 {/* Focal outer ring */}
                 {isFocal && (
@@ -950,7 +952,7 @@ export function FamilyMap({ onMemberClick, selectedMemberId }: FamilyMapProps) {
                       }`}
                       onMouseDown={() => { setFocalId(n.id); setFocusSearch(""); setFocusDropdown(false); }}
                     >
-                      <span className="font-medium">{n.fullName}</span>
+                      <span className="font-medium">{withHonorific(n.fullName, n.gender, n.maritalStatus)}</span>
                       {n.gender && (
                         <span className={`ml-1.5 text-xs ${n.gender === "Male" ? "text-blue-600" : "text-rose-600"}`}>
                           {n.gender}
@@ -969,7 +971,7 @@ export function FamilyMap({ onMemberClick, selectedMemberId }: FamilyMapProps) {
                   className="inline-block w-2.5 h-2.5 rounded-full"
                   style={{ background: genderPalette(focalNode.gender).bar }}
                 />
-                {focalNode.fullName}
+                {withHonorific(focalNode.fullName, focalNode.gender, focalNode.maritalStatus)}
               </div>
             )}
           </>

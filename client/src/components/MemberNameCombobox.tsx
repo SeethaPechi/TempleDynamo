@@ -8,6 +8,7 @@
  * - Calls onSave immediately on selection (no blur needed)
  */
 import { useState, useMemo } from "react";
+import { withHonorific } from "@/lib/honorific";
 import { Check, ChevronsUpDown, HelpCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -187,7 +188,7 @@ export function MemberNameCombobox({
                       onSelect={() => handleSelect(m.fullName)}
                     >
                       <div className="flex flex-col flex-1 min-w-0">
-                        <span className="font-medium truncate">{m.fullName}</span>
+                        <span className="font-medium truncate">{withHonorific(m.fullName, m.gender, m.maritalStatus)}</span>
                         {hint && (
                           <span className="text-[11px] text-gray-400 truncate">
                             {hint}
@@ -233,7 +234,7 @@ export function MemberNameCombobox({
                 className="w-full text-left border rounded-lg p-4 hover:border-orange-400 hover:bg-orange-50 transition-colors focus:outline-none focus:ring-2 focus:ring-orange-300"
               >
                 <div className="font-semibold text-temple-brown mb-2 text-base">
-                  {m.fullName}
+                  {withHonorific(m.fullName, m.gender, m.maritalStatus)}
                 </div>
                 <div className="grid grid-cols-2 gap-x-6 gap-y-1.5 text-sm text-gray-600">
                   {m.fatherName && (

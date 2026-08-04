@@ -5,6 +5,7 @@ export interface FamilyNode {
   fullName: string;
   fullNameTa: string | null;
   gender: string | null;
+  maritalStatus: string | null;
   parentIds: number[];
   spouseIds: number[];
   generation: number;
@@ -128,6 +129,7 @@ export async function buildFamilyGraph(): Promise<FamilyGraph> {
     fullName: m.fullName,
     fullNameTa: (m as any).fullNameTa ?? null,
     gender: m.gender ?? null,
+    maritalStatus: m.maritalStatus ?? null,
     parentIds: [...(parentIdMap.get(m.id) ?? [])],
     spouseIds: [...(spouseIdMap.get(m.id) ?? [])],
     generation: generation.get(m.id) ?? 0,

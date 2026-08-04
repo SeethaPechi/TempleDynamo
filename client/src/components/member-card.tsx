@@ -3,6 +3,7 @@ import { Users, User } from "lucide-react";
 import type { Member } from "@shared/schema";
 import { useFormDataTransformation } from "@/lib/i18n-utils";
 import { useTranslation } from "react-i18next";
+import { withHonorific } from "@/lib/honorific";
 
 interface MemberCardProps {
   member: Member;
@@ -15,7 +16,7 @@ export function MemberCard({ member, index, startIndex }: MemberCardProps) {
   const { transformGender } = useFormDataTransformation();
   
   // Force re-render with explicit member data extraction
-  const memberName = String(member?.fullName || '');
+  const memberName = withHonorific(String(member?.fullName || ''), member?.gender, member?.maritalStatus);
   const memberNumber = startIndex + index + 1;
   const translatedGender = member?.gender ? transformGender(member.gender) : t('common.unspecified', 'Unspecified');
   

@@ -5,6 +5,7 @@ import type { Member, Relationship } from "@shared/schema";
 import { useTranslation } from "react-i18next";
 import { useFormDataTransformation } from "@/lib/i18n-utils";
 import { useLocation } from "wouter";
+import { withHonorific } from "@/lib/honorific";
 
 interface ElegantFamilyTreeProps {
   member: Member;
@@ -183,7 +184,7 @@ export function ElegantFamilyTree({ member, relationships, onMemberClick }: Eleg
       <Card className="p-8 text-center">
         <Users className="h-12 w-12 mx-auto mb-4 text-gray-400" />
         <h3 className="text-lg font-semibold mb-2">
-          {member.fullName} — {t("familyTree.noRelationships", "No relationships yet")}
+          {withHonorific(member.fullName, member.gender, member.maritalStatus)} — {t("familyTree.noRelationships", "No relationships yet")}
         </h3>
         <p className="text-gray-500 text-sm">
           {t("Select member menu option and add relationship by clicking Manage Relative button")}
@@ -213,7 +214,7 @@ export function ElegantFamilyTree({ member, relationships, onMemberClick }: Eleg
     <Card className="p-4 sm:p-6 overflow-x-auto">
       {/* Title */}
       <h2 className="text-xl sm:text-2xl font-bold text-center mb-2">
-        {member.fullName}&apos;s Family Tree
+        {withHonorific(member.fullName, member.gender, member.maritalStatus)}&apos;s Family Tree
       </h2>
       <p className="text-center text-gray-500 text-sm mb-6">
         {relationships.length} family connections

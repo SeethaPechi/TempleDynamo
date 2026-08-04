@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { withHonorific } from "@/lib/honorific";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -286,7 +287,7 @@ export default function Members() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <h3 className={`text-lg font-semibold hover:text-saffron-600 break-words ${colors.text}`}>
-                        {member.fullName}
+                        {withHonorific(member.fullName, member.gender, (member as any).maritalStatus)}
                       </h3>
                       <p className="text-sm text-gray-500">
                         {t('common.member', 'Member')} #{member.id} • {transformedMember.gender || t('common.unspecified', 'Unspecified')}
