@@ -366,21 +366,94 @@ export default function FamilyTree() {
             </TabsList>
           </div>
 
-          <TabsContent value="elegant" className="space-y-8">
+          <TabsContent value="elegant" className="space-y-4">
             {selectedMember && filteredMemberRelationships ? (
-              <div className="min-h-screen">
-                <ElegantFamilyTree
-                  member={selectedMember}
-                  relationships={filteredMemberRelationships}
-                  onMemberClick={(memberId) => {
-                    const clickedMember = allMembers?.find(
-                      (m: Member) => m.id === memberId,
-                    );
-                    if (clickedMember) {
-                      setSelectedMember(clickedMember);
-                    }
-                  }}
-                />
+              <div>
+                {/* Sub-tabs: Family Tree | Relationships */}
+                <Tabs defaultValue="tree" className="w-full">
+                  <div className="flex justify-center mb-4">
+                    <TabsList className="h-auto py-1 gap-1">
+                      <TabsTrigger value="tree" className="flex items-center gap-2 px-4 py-2 text-sm">
+                        <TreePine size={15} />
+                        {t("familyTree.branch", "Family Tree")}
+                      </TabsTrigger>
+                      <TabsTrigger value="relations" className="flex items-center gap-2 px-4 py-2 text-sm">
+                        <Users size={15} />
+                        {t("familyTree.relation", "Relationships")}
+                        {filteredMemberRelationships.length > 0 && (
+                          <span className="ml-1 bg-saffron-500 text-white text-xs rounded-full px-1.5 py-0.5 leading-none">
+                            {filteredMemberRelationships.length}
+                          </span>
+                        )}
+                      </TabsTrigger>
+                    </TabsList>
+                  </div>
+
+                  <TabsContent value="tree">
+                    <ElegantFamilyTree
+                      member={selectedMember}
+                      relationships={filteredMemberRelationships}
+                      onMemberClick={(memberId) => {
+                        const clickedMember = allMembers?.find(
+                          (m: Member) => m.id === memberId,
+                        );
+                        if (clickedMember) {
+                          setSelectedMember(clickedMember);
+                        }
+                      }}
+                    />
+                  </TabsContent>
+
+                  <TabsContent value="relations">
+                    <Card className="p-4 sm:p-6">
+                      <div className="mb-4 flex items-center justify-between">
+                        <div>
+                          <h3 className="text-lg font-semibold text-temple-brown">
+                            {selectedMember.fullName}&apos;s Relationships
+                          </h3>
+                          <p className="text-sm text-gray-500">
+                            {filteredMemberRelationships.length} family connection{filteredMemberRelationships.length !== 1 ? "s" : ""}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        {filteredMemberRelationships
+                          .sort((a, b) => a.relationshipType.localeCompare(b.relationshipType))
+                          .map((rel) => (
+                            <div
+                              key={rel.id}
+                              className="flex items-center justify-between p-3 rounded-lg border bg-gray-50 hover:bg-saffron-50 transition-colors"
+                            >
+                              <div className="flex-1 min-w-0">
+                                <p className="font-medium text-sm text-gray-900 truncate">
+                                  {rel.relatedMember.fullName}
+                                </p>
+                                <p className="text-xs text-gray-500 truncate">
+                                  {rel.relatedMember.currentCity}, {rel.relatedMember.currentState}
+                                </p>
+                              </div>
+                              <div className="flex items-center gap-2 ml-2 flex-shrink-0">
+                                <span className="text-xs font-medium bg-saffron-100 text-saffron-800 px-2 py-0.5 rounded-full border border-saffron-200">
+                                  {rel.relationshipType}
+                                </span>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="h-7 text-xs px-2"
+                                  onClick={() => {
+                                    const m = (allMembers as Member[]).find((m) => m.id === rel.relatedMember.id);
+                                    if (m) setSelectedMember(m);
+                                  }}
+                                >
+                                  View
+                                </Button>
+                              </div>
+                            </div>
+                          ))}
+                      </div>
+                    </Card>
+                  </TabsContent>
+                </Tabs>
               </div>
             ) : (
               <Card className="p-6 sm:p-12 text-center">

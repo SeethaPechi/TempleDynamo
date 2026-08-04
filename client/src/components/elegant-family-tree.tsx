@@ -154,8 +154,11 @@ export function ElegantFamilyTree({ member, relationships, onMemberClick }: Eleg
   const daughters = byType("Daughter", "Step-Daughter");
   const children = [...sons, ...daughters];
 
-  // Grandchildren
+  // Grandchildren — covers all known variants (including DB typo "Grand Daugher")
   const grandChildren = byType(
+    "Grand Son",
+    "Grand Daugher",       // DB typo — keep as-is to match stored data
+    "Grand Daughter",
     "Grand Son-Son Side",
     "Grand Daughter -Son Side",
     "Grand Son-Daughter Side",
