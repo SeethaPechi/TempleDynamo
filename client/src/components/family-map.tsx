@@ -2,7 +2,7 @@ import { useRef, useEffect, useCallback, useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import * as d3 from "d3";
-import { Search, Maximize2, RotateCcw, Users, Map, Target, UserCircle, ChevronDown } from "lucide-react";
+import { Search, Maximize2, RotateCcw, Users, Map as MapIcon, Target, UserCircle, ChevronDown } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -842,7 +842,7 @@ export function FamilyMap({ onMemberClick, selectedMemberId }: FamilyMapProps) {
             }`}
             onClick={() => setViewMode("map")}
           >
-            <Map className="h-3.5 w-3.5" />
+            <MapIcon className="h-3.5 w-3.5" />
             {lang.startsWith("ta") ? "முழு வரைபடம்" : "Full Map"}
           </button>
           <button
