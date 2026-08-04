@@ -747,6 +747,9 @@ export default function Registry() {
                               }}
                             />
                           </FormControl>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            If your name has initials (e.g. <span className="font-medium">S.Ganesh</span>), please expand them — write your given name first, then your father's name: <span className="font-medium">Ganesh Siva</span>.
+                          </p>
                           <FormMessage />
                         </FormItem>
                       )}
