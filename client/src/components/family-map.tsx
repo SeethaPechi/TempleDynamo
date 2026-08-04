@@ -208,13 +208,59 @@ function FocusView({ graph, focalId, lang, onMemberClick }: FocusViewProps) {
     nRows === 1 ? F_VH / 2 : 52 + (i * (F_VH - 100)) / (nRows - 1),
   );
 
-  // Build a position map for all nodes in the focused subset
+  // Build child→parents lookup for parent-aware ordering
+  const childToParentsMap = new Map<number, number[]>();
+  graph.edges
+    .filter((e) => e.type === "parent-child")
+    .forEach((e) => {
+      if (!childToParentsMap.has(e.targetId)) childToParentsMap.set(e.targetId, []);
+      childToParentsMap.get(e.targetId)!.push(e.sourceId);
+    });
+
+  // Build a position map for all nodes in the focused subset.
+  // Each level is sorted by the average x of its parents so that
+  // parent→child bezier lines converge rather than cross.
   const posMap = new Map<number, { x: number; y: number }>();
   activeLevels.forEach((lv, ri) => {
-    const n       = lv.nodes.length;
-    const visible = n > 6 ? lv.nodes.slice(0, 6) : lv.nodes;
-    const totalW  = visible.length * F_CW + (visible.length - 1) * F_GAP;
-    const startX  = F_VW / 2 - totalW / 2 + F_CW / 2;
+    // Average parent x for a node (uses already-placed rows above)
+    const avgParentX = (nodeId: number): number => {
+      const pids = childToParentsMap.get(nodeId) ?? [];
+      const pxs  = pids
+        .map((pid) => posMap.get(pid)?.x)
+        .filter((x): x is number => x !== undefined);
+      return pxs.length ? pxs.reduce((s, x) => s + x, 0) / pxs.length : Infinity;
+    };
+
+    // Sort all nodes for this level by avg parent x (Infinity → append at end)
+    const sorted = [...lv.nodes].sort((a, b) => {
+      const da = avgParentX(a.id);
+      const db = avgParentX(b.id);
+      if (da === Infinity && db === Infinity) return a.fullName.localeCompare(b.fullName);
+      return da - db;
+    });
+
+    // Group spouses adjacent (same logic as computeLayout)
+    const placed  = new Set<number>();
+    const ordered: FamilyNode[] = [];
+    const visibleSet = new Set(sorted.map((n) => n.id));
+    sorted.forEach((m) => {
+      if (placed.has(m.id)) return;
+      placed.add(m.id);
+      ordered.push(m);
+      m.spouseIds.forEach((sid) => {
+        if (!placed.has(sid) && visibleSet.has(sid)) {
+          placed.add(sid);
+          ordered.push(nodeMap.get(sid)!);
+        }
+      });
+    });
+
+    // Cap at 6 visible cards (same limit as before)
+    const visible = ordered.length > 6 ? ordered.slice(0, 6) : ordered;
+
+    // Center the ordered row horizontally
+    const totalW = visible.length * F_CW + (visible.length - 1) * F_GAP;
+    const startX = F_VW / 2 - totalW / 2 + F_CW / 2;
     visible.forEach((node, ni) => {
       posMap.set(node.id, { x: startX + ni * F_SLOT, y: rowYs[ri] });
     });
