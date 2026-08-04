@@ -165,9 +165,17 @@ export function ElegantFamilyTree({ member, relationships, onMemberClick }: Eleg
     "Grand Daughter -Daughter Side",
   );
 
-  // Helper to render a relationship-type label for display
-  const relLabel = (rel: Relationship & { relatedMember: Member }) =>
-    transformRelationshipType(rel.relationshipType);
+  // Helper to render a relationship-type label for display.
+  // For Husband/Wife, derive from the related member's gender so the badge
+  // is always correct even if the stored relationship_type is stale.
+  const relLabel = (rel: Relationship & { relatedMember: Member }) => {
+    if (rel.relationshipType === "Husband" || rel.relationshipType === "Wife") {
+      const g = rel.relatedMember?.gender;
+      if (g === "Male") return transformRelationshipType("Husband");
+      if (g === "Female") return transformRelationshipType("Wife");
+    }
+    return transformRelationshipType(rel.relationshipType);
+  };
 
   // ── No data state ──────────────────────────────────────────────────────────
   if (relationships.length === 0) {

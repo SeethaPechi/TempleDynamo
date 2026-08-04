@@ -220,7 +220,13 @@ export function ComprehensiveFamilyDisplay({
                         </div>
                         <div className="flex items-center">
                           <Badge className="text-xs bg-saffron-500 text-white">
-                            {transformRelationshipType(rel.relationshipType)}
+                            {(rel.relationshipType === "Husband" || rel.relationshipType === "Wife")
+                              ? transformRelationshipType(
+                                  rel.relatedMember?.gender === "Male" ? "Husband"
+                                  : rel.relatedMember?.gender === "Female" ? "Wife"
+                                  : rel.relationshipType
+                                )
+                              : transformRelationshipType(rel.relationshipType)}
                           </Badge>
                         </div>
                         <div className="flex items-center">

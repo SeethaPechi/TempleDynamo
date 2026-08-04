@@ -11,7 +11,7 @@ import rateLimit from "express-rate-limit";
 import { pool } from "./db";
 import { db } from "./db";
 import { relationships as relationshipsTable, members as membersTable } from "@shared/schema";
-import { eq } from "drizzle-orm";
+import { eq, and, inArray } from "drizzle-orm";
 import { hashPassword, verifyPassword } from "./password";
 import { sendPasswordResetEmail } from "./email";
 import crypto from "crypto";
@@ -987,6 +987,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const memberData = insertMemberSchema.parse(req.body);
       const updatedMember = await storage.updateMember(id, memberData);
       syncNameRelationships(id);
+
+      // When gender changes, auto-correct Husband/Wife relationship types so
+      // stored labels stay consistent with actual gender.
+      if (memberData.gender && existingMember.gender !== memberData.gender) {
+        const newGender = memberData.gender as string;
+        const spouseTypes = ["Husband", "Wife"];
+        // Rows where THIS member appears as the related person → label should match their gender
+        await db
+          .update(relationshipsTable)
+          .set({ relationshipType: newGender === "Female" ? "Wife" : "Husband" })
+          .where(
+            and(
+              eq(relationshipsTable.relatedMemberId, id),
+              inArray(relationshipsTable.relationshipType, spouseTypes),
+            ),
+          );
+        // Rows where THIS member has a spouse → label should be the opposite gender
+        await db
+          .update(relationshipsTable)
+          .set({ relationshipType: newGender === "Female" ? "Husband" : "Wife" })
+          .where(
+            and(
+              eq(relationshipsTable.memberId, id),
+              inArray(relationshipsTable.relationshipType, spouseTypes),
+            ),
+          );
+        console.log(`Spouse relationship types corrected for member ${id} (new gender: ${newGender})`);
+      }
+
       console.log(`Member updated successfully - ID: ${id}`);
       res.json(updatedMember);
     } catch (error) {

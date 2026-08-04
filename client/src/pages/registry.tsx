@@ -50,7 +50,7 @@ import { MemberNameCombobox } from "@/components/MemberNameCombobox";
 const registrationSchema = insertMemberSchema.extend({
   fullName: z.string().min(2, "Full name must be at least 2 characters"),
   phone: z.string().optional(),
-  gender: z.enum(["Male", "Female"]).optional(),
+  gender: z.enum(["Male", "Female"], { required_error: "Gender is required" }),
   email: z
     .union([
       z.string().email("Please enter a valid email address"),
@@ -802,7 +802,7 @@ export default function Registry() {
                       name="gender"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>{t("registry.form.gender")}</FormLabel>
+                          <FormLabel>{t("registry.form.gender")} <span className="text-red-500">*</span></FormLabel>
                           <Select
                             onValueChange={(value) => {
                               field.onChange(value);

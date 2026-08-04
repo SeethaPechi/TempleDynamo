@@ -1481,7 +1481,7 @@ export default function MemberDetails() {
                                 render={({ field }) => (
                                   <FormItem className="space-y-2">
                                     <FormLabel className="text-sm font-medium">
-                                      Gender
+                                      Gender <span className="text-red-500">*</span>
                                     </FormLabel>
                                     <Select
                                       onValueChange={(value) => {
@@ -1492,7 +1492,7 @@ export default function MemberDetails() {
                                     >
                                       <FormControl>
                                         <SelectTrigger className="h-10 sm:h-11">
-                                          <SelectValue placeholder="Select gender (optional)" />
+                                          <SelectValue placeholder="Select gender (required)" />
                                         </SelectTrigger>
                                       </FormControl>
                                       <SelectContent>
@@ -2485,6 +2485,17 @@ export default function MemberDetails() {
                       {selectedRelationship}
                     </div>
                   )}
+
+                  {/* Same-sex spouse warning */}
+                  {selectedRelative &&
+                    (selectedRelationship === "Husband" || selectedRelationship === "Wife") &&
+                    selectedRelative.gender &&
+                    (member as Member).gender &&
+                    selectedRelative.gender === (member as Member).gender && (
+                      <div className="text-sm font-semibold text-red-600 bg-red-50 border border-red-300 p-3 rounded">
+                        ⚠️ BOTH MEMBERS are of same Gender — review and confirm Gender before saving
+                      </div>
+                    )}
                 </div>
 
                 <div>
