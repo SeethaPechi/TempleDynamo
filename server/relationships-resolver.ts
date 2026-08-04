@@ -32,6 +32,8 @@ export interface ResolvedRelationship {
   label: string;
   createdAt: Date | null;
   relatedMember: Member;
+  /** True when this relationship was inferred via 2-hop traversal (not a directly stored row) */
+  inferred?: boolean;
 }
 
 // ---------------------------------------------------------------------------
@@ -182,6 +184,158 @@ const SIBLING_TYPES = new Set([
 ]);
 
 // ---------------------------------------------------------------------------
+// 2-hop inference helpers
+// ---------------------------------------------------------------------------
+
+/**
+ * Fetch the direct 1-hop relationships of a given member from both
+ * forward and reverse edges. Returns lightweight rows (type + relative member).
+ */
+async function directRelsOf(
+  memberId: number,
+  rtMap: RtMap,
+): Promise<Array<{ id: number; type: string; relative: Member }>> {
+  const fwd = await db
+    .select({
+      id: relationships.id,
+      type: relationships.relationshipType,
+      relative: members,
+    })
+    .from(relationships)
+    .innerJoin(members, eq(members.id, relationships.relatedMemberId))
+    .where(eq(relationships.memberId, memberId));
+
+  const rev = await db
+    .select({
+      id: relationships.id,
+      type: relationships.relationshipType,
+      relative: members,
+    })
+    .from(relationships)
+    .innerJoin(members, eq(members.id, relationships.memberId))
+    .where(eq(relationships.relatedMemberId, memberId));
+
+  const out: Array<{ id: number; type: string; relative: Member }> = [];
+  for (const r of fwd) {
+    out.push({ id: r.id, type: r.type, relative: r.relative as Member });
+  }
+  for (const r of rev) {
+    // resolve the reciprocal label (we just need the effective type slug)
+    const rtEntry = rtMap.get(r.type);
+    const relGender = (r.relative as Member).gender;
+    const slug =
+      rtEntry
+        ? (relGender === "Female" ? rtEntry.female : rtEntry.male) ?? staticInverse(r.type, relGender)
+        : staticInverse(r.type, relGender);
+    out.push({ id: r.id, type: slug, relative: r.relative as Member });
+  }
+  return out;
+}
+
+/**
+ * 2-hop inference rules:
+ *   Spouse's Father/Mother    → Father-in-Law / Mother-in-Law
+ *   Father's Father/Mother    → Paternal Grandfather / Paternal Grandmother
+ *   Mother's Father/Mother    → Maternal Grandfather / Maternal Grandmother
+ *   Son's Son/Daughter        → Grand Son / Grand Daugher
+ *   Daughter's Son/Daughter   → Grand Son-Daughter Side / Grand Daughter -Daughter Side
+ *
+ * Returns inferred entries using the 2nd-hop DB row id, deduped against
+ * already-seen member IDs.
+ */
+async function inferTwoHop(
+  directResults: ResolvedRelationship[],
+  rtMap: RtMap,
+  lang: string,
+  seenMemberIds: Set<number>,
+): Promise<ResolvedRelationship[]> {
+  const inferred: ResolvedRelationship[] = [];
+  const seenInferred = new Set<string>(); // `memberId:slug`
+
+  const addInferred = (hopId: number, hopMemberId: number, slug: string, relative: Member) => {
+    const key = `${relative.id}:${slug}`;
+    if (seenMemberIds.has(relative.id)) return; // already a direct relative
+    if (seenInferred.has(key)) return;
+    seenInferred.add(key);
+    const { labelEn, labelTa, label } = resolveLabels(slug, rtMap, lang);
+    inferred.push({
+      id: hopId,
+      memberId: hopMemberId,
+      relatedMemberId: relative.id,
+      relationshipType: slug,
+      labelEn,
+      labelTa,
+      label,
+      createdAt: null,
+      relatedMember: relative,
+      inferred: true,
+    });
+  };
+
+  for (const direct of directResults) {
+    const directType = direct.relationshipType;
+    const firstHopId = direct.relatedMemberId;
+
+    // Which 2nd-hop parent types to follow?
+    const isSpouse   = directType === "Husband" || directType === "Wife";
+    const isFather   = directType === "Father"  || directType === "Step Father";
+    const isMother   = directType === "Mother"  || directType === "Step Mother";
+    const isSon      = directType === "Son"     || directType === "Step-Son";
+    const isDaughter = directType === "Daughter"|| directType === "Step-Daughter";
+
+    if (!isSpouse && !isFather && !isMother && !isSon && !isDaughter) continue;
+
+    const hop2 = await directRelsOf(firstHopId, rtMap);
+
+    for (const h of hop2) {
+      if (h.relative.id === direct.memberId) continue; // avoid circular back to subject
+
+      if (isSpouse) {
+        if (h.type === "Father" || h.type === "Step Father") {
+          addInferred(h.id, firstHopId, "Father-in-Law", h.relative);
+        } else if (h.type === "Mother" || h.type === "Step Mother") {
+          addInferred(h.id, firstHopId, "Mother-in-Law", h.relative);
+        }
+      }
+
+      if (isFather) {
+        if (h.type === "Father" || h.type === "Step Father") {
+          addInferred(h.id, firstHopId, "Paternal Grandfather", h.relative);
+        } else if (h.type === "Mother" || h.type === "Step Mother") {
+          addInferred(h.id, firstHopId, "Paternal Grandmother", h.relative);
+        }
+      }
+
+      if (isMother) {
+        if (h.type === "Father" || h.type === "Step Father") {
+          addInferred(h.id, firstHopId, "Maternal Grandfather", h.relative);
+        } else if (h.type === "Mother" || h.type === "Step Mother") {
+          addInferred(h.id, firstHopId, "Maternal Grandmother", h.relative);
+        }
+      }
+
+      if (isSon) {
+        if (h.type === "Son" || h.type === "Step-Son") {
+          addInferred(h.id, firstHopId, "Grand Son-Son Side", h.relative);
+        } else if (h.type === "Daughter" || h.type === "Step-Daughter") {
+          addInferred(h.id, firstHopId, "Grand Daughter -Son Side", h.relative);
+        }
+      }
+
+      if (isDaughter) {
+        if (h.type === "Son" || h.type === "Step-Son") {
+          addInferred(h.id, firstHopId, "Grand Son-Daughter Side", h.relative);
+        } else if (h.type === "Daughter" || h.type === "Step-Daughter") {
+          addInferred(h.id, firstHopId, "Grand Daughter -Daughter Side", h.relative);
+        }
+      }
+    }
+  }
+
+  return inferred;
+}
+
+// ---------------------------------------------------------------------------
 // Public resolver
 // ---------------------------------------------------------------------------
 export async function getRelationshipsFor(
@@ -297,6 +451,11 @@ export async function getRelationshipsFor(
       relatedMember: relative,
     });
   }
+
+  // ── 2-hop inference: in-laws, grandparents, grandchildren ─────────────────
+  const seenMemberIds = new Set(results.map(r => r.relatedMemberId));
+  const inferred = await inferTwoHop(results, rtMap, lang, seenMemberIds);
+  results.push(...inferred);
 
   return results;
 }
