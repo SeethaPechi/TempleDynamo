@@ -1139,6 +1139,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Family graph endpoint — returns all members as nodes with BFS-computed generations + edges
+  app.get("/api/family-graph", requireAuth, async (req, res) => {
+    try {
+      const { buildFamilyGraph } = await import("./family-graph");
+      const graph = await buildFamilyGraph();
+      res.json(graph);
+    } catch (error) {
+      console.error("Error building family graph:", error);
+      res.status(500).json({ message: "Failed to build family graph" });
+    }
+  });
+
   // WhatsApp routes
   app.post("/api/whatsapp/generate-url", (req, res) => {
     try {

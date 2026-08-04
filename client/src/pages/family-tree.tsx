@@ -30,6 +30,8 @@ import {
   BarChart3,
   Link2,
   GitMerge,
+  Map,
+  X,
 } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -43,6 +45,7 @@ import { RelationshipCounters } from "@/components/relationship-counters";
 import { FamilyStoryExport } from "@/components/family-story-export";
 import { RelationChainFinder } from "@/components/RelationChainFinder";
 import { DirectRelationshipFinder } from "@/components/DirectRelationshipFinder";
+import { FamilyMap } from "@/components/family-map";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useFormDataTransformation } from "@/lib/i18n-utils";
 import type { Member, Relationship } from "@shared/schema";
@@ -103,6 +106,7 @@ export default function FamilyTree() {
   const [isAddRelationshipOpen, setIsAddRelationshipOpen] = useState(false);
   const [relationshipType, setRelationshipType] = useState("");
   const [relatedMemberId, setRelatedMemberId] = useState<number | null>(null);
+  const [mapSelectedId, setMapSelectedId] = useState<number | null>(null);
 
   const lang = i18n.language;
   const { data: allMembers = [], isLoading } = useQuery({
@@ -151,6 +155,27 @@ export default function FamilyTree() {
       if (!response.ok) return [];
       return response.json();
     },
+  });
+
+  // ── Kula Varisai map: fetch detail for clicked node ──────────────────────
+  const { data: mapMemberDetail } = useQuery<Member>({
+    queryKey: ["/api/members", mapSelectedId],
+    queryFn: async () => {
+      const res = await fetch(`/api/members/${mapSelectedId}`, { credentials: "include" });
+      if (!res.ok) throw new Error("Not found");
+      return res.json();
+    },
+    enabled: !!mapSelectedId,
+  });
+
+  const { data: mapMemberRels = [] } = useQuery<Array<Relationship & { relatedMember: Member }>>({
+    queryKey: ["/api/relationships", mapSelectedId, lang],
+    queryFn: async () => {
+      const res = await fetch(`/api/relationships/${mapSelectedId}?lang=${lang}`, { credentials: "include" });
+      if (!res.ok) return [];
+      return res.json();
+    },
+    enabled: !!mapSelectedId,
   });
 
   // Resolver now guarantees all returned rows have memberId === selectedMember.id
@@ -362,6 +387,14 @@ export default function FamilyTree() {
               >
                 <GitMerge size={16} />
                 <span className="text-center leading-tight">{t("familyTree.relationshipTabShort")}</span>
+              </TabsTrigger>
+              <TabsTrigger
+                value="kula-varisai"
+                className="flex flex-col items-center gap-1 text-xs sm:text-sm px-2 py-2 min-h-[3rem] flex-shrink-0"
+              >
+                <Map size={16} />
+                <span className="text-center leading-tight hidden sm:block">Kula Varisai</span>
+                <span className="text-center leading-tight sm:hidden text-[10px]">குல வரிசை</span>
               </TabsTrigger>
             </TabsList>
           </div>
@@ -1114,6 +1147,56 @@ export default function FamilyTree() {
                 members={allMembers as Member[]}
                 allRelationships={allRelationships as Array<Relationship & { relatedMember: Member }>}
               />
+            </Card>
+          </TabsContent>
+
+          {/* ── Kula Varisai — whole-family pannable map ────────────────── */}
+          <TabsContent value="kula-varisai" className="space-y-6">
+            <Card className="p-6">
+              <div className="flex items-center justify-between mb-1">
+                <h2 className="text-xl font-bold text-temple-brown flex items-center gap-2">
+                  <Map size={20} />
+                  Kula Varisai · <span style={{ fontFamily: "'Nirmala UI','Latha',system-ui" }} className="text-amber-700">குல வரிசை</span>
+                </h2>
+              </div>
+              <p className="text-sm text-gray-500 mb-5">
+                All family members in one pannable canvas. Click a node to view that person's family tree below.
+              </p>
+
+              {/* Map canvas — lazy data fetch inside component */}
+              <FamilyMap
+                onMemberClick={(id) => setMapSelectedId(id)}
+                selectedMemberId={mapSelectedId}
+              />
+
+              {/* Detail panel — shown when a node is clicked */}
+              {mapSelectedId && mapMemberDetail && (
+                <div className="mt-6 border-t border-amber-200/60 pt-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold text-temple-brown">
+                      {mapMemberDetail.fullName}
+                      {(mapMemberDetail as any).fullNameTa && (
+                        <span className="ml-2 text-amber-700 font-normal text-base" style={{ fontFamily: "'Nirmala UI','Latha',system-ui" }}>
+                          · {(mapMemberDetail as any).fullNameTa}
+                        </span>
+                      )}
+                    </h3>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setMapSelectedId(null)}
+                      className="h-8 w-8 p-0"
+                    >
+                      <X size={16} />
+                    </Button>
+                  </div>
+                  <ElegantFamilyTree
+                    member={mapMemberDetail}
+                    relationships={mapMemberRels}
+                    onMemberClick={(id) => setMapSelectedId(id)}
+                  />
+                </div>
+              )}
             </Card>
           </TabsContent>
 

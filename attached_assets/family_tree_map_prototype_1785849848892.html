@@ -1,0 +1,293 @@
+<!-- Tamil Kovil — whole-family "map view" prototype.
+     Sample data only (~100 generated members). Demonstrates layout, zoom/pan,
+     bloodline tracing, and search. Wire to your Neon data via the Replit brief. -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Kula Varisai — Family Map</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<style>
+  :root{
+    --night:#14121f; --night2:#1d1a2b;
+    --cream:#F3E9D2; --muted:#9a92ad;
+    --gold:#E3B23C; --kumkum:#C1272D; --tulasi:#4E9F6E;
+    --line:#3a3550;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:
+     radial-gradient(1200px 700px at 50% -10%, #241f36 0%, var(--night) 60%);
+     color:var(--cream);
+     font-family:"Iowan Old Style","Palatino Linotype",Georgia,serif;}
+  #wrap{position:relative;height:100vh;overflow:hidden}
+  header{position:absolute;top:0;left:0;right:0;z-index:5;padding:18px 22px;
+     pointer-events:none}
+  h1{margin:0;font-size:26px;letter-spacing:.5px;font-weight:600}
+  h1 .ta{font-family:"Nirmala UI","Latha",system-ui;color:var(--gold)}
+  .sub{margin:2px 0 0;font-size:13px;color:var(--muted);
+     font-family:system-ui,sans-serif;letter-spacing:.3px}
+  .panel{position:absolute;z-index:6;background:rgba(29,26,43,.86);
+     border:1px solid var(--line);border-radius:12px;backdrop-filter:blur(6px)}
+  #controls{top:18px;right:18px;padding:10px;display:flex;gap:8px;align-items:center}
+  #controls input{background:#0f0d18;border:1px solid var(--line);color:var(--cream);
+     border-radius:8px;padding:7px 10px;font-size:13px;width:170px;
+     font-family:system-ui,sans-serif}
+  #controls input:focus{outline:2px solid var(--gold);outline-offset:1px}
+  button{background:#0f0d18;color:var(--cream);border:1px solid var(--line);
+     border-radius:8px;padding:7px 11px;font-size:13px;cursor:pointer;
+     font-family:system-ui,sans-serif;transition:border-color .15s,background .15s}
+  button:hover{border-color:var(--gold)}
+  button:focus-visible{outline:2px solid var(--gold);outline-offset:1px}
+  #legend{left:18px;bottom:18px;padding:12px 14px;font-family:system-ui,sans-serif;
+     font-size:12px;color:var(--muted);max-width:220px}
+  #legend b{color:var(--cream);font-weight:600;display:block;margin-bottom:7px;
+     font-size:12px;letter-spacing:.4px;text-transform:uppercase}
+  #legend .row{display:flex;align-items:center;gap:8px;margin:5px 0}
+  #legend .dot{width:12px;height:12px;border-radius:50%;flex:0 0 auto}
+  #tip{position:absolute;z-index:8;pointer-events:none;opacity:0;
+     background:#0f0d18;border:1px solid var(--gold);border-radius:9px;
+     padding:9px 11px;font-family:system-ui,sans-serif;font-size:12.5px;
+     color:var(--cream);max-width:220px;transition:opacity .12s;box-shadow:0 8px 24px rgba(0,0,0,.4)}
+  #tip .nm{font-weight:600;font-size:13.5px;margin-bottom:3px}
+  #tip .nm .ta{color:var(--gold);font-family:"Nirmala UI","Latha",system-ui}
+  #tip .meta{color:var(--muted)}
+  .gband text{fill:#2c2740;font-size:13px;font-family:system-ui,sans-serif;
+     letter-spacing:2px;text-transform:uppercase}
+  .link{fill:none;stroke:var(--line);stroke-width:1.4px}
+  .marriage{stroke:var(--gold);stroke-width:1.6px;stroke-dasharray:2 3;opacity:.75}
+  .node circle{stroke-width:2.5px;cursor:pointer;transition:opacity .18s}
+  .node .init{font-family:system-ui,sans-serif;font-weight:700;font-size:12px;
+     fill:#14121f;text-anchor:middle;dominant-baseline:central;pointer-events:none}
+  .node .label{font-family:system-ui,sans-serif;font-size:11px;fill:var(--cream);
+     text-anchor:middle;pointer-events:none}
+  .married-in circle{fill-opacity:.28}
+  .dim{opacity:.12}
+  .trace .link{stroke:var(--kumkum);stroke-width:2.4px;opacity:1}
+  .hl circle{stroke:var(--kumkum)!important;filter:drop-shadow(0 0 6px rgba(193,39,45,.7))}
+  @media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style>
+
+<div id="wrap">
+  <header>
+    <h1>Kula Varisai · <span class="ta">குல வரிசை</span></h1>
+    <p class="sub">Sample lineage — <span id="count"></span> members across 5 generations · click a person to trace their bloodline</p>
+  </header>
+
+  <div class="panel" id="controls">
+    <input id="search" placeholder="Find a member…" autocomplete="off" />
+    <button id="fit">Fit</button>
+    <button id="reset">Clear</button>
+  </div>
+
+  <div class="panel" id="legend">
+    <b>How to read this</b>
+    <div class="row"><span class="dot" style="background:var(--gold)"></span> Founding generation</div>
+    <div class="row"><span class="dot" style="background:#C1567D"></span> Later generations (by colour)</div>
+    <div class="row"><span class="dot" style="background:transparent;border:2px solid var(--gold)"></span> Married into the family</div>
+    <div class="row"><span style="width:14px;border-top:2px dashed var(--gold)"></span> Marriage</div>
+    <div class="row"><span style="width:14px;border-top:2px solid var(--kumkum)"></span> Traced bloodline</div>
+  </div>
+
+  <div id="tip"></div>
+  <svg id="stage" width="100%" height="100%"></svg>
+</div>
+
+<script>
+// ---------- reproducible RNG ----------
+let _s = 20260804;
+const rnd = () => (_s = (_s*1103515245+12345)&0x7fffffff) / 0x7fffffff;
+const pick = a => a[Math.floor(rnd()*a.length)];
+const chance = p => rnd() < p;
+
+const MALE = ["Venkatachalam","Subramanian","Muthu","Arumugam","Palaniappan","Chidambaram",
+ "Ganesan","Sundaram","Raman","Karthik","Selvam","Murugan","Kannan","Sivakumar","Thangavel",
+ "Perumal","Elango","Nataraja","Sekar","Manikandan","Saravanan","Dhanapal","Ramanathan",
+ "Azhagappan","Vairavan","Chinnasamy","Bala","Anand","Vijay","Solairaja"];
+const FEMALE = ["Meenakshi","Lakshmi","Parvathi","Kamala","Saraswathi","Valliammai","Ponnamma",
+ "Sivakami","Rajeswari","Andal","Bhavani","Thenmozhi","Nachiyar","Kanaka","Alamelu","Chellammal",
+ "Vadivu","Sornam","Ilavarasi","Maheswari","Vasanthi","Selvi","Amudha","Karpagam","Eswari",
+ "Sundari","Muthulakshmi","Deivanai","Yamuna","Iruvanji"];
+
+// ---------- generate a bloodline tree (~100 people) ----------
+let uid = 0, people = [];
+function makePerson(gender, gen, marriedIn=false){
+  const p = {id:uid++, gen, gender,
+    name: gender==='M' ? pick(MALE) : pick(FEMALE),
+    marriedIn, children:[], spouse:null, parentRef:null};
+  people.push(p); return p;
+}
+const MAX_GEN = 4;               // 0..4  => 5 generations
+function grow(node){
+  if(node.gen >= MAX_GEN) return;
+  if(people.length > 96) return;
+  // spouse for anyone who will have children
+  const kids = node.gen===0 ? 4 : (chance(.78) ? (2 + Math.floor(rnd()*3)) : 0);
+  if(kids>0){
+    node.spouse = makePerson(node.gender==='M'?'F':'M', node.gen, true);
+    node.spouse.spouseOf = node;
+    for(let i=0;i<kids && people.length<100;i++){
+      const c = makePerson(chance(.5)?'M':'F', node.gen+1);
+      c.parentRef = node;
+      node.children.push(c);
+      grow(c);
+    }
+  }
+}
+const founder = makePerson('M',0);
+grow(founder);
+document.getElementById('count').textContent = people.length;
+
+// ---------- layout (tidy, couple-aware) ----------
+const SLOT=118, COUPLE_GAP=52, ROW_H=155, TOP=90;
+function measure(n){
+  const self = SLOT + (n.spouse?COUPLE_GAP:0);
+  if(!n.children.length){ n._w=self; return self; }
+  let cw=0; n.children.forEach(c=>cw+=measure(c));
+  n._w=Math.max(self,cw); return n._w;
+}
+function place(n,x0){
+  if(!n.children.length){
+    n.x = x0 + n._w/2 - (n.spouse?COUPLE_GAP/2:0);
+  } else {
+    let childrenW=0; n.children.forEach(c=>childrenW+=c._w);
+    let cur = x0 + (n._w-childrenW)/2;
+    n.children.forEach(c=>{ place(c,cur); cur+=c._w; });
+    const f=n.children[0], l=n.children[n.children.length-1];
+    n.x = (f.x+l.x)/2 - (n.spouse?COUPLE_GAP/2:0);
+  }
+  n.y = TOP + n.gen*ROW_H;
+  if(n.spouse){ n.spouse.x=n.x+COUPLE_GAP; n.spouse.y=n.y; }
+}
+measure(founder); place(founder,0);
+
+const GEN_COLORS=["#E3B23C","#E0843C","#C1567D","#7B5EA7","#4E7FA7","#4E9F6E"];
+const genColor = g => GEN_COLORS[g % GEN_COLORS.length];
+const coupleMid = n => n.spouse ? [(n.x+n.spouse.x)/2, n.y] : [n.x,n.y];
+
+// links
+const childLinks=[], marriage=[];
+people.forEach(n=>{
+  if(n.marriedIn) return;
+  if(n.spouse) marriage.push([n,n.spouse]);
+  n.children.forEach(c=> childLinks.push({s:coupleMid(n), t:c}));
+});
+
+// bounds
+const xs=people.map(p=>p.x), ys=people.map(p=>p.y);
+const minX=Math.min(...xs)-90, maxX=Math.max(...xs)+90;
+const minY=Math.min(...ys)-70, maxY=Math.max(...ys)+90;
+
+// ---------- render ----------
+const svg=d3.select("#stage");
+const root=svg.append("g");
+const gGen=root.append("g"), gLink=root.append("g"),
+      gMar=root.append("g"), gNode=root.append("g");
+
+// generation bands
+const gens=[...new Set(people.map(p=>p.gen))].sort((a,b)=>a-b);
+const GNAMES=["Moolam (Root)","Second","Third","Fourth","Fifth"];
+gGen.selectAll("g").data(gens).join("g").attr("class","gband")
+  .each(function(g){
+    const y=TOP+g*ROW_H;
+    d3.select(this).append("line")
+      .attr("x1",minX).attr("x2",maxX).attr("y1",y).attr("y2",y)
+      .attr("stroke","#241f36").attr("stroke-width",1);
+    d3.select(this).append("text").attr("x",minX+6).attr("y",y-40)
+      .text(GNAMES[g]||("Gen "+g));
+  });
+
+const line=d3.linkVertical().x(d=>d[0]).y(d=>d[1]);
+gLink.selectAll("path").data(childLinks).join("path").attr("class","link")
+  .attr("d",d=>line({source:d.s, target:[d.t.x,d.t.y-18]}));
+
+gMar.selectAll("line").data(marriage).join("line").attr("class","marriage")
+  .attr("x1",d=>d[0].x+18).attr("y1",d=>d[0].y)
+  .attr("x2",d=>d[1].x-18).attr("y2",d=>d[1].y);
+
+const node=gNode.selectAll("g").data(people).join("g")
+  .attr("class",d=>"node"+(d.marriedIn?" married-in":""))
+  .attr("transform",d=>`translate(${d.x},${d.y})`)
+  .attr("tabindex",0).attr("role","button")
+  .on("click",(e,d)=>{e.stopPropagation();trace(d);})
+  .on("keydown",(e,d)=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();trace(d);}})
+  .on("mousemove",(e,d)=>showTip(e,d)).on("mouseleave",hideTip);
+node.append("circle").attr("r",18)
+  .attr("fill",d=>genColor(d.gen)).attr("stroke",d=>genColor(d.gen));
+node.append("text").attr("class","init")
+  .text(d=>d.name.slice(0,2).toUpperCase());
+node.append("text").attr("class","label").attr("y",32).text(d=>d.name);
+
+// ---------- interactions ----------
+const zoom=d3.zoom().scaleExtent([.15,2.5]).on("zoom",e=>root.attr("transform",e.transform));
+svg.call(zoom).on("click",clearTrace);
+
+function fit(){
+  const w=window.innerWidth,h=window.innerHeight;
+  const bw=maxX-minX, bh=maxY-minY;
+  const k=Math.min(w/bw,h/bh)*0.9;
+  const tx=w/2-k*(minX+maxX)/2, ty=h/2-k*(minY+maxY)/2;
+  svg.transition().duration(500).call(zoom.transform,
+    d3.zoomIdentity.translate(tx,ty).scale(k));
+}
+fit();
+document.getElementById("fit").onclick=fit;
+document.getElementById("reset").onclick=clearTrace;
+
+function descendants(p){
+  const set=new Set(), q=[p];
+  while(q.length){const c=q.pop(); set.add(c.id);
+    if(c.spouse) set.add(c.spouse.id);
+    c.children.forEach(k=>q.push(k));}
+  return set;
+}
+function ancestors(p){
+  const set=new Set(); let c=p.marriedIn?p.spouseOf:p;
+  while(c){ set.add(c.id); if(c.spouse) set.add(c.spouse.id); c=c.parentRef; }
+  return set;
+}
+function trace(p){
+  const keep=new Set([...descendants(p),...ancestors(p),p.id]);
+  if(p.spouse) keep.add(p.spouse.id);
+  node.classed("dim",d=>!keep.has(d.id)).classed("hl",d=>d.id===p.id);
+  gLink.selectAll("path").classed("dim",true);
+  gLink.classed("trace",false);
+  // highlight links whose endpoints are both kept
+  gLink.selectAll("path").classed("dim",d=>!(keep.has(nodeAt(d.s)) && keep.has(d.t.id)))
+    .classed("traced",false);
+  gLink.selectAll("path").filter(d=>keep.has(d.t.id)).classed("dim",false)
+    .attr("stroke","var(--kumkum)").attr("stroke-width",2.2);
+  focus(p);
+}
+function nodeAt(pt){ // find a person id sitting at a couple-mid point (approx)
+  let best=null,bd=1e9;
+  people.forEach(q=>{const dx=q.x-pt[0],dy=q.y-pt[1];const d=dx*dx+dy*dy;if(d<bd){bd=d;best=q.id;}});
+  return best;
+}
+function clearTrace(){
+  node.classed("dim",false).classed("hl",false);
+  gLink.selectAll("path").classed("dim",false)
+    .attr("stroke","var(--line)").attr("stroke-width",1.4);
+}
+function focus(p){
+  const k=Math.max(0.6, d3.zoomTransform(svg.node()).k);
+  const w=window.innerWidth,h=window.innerHeight;
+  svg.transition().duration(500).call(zoom.transform,
+    d3.zoomIdentity.translate(w/2-k*p.x, h/3-k*p.y).scale(k));
+}
+
+const tip=document.getElementById("tip");
+function showTip(e,d){
+  tip.innerHTML=`<div class="nm">${d.name}</div>
+    <div class="meta">${d.gender==='M'?'Male':'Female'} · Generation ${d.gen+1}
+    ${d.marriedIn?' · married in':''}<br>
+    ${d.children.length?d.children.length+' children':(d.marriedIn?'':'no children recorded')}</div>`;
+  tip.style.left=(e.clientX+14)+"px"; tip.style.top=(e.clientY+14)+"px"; tip.style.opacity=1;
+}
+function hideTip(){tip.style.opacity=0;}
+
+const search=document.getElementById("search");
+search.addEventListener("input",()=>{
+  const q=search.value.trim().toLowerCase();
+  if(!q){clearTrace();return;}
+  const hit=people.find(p=>p.name.toLowerCase().includes(q));
+  if(hit) trace(hit);
+});
+</script>
