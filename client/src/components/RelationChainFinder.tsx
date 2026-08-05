@@ -400,7 +400,8 @@ export function RelationChainFinder({ members, allRelationships }: Props) {
     const tId = parseInt(toId);
     if (!fId || !tId || fId === tId) return;
 
-    const startName = memberById.get(fId)?.fullName ?? `#${fId}`;
+    const startMember = memberById.get(fId);
+    const startName = withHonorific(startMember?.fullName ?? `#${fId}`, startMember?.gender, startMember?.maritalStatus);
     const result = bfsPath(graph, fId, startName, tId);
     setChain(result ?? "none");
   }
@@ -527,7 +528,7 @@ export function RelationChainFinder({ members, allRelationships }: Props) {
                               className="inline-flex items-center justify-center rounded-full px-4 py-1.5 text-xs font-semibold text-amber-900 shadow-sm border border-amber-400 hover:border-amber-500 hover:bg-amber-200 active:scale-95 transition-all cursor-pointer"
                               style={{ backgroundColor: "hsl(45,100%,88%)" }}
                             >
-                              {via.name}
+                              {withHonorific(via.name, memberById.get(via.id)?.gender, memberById.get(via.id)?.maritalStatus)}
                             </button>
                             <span className="text-[11px] text-amber-700 font-medium">
                               (connecting member)

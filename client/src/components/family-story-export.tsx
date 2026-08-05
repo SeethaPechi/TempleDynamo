@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { FileText, Download, Copy, Share2, Users, Calendar, MapPin } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { withHonorific } from "@/lib/honorific";
 import type { Member, Relationship } from "@shared/schema";
 
 interface FamilyStoryExportProps {
@@ -17,6 +18,9 @@ export function FamilyStoryExport({ member, relationships }: FamilyStoryExportPr
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedStory, setGeneratedStory] = useState<string>("");
   const { toast } = useToast();
+
+  // Honorific computed once at component scope so all handlers can use it
+  const memberHonorific = withHonorific(member.fullName, member.gender, member.maritalStatus);
 
   const generateFamilyStory = async () => {
     setIsGenerating(true);
@@ -52,11 +56,11 @@ export function FamilyStoryExport({ member, relationships }: FamilyStoryExportPr
         day: 'numeric'
       });
 
-      let story = `# Family Story of ${member.fullName}\n\n`;
+      let story = `# Family Story of ${memberHonorific}\n\n`;
       story += `*Generated on ${currentDate}*\n\n`;
       
       story += `## Personal Information\n`;
-      story += `**Full Name:** ${member.fullName}\n`;
+      story += `**Full Name:** ${memberHonorific}\n`;
       story += `**Gender:** ${member.gender || 'Not specified'}\n`;
       story += `**Marital Status:** ${member.maritalStatus || 'Not specified'}\n`;
       story += `**Birth Place:** ${member.birthCity}, ${member.birthState}, ${member.birthCountry}\n`;
@@ -69,7 +73,7 @@ export function FamilyStoryExport({ member, relationships }: FamilyStoryExportPr
       if (member.spouseName) story += `**Spouse's Name:** ${member.spouseName}\n`;
       
       story += `\n## Family Connections\n\n`;
-      story += `${member.fullName} has ${relationships.length} family connection${relationships.length === 1 ? '' : 's'} recorded in our family registry.\n\n`;
+      story += `${memberHonorific} has ${relationships.length} family connection${relationships.length === 1 ? '' : 's'} recorded in our family registry.\n\n`;
 
       // Add each relationship group
       Object.entries(groups).forEach(([groupName, groupMembers]) => {
@@ -77,7 +81,7 @@ export function FamilyStoryExport({ member, relationships }: FamilyStoryExportPr
         
         groupMembers.forEach(rel => {
           const relatedMember = rel.relatedMember;
-          story += `**${relatedMember.fullName}** *(${rel.relationshipType})*\n`;
+          story += `**${withHonorific(relatedMember.fullName, relatedMember.gender, relatedMember.maritalStatus)}** *(${rel.relationshipType})*\n`;
           
           if (relatedMember.currentCity && relatedMember.currentState) {
             story += `- Location: ${relatedMember.currentCity}, ${relatedMember.currentState}\n`;
@@ -117,27 +121,28 @@ export function FamilyStoryExport({ member, relationships }: FamilyStoryExportPr
 
       // Add family tree narrative
       story += `\n## Family Tree Overview\n\n`;
-      story += `This family story represents the comprehensive family network of ${member.fullName}, `;
+      story += `This family story represents the comprehensive family network of ${memberHonorific}, `;
       story += `documenting ${relationships.length} family relationships across multiple generations and locations. `;
       story += `The family network spans across various cities and states, creating a rich tapestry of connections.\n\n`;
 
       if (groups["Parents"]) {
-        story += `The foundation of this family tree begins with ${member.fullName}'s parents: `;
-        story += groups["Parents"].map(rel => rel.relatedMember.fullName).join(' and ') + '. ';
+        story += `The foundation of this family tree begins with ${memberHonorific}'s parents: `;
+        story += groups["Parents"].map(rel => withHonorific(rel.relatedMember.fullName, rel.relatedMember.gender, rel.relatedMember.maritalStatus)).join(' and ') + '. ';
       }
 
       if (groups["Spouse"]) {
-        story += `${member.fullName} is married to ${groups["Spouse"][0].relatedMember.fullName}. `;
+        const spouse = groups["Spouse"][0].relatedMember;
+        story += `${memberHonorific} is married to ${withHonorific(spouse.fullName, spouse.gender, spouse.maritalStatus)}. `;
       }
 
       if (groups["Children"]) {
         story += `The family continues with ${groups["Children"].length} children: `;
-        story += groups["Children"].map(rel => rel.relatedMember.fullName).join(', ') + '. ';
+        story += groups["Children"].map(rel => withHonorific(rel.relatedMember.fullName, rel.relatedMember.gender, rel.relatedMember.maritalStatus)).join(', ') + '. ';
       }
 
       if (groups["Siblings"]) {
-        story += `${member.fullName} has ${groups["Siblings"].length} sibling${groups["Siblings"].length === 1 ? '' : 's'}: `;
-        story += groups["Siblings"].map(rel => rel.relatedMember.fullName).join(', ') + '. ';
+        story += `${memberHonorific} has ${groups["Siblings"].length} sibling${groups["Siblings"].length === 1 ? '' : 's'}: `;
+        story += groups["Siblings"].map(rel => withHonorific(rel.relatedMember.fullName, rel.relatedMember.gender, rel.relatedMember.maritalStatus)).join(', ') + '. ';
       }
 
       story += `\n\n---\n\n`;
@@ -184,7 +189,7 @@ export function FamilyStoryExport({ member, relationships }: FamilyStoryExportPr
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `${member.fullName.replace(/\s+/g, '_')}_Family_Story.md`;
+    a.download = `${memberHonorific.replace(/\s+/g, '_')}_Family_Story.md`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -200,7 +205,7 @@ export function FamilyStoryExport({ member, relationships }: FamilyStoryExportPr
     if (navigator.share) {
       try {
         await navigator.share({
-          title: `Family Story of ${member.fullName}`,
+          title: `Family Story of ${memberHonorific}`,
           text: generatedStory,
         });
       } catch (error) {

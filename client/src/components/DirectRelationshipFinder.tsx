@@ -62,17 +62,27 @@ export function DirectRelationshipFinder({ members, allRelationships }: Props) {
     const rel = forward ?? reverse;
 
     if (!rel) {
-      setResult({ type: "none", subjectName: fromMember.fullName, objectName: toMember.fullName });
+      setResult({
+        type: "none",
+        subjectName: withHonorific(fromMember.fullName, fromMember.gender, fromMember.maritalStatus),
+        objectName: withHonorific(toMember.fullName, toMember.gender, toMember.maritalStatus),
+      });
       return;
     }
 
     // Always show in stored direction: memberId IS [type] OF relatedMemberId
-    const subjectName =
-      memberById.get(rel.memberId)?.fullName ?? `#${rel.memberId}`;
-    const objectName =
-      memberById.get(rel.relatedMemberId)?.fullName ??
-      rel.relatedMember?.fullName ??
-      `#${rel.relatedMemberId}`;
+    const subjectMember = memberById.get(rel.memberId);
+    const objectMember  = memberById.get(rel.relatedMemberId);
+    const subjectName = withHonorific(
+      subjectMember?.fullName ?? `#${rel.memberId}`,
+      subjectMember?.gender,
+      subjectMember?.maritalStatus,
+    );
+    const objectName = withHonorific(
+      objectMember?.fullName ?? rel.relatedMember?.fullName ?? `#${rel.relatedMemberId}`,
+      objectMember?.gender ?? rel.relatedMember?.gender,
+      objectMember?.maritalStatus ?? rel.relatedMember?.maritalStatus,
+    );
 
     setResult({
       type: "direct",
