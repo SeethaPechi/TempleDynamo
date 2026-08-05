@@ -1607,6 +1607,10 @@ export default function MemberDetails() {
                               </div>
 
                               {/* Birth tracking fields */}
+                              <h3 className="text-base sm:text-lg font-semibold text-temple-brown border-b pb-2 mt-2">
+                                Birth Tracking
+                              </h3>
+                              <p className="text-xs text-gray-500 -mt-2 mb-1">Used to sort children by age (eldest first) and show birth order badges on family trees.</p>
                               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                                 <FormField
                                   control={form.control}
