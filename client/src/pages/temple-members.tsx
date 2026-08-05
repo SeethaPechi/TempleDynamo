@@ -612,7 +612,7 @@ export default function TempleMembers() {
                             {member.spouseName &&
                               member.maritalStatus === "Married" && (
                                 <span className="ml-1">
-                                  - {member.spouseName}
+                                  - {withHonorific(member.spouseName, member.gender === "Male" ? "Female" : "Male", "Married")}
                                 </span>
                               )}
                           </div>

@@ -2174,7 +2174,7 @@ export default function MemberDetails() {
                     <Heart className="mr-2 flex-shrink-0" size={16} />
                     <span className="break-words">
                       {(member as any).spouseName2 ? "1st Spouse: " : "Spouse: "}
-                      {(member as Member).spouseName}
+                      {withHonorific((member as Member).spouseName, (member as Member).gender === "Male" ? "Female" : "Male", "Married")}
                     </span>
                   </div>
                 )}
@@ -2182,7 +2182,7 @@ export default function MemberDetails() {
                   <div className="flex items-center">
                     <Heart className="mr-2 flex-shrink-0" size={16} />
                     <span className="break-words">
-                      2nd Spouse: {(member as any).spouseName2}
+                      2nd Spouse: {withHonorific((member as any).spouseName2, (member as Member).gender === "Male" ? "Female" : "Male", "Married")}
                     </span>
                   </div>
                 )}
@@ -2225,20 +2225,20 @@ export default function MemberDetails() {
                   Family Information
                 </h3>
                 <p className="text-gray-600 text-sm sm:text-base break-words">
-                  Father: {(member as Member).fatherName}
+                  Father: {withHonorific((member as Member).fatherName, "Male", "Married")}
                 </p>
                 <p className="text-gray-600 text-sm sm:text-base break-words">
-                  Mother: {(member as Member).motherName}
+                  Mother: {withHonorific((member as Member).motherName, "Female", "Married")}
                 </p>
                 {(member as Member).spouseName && (
                   <p className="text-gray-600 text-sm sm:text-base break-words">
                     {(member as any).spouseName2 ? "1st Spouse: " : "Spouse: "}
-                    {(member as Member).spouseName}
+                    {withHonorific((member as Member).spouseName, (member as Member).gender === "Male" ? "Female" : "Male", "Married")}
                   </p>
                 )}
                 {(member as any).spouseName2 && (
                   <p className="text-gray-600 text-sm sm:text-base break-words">
-                    2nd Spouse: {(member as any).spouseName2}
+                    2nd Spouse: {withHonorific((member as any).spouseName2, (member as Member).gender === "Male" ? "Female" : "Male", "Married")}
                   </p>
                 )}
               </div>

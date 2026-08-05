@@ -294,7 +294,7 @@ export default function Members() {
                       </p>
                       {(member as Member).fatherName && (
                         <p className="text-sm text-gray-500">
-                          {t('registry.form.fatherName', "Father's Name")}: {(member as Member).fatherName}
+                          {t('registry.form.fatherName', "Father's Name")}: {withHonorific((member as Member).fatherName, "Male", "Married")}
                         </p>
                       )}
                       <p className="text-sm text-gray-500">{member.email}</p>

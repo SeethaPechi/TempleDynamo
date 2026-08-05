@@ -551,17 +551,17 @@ export default function FamilyTree() {
                                 </h4>
                                 {member.fatherName && (
                                   <p className="text-xs text-blue-600 font-semibold">
-                                    {t("familyTree.father")} - {member.fatherName}
+                                    {t("familyTree.father")} - {withHonorific(member.fatherName, "Male", "Married")}
                                   </p>
                                 )}
                                 {member.motherName && (
                                   <p className="text-xs text-blue-600 font-semibold">
-                                    {t("familyTree.mother")} - {member.motherName}
+                                    {t("familyTree.mother")} - {withHonorific(member.motherName, "Female", "Married")}
                                   </p>
                                 )}
                                 {member.spouseName && (
                                   <p className="text-xs text-blue-600 font-semibold">
-                                    {t("familyTree.spouse")} - {member.spouseName}
+                                    {t("familyTree.spouse")} - {withHonorific(member.spouseName, member.gender === "Male" ? "Female" : "Male", "Married")}
                                   </p>
                                 )}
                                 <p className="text-xs text-gray-500">
@@ -607,17 +607,17 @@ export default function FamilyTree() {
                                 </h4>
                                 {member.fatherName && (
                                   <p className="text-xs text-blue-600 font-semibold">
-                                    {t("familyTree.father")} - {member.fatherName}
+                                    {t("familyTree.father")} - {withHonorific(member.fatherName, "Male", "Married")}
                                   </p>
                                 )}
                                 {member.motherName && (
                                   <p className="text-xs text-blue-600 font-semibold">
-                                    {t("familyTree.mother")} - {member.motherName}
+                                    {t("familyTree.mother")} - {withHonorific(member.motherName, "Female", "Married")}
                                   </p>
                                 )}
                                 {member.spouseName && (
                                   <p className="text-xs text-blue-600 font-semibold">
-                                    {t("familyTree.spouse")} - {member.spouseName}
+                                    {t("familyTree.spouse")} - {withHonorific(member.spouseName, member.gender === "Male" ? "Female" : "Male", "Married")}
                                   </p>
                                 )}
                                 <p className="text-xs text-gray-500">

@@ -242,7 +242,7 @@ export function FamilyStoryExport({ member, relationships }: FamilyStoryExportPr
           <Card className="bg-gradient-to-r from-saffron-50 to-gold-50 border-saffron-200">
             <CardHeader className="pb-3">
               <CardTitle className="text-lg text-temple-brown">
-                Generate Family Story for {member.fullName}
+                Generate Family Story for {memberHonorific}
               </CardTitle>
             </CardHeader>
             <CardContent>

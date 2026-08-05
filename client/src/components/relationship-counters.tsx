@@ -277,7 +277,7 @@ export function RelationshipCounters({ member, relationships, onMemberClick }: R
                             <Heart className="mr-2" size={14} />
                             {rel.relatedMember.maritalStatus}
                             {rel.relatedMember.spouseName && rel.relatedMember.maritalStatus === 'Married' && (
-                              <span className="ml-1">- {rel.relatedMember.spouseName}</span>
+                              <span className="ml-1">- {withHonorific(rel.relatedMember.spouseName, rel.relatedMember.gender === "Male" ? "Female" : "Male", "Married")}</span>
                             )}
                           </div>
                         )}
