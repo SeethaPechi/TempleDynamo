@@ -19,6 +19,7 @@ const COLORS = {
   ownParents: { bg: "bg-blue-100", border: "border-blue-400", text: "text-blue-900", badge: "bg-blue-400 text-white" },
   inLaws: { bg: "bg-pink-100", border: "border-pink-400", text: "text-pink-900", badge: "bg-pink-400 text-white" },
   spouse: { bg: "bg-rose-100", border: "border-rose-400", text: "text-rose-900", badge: "bg-rose-400 text-white" },
+  siblings: { bg: "bg-yellow-100", border: "border-yellow-400", text: "text-yellow-900", badge: "bg-yellow-500 text-white" },
   children: { bg: "bg-green-100", border: "border-green-400", text: "text-green-900", badge: "bg-green-400 text-white" },
   grandchildren: { bg: "bg-emerald-50", border: "border-emerald-300", text: "text-emerald-900", badge: "bg-emerald-400 text-white" },
   grandparents: { bg: "bg-violet-100", border: "border-violet-400", text: "text-violet-900", badge: "bg-violet-400 text-white" },
@@ -158,6 +159,17 @@ export function ElegantFamilyTree({ member, relationships, onMemberClick }: Eleg
   const matGM = byType("Maternal Grandmother");
   const ownGrandparents = [...patGF, ...patGM, ...matGF, ...matGM];
 
+  // Siblings — sorted by birth order (elder first = lower number first; nulls last)
+  const siblings = byType(
+    "Elder Brother", "Elder Sister",
+    "Younger Brother", "Younger Sister",
+    "Step-Brother", "Step-Sister",
+  ).sort((a, b) => {
+    const ao = a.relatedMember.birthOrder ?? Infinity;
+    const bo = b.relatedMember.birthOrder ?? Infinity;
+    return ao - bo;
+  });
+
   // Children — merged and sorted by birth order ascending (1 = eldest, left to right; nulls last)
   const sons = byType("Son", "Step-Son");
   const daughters = byType("Daughter", "Step-Daughter");
@@ -215,6 +227,9 @@ export function ElegantFamilyTree({ member, relationships, onMemberClick }: Eleg
 
   // ── Section: spouse ────────────────────────────────────────────────────────
   const showSpouseRow = spouses.length > 0;
+
+  // ── Section: siblings ─────────────────────────────────────────────────────
+  const showSiblingsRow = siblings.length > 0;
 
   // ── Section: children ─────────────────────────────────────────────────────
   const showChildrenRow = children.length > 0;
@@ -345,7 +360,36 @@ export function ElegantFamilyTree({ member, relationships, onMemberClick }: Eleg
           ))}
         </div>
 
-        {/* ── ROW 3: Children ──────────────────────────────────────────────── */}
+        {/* ── ROW 3: Siblings ──────────────────────────────────────────────── */}
+        {showSiblingsRow && (
+          <>
+            <div className="mt-4 mb-1 w-full border-t border-dashed border-yellow-300" />
+            <GenerationLabel label="Siblings" colorClass="text-yellow-600" />
+            <div className="relative flex flex-col items-center w-full">
+              {siblings.length > 1 && (
+                <div
+                  className="border-t-2 border-yellow-300 mb-0"
+                  style={{ width: `${Math.min(siblings.length * 90, 600)}px`, maxWidth: "90%" }}
+                />
+              )}
+              <NodeRow
+                nodes={siblings.map((rel) => (
+                  <NodeCard
+                    key={rel.id}
+                    member={rel.relatedMember}
+                    relationshipType={rel.relationshipType}
+                    displayRelType={relLabel(rel)}
+                    colorScheme={COLORS.siblings}
+                    onMemberClick={onMemberClick}
+                    birthOrder={rel.relatedMember.birthOrder}
+                  />
+                ))}
+              />
+            </div>
+          </>
+        )}
+
+        {/* ── ROW 4: Children ──────────────────────────────────────────────── */}
         {showChildrenRow && (
           <>
             <VConnector color="border-green-400" />
@@ -410,6 +454,7 @@ export function ElegantFamilyTree({ member, relationships, onMemberClick }: Eleg
             { color: "bg-pink-300", label: "In-Laws" },
             { color: "bg-amber-400", label: "You" },
             { color: "bg-rose-300", label: "Spouse" },
+            { color: "bg-yellow-300", label: "Siblings" },
             { color: "bg-green-300", label: "Children" },
             { color: "bg-emerald-200", label: "Grandchildren" },
           ].map(({ color, label }) => (

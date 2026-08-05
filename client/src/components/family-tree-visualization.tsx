@@ -126,8 +126,16 @@ export function FamilyTreeVisualization({
         group.types.includes(rel.relationshipType),
       );
       if (groupMembers.length > 0) {
+        // Sort Children by birth order ascending (eldest first), nulls last
+        const sortedMembers = group.name === "Children"
+          ? [...groupMembers].sort((a, b) => {
+              const ao = (a.relatedMember as any).birthOrder ?? Infinity;
+              const bo = (b.relatedMember as any).birthOrder ?? Infinity;
+              return ao - bo;
+            })
+          : groupMembers;
         groups[group.name] = {
-          members: groupMembers,
+          members: sortedMembers,
           color: `hsl(${(index * 36) % 360}, 70%, 85%)`,
         };
       }
