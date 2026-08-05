@@ -126,8 +126,8 @@ export function FamilyTreeVisualization({
         group.types.includes(rel.relationshipType),
       );
       if (groupMembers.length > 0) {
-        // Sort Children by birth order ascending (eldest first), nulls last
-        const sortedMembers = group.name === "Children"
+        // Sort Children and Siblings by birth order ascending (eldest first), nulls last
+        const sortedMembers = (group.name === "Children" || group.name === "Siblings")
           ? [...groupMembers].sort((a, b) => {
               const ao = (a.relatedMember as any).birthOrder ?? Infinity;
               const bo = (b.relatedMember as any).birthOrder ?? Infinity;
@@ -226,7 +226,10 @@ export function FamilyTreeVisualization({
 
             {/* Family Members in this group */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {familyGroups[groupName].members.map((relationship) => (
+              {familyGroups[groupName].members.map((relationship) => {
+                const birthOrder = (relationship.relatedMember as any).birthOrder as number | null | undefined;
+                const showBirthOrder = (groupName === "Children" || groupName === "Siblings") && birthOrder != null;
+                return (
                 <Card
                   key={relationship.id}
                   className={`p-4 hover:shadow-lg transition-shadow cursor-pointer ${getGenderColors(relationship.relatedMember.gender).background}`}
@@ -235,6 +238,12 @@ export function FamilyTreeVisualization({
                   <div className="space-y-3">
                     {/* Member Avatar */}
                     <div className="flex flex-col items-center text-center space-y-2">
+                      <div className="relative">
+                        {showBirthOrder && (
+                          <span className="absolute -top-1 -right-1 z-10 text-[10px] font-bold text-white bg-green-600 rounded-full w-5 h-5 flex items-center justify-center shadow-sm">
+                            {birthOrder}
+                          </span>
+                        )}
                       <div className="w-12 h-12 bg-gradient-to-br from-saffron-200 to-gold-200 rounded-full flex items-center justify-center overflow-hidden flex-shrink-0">
                         {relationship.relatedMember.profilePicture ? (
                           <img
@@ -245,6 +254,7 @@ export function FamilyTreeVisualization({
                         ) : (
                           <Users className="text-temple-brown" size={20} />
                         )}
+                      </div>
                       </div>
                       <div className="w-full">
                         <h4
@@ -304,7 +314,8 @@ export function FamilyTreeVisualization({
                     </Button>
                   </div>
                 </Card>
-              ))}
+                );
+              })}
             </div>
           </div>
         ))}

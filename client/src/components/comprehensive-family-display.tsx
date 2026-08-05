@@ -98,10 +98,17 @@ export function ComprehensiveFamilyDisplay({
     { name: "Other Family Connections", types: ["Nephew", "Niece"] }
   ];
 
-  // Group relationships by the new structure
+  // Group relationships by the new structure, sorting Children and Siblings by birthOrder
   const groupedRelationships = relationshipGroups.reduce((acc, group) => {
-    const groupMembers = relationships.filter(rel => group.types.includes(rel.relationshipType));
+    let groupMembers = relationships.filter(rel => group.types.includes(rel.relationshipType));
     if (groupMembers.length > 0) {
+      if (group.name === "Children" || group.name === "Siblings") {
+        groupMembers = [...groupMembers].sort((a, b) => {
+          const ao = (a.relatedMember as any).birthOrder ?? Infinity;
+          const bo = (b.relatedMember as any).birthOrder ?? Infinity;
+          return ao - bo;
+        });
+      }
       acc[group.name] = groupMembers;
     }
     return acc;
@@ -183,16 +190,26 @@ export function ComprehensiveFamilyDisplay({
                 </h3>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {rels.map((rel) => (
+                  {rels.map((rel) => {
+                    const birthOrder = (rel.relatedMember as any).birthOrder as number | null | undefined;
+                    const showBirthOrder = (groupName === "Children" || groupName === "Siblings") && birthOrder != null;
+                    return (
                     <div
                       key={rel.id}
                       className={`p-4 rounded-lg hover:shadow-md transition-all cursor-pointer border hover:border-saffron-300 ${getMemberGenderColor(rel.relatedMember.gender)}`}
                       onClick={() => onMemberClick?.(rel.relatedMember.id)}
                     >
                       <div className="flex items-start justify-between mb-3">
-                        <h4 className="font-bold text-temple-brown text-lg hover:text-saffron-600 transition-colors">
-                          {withHonorific(rel.relatedMember.fullName, rel.relatedMember.gender, (rel.relatedMember as any).maritalStatus)}
-                        </h4>
+                        <div className="flex items-center gap-2">
+                          {showBirthOrder && (
+                            <span className="flex-shrink-0 text-[10px] font-bold text-white bg-green-600 rounded-full w-5 h-5 flex items-center justify-center shadow-sm">
+                              {birthOrder}
+                            </span>
+                          )}
+                          <h4 className="font-bold text-temple-brown text-lg hover:text-saffron-600 transition-colors">
+                            {withHonorific(rel.relatedMember.fullName, rel.relatedMember.gender, (rel.relatedMember as any).maritalStatus)}
+                          </h4>
+                        </div>
                         <Button
                           variant="outline"
                           size="sm"
@@ -254,7 +271,8 @@ export function ComprehensiveFamilyDisplay({
                         </div> 
                       </div>*/}
                     </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             ))}

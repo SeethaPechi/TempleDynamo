@@ -540,6 +540,7 @@ export default function MemberDetails() {
   const { data: relationships = [] } = useQuery({
     queryKey: [`/api/relationships/${memberId}`],
     enabled: !!memberId,
+    staleTime: 0, // always re-fetch so birth_order values are never served stale
   });
 
   const { data: allMembers = [] } = useQuery({

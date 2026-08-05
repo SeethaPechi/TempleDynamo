@@ -1305,8 +1305,15 @@ export default function Registry() {
                                     }}
                                     className="w-full text-left px-4 py-2 hover:bg-saffron-50 border-b border-gray-100 last:border-b-0 transition-colors"
                                   >
-                                    <div className="font-bold text-temple-brown text-lg">
-                                      {withHonorific(member.fullName, member.gender, member.maritalStatus)}
+                                    <div className="flex items-center gap-2">
+                                      {member.birthOrder != null && (
+                                        <span className="flex-shrink-0 text-[10px] font-bold text-white bg-green-600 rounded-full w-5 h-5 flex items-center justify-center shadow-sm">
+                                          {member.birthOrder}
+                                        </span>
+                                      )}
+                                      <span className="font-bold text-temple-brown text-lg">
+                                        {withHonorific(member.fullName, member.gender, member.maritalStatus)}
+                                      </span>
                                     </div>
                                     <div className="text-sm text-gray-600">
                                       {member.email}

@@ -1,3 +1,4 @@
+- [Birth Order Display](birth-order-display.md) — badges + sort on Children/Siblings; staleTime:0 needed on relationships queries to avoid serving null birthOrder from 5-min cache
 - [Roles & Admin System](roles-admin.md) — role slug stored directly on users.role (not FK); 3 roles: system_admin, temple_admin, user
 - [Admin Panel Structure](admin-panel.md) — 5-tab admin panel; each tab is a separate component under client/src/pages/admin/
 - [Overview Doc](overview-doc.md) — TAMIL_KOVIL_APP_OVERVIEW.md must be updated every time a schema, API, or screen changes

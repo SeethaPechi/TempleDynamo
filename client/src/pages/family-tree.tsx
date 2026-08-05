@@ -139,6 +139,7 @@ export default function FamilyTree() {
     useQuery<Array<Relationship & { relatedMember: Member }>>({
       queryKey: ["/api/relationships", selectedMember?.id, lang],
       enabled: !!selectedMember?.id,
+      staleTime: 0, // always re-fetch; birth_order values may have been set after initial cache
       queryFn: async () => {
         const res = await fetch(
           `/api/relationships/${selectedMember!.id}?lang=${lang}`,
@@ -171,6 +172,7 @@ export default function FamilyTree() {
 
   const { data: mapMemberRels = [] } = useQuery<Array<Relationship & { relatedMember: Member }>>({
     queryKey: ["/api/relationships", mapSelectedId, lang],
+    staleTime: 0,
     queryFn: async () => {
       const res = await fetch(`/api/relationships/${mapSelectedId}?lang=${lang}`, { credentials: "include" });
       if (!res.ok) return [];
