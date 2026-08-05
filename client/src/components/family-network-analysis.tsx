@@ -6,6 +6,7 @@ import { Users, Network, BarChart3, TrendingUp, MapPin, Phone } from "lucide-rea
 import { useTranslation } from "react-i18next";
 import type { Member, Relationship } from "@shared/schema";
 import { useFormDataTransformation } from "@/lib/i18n-utils";
+import { withHonorific } from "@/lib/honorific";
 
 interface NetworkAnalysisProps {
   allMembers: Member[];
@@ -178,7 +179,7 @@ export function FamilyNetworkAnalysis({ allMembers, allRelationships, onMemberCl
           <div className="flex items-center justify-between">
             <div>
               <h3 className="text-lg font-semibold mb-2">{t('familyTree.mostConnectedMember', 'Most Connected Family Member')}</h3>
-              <p className="text-xl font-bold">{stats.mostConnected.fullName}</p>
+              <p className="text-xl font-bold">{withHonorific(stats.mostConnected.fullName, stats.mostConnected.gender, stats.mostConnected.maritalStatus)}</p>
               <p className="text-saffron-100 text-sm">
                 {Object.values(stats.byType).reduce((max, count) => Math.max(max, count), 0)} family connections
               </p>
@@ -238,7 +239,7 @@ export function FamilyNetworkAnalysis({ allMembers, allRelationships, onMemberCl
                         <Users className="text-temple-brown" size={14} />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="font-medium text-sm truncate">{member.fullName}</p>
+                        <p className="font-medium text-sm truncate">{withHonorific(member.fullName, member.gender, member.maritalStatus)}</p>
                         <p className="text-xs text-gray-500 truncate">
                           {member.currentCity}, {member.currentState}
                         </p>

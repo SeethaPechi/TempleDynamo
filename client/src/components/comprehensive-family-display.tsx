@@ -301,7 +301,7 @@ export function ComprehensiveFamilyDisplay({
             No Family Relationships
           </h3>
           <p className="text-gray-500 mb-4">
-            {member.fullName} doesn't have any family relationships added yet.
+            {withHonorific(member.fullName, member.gender, member.maritalStatus)} doesn't have any family relationships added yet.
           </p>
           <p className="text-sm text-gray-400">
             Add family connections to see the complete family network.

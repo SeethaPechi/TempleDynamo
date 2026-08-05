@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { withHonorific } from "@/lib/honorific";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -1305,7 +1306,7 @@ export default function Registry() {
                                     className="w-full text-left px-4 py-2 hover:bg-saffron-50 border-b border-gray-100 last:border-b-0 transition-colors"
                                   >
                                     <div className="font-bold text-temple-brown text-lg">
-                                      {member.fullName}
+                                      {withHonorific(member.fullName, member.gender, member.maritalStatus)}
                                     </div>
                                     <div className="text-sm text-gray-600">
                                       {member.email}
@@ -1369,7 +1370,7 @@ export default function Registry() {
                               >
                                 <div>
                                   <span className="font-medium">
-                                    {rel.member.fullName}
+                                    {withHonorific(rel.member.fullName, rel.member.gender, rel.member.maritalStatus)}
                                   </span>
                                   <span className="text-gray-500 ml-2">
                                     ({rel.relationship})

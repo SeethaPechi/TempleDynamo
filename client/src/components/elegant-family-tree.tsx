@@ -32,9 +32,10 @@ interface NodeCardProps {
   isCenter?: boolean;
   onMemberClick?: (id: number) => void;
   displayRelType?: string;
+  birthOrder?: number | null;
 }
 
-function NodeCard({ member, relationshipType, colorScheme, isCenter, onMemberClick, displayRelType }: NodeCardProps) {
+function NodeCard({ member, relationshipType, colorScheme, isCenter, onMemberClick, displayRelType, birthOrder }: NodeCardProps) {
   const [, setLocation] = useLocation();
   const firstName = (member.fullName || "?").split(" ")[0];
   const initials = (member.fullName || "??")
@@ -61,6 +62,13 @@ function NodeCard({ member, relationshipType, colorScheme, isCenter, onMemberCli
         ${isCenter ? "w-28 sm:w-32" : "w-24 sm:w-28"}
       `}
     >
+      {/* Birth-order number (shown only when provided) */}
+      {birthOrder != null && (
+        <span className="mb-0.5 text-[10px] font-bold text-white bg-green-600 rounded-full w-5 h-5 flex items-center justify-center shadow-sm">
+          {birthOrder}
+        </span>
+      )}
+
       {/* Avatar circle */}
       <div
         className={`
@@ -150,10 +158,14 @@ export function ElegantFamilyTree({ member, relationships, onMemberClick }: Eleg
   const matGM = byType("Maternal Grandmother");
   const ownGrandparents = [...patGF, ...patGM, ...matGF, ...matGM];
 
-  // Children
+  // Children — merged and sorted by birth order ascending (1 = eldest, left to right; nulls last)
   const sons = byType("Son", "Step-Son");
   const daughters = byType("Daughter", "Step-Daughter");
-  const children = [...sons, ...daughters];
+  const children = [...sons, ...daughters].sort((a, b) => {
+    const ao = a.relatedMember.birthOrder ?? Infinity;
+    const bo = b.relatedMember.birthOrder ?? Infinity;
+    return ao - bo;
+  });
 
   // Grandchildren — covers all known variants (including DB typo "Grand Daugher")
   const grandChildren = byType(
@@ -354,6 +366,7 @@ export function ElegantFamilyTree({ member, relationships, onMemberClick }: Eleg
                     displayRelType={relLabel(rel)}
                     colorScheme={COLORS.children}
                     onMemberClick={onMemberClick}
+                    birthOrder={rel.relatedMember.birthOrder}
                   />
                 ))}
               />

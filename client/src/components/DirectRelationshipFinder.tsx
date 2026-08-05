@@ -4,6 +4,7 @@
  */
 import { useState, useMemo } from "react";
 import { useTranslation } from "react-i18next";
+import { withHonorific } from "@/lib/honorific";
 import {
   Select,
   SelectContent,
@@ -99,7 +100,7 @@ export function DirectRelationshipFinder({ members, allRelationships }: Props) {
             <SelectContent>
               {sorted.map((m) => (
                 <SelectItem key={m.id} value={String(m.id)}>
-                  {m.fullName}
+                  {withHonorific(m.fullName, m.gender, m.maritalStatus)}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -115,7 +116,7 @@ export function DirectRelationshipFinder({ members, allRelationships }: Props) {
             <SelectContent>
               {sorted.map((m) => (
                 <SelectItem key={m.id} value={String(m.id)}>
-                  {m.fullName}
+                  {withHonorific(m.fullName, m.gender, m.maritalStatus)}
                 </SelectItem>
               ))}
             </SelectContent>

@@ -7,6 +7,7 @@
 import { useState, useMemo } from "react";
 import { useLocation } from "wouter";
 import { useTranslation } from "react-i18next";
+import { withHonorific } from "@/lib/honorific";
 import {
   Select,
   SelectContent,
@@ -105,8 +106,8 @@ function buildGraph(
     const subject = memberById.get(rel.memberId);
     const object  = memberById.get(rel.relatedMemberId);
 
-    const subjectName   = subject?.fullName ?? `#${rel.memberId}`;
-    const objectName    = rel.relatedMember.fullName;
+    const subjectName   = withHonorific(subject?.fullName ?? `#${rel.memberId}`, subject?.gender, subject?.maritalStatus);
+    const objectName    = withHonorific(rel.relatedMember.fullName, rel.relatedMember.gender, rel.relatedMember.maritalStatus);
     const subjectGender = subject?.gender;
     const objectGender  = object?.gender ?? rel.relatedMember.gender;
 
@@ -422,7 +423,7 @@ export function RelationChainFinder({ members, allRelationships }: Props) {
             <SelectContent>
               {sorted.map((m) => (
                 <SelectItem key={m.id} value={String(m.id)}>
-                  {m.fullName}
+                  {withHonorific(m.fullName, m.gender, m.maritalStatus)}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -438,7 +439,7 @@ export function RelationChainFinder({ members, allRelationships }: Props) {
             <SelectContent>
               {sorted.map((m) => (
                 <SelectItem key={m.id} value={String(m.id)}>
-                  {m.fullName}
+                  {withHonorific(m.fullName, m.gender, m.maritalStatus)}
                 </SelectItem>
               ))}
             </SelectContent>

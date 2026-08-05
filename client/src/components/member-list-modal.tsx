@@ -14,6 +14,7 @@ import {
   X 
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { withHonorific } from "@/lib/honorific";
 import { Link } from "wouter";
 import type { Member } from "@shared/schema";
 import { getMemberBackgroundColor, getMemberNameColor } from "@/lib/color-utils";
@@ -121,7 +122,7 @@ export function MemberListModal({
                           <h3 
                             className={`font-bold text-lg hover:underline cursor-pointer ${getMemberNameColor(member.gender)}`}
                           >
-                            {member.fullName}
+                            {withHonorific(member.fullName, member.gender, member.maritalStatus)}
                           </h3>
                         </Link>
                         <div className="flex items-center space-x-2 mt-1">

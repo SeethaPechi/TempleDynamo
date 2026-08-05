@@ -6,6 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Users, Heart, Phone, Mail, MapPin, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useFormDataTransformation } from "@/lib/i18n-utils";
+import { withHonorific } from "@/lib/honorific";
 import type { Member, Relationship } from "@shared/schema";
 
 interface RelationshipCountersProps {
@@ -164,7 +165,7 @@ export function RelationshipCounters({ member, relationships, onMemberClick }: R
         <Users className="mx-auto mb-4 text-gray-400" size={48} />
         <h3 className="text-lg font-semibold text-gray-600 mb-2">{t("familyTree.noConnections")}</h3>
         <p className="text-gray-500">
-          {member.fullName} {t("familyTree.noConnectionsDesc")}
+          {withHonorific(member.fullName, member.gender, member.maritalStatus)} {t("familyTree.noConnectionsDesc")}
         </p>
       </Card>
     );
@@ -176,7 +177,7 @@ export function RelationshipCounters({ member, relationships, onMemberClick }: R
         <CardHeader className="pb-4">
           <CardTitle className="flex items-center">
             <Heart className="mr-2 text-saffron-500" size={20} />
-            {t("familyTree.relationshipSummary")} {member.fullName}
+            {t("familyTree.relationshipSummary")} {withHonorific(member.fullName, member.gender, member.maritalStatus)}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -243,7 +244,7 @@ export function RelationshipCounters({ member, relationships, onMemberClick }: R
                   <div className="space-y-3 flex-1">
                     <div className="flex items-center justify-between">
                       <h3 className="font-bold text-temple-brown text-lg">
-                        {rel.relatedMember.fullName}
+                        {withHonorific(rel.relatedMember.fullName, rel.relatedMember.gender, rel.relatedMember.maritalStatus)}
                       </h3>
                       <Badge variant="outline" className="text-xs">
                         #{rel.relatedMember.id}
@@ -285,7 +286,7 @@ export function RelationshipCounters({ member, relationships, onMemberClick }: R
 
                     <div className="pt-2 border-t border-gray-100">
                       <div className="text-sm text-gray-600">
-                        <span className="font-medium text-temple-brown">Relationship:</span> {rel.relatedMember.fullName} is the {rel.relationshipType.toLowerCase()} of {member.fullName}
+                        <span className="font-medium text-temple-brown">Relationship:</span> {withHonorific(rel.relatedMember.fullName, rel.relatedMember.gender, rel.relatedMember.maritalStatus)} is the {rel.relationshipType.toLowerCase()} of {withHonorific(member.fullName, member.gender, member.maritalStatus)}
                       </div>
                     </div>
                   </div>

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { withHonorific } from "@/lib/honorific";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { useLocation, useRoute } from "wouter";
@@ -207,7 +208,7 @@ export default function FamilyTree() {
         // Show toast with helpful message
         toast({
           title: "Profile Incomplete",
-          description: `${selectedMember.fullName}'s profile needs more information. Redirecting to complete details...`,
+          description: `${withHonorific(selectedMember.fullName, selectedMember.gender, selectedMember.maritalStatus)}'s profile needs more information. Redirecting to complete details...`,
           duration: 3000,
         });
 
@@ -442,7 +443,7 @@ export default function FamilyTree() {
                       <div className="mb-4 flex items-center justify-between">
                         <div>
                           <h3 className="text-lg font-semibold text-temple-brown">
-                            {selectedMember.fullName}&apos;s Relationships
+                            {withHonorific(selectedMember.fullName, selectedMember.gender, selectedMember.maritalStatus)}&apos;s Relationships
                           </h3>
                           <p className="text-sm text-gray-500">
                             {filteredMemberRelationships.length} family connection{filteredMemberRelationships.length !== 1 ? "s" : ""}
@@ -459,7 +460,7 @@ export default function FamilyTree() {
                             >
                               <div className="flex-1 min-w-0">
                                 <p className="font-medium text-sm text-gray-900 truncate">
-                                  {rel.relatedMember.fullName}
+                                  {withHonorific(rel.relatedMember.fullName, rel.relatedMember.gender, rel.relatedMember.maritalStatus)}
                                 </p>
                                 <p className="text-xs text-gray-500 truncate">
                                   {rel.relatedMember.currentCity}, {rel.relatedMember.currentState}
@@ -542,7 +543,7 @@ export default function FamilyTree() {
                                 }`}
                               >
                                 <h4 className={`font-medium ${colors.text}`}>
-                                  {member.fullName}{" "}
+                                  {withHonorific(member.fullName, member.gender, member.maritalStatus)}{" "}
                                   {transformedMember.gender &&
                                     `• ${transformedMember.gender}`}
                                 </h4>
@@ -598,7 +599,7 @@ export default function FamilyTree() {
                                 }`}
                               >
                                 <h4 className={`font-medium ${colors.text}`}>
-                                  {member.fullName}{" "}
+                                  {withHonorific(member.fullName, member.gender, member.maritalStatus)}{" "}
                                   {transformedMember.gender &&
                                     `• ${transformedMember.gender}`}
                                 </h4>
@@ -697,7 +698,7 @@ export default function FamilyTree() {
                       </div>
                       <div>
                         <h2 className="text-xl font-bold">
-                          {selectedMember.fullName}
+                          {withHonorific(selectedMember.fullName, selectedMember.gender, selectedMember.maritalStatus)}
                         </h2>
                         <p className="text-saffron-100 text-sm">
                           {t("familyTree.familyRelationships")}
@@ -747,7 +748,7 @@ export default function FamilyTree() {
                       </div>
                       <div>
                         <h2 className="text-xl font-bold">
-                          {selectedMember.fullName}
+                          {withHonorific(selectedMember.fullName, selectedMember.gender, selectedMember.maritalStatus)}
                         </h2>
                         <p className="text-saffron-100 text-sm">
                           {t("familyTree.familyRelationships")}
@@ -777,7 +778,7 @@ export default function FamilyTree() {
                   <Card className="p-6">
                     <div className="mb-4">
                       <h3 className="text-lg font-semibold text-temple-brown">
-                        Family Relationships for {selectedMember.fullName}
+                        Family Relationships for {withHonorific(selectedMember.fullName, selectedMember.gender, selectedMember.maritalStatus)}
                       </h3>
                       <p className="text-sm text-gray-600">
                         Click on any name to view their detailed profile
@@ -837,7 +838,7 @@ export default function FamilyTree() {
                                         }}
                                         className="font-bold text-temple-brown hover:text-saffron-600 transition-colors text-left underline hover:no-underline"
                                       >
-                                        {relationship.relatedMember.fullName}
+                                        {withHonorific(relationship.relatedMember.fullName, relationship.relatedMember.gender, relationship.relatedMember.maritalStatus)}
                                       </button>
                                       <p className="text-xs text-gray-500">
                                         Member #{relationship.relatedMember.id}
@@ -855,7 +856,7 @@ export default function FamilyTree() {
                                 <td className="p-4">
                                   <div className="text-sm text-gray-700">
                                     <span className="font-medium">
-                                      {relationship.relatedMember.fullName}
+                                      {withHonorific(relationship.relatedMember.fullName, relationship.relatedMember.gender, relationship.relatedMember.maritalStatus)}
                                     </span>{" "}
                                     is the{" "}
                                     <span className="text-temple-brown font-medium">
@@ -863,7 +864,7 @@ export default function FamilyTree() {
                                     </span>{" "}
                                     of{" "}
                                     <span className="font-medium">
-                                      {selectedMember.fullName}
+                                      {withHonorific(selectedMember.fullName, selectedMember.gender, selectedMember.maritalStatus)}
                                     </span>
                                   </div>
                                 </td>
@@ -957,7 +958,7 @@ export default function FamilyTree() {
                       {t("familyTree.noConnections")}
                     </h3>
                     <p className="text-gray-500 mb-4">
-                      {selectedMember.fullName} {t("familyTree.noConnectionsDesc")}
+                      {withHonorific(selectedMember.fullName, selectedMember.gender, selectedMember.maritalStatus)} {t("familyTree.noConnectionsDesc")}
                     </p>
                     <p className="text-sm text-gray-400">
                       {t("familyTree.addConnectionsDesc")}
@@ -1174,7 +1175,7 @@ export default function FamilyTree() {
                 <div className="mt-6 border-t border-amber-200/60 pt-6">
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-lg font-semibold text-temple-brown">
-                      {mapMemberDetail.fullName}
+                      {withHonorific(mapMemberDetail.fullName, (mapMemberDetail as any).gender, (mapMemberDetail as any).maritalStatus)}
                       {(mapMemberDetail as any).fullNameTa && (
                         <span className="ml-2 text-amber-700 font-normal text-base" style={{ fontFamily: "'Nirmala UI','Latha',system-ui" }}>
                           · {(mapMemberDetail as any).fullNameTa}
@@ -1234,7 +1235,7 @@ export default function FamilyTree() {
                           key={member.id}
                           value={member.id.toString()}
                         >
-                          {member.fullName}
+                          {withHonorific(member.fullName, member.gender, member.maritalStatus)}
                         </SelectItem>
                       ))}
                   </SelectContent>

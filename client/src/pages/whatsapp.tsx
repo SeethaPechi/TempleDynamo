@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { withHonorific } from "@/lib/honorific";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -80,7 +81,7 @@ export default function WhatsApp() {
         const temple = (temples as any[]).find(t => t.id === member?.templeId);
         return {
           ...urlData,
-          memberName: member?.fullName || 'Unknown',
+          memberName: withHonorific(member?.fullName || 'Unknown', member?.gender, member?.maritalStatus),
           templeName: temple?.templeName || 'No Temple'
         };
       });
@@ -435,7 +436,7 @@ export default function WhatsApp() {
                                 />
                                 <div className="flex-1 min-w-0">
                                   <Label htmlFor={`member-${member.id}`} className="font-medium cursor-pointer">
-                                    {member.fullName}
+                                    {withHonorific(member.fullName, member.gender, member.maritalStatus)}
                                     {!hasPhone && <span className="text-red-500 ml-1">*</span>}
                                   </Label>
                                   <p className="text-sm text-gray-500 truncate">
@@ -460,7 +461,7 @@ export default function WhatsApp() {
                             />
                             <div className="flex-1 min-w-0">
                               <Label htmlFor={`member-${member.id}`} className="font-medium cursor-pointer">
-                                {member.fullName}
+                                {withHonorific(member.fullName, member.gender, member.maritalStatus)}
                                 {!hasPhone && <span className="text-red-500 ml-1">*</span>}
                               </Label>
                               <p className="text-sm text-gray-500 truncate">

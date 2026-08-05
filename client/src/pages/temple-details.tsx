@@ -32,6 +32,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { useState, useCallback, useEffect } from "react";
+import { withHonorific } from "@/lib/honorific";
 import useEmblaCarousel from "embla-carousel-react";
 import type { Temple, Member } from "@shared/schema";
 
@@ -468,7 +469,7 @@ export default function TempleDetails() {
                           </div>
                           <div className="flex-1 min-w-0">
                             <h4 className="font-semibold text-gray-900 truncate">
-                              {member.fullName}
+                              {withHonorific(member.fullName, member.gender, member.maritalStatus)}
                             </h4>
                             {member.email && (
                               <div className="flex items-center space-x-1 text-sm text-gray-600">
@@ -641,7 +642,7 @@ export default function TempleDetails() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <h4 className="font-semibold text-gray-900 truncate">
-                          {member.fullName}
+                          {withHonorific(member.fullName, member.gender, member.maritalStatus)}
                         </h4>
                         {member.email && (
                           <div className="flex items-center space-x-1 text-sm text-gray-600">

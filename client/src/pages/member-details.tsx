@@ -1090,7 +1090,7 @@ export default function MemberDetails() {
                       <div className="sticky top-0 bg-white border-b p-4 sm:p-6 z-10">
                         <DialogHeader>
                           <DialogTitle className="text-lg sm:text-xl font-bold text-temple-brown">
-                            Manage Family Relationships for {member.fullName}{" "}
+                            Manage Family Relationships for {withHonorific(member.fullName, (member as Member).gender, (member as Member).maritalStatus)}{" "}
                             (Father : {(member as Member).fatherName})
                           </DialogTitle>
                         </DialogHeader>
@@ -1133,7 +1133,7 @@ export default function MemberDetails() {
                                       className="w-full text-left px-3 py-3 hover:bg-gray-100 border-b last:border-b-0 transition-colors"
                                     >
                                       <div className="font-medium text-sm sm:text-base break-words">
-                                        {member.fullName}
+                                        {withHonorific(member.fullName, member.gender, member.maritalStatus)}
                                         {member.fatherName
                                           ? ` (Father: ${member.fatherName})`
                                           : ""}
@@ -1150,7 +1150,7 @@ export default function MemberDetails() {
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                               <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                                  {member.fullName} Will call selected member
+                                  {withHonorific(member.fullName, (member as Member).gender, (member as Member).maritalStatus)} Will call selected member
                                 </label>
                                 <Select
                                   value={selectedRelationship}
@@ -1182,7 +1182,7 @@ export default function MemberDetails() {
                               {selectedRelative && (
                                 <div className="p-3 bg-saffron-50 rounded border border-saffron-200">
                                   <p className="font-medium text-base break-words text-temple-brown">
-                                    Selected: {selectedRelative.fullName}:
+                                    Selected: {withHonorific(selectedRelative.fullName, selectedRelative.gender, selectedRelative.maritalStatus)}:
                                     {/* Add New Relationship (Father : {(member as Member).spouseName})*/}
                                   </p>
                                   <p className="text-sm text-gray-600 break-all">
@@ -1203,7 +1203,7 @@ export default function MemberDetails() {
                                       size={16}
                                     />
                                     <span className="font-medium">
-                                      Ready to link {selectedRelative.fullName}{" "}
+                                      Ready to link {withHonorific(selectedRelative.fullName, selectedRelative.gender, selectedRelative.maritalStatus)}{" "}
                                       as {selectedRelationship}
                                     </span>
                                   </div>
@@ -1239,7 +1239,7 @@ export default function MemberDetails() {
                                 >
                                   <div className="min-w-0 flex-1">
                                     <p className="font-medium text-sm sm:text-base break-words">
-                                      {relationship.relatedMember.fullName}
+                                      {withHonorific(relationship.relatedMember.fullName, relationship.relatedMember.gender, (relationship.relatedMember as any).maritalStatus)}
                                     </p>
                                     {editingRelationship?.id === relationship.id ? (
                                       <div className="mt-2 space-y-2">
@@ -2121,7 +2121,7 @@ export default function MemberDetails() {
                         <AlertDialogTitle>Delete Member</AlertDialogTitle>
                         <AlertDialogDescription>
                           Are you sure you want to delete{" "}
-                          {(member as Member).fullName}? This action cannot be
+                          {withHonorific((member as Member).fullName, (member as Member).gender, (member as Member).maritalStatus)}? This action cannot be
                           undone and will also remove all family relationships.
                         </AlertDialogDescription>
                       </AlertDialogHeader>
@@ -2188,7 +2188,7 @@ export default function MemberDetails() {
           {/* Personal Information */}
           <Card className="p-4 sm:p-6">
             <h2 className="text-lg sm:text-xl font-semibold text-temple-brown mb-4">
-              Personal Information of {member.fullName}
+              Personal Information of {withHonorific(member.fullName, (member as Member).gender, (member as Member).maritalStatus)}
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               <div>
@@ -2244,7 +2244,7 @@ export default function MemberDetails() {
           <Card className="p-4 sm:p-6 mt-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-3">
               <h2 className="text-lg sm:text-xl font-semibold text-temple-brown">
-                Family Information of {member.fullName}
+                Family Information of {withHonorific(member.fullName, (member as Member).gender, (member as Member).maritalStatus)}
               </h2>
               <Button
                 variant="outline"
@@ -2284,7 +2284,7 @@ export default function MemberDetails() {
                   <Card className="p-4 bg-gradient-to-r from-temple-light to-saffron-50">
                     <div className="text-center">
                       <h4 className="text-lg font-semibold text-temple-brown mb-2">
-                        {(member as Member).fullName} has {relationships.length}{" "}
+                        {withHonorific((member as Member).fullName, (member as Member).gender, (member as Member).maritalStatus)} has {relationships.length}{" "}
                         family connection{relationships.length !== 1 ? "s" : ""}
                       </h4>
                       <p className="text-sm text-gray-600 mb-4">
@@ -2307,7 +2307,7 @@ export default function MemberDetails() {
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                           <div className="min-w-0 flex-1">
                             <h3 className="font-medium text-temple-brown text-sm sm:text-base break-words">
-                              {relationship.relatedMember.fullName}
+                              {withHonorific(relationship.relatedMember.fullName, relationship.relatedMember.gender, (relationship.relatedMember as any).maritalStatus)}
                             </h3>
                             <p className="text-xs sm:text-sm text-gray-600">
                               {relationship.relationshipType}
@@ -2354,8 +2354,8 @@ export default function MemberDetails() {
                                   <AlertDialogDescription>
                                     Are you sure you want to remove the
                                     relationship between{" "}
-                                    {(member as Member).fullName} and{" "}
-                                    {relationship.relatedMember.fullName}?
+                                    {withHonorific((member as Member).fullName, (member as Member).gender, (member as Member).maritalStatus)} and{" "}
+                                    {withHonorific(relationship.relatedMember.fullName, relationship.relatedMember.gender, (relationship.relatedMember as any).maritalStatus)}?
                                   </AlertDialogDescription>
                                 </AlertDialogHeader>
                                 <AlertDialogFooter>
@@ -2425,7 +2425,7 @@ export default function MemberDetails() {
                             }}
                           >
                             <p className="font-medium">
-                              {member.fullName}
+                              {withHonorific(member.fullName, member.gender, member.maritalStatus)}
                               {member.fatherName
                                 ? ` (Father: ${member.fatherName})`
                                 : ""}
@@ -2442,7 +2442,7 @@ export default function MemberDetails() {
                 {selectedRelative && (
                   <div className="p-3 bg-gray-50 rounded-md">
                     <p className="font-medium">
-                      Selected: {selectedRelative.fullName}
+                      Selected: {withHonorific(selectedRelative.fullName, selectedRelative.gender, selectedRelative.maritalStatus)}
                       {selectedRelative.fatherName
                         ? ` (Father: ${selectedRelative.fatherName})`
                         : ""}
@@ -2482,7 +2482,7 @@ export default function MemberDetails() {
 
                   {selectedRelative && selectedRelationship && (
                     <div className="text-sm text-green-600 bg-green-50 p-2 rounded">
-                      Will link {selectedRelative.fullName} as{" "}
+                      Will link {withHonorific(selectedRelative.fullName, selectedRelative.gender, selectedRelative.maritalStatus)} as{" "}
                       {selectedRelationship}
                     </div>
                   )}

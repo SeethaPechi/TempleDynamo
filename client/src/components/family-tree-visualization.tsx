@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next";
 import type { Member, Relationship } from "@shared/schema";
 import { getGenderColors, getRelationshipColor } from "@/lib/color-utils";
 import { useFormDataTransformation } from "@/lib/i18n-utils";
+import { withHonorific } from "@/lib/honorific";
 
 interface FamilyTreeProps {
   member: Member;
@@ -188,7 +189,7 @@ export function FamilyTreeVisualization({
                 <Users className="text-saffron-500" size={36} />
               )}
             </div>
-            <h2 className="text-2xl font-bold mb-2">{member.fullName}</h2>
+            <h2 className="text-2xl font-bold mb-2">{withHonorific(member.fullName, member.gender, member.maritalStatus)}</h2>
             <p className="text-saffron-100 text-sm mb-2">
               {t("common.member", "Member")} #{member.id}
             </p>
@@ -241,7 +242,7 @@ export function FamilyTreeVisualization({
                         <h4
                           className={`font-semibold text-sm break-words leading-tight ${getGenderColors(relationship.relatedMember.gender).text}`}
                         >
-                          {relationship.relatedMember.fullName}
+                          {withHonorific(relationship.relatedMember.fullName, relationship.relatedMember.gender, relationship.relatedMember.maritalStatus)}
                         </h4>
                         <Badge
                           variant="secondary"
