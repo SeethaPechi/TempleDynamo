@@ -314,7 +314,7 @@ export function ElegantFamilyTree({ member, relationships, onMemberClick }: Eleg
                   Siblings
                 </p>
                 <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
-                  {siblings.map((rel) => (
+                  {siblings.map((rel, idx) => (
                     <NodeCard
                       key={rel.id}
                       member={rel.relatedMember}
@@ -322,7 +322,7 @@ export function ElegantFamilyTree({ member, relationships, onMemberClick }: Eleg
                       displayRelType={relLabel(rel)}
                       colorScheme={genderScheme(rel.relatedMember.gender)}
                       onMemberClick={onMemberClick}
-                      birthOrder={(rel.relatedMember as any).birthOrder}
+                      birthOrder={idx + 1}
                     />
                   ))}
                 </div>
@@ -383,7 +383,7 @@ export function ElegantFamilyTree({ member, relationships, onMemberClick }: Eleg
                 />
               )}
               <NodeRow
-                nodes={children.map((rel) => (
+                nodes={children.map((rel, idx) => (
                   <NodeCard
                     key={rel.id}
                     member={rel.relatedMember}
@@ -391,7 +391,7 @@ export function ElegantFamilyTree({ member, relationships, onMemberClick }: Eleg
                     displayRelType={relLabel(rel)}
                     colorScheme={genderScheme(rel.relatedMember.gender)}
                     onMemberClick={onMemberClick}
-                    birthOrder={(rel.relatedMember as any).birthOrder}
+                    birthOrder={idx + 1}
                   />
                 ))}
               />
