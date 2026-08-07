@@ -15,15 +15,18 @@ interface ElegantFamilyTreeProps {
 
 // ─── Node colours ────────────────────────────────────────────────────────────
 const COLORS = {
-  center: { bg: "bg-amber-500", border: "border-amber-600", text: "text-white", badge: "bg-amber-700 text-white" },
-  ownParents: { bg: "bg-blue-100", border: "border-blue-400", text: "text-blue-900", badge: "bg-blue-400 text-white" },
-  inLaws: { bg: "bg-pink-100", border: "border-pink-400", text: "text-pink-900", badge: "bg-pink-400 text-white" },
-  spouse: { bg: "bg-rose-100", border: "border-rose-400", text: "text-rose-900", badge: "bg-rose-400 text-white" },
-  siblings: { bg: "bg-yellow-100", border: "border-yellow-400", text: "text-yellow-900", badge: "bg-yellow-500 text-white" },
-  children: { bg: "bg-green-100", border: "border-green-400", text: "text-green-900", badge: "bg-green-400 text-white" },
-  grandchildren: { bg: "bg-emerald-50", border: "border-emerald-300", text: "text-emerald-900", badge: "bg-emerald-400 text-white" },
-  grandparents: { bg: "bg-violet-100", border: "border-violet-400", text: "text-violet-900", badge: "bg-violet-400 text-white" },
+  center:  { bg: "bg-amber-500",  border: "border-amber-600",  text: "text-white",       badge: "bg-amber-700 text-white" },
+  male:    { bg: "bg-blue-100",   border: "border-blue-400",   text: "text-blue-900",    badge: "bg-blue-500 text-white" },
+  female:  { bg: "bg-pink-100",   border: "border-pink-400",   text: "text-pink-900",    badge: "bg-pink-500 text-white" },
+  neutral: { bg: "bg-gray-100",   border: "border-gray-400",   text: "text-gray-700",    badge: "bg-gray-400 text-white" },
 };
+
+/** Pick male/female/neutral scheme from a member's gender */
+function genderScheme(gender: string | null | undefined): typeof COLORS[keyof typeof COLORS] {
+  if (gender === "Female") return COLORS.female;
+  if (gender === "Male")   return COLORS.male;
+  return COLORS.neutral;
+}
 
 // ─── Single member card ───────────────────────────────────────────────────────
 interface NodeCardProps {
@@ -106,14 +109,6 @@ function VConnector({ color = "border-gray-300" }: { color?: string }) {
   return <div className={`w-0.5 h-6 sm:h-8 border-l-2 ${color} mx-auto`} />;
 }
 
-// ─── Horizontal bracket connecting multiple siblings/nodes ────────────────────
-function HBracket({ count, color = "border-gray-300" }: { count: number; color?: string }) {
-  if (count <= 1) return null;
-  return (
-    <div className={`h-3 border-t-2 border-l-2 border-r-2 rounded-t-sm ${color} mx-auto`} style={{ width: "80%" }} />
-  );
-}
-
 // ─── Row of nodes ─────────────────────────────────────────────────────────────
 function NodeRow({ nodes, gap = "gap-3 sm:gap-6" }: { nodes: React.ReactNode[]; gap?: string }) {
   return (
@@ -159,27 +154,27 @@ export function ElegantFamilyTree({ member, relationships, onMemberClick }: Eleg
   const matGM = byType("Maternal Grandmother");
   const ownGrandparents = [...patGF, ...patGM, ...matGF, ...matGM];
 
-  // Siblings — sorted by birth order (elder first = lower number first; nulls last)
+  // Siblings — sorted oldest to youngest (lower birthOrder = elder; nulls last)
   const siblings = byType(
     "Elder Brother", "Elder Sister",
     "Younger Brother", "Younger Sister",
     "Step-Brother", "Step-Sister",
   ).sort((a, b) => {
-    const ao = a.relatedMember.birthOrder ?? Infinity;
-    const bo = b.relatedMember.birthOrder ?? Infinity;
+    const ao = (a.relatedMember as any).birthOrder ?? Infinity;
+    const bo = (b.relatedMember as any).birthOrder ?? Infinity;
     return ao - bo;
   });
 
-  // Children — merged and sorted by birth order ascending (1 = eldest, left to right; nulls last)
+  // Children — sorted oldest to youngest
   const sons = byType("Son", "Step-Son");
   const daughters = byType("Daughter", "Step-Daughter");
   const children = [...sons, ...daughters].sort((a, b) => {
-    const ao = a.relatedMember.birthOrder ?? Infinity;
-    const bo = b.relatedMember.birthOrder ?? Infinity;
+    const ao = (a.relatedMember as any).birthOrder ?? Infinity;
+    const bo = (b.relatedMember as any).birthOrder ?? Infinity;
     return ao - bo;
   });
 
-  // Grandchildren — covers all known variants (including DB typo "Grand Daugher")
+  // Grandchildren — sorted oldest to youngest
   const grandChildren = byType(
     "Grand Son",
     "Grand Daugher",       // DB typo — keep as-is to match stored data
@@ -188,11 +183,13 @@ export function ElegantFamilyTree({ member, relationships, onMemberClick }: Eleg
     "Grand Daughter -Son Side",
     "Grand Son-Daughter Side",
     "Grand Daughter -Daughter Side",
-  );
+  ).sort((a, b) => {
+    const ao = (a.relatedMember as any).birthOrder ?? Infinity;
+    const bo = (b.relatedMember as any).birthOrder ?? Infinity;
+    return ao - bo;
+  });
 
   // Helper to render a relationship-type label for display.
-  // For Husband/Wife, derive from the related member's gender so the badge
-  // is always correct even if the stored relationship_type is stale.
   const relLabel = (rel: Relationship & { relatedMember: Member }) => {
     if (rel.relationshipType === "Husband" || rel.relationshipType === "Wife") {
       const g = rel.relatedMember?.gender;
@@ -217,24 +214,13 @@ export function ElegantFamilyTree({ member, relationships, onMemberClick }: Eleg
     );
   }
 
-  // ── Section: grandparents (own) ────────────────────────────────────────────
-  const showGrandparents = ownGrandparents.length > 0;
-
-  // ── Section: parents left, in-laws right ──────────────────────────────────
-  const ownParents = [...fathers, ...mothers];
-  const inLawParents = [...filMembers, ...milMembers];
-  const showParentsRow = ownParents.length > 0 || inLawParents.length > 0;
-
-  // ── Section: spouse ────────────────────────────────────────────────────────
-  const showSpouseRow = spouses.length > 0;
-
-  // ── Section: siblings ─────────────────────────────────────────────────────
-  const showSiblingsRow = siblings.length > 0;
-
-  // ── Section: children ─────────────────────────────────────────────────────
-  const showChildrenRow = children.length > 0;
-
-  // ── Section: grandchildren ─────────────────────────────────────────────────
+  // ── Visibility flags ───────────────────────────────────────────────────────
+  const showGrandparents   = ownGrandparents.length > 0;
+  const ownParents         = [...fathers, ...mothers];
+  const inLawParents       = [...filMembers, ...milMembers];
+  const showParentsRow     = ownParents.length > 0 || inLawParents.length > 0;
+  const showSiblingsRow    = siblings.length > 0;
+  const showChildrenRow    = children.length > 0;
   const showGrandchildrenRow = grandChildren.length > 0;
 
   return (
@@ -249,7 +235,7 @@ export function ElegantFamilyTree({ member, relationships, onMemberClick }: Eleg
 
       <div className="min-w-[320px] flex flex-col items-center space-y-0">
 
-        {/* ── ROW 0: Own Grandparents (optional) ─────────────────────────── */}
+        {/* ── ROW 0: Own Grandparents ─────────────────────────────────────── */}
         {showGrandparents && (
           <>
             <GenerationLabel label="Grandparents" colorClass="text-violet-500" />
@@ -260,7 +246,7 @@ export function ElegantFamilyTree({ member, relationships, onMemberClick }: Eleg
                   member={rel.relatedMember}
                   relationshipType={rel.relationshipType}
                   displayRelType={relLabel(rel)}
-                  colorScheme={COLORS.grandparents}
+                  colorScheme={genderScheme(rel.relatedMember.gender)}
                   onMemberClick={onMemberClick}
                 />
               ))}
@@ -284,15 +270,12 @@ export function ElegantFamilyTree({ member, relationships, onMemberClick }: Eleg
                         member={rel.relatedMember}
                         relationshipType={rel.relationshipType}
                         displayRelType={relLabel(rel)}
-                        colorScheme={COLORS.ownParents}
+                        colorScheme={genderScheme(rel.relatedMember.gender)}
                         onMemberClick={onMemberClick}
                       />
                     ))}
                     gap="gap-3 sm:gap-4"
                   />
-                  {ownParents.length > 1 && (
-                    <div className="w-3/4 h-3 border-t-2 border-blue-300 mt-1" />
-                  )}
                 </div>
               )}
 
@@ -306,15 +289,12 @@ export function ElegantFamilyTree({ member, relationships, onMemberClick }: Eleg
                         member={rel.relatedMember}
                         relationshipType={rel.relationshipType}
                         displayRelType={relLabel(rel)}
-                        colorScheme={COLORS.inLaws}
+                        colorScheme={genderScheme(rel.relatedMember.gender)}
                         onMemberClick={onMemberClick}
                       />
                     ))}
                     gap="gap-3 sm:gap-4"
                   />
-                  {inLawParents.length > 1 && (
-                    <div className="w-3/4 h-3 border-t-2 border-pink-300 mt-1" />
-                  )}
                 </div>
               )}
             </div>
@@ -322,74 +302,75 @@ export function ElegantFamilyTree({ member, relationships, onMemberClick }: Eleg
           </>
         )}
 
-        {/* ── ROW 2: Member ★ + Spouse ─────────────────────────────────────── */}
-        <GenerationLabel label="You &amp; Spouse" colorClass="text-amber-600" />
-        <div className="flex flex-wrap justify-center items-center gap-2 sm:gap-4">
-          {/* Member node */}
-          <NodeCard
-            member={member}
-            relationshipType="Self"
-            displayRelType="You ★"
-            colorScheme={COLORS.center}
-            isCenter
-            onMemberClick={onMemberClick}
-          />
+        {/* ── ROW 2: [Siblings adjacent] | [Focused Member ★] [♥ Spouses] ── */}
+        <GenerationLabel label="Focused Member &amp; Spouse" colorClass="text-amber-600" />
+        <div className="flex flex-wrap justify-center items-start gap-3 sm:gap-5 w-full">
 
-          {/* Heart connector(s) between member and each spouse */}
-          {spouses.map((rel, idx) => (
-            <React.Fragment key={rel.id}>
-              <div className="flex flex-col items-center">
-                <span className="text-rose-500 text-xl sm:text-2xl leading-none">♥</span>
-                <div className="w-6 h-0.5 bg-rose-400 mt-0.5" />
+          {/* Siblings cluster — sits left of / adjacent to the focused member */}
+          {showSiblingsRow && (
+            <>
+              <div className="flex flex-col items-center gap-1">
+                <p className="text-[9px] sm:text-[10px] font-semibold uppercase tracking-widest text-yellow-700 mb-1 border-b border-dashed border-yellow-400 pb-0.5">
+                  Siblings
+                </p>
+                <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
+                  {siblings.map((rel) => (
+                    <NodeCard
+                      key={rel.id}
+                      member={rel.relatedMember}
+                      relationshipType={rel.relationshipType}
+                      displayRelType={relLabel(rel)}
+                      colorScheme={genderScheme(rel.relatedMember.gender)}
+                      onMemberClick={onMemberClick}
+                      birthOrder={(rel.relatedMember as any).birthOrder}
+                    />
+                  ))}
+                </div>
               </div>
-              <div className="flex flex-col items-center">
-                {spouses.length > 1 && (
-                  <span className="text-[9px] font-semibold text-rose-500 uppercase tracking-wide mb-0.5">
-                    {idx === 0 ? "1st Marriage" : `${idx + 1}${idx === 1 ? "nd" : idx === 2 ? "rd" : "th"} Marriage`}
-                  </span>
-                )}
-                <NodeCard
-                  member={rel.relatedMember}
-                  relationshipType={rel.relationshipType}
-                  displayRelType={relLabel(rel)}
-                  colorScheme={COLORS.spouse}
-                  onMemberClick={onMemberClick}
-                />
+              {/* Dashed vertical divider */}
+              <div className="self-stretch flex items-center py-2">
+                <div className="h-full border-l-2 border-dashed border-yellow-300 mx-1 min-h-[60px]" />
               </div>
-            </React.Fragment>
-          ))}
-        </div>
+            </>
+          )}
 
-        {/* ── ROW 3: Siblings ──────────────────────────────────────────────── */}
-        {showSiblingsRow && (
-          <>
-            <div className="mt-4 mb-1 w-full border-t border-dashed border-yellow-300" />
-            <GenerationLabel label="Siblings" colorClass="text-yellow-600" />
-            <div className="relative flex flex-col items-center w-full">
-              {siblings.length > 1 && (
-                <div
-                  className="border-t-2 border-yellow-300 mb-0"
-                  style={{ width: `${Math.min(siblings.length * 90, 600)}px`, maxWidth: "90%" }}
-                />
-              )}
-              <NodeRow
-                nodes={siblings.map((rel) => (
+          {/* Focused member + spouses */}
+          <div className="flex flex-wrap justify-center items-center gap-2 sm:gap-4">
+            <NodeCard
+              member={member}
+              relationshipType="Self"
+              displayRelType="Focused Member ★"
+              colorScheme={COLORS.center}
+              isCenter
+              onMemberClick={onMemberClick}
+            />
+
+            {spouses.map((rel, idx) => (
+              <React.Fragment key={rel.id}>
+                <div className="flex flex-col items-center">
+                  <span className="text-rose-500 text-xl sm:text-2xl leading-none">♥</span>
+                  <div className="w-6 h-0.5 bg-rose-400 mt-0.5" />
+                </div>
+                <div className="flex flex-col items-center">
+                  {spouses.length > 1 && (
+                    <span className="text-[9px] font-semibold text-rose-500 uppercase tracking-wide mb-0.5">
+                      {idx === 0 ? "1st Marriage" : `${idx + 1}${idx === 1 ? "nd" : idx === 2 ? "rd" : "th"} Marriage`}
+                    </span>
+                  )}
                   <NodeCard
-                    key={rel.id}
                     member={rel.relatedMember}
                     relationshipType={rel.relationshipType}
                     displayRelType={relLabel(rel)}
-                    colorScheme={COLORS.siblings}
+                    colorScheme={genderScheme(rel.relatedMember.gender)}
                     onMemberClick={onMemberClick}
-                    birthOrder={rel.relatedMember.birthOrder}
                   />
-                ))}
-              />
-            </div>
-          </>
-        )}
+                </div>
+              </React.Fragment>
+            ))}
+          </div>
+        </div>
 
-        {/* ── ROW 4: Children ──────────────────────────────────────────────── */}
+        {/* ── ROW 3: Children ──────────────────────────────────────────────── */}
         {showChildrenRow && (
           <>
             <VConnector color="border-green-400" />
@@ -408,9 +389,9 @@ export function ElegantFamilyTree({ member, relationships, onMemberClick }: Eleg
                     member={rel.relatedMember}
                     relationshipType={rel.relationshipType}
                     displayRelType={relLabel(rel)}
-                    colorScheme={COLORS.children}
+                    colorScheme={genderScheme(rel.relatedMember.gender)}
                     onMemberClick={onMemberClick}
-                    birthOrder={rel.relatedMember.birthOrder}
+                    birthOrder={(rel.relatedMember as any).birthOrder}
                   />
                 ))}
               />
@@ -437,8 +418,9 @@ export function ElegantFamilyTree({ member, relationships, onMemberClick }: Eleg
                     member={rel.relatedMember}
                     relationshipType={rel.relationshipType}
                     displayRelType={relLabel(rel)}
-                    colorScheme={COLORS.grandchildren}
+                    colorScheme={genderScheme(rel.relatedMember.gender)}
                     onMemberClick={onMemberClick}
+                    birthOrder={(rel.relatedMember as any).birthOrder}
                   />
                 ))}
               />
@@ -449,14 +431,10 @@ export function ElegantFamilyTree({ member, relationships, onMemberClick }: Eleg
         {/* ── Colour legend ───────────────────────────────────────────────── */}
         <div className="mt-8 flex flex-wrap justify-center gap-3 text-xs text-gray-600">
           {[
-            { color: "bg-violet-300", label: "Grandparents" },
-            { color: "bg-blue-300", label: "Parents" },
-            { color: "bg-pink-300", label: "In-Laws" },
-            { color: "bg-amber-400", label: "You" },
-            { color: "bg-rose-300", label: "Spouse" },
-            { color: "bg-yellow-300", label: "Siblings" },
-            { color: "bg-green-300", label: "Children" },
-            { color: "bg-emerald-200", label: "Grandchildren" },
+            { color: "bg-amber-400",  label: "Focused Member" },
+            { color: "bg-blue-300",   label: "Male" },
+            { color: "bg-pink-300",   label: "Female" },
+            { color: "bg-gray-200",   label: "Unknown Gender" },
           ].map(({ color, label }) => (
             <span key={label} className="flex items-center gap-1">
               <span className={`w-3 h-3 rounded-full ${color} inline-block`} />
